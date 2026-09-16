@@ -203,4 +203,4 @@ revision_id为RFC8785 JCS envelope的SHA256。envelope字段：protocol、entity
 
 可复用小样的精确金额、字符串校验、ZIP边界测试和WPS样本；正式代码不得直接复用空库快照恢复作为同步仓储，也不得无测量沿用整包DOM/Excel内存解析。原正式v1的图规则与故障用例作为测试参考，新bundle/schema/envelope各自生成新golden，不改旧摘要。
 
-本设计已经整体审阅通过，使用writing-plans生成具体文件、接口、测试先行步骤和依赖明确的开发计划；正式实现不在当前研判任务内启动。
+本设计已经整体审阅通过，配套[开发计划](../plans/2026-09-16-supplier-inquiry.md)使用writing-plans生成12项任务，包含具体文件、接口、测试先行步骤和依赖；正式实现不在当前研判任务内启动。
