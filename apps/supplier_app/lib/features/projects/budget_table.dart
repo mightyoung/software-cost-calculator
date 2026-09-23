@@ -36,7 +36,7 @@ class BudgetTable extends StatelessWidget {
         title: '这个项目还没有物料',
         body: '从物料库添加，并自动带出最低有效报价；库里没有的可以先作为待询价添加。',
         actions: [
-          FilledButton(
+          OutlinedButton(
             onPressed: () => showAddItems(context, state, projectId),
             child: const Text('添加物料'),
           ),
@@ -102,14 +102,15 @@ String _sum(Iterable<String> values) {
   return '${total ~/ BigInt.from(1000000)}${f.isEmpty ? '' : '.$f'}';
 }
 
+// Supplier sits on the item's second line so the name column keeps ~220px
+// at 1280px wide.
 const _cols = [
-  ('供应商', 96.0, false),
-  ('数量', 64.0, true),
-  ('单位', 44.0, false),
-  ('成本单价', 100.0, true),
-  ('成本金额', 108.0, true),
-  ('对外金额', 108.0, true),
-  ('提示', 118.0, false),
+  ('数量', 56.0, true),
+  ('单位', 40.0, false),
+  ('成本单价', 96.0, true),
+  ('成本金额', 104.0, true),
+  ('对外金额', 104.0, true),
+  ('提示', 112.0, false),
 ];
 
 Widget _cell(double width, Widget child, {bool right = false}) => SizedBox(
@@ -129,7 +130,7 @@ class _HeaderRow extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     color: Tokens.sunken,
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-    child: DefaultTextStyle(
+    child: DefaultTextStyle.merge(
       style: const TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w600,
@@ -183,14 +184,14 @@ class _GroupRow extends StatelessWidget {
         if (!compact) ...[
           const SizedBox(width: 10),
           SizedBox(
-            width: 108,
+            width: 104,
             child: Text(
               money(price, prefix: '¥'),
               textAlign: TextAlign.right,
               style: _num.copyWith(fontWeight: FontWeight.w600),
             ),
           ),
-          const SizedBox(width: 128),
+          const SizedBox(width: 122),
         ],
       ],
     ),
@@ -227,6 +228,7 @@ class _LineRow extends StatelessWidget {
     final detail = [
       product?['model'],
       product?['specification'],
+      if (!compact) supplier,
     ].whereType<String>().join(' · ');
     final unpriced = _unpriced(line);
     final hints = [
@@ -294,14 +296,6 @@ class _LineRow extends StatelessWidget {
             children: [
               Expanded(child: title),
               for (final (i, child) in [
-                Text(
-                  supplier ?? '—',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: supplier == null ? Tokens.ink3 : Tokens.ink,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
                 Text(qty(d['qty']! as String), style: _num),
                 Text(
                   d['unit']! as String,
@@ -343,10 +337,14 @@ class BudgetTotals extends StatelessWidget {
     required this.budget,
     required this.compact,
     required this.margin,
+    this.onAdd,
   });
   final Budget budget;
   final bool compact;
   final double margin;
+
+  /// Phones put the add action next to the totals, within thumb reach.
+  final VoidCallback? onAdd;
 
   @override
   Widget build(BuildContext context) {
@@ -380,17 +378,33 @@ class BudgetTotals extends StatelessWidget {
           bottom: BorderSide(color: Tokens.rule),
         ),
       ),
-      child: Wrap(
-        alignment: WrapAlignment.end,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: 28,
-        runSpacing: 6,
+      child: Row(
         children: [
-          if (pending > 0)
-            HintText('含 $pending 项待询价，未计入', icon: Icons.help_outline),
-          figure('成本合计', budget.cost),
-          if (!compact) figure('对外报价合计', budget.price),
-          figure('毛利', budget.margin),
+          Expanded(
+            child: Wrap(
+              alignment: onAdd == null
+                  ? WrapAlignment.end
+                  : WrapAlignment.start,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 28,
+              runSpacing: 6,
+              children: [
+                if (pending > 0)
+                  HintText('含 $pending 项待询价，未计入', icon: Icons.help_outline),
+                figure('成本合计', budget.cost),
+                if (!compact) figure('对外报价合计', budget.price),
+                figure('毛利', budget.margin),
+              ],
+            ),
+          ),
+          if (onAdd != null) ...[
+            const SizedBox(width: 12),
+            FilledButton.icon(
+              onPressed: onAdd,
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('添加'),
+            ),
+          ],
         ],
       ),
     );

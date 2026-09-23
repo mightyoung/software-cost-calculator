@@ -98,7 +98,14 @@ class _ProjectDetailState extends State<ProjectDetail> {
             ),
           ),
           if (tab == _Tab.budget)
-            BudgetTotals(budget: b, compact: widget.compact, margin: pad),
+            BudgetTotals(
+              budget: b,
+              compact: widget.compact,
+              margin: pad,
+              onAdd: widget.compact
+                  ? () => showAddItems(context, state, widget.projectId)
+                  : null,
+            ),
         ],
       );
     },
@@ -197,6 +204,12 @@ class _Toolbar extends StatelessWidget {
   final VoidCallback onEdit, onAdd;
   final ValueChanged<String> onExport;
 
+  static const _exports = [
+    ('quote', '导出项目报价单（给客户）'),
+    ('budget', '导出成本预算表（内部）'),
+    ('inquiry', '导出待询价清单（给供应商）'),
+  ];
+
   @override
   Widget build(BuildContext context) {
     Widget tabButton(_Tab t, String label) => InkWell(
@@ -221,37 +234,56 @@ class _Toolbar extends StatelessWidget {
         ),
       ),
     );
-    final export = PopupMenuButton<String>(
-      tooltip: '导出 Excel',
-      onSelected: onExport,
-      itemBuilder: (_) => const [
-        PopupMenuItem(value: 'quote', child: Text('项目报价单（给客户）')),
-        PopupMenuItem(value: 'budget', child: Text('成本预算表（内部）')),
-        PopupMenuItem(value: 'inquiry', child: Text('待询价清单（给供应商）')),
-      ],
-      child: IgnorePointer(
-        child: OutlinedButton.icon(
-          onPressed: () {},
-          icon: const Icon(Icons.download_outlined, size: 18),
-          label: const Text('导出'),
-        ),
-      ),
-    );
-    return Wrap(
-      crossAxisAlignment: WrapCrossAlignment.center,
-      runSpacing: 8,
-      spacing: 8,
+    final tabs = [
+      tabButton(_Tab.budget, '成本预算'),
+      tabButton(_Tab.quotes, '报价记录'),
+      tabButton(_Tab.changes, '变更记录'),
+    ];
+    if (compact) {
+      // Phones: actions live in one overflow menu; "添加" sits by the totals.
+      return Row(
+        children: [
+          ...tabs,
+          const Spacer(),
+          PopupMenuButton<String>(
+            tooltip: '更多操作',
+            icon: const Icon(Icons.more_vert),
+            onSelected: (v) => v == 'edit' ? onEdit() : onExport(v),
+            itemBuilder: (_) => [
+              const PopupMenuItem(value: 'edit', child: Text('编辑项目')),
+              for (final (value, label) in _exports)
+                PopupMenuItem(value: value, child: Text(label)),
+            ],
+          ),
+        ],
+      );
+    }
+    return Row(
       children: [
-        tabButton(_Tab.budget, '成本预算'),
-        tabButton(_Tab.quotes, '报价记录'),
-        tabButton(_Tab.changes, '变更记录'),
-        if (!compact) const SizedBox(width: 24),
+        ...tabs,
+        const Spacer(),
         OutlinedButton.icon(
           onPressed: onEdit,
           icon: const Icon(Icons.edit_outlined, size: 18),
           label: const Text('编辑项目'),
         ),
-        export,
+        const SizedBox(width: 8),
+        MenuAnchor(
+          menuChildren: [
+            for (final (value, label) in _exports)
+              MenuItemButton(
+                onPressed: () => onExport(value),
+                child: Text(label),
+              ),
+          ],
+          builder: (context, controller, _) => OutlinedButton.icon(
+            onPressed: () =>
+                controller.isOpen ? controller.close() : controller.open(),
+            icon: const Icon(Icons.download_outlined, size: 18),
+            label: const Text('导出'),
+          ),
+        ),
+        const SizedBox(width: 8),
         FilledButton.icon(
           onPressed: onAdd,
           icon: const Icon(Icons.add, size: 18),

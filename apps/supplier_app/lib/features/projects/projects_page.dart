@@ -138,19 +138,20 @@ class _ProjectList extends StatelessWidget {
       ),
       Padding(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
-        child: Wrap(
-          spacing: 6,
+        child: Row(
           children: [
             for (final (label, value) in [
               ('进行中', 'active'),
               ('策划中', 'planning'),
               ('全部', null),
             ])
-              ChoiceChip(
-                label: Text(label),
-                selected: status == value,
-                showCheckmark: false,
-                onSelected: (_) => onStatus(value),
+              Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: _Pill(
+                  label: label,
+                  selected: status == value,
+                  onTap: () => onStatus(value),
+                ),
               ),
           ],
         ),
@@ -235,3 +236,39 @@ class _ProjectList extends StatelessWidget {
 
 String projectLabel(Map<String, Object?> p) => '${p['name']}（${p['code']}）';
 String statusLabel(Object? s) => statusLabels[s] ?? '$s';
+
+class _Pill extends StatelessWidget {
+  const _Pill({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    selected: selected,
+    button: true,
+    child: InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 4),
+        decoration: BoxDecoration(
+          color: selected ? Tokens.ink : Tokens.surface,
+          border: Border.all(color: selected ? Tokens.ink : Tokens.ruleStrong),
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: selected ? Colors.white : Tokens.ink2,
+          ),
+        ),
+      ),
+    ),
+  );
+}

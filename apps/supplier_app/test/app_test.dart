@@ -128,7 +128,7 @@ void main() {
       expect(find.text('含 1 项待询价，未计入'), findsOneWidget);
       // 65,000 / 70,000 = 92.9% of contract -> warning in the ledger strip.
       expect(find.textContaining('已达合同金额 92.9%'), findsOneWidget);
-      expect(find.text('甲泵业'), findsOneWidget);
+      expect(find.textContaining('IS80-65-160 · 甲泵业'), findsOneWidget);
     },
   );
 
