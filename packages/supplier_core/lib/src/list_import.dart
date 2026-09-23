@@ -11,6 +11,8 @@ const _matchBatch = 15;
 const candidateLimit = 8;
 const confidences = ['high', 'medium', 'low'];
 
+enum ListStage { structuring, matching }
+
 /// One line of the user's list after the model structured it. [qty] and
 /// [unit] are kept as written; they are normalized only when a line is saved.
 class RequestedItem {
@@ -69,10 +71,13 @@ extension ListImport on Store {
     String currency = 'CNY',
     String taxMode = 'included',
     DateTime? asOf,
+    void Function(ListStage stage, int done, int total)? onProgress,
   }) async {
     final items = <RequestedItem>[];
-    for (final chunk in _chunks(text)) {
-      final reply = await llm.json(_extractSystem, chunk);
+    final chunks = _chunks(text).toList();
+    for (var i = 0; i < chunks.length; i++) {
+      onProgress?.call(ListStage.structuring, i, chunks.length);
+      final reply = await llm.json(_extractSystem, chunks[i]);
       items.addAll(_items(reply['items']));
     }
     final candidates = [
@@ -85,6 +90,7 @@ extension ListImport on Store {
         if (candidates[i].isNotEmpty) i,
     ];
     for (var start = 0; start < pending.length; start += _matchBatch) {
+      onProgress?.call(ListStage.matching, start, pending.length);
       final batch = pending.skip(start).take(_matchBatch).toList();
       final reply = await llm.json(
         _matchSystem,
@@ -233,22 +239,22 @@ String? _text(Object? value, int limit) =>
 String _clip(String s, int limit) =>
     s.runes.length <= limit ? s : String.fromCharCodes(s.runes.take(limit));
 
-/// Quantity text like "2", "1,000", "3.5 台" to canonical decimal; anything
-/// else becomes 1 with the original kept in the notes for the user to fix.
+/// Quantity text like "2", "1,000", "约 300 米" to canonical decimal (first
+/// number found). Anything that is not a plain number keeps its original text
+/// in the notes; no number at all becomes 1, flagged for the user to fix.
 (String, String?) _qty(String? raw) {
-  final match = RegExp(
-    r'^\s*([0-9][0-9,]*(?:\.[0-9]+)?)',
-  ).firstMatch(raw ?? '');
+  final text = (raw ?? '').trim();
+  final match = RegExp(r'[0-9][0-9,]*(?:\.[0-9]+)?').firstMatch(text);
   if (match != null) {
     try {
       final value = ExactDecimal.parse(
-        match[1]!.replaceAll(',', ''),
+        match[0]!.replaceAll(',', ''),
         positive: true,
       );
-      return (value.canonical, null);
+      return (value.canonical, match[0] == text ? null : '清单原文数量：$text');
     } on FormatException {
       // fall through
     }
   }
-  return ('1', '数量待确认，清单原文：${raw ?? '未写'}');
+  return ('1', '数量待确认，清单原文：${text.isEmpty ? '未写' : text}');
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../features/ai/ask_page.dart';
 import '../features/catalog/catalog_page.dart';
 import '../features/exchange/exchange_page.dart';
 import '../features/projects/projects_page.dart';
@@ -12,6 +13,7 @@ import 'theme.dart';
 enum Section {
   projects('项目', Icons.folder_copy_outlined),
   quotes('报价查询', Icons.manage_search),
+  ask('问数据', Icons.forum_outlined),
   suppliers('供应商', Icons.factory_outlined),
   products('物料', Icons.inventory_2_outlined),
   exchange('数据交换', Icons.sync_alt),
@@ -38,6 +40,7 @@ class _ShellState extends State<Shell> {
   Widget _page() => switch (section) {
     Section.projects => ProjectsPage(state: widget.state),
     Section.quotes => QuotesPage(state: widget.state),
+    Section.ask => AskPage(state: widget.state),
     Section.suppliers => CatalogPage(state: widget.state, type: 'supplier'),
     Section.products => CatalogPage(state: widget.state, type: 'product'),
     Section.exchange => ExchangePage(state: widget.state),
@@ -50,7 +53,7 @@ class _ShellState extends State<Shell> {
     final page = KeyedSubtree(key: ValueKey(section), child: _page());
     return CallbackShortcuts(
       bindings: {
-        for (var i = 0; i < 5; i++)
+        for (var i = 0; i < 6; i++)
           SingleActivator(LogicalKeyboardKey(0x31 + i), control: true): () =>
               setState(() => section = Section.values[i]),
       },
@@ -158,7 +161,7 @@ class _Sidebar extends StatelessWidget {
               ],
             ),
           ),
-          for (final s in Section.values.take(5)) item(s),
+          for (final s in Section.values.take(6)) item(s),
           const Spacer(),
           const Divider(color: Tokens.navHover),
           const SizedBox(height: 8),
@@ -201,6 +204,7 @@ class _BottomNav extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 for (final s in [
+                  Section.ask,
                   Section.suppliers,
                   Section.exchange,
                   Section.settings,

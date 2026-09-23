@@ -6,6 +6,7 @@ import '../../app/format.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
 import '../../widgets/ledger.dart';
+import '../ai/list_to_project.dart';
 import 'budget_table.dart';
 import 'item_dialogs.dart';
 import 'project_form.dart';
@@ -73,6 +74,7 @@ class _ProjectDetailState extends State<ProjectDetail> {
               onEdit: () =>
                   showProjectForm(context, state, id: widget.projectId),
               onExport: (k) => _export(k, p),
+              onFromList: () => showListToProject(context, state),
               onAdd: () => showAddItems(context, state, widget.projectId),
             ),
           ),
@@ -197,11 +199,12 @@ class _Toolbar extends StatelessWidget {
     required this.onEdit,
     required this.onExport,
     required this.onAdd,
+    required this.onFromList,
   });
   final _Tab tab;
   final bool compact;
   final ValueChanged<_Tab> onTab;
-  final VoidCallback onEdit, onAdd;
+  final VoidCallback onEdit, onAdd, onFromList;
   final ValueChanged<String> onExport;
 
   static const _exports = [
@@ -248,9 +251,14 @@ class _Toolbar extends StatelessWidget {
           PopupMenuButton<String>(
             tooltip: '更多操作',
             icon: const Icon(Icons.more_vert),
-            onSelected: (v) => v == 'edit' ? onEdit() : onExport(v),
+            onSelected: (v) => switch (v) {
+              'edit' => onEdit(),
+              'list' => onFromList(),
+              _ => onExport(v),
+            },
             itemBuilder: (_) => [
               const PopupMenuItem(value: 'edit', child: Text('编辑项目')),
+              const PopupMenuItem(value: 'list', child: Text('从清单生成新项目')),
               for (final (value, label) in _exports)
                 PopupMenuItem(value: value, child: Text(label)),
             ],
@@ -262,6 +270,12 @@ class _Toolbar extends StatelessWidget {
       children: [
         ...tabs,
         const Spacer(),
+        OutlinedButton.icon(
+          onPressed: onFromList,
+          icon: const Icon(Icons.playlist_add_check, size: 18),
+          label: const Text('从清单生成'),
+        ),
+        const SizedBox(width: 8),
         OutlinedButton.icon(
           onPressed: onEdit,
           icon: const Icon(Icons.edit_outlined, size: 18),

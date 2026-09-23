@@ -106,14 +106,14 @@ void main() {
 
     final id = s.createProjectFromProposal(project('NEW'), lines);
     final b = s.budget(id, asOf: DateTime.utc(2026, 9, 10));
-    expect(b.lines.map((l) => l.data['qty']), ['2', '1', '1']);
+    expect(b.lines.map((l) => l.data['qty']), ['2', '4', '1']);
     expect(b.lines.map((l) => l.cost), ['6401', '0', '0']);
     expect(b.lines.map((l) => l.warnings), [
       <String>[],
       ['needs_inquiry'],
       ['needs_inquiry'],
     ]);
-    expect(b.lines[1].data['notes'], contains('数量待确认，清单原文：约4'));
+    expect(b.lines[1].data['notes'], contains('清单原文数量：约4'));
     expect(b.lines[2].data['name'], '控制柜');
   });
 

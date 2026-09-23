@@ -5,6 +5,7 @@ import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
 import '../../widgets/ledger.dart';
+import '../ai/list_to_project.dart';
 import 'project_detail.dart';
 import 'project_form.dart';
 
@@ -28,6 +29,11 @@ class _ProjectsPageState extends State<ProjectsPage> {
     if (id != null) setState(() => selected = id);
   }
 
+  Future<void> _fromList() async {
+    final id = await showListToProject(context, state);
+    if (id != null) setState(() => selected = id);
+  }
+
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: state,
@@ -45,6 +51,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
         onSearch: (v) => setState(() => search = v),
         onStatus: (v) => setState(() => status = v),
         onCreate: _create,
+        onFromList: _fromList,
         onOpen: (id) {
           if (wide) return setState(() => selected = id);
           Navigator.of(context).push(
@@ -77,6 +84,10 @@ class _ProjectsPageState extends State<ProjectsPage> {
                         onPressed: _create,
                         child: const Text('新建项目'),
                       ),
+                      OutlinedButton(
+                        onPressed: _fromList,
+                        child: const Text('从清单生成'),
+                      ),
                     ],
                   )
                 : ProjectDetail(
@@ -100,6 +111,7 @@ class _ProjectList extends StatelessWidget {
     required this.onSearch,
     required this.onStatus,
     required this.onCreate,
+    required this.onFromList,
     required this.onOpen,
   });
   final List<Hit> projects;
@@ -107,7 +119,7 @@ class _ProjectList extends StatelessWidget {
   final String? selected, status;
   final ValueChanged<String> onSearch;
   final ValueChanged<String?> onStatus;
-  final VoidCallback onCreate;
+  final VoidCallback onCreate, onFromList;
   final ValueChanged<String> onOpen;
 
   @override
@@ -128,6 +140,12 @@ class _ProjectList extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
+            IconButton.outlined(
+              tooltip: '按清单建项目',
+              onPressed: onFromList,
+              icon: const Icon(Icons.playlist_add_check, size: 18),
+            ),
+            const SizedBox(width: 4),
             IconButton.outlined(
               tooltip: '新建项目',
               onPressed: onCreate,

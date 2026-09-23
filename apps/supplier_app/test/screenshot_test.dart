@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:supplier_app/app/app_state.dart';
 import 'package:supplier_app/app/shell.dart';
 import 'package:supplier_app/app/theme.dart';
+import 'package:supplier_app/features/ai/list_review.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 const _font = '/System/Library/Fonts/Supplemental/Arial Unicode.ttf';
@@ -172,6 +173,42 @@ void _seed(Store s) {
   });
 }
 
+const _list =
+    '泵房改造询价清单\n1. 不锈钢离心泵，Q=100m3/h，H=32m，2台（一用一备）\n2. 闸阀 DN100 PN16 ×4\n3. 动力电缆 YJV 4*25，约 300m\n4. 电磁流量计 DN100 远传 1台\n合计：略';
+
+List<ProposedLine> _proposals(Store s) {
+  Hit find(String word) => s.searchProducts([word]).first;
+  ProposedLine line(
+    String name,
+    String? req,
+    String qty,
+    String unit,
+    Hit? hit,
+    String conf,
+    String? reason,
+  ) => ProposedLine(
+    RequestedItem(name, req, qty, unit, [name]),
+    hit == null ? const [] : [hit],
+    productId: hit?.id,
+    confidence: conf,
+    reason: reason,
+  );
+  return [
+    line(
+      '不锈钢离心泵',
+      'Q=100m³/h，H=32m',
+      '2',
+      '台',
+      find('离心泵'),
+      'high',
+      '流量、扬程、材质一致',
+    ),
+    line('闸阀 DN100 PN16', null, '4', '个', find('闸阀'), 'high', '规格一致'),
+    line('动力电缆', 'YJV 4*25', '约300', '米', find('电缆'), 'medium', '规格一致，电压等级未写明'),
+    line('电磁流量计', 'DN100 远传', '1', '台', null, 'low', null),
+  ];
+}
+
 void main() {
   final hasFont = File(_font).existsSync();
 
@@ -205,11 +242,28 @@ void main() {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
+    final state = AppState.test(store, dir);
     await tester.pumpWidget(
       MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: buildTheme(),
-        home: Shell(state: AppState.test(store, dir)),
+        home: name == 'desktop_review'
+            ? Scaffold(
+                appBar: AppBar(
+                  backgroundColor: Tokens.canvas,
+                  title: const Text('按清单建项目 · 核对匹配'),
+                ),
+                body: ListReview(
+                  state: state,
+                  source: _list,
+                  sourceName: '泵房改造询价清单.xlsx',
+                  lines: _proposals(store),
+                  currency: 'CNY',
+                  taxMode: 'included',
+                  onBack: () {},
+                ),
+              )
+            : Shell(state: state),
       ),
     );
     await tester.pumpAndSettle();
@@ -251,6 +305,30 @@ void main() {
     'phone project budget',
     (t) => shoot(t, const Size(390, 844), 'phone_budget', () async {
       await t.tap(find.text('泵房改造工程'));
+      await t.pumpAndSettle();
+    }),
+    skip: !hasFont,
+  );
+
+  testWidgets(
+    'desktop list review',
+    (t) => shoot(t, const Size(1280, 800), 'desktop_review'),
+    skip: !hasFont,
+  );
+
+  testWidgets(
+    'desktop ask data',
+    (t) => shoot(t, const Size(1280, 800), 'desktop_ask', () async {
+      await t.tap(find.text('问数据'));
+      await t.pumpAndSettle();
+    }),
+    skip: !hasFont,
+  );
+
+  testWidgets(
+    'desktop settings',
+    (t) => shoot(t, const Size(1280, 800), 'desktop_settings', () async {
+      await t.tap(find.text('设置'));
       await t.pumpAndSettle();
     }),
     skip: !hasFont,

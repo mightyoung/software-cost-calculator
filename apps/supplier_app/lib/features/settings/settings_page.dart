@@ -1,11 +1,9 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
+import 'ai_settings.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key, required this.state});
@@ -29,11 +27,7 @@ class _SettingsPageState extends State<SettingsPage> {
     if (name.isEmpty || name.length > 40) {
       return toast(context, '本机名称需要 1 到 40 个字');
     }
-    final file = File('${widget.state.dataDir.path}/settings.json');
-    final settings =
-        jsonDecode(file.readAsStringSync()) as Map<String, Object?>;
-    settings['device_name'] = name;
-    file.writeAsStringSync(jsonEncode(settings));
+    widget.state.saveSetting('device_name', name);
     toast(context, '已保存，重新打开应用后生效');
   }
 
@@ -70,6 +64,8 @@ class _SettingsPageState extends State<SettingsPage> {
             OutlinedButton(onPressed: _saveDevice, child: const Text('保存')),
           ],
         ),
+        const SizedBox(height: 28),
+        AiSettings(state: widget.state),
         const SizedBox(height: 28),
         ExpansionTile(
           tilePadding: EdgeInsets.zero,

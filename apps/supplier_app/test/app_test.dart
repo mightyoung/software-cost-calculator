@@ -6,6 +6,7 @@ import 'package:supplier_app/app/app_state.dart';
 import 'package:supplier_app/app/format.dart';
 import 'package:supplier_app/app/shell.dart';
 import 'package:supplier_app/app/theme.dart';
+import 'package:supplier_app/features/ai/list_review.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 Map<String, Object?> _blank(List<String> fields, Map<String, Object?> v) => {
@@ -143,6 +144,8 @@ void main() {
     expect(find.text('¥97,500.00'), findsWidgets);
   });
 
+  reviewTests();
+
   test('money formatting is exact', () {
     expect(money('1234567.5', prefix: '¥'), '¥1,234,567.50');
     expect(money('0.000001'), '0.000001');
@@ -150,5 +153,72 @@ void main() {
     expect(yuan('28023.5'), '¥28,024');
     expect(percent('65000', '70000'), '92.9%');
     expect(percent('1', '0'), isNull);
+  });
+}
+
+// Review step of "build project from list", fed with prepared proposals so it
+// needs neither a network nor secure storage.
+void reviewTests() {
+  testWidgets('list review: filters, manual change, generate project', (
+    tester,
+  ) async {
+    final dir = Directory.systemTemp.createTempSync('review_test');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final store = Store.open('${dir.path}/r.db', device: '测试机');
+    addTearDown(store.close);
+    final state = AppState.test(store, dir);
+    final pump = store.save('product', {
+      for (final f in Product.fields) f: null,
+      'name': '离心水泵',
+      'unit': '台',
+      'model': 'IS80',
+    });
+    final hit = store.searchProducts(['水泵']).single;
+    final lines = [
+      ProposedLine(
+        RequestedItem('离心水泵', 'Q=100m³/h', '2', '台', ['水泵']),
+        [hit],
+        productId: pump,
+        confidence: 'high',
+        reason: '型号一致',
+      ),
+      ProposedLine(RequestedItem('动力电缆', null, '约300', '米', ['电缆']), const []),
+    ];
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildTheme(),
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: ListReview(
+              state: state,
+              source: '1 离心水泵 2台\n2 动力电缆 约300m',
+              sourceName: null,
+              lines: lines,
+              currency: 'CNY',
+              taxMode: 'included',
+              onBack: () {},
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.text('需确认 1'),
+      findsOneWidget,
+      reason: 'cable: no match, qty "约300"',
+    );
+    expect(find.text('原文"约300"'), findsOneWidget);
+    await tester.enterText(find.widgetWithText(TextField, '项目名称'), '泵房二期');
+    await tester.tap(find.text('生成项目（2 项）'));
+    await tester.pumpAndSettle();
+    final project = store.searchByName('project', '泵房二期').single;
+    final b = store.budget(project.id);
+    expect(b.lines.map((l) => l.data['qty']), ['2', '300']);
+    expect(b.lines.last.warnings, ['needs_inquiry']);
+    expect(b.lines.last.data['notes'], '清单原文数量：约300');
   });
 }

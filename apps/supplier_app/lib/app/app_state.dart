@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supplier_core/supplier_core.dart';
 
@@ -44,6 +45,61 @@ class AppState extends ChangeNotifier {
   }
 
   String get deviceName => _settings['device_name']! as String;
+
+  String? setting(String key) => _settings[key] as String?;
+
+  void saveSetting(String key, String? value) {
+    _settings[key] = value;
+    File(
+      '${dataDir.path}/settings.json',
+    ).writeAsStringSync(jsonEncode(_settings));
+    notifyListeners();
+  }
+
+  // --- AI (DeepSeek or any OpenAI-compatible endpoint) -------------------
+  // The API key lives in the OS secure store (Keychain / DPAPI / Keystore),
+  // never in the database, so it cannot travel inside exchange files.
+  static const _keyName = 'llm_api_key';
+  static const _secure = FlutterSecureStorage();
+
+  String get aiBaseUrl => setting('ai_base_url') ?? 'https://api.deepseek.com';
+  String get aiModel => setting('ai_model') ?? 'deepseek-flash';
+
+  Future<bool> hasAiKey() async {
+    try {
+      return (await _secure.read(key: _keyName))?.isNotEmpty ?? false;
+    } catch (_) {
+      return false; // secure storage unavailable counts as "not configured"
+    }
+  }
+
+  Future<void> saveAi({
+    required String baseUrl,
+    required String model,
+    String? apiKey,
+  }) async {
+    if (apiKey != null) {
+      apiKey.isEmpty
+          ? await _secure.delete(key: _keyName)
+          : await _secure.write(key: _keyName, value: apiKey);
+    }
+    _settings['ai_base_url'] = baseUrl;
+    saveSetting('ai_model', model);
+  }
+
+  /// Null when no key is configured.
+  Future<LlmClient?> llm() async {
+    final String? key;
+    try {
+      key = await _secure.read(key: _keyName);
+    } catch (e) {
+      throw LlmException('无法读取系统安全存储中的 API Key（$e）');
+    }
+    if (key == null || key.isEmpty) return null;
+    return LlmClient(
+      LlmConfig(apiKey: key, baseUrl: aiBaseUrl, model: aiModel),
+    );
+  }
 
   void changed() => notifyListeners();
 
