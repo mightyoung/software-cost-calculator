@@ -1,0 +1,93 @@
+name: build
+
+on:
+  push:
+    branches: [main, 'claude/**']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Core tests
+        working-directory: packages/supplier_core
+        run: |
+          dart pub get
+          dart analyze
+          dart test
+      - name: App analyze and widget tests
+        working-directory: apps/supplier_app
+        run: |
+          flutter pub get
+          flutter analyze
+          flutter test
+
+  windows:
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Build
+        working-directory: apps/supplier_app
+        run: flutter build windows --release
+      - name: Package
+        shell: pwsh
+        run: Compress-Archive -Path apps/supplier_app/build/windows/x64/runner/Release/* -DestinationPath supplier-app-windows.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: supplier-app-windows
+          path: supplier-app-windows.zip
+
+  android:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Build
+        working-directory: apps/supplier_app
+        run: flutter build apk --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: supplier-app-android
+          path: apps/supplier_app/build/app/outputs/flutter-apk/app-release.apk
+
+  macos:
+    needs: test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Build
+        working-directory: apps/supplier_app
+        run: flutter build macos --release
+      - name: Package
+        run: ditto -c -k --keepParent apps/supplier_app/build/macos/Build/Products/Release/supplier_app.app supplier-app-macos.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: supplier-app-macos
+          path: supplier-app-macos.zip

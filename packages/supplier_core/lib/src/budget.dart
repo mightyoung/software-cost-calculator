@@ -133,7 +133,9 @@ extension Budgets on Store {
     return QuoteOption(id, data, valid, until == null);
   }
 
-  Budget budget(String projectId, {DateTime? asOf}) {
+  /// [withWarnings] false skips per-line quote lookups (list screens only
+  /// need totals).
+  Budget budget(String projectId, {DateTime? asOf, bool withWarnings = true}) {
     final project = get('project', projectId);
     if (project == null) invalid('project_id', 'unknown project');
     final factor =
@@ -167,7 +169,7 @@ extension Budgets on Store {
           fromMicros(unitPrice),
           fromMicros(lineCost),
           fromMicros(linePrice),
-          _warnings(projectId, data, unitCost, asOf),
+          withWarnings ? _warnings(projectId, data, unitCost, asOf) : const [],
         ),
       );
     }
