@@ -7,15 +7,16 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <style>
 :root{
-  --paper:#F5F3EE;--surface:#FFFFFF;--sunken:#EDEAE3;--rule:#DDD8CE;--rule-2:#C9C3B6;
-  --ink:#1C2220;--ink-2:#585F5B;--ink-3:#8B908C;
-  --acc:#1F6B5C;--acc-deep:#174F44;--acc-tint:#E2EEEA;
-  --amber:#9A5B0A;--amber-bg:#FAEFD8;--red:#B0362A;--red-bg:#F8E2DE;
+  --paper:#F3F5F8;--surface:#FFFFFF;--sunken:#EDF0F4;--rule:#DCE1E8;--rule-2:#C3CAD6;
+  --ink:#111827;--ink-2:#4B5565;--ink-3:#636C7E;
+  --acc:#285FF0;--acc-deep:#1B47C2;--acc-tint:#E8EFFF;
+  --amber:#9A5000;--amber-bg:#FFF2DF;--red:#B8302A;--red-bg:#FDE8E6;
+  --nav:#0E1729;--nav-2:#1A2640;--nav-ink:#C7D0E0;--nav-ink-3:#7C89A3;
   --sans:"IBM Plex Sans","Microsoft YaHei UI","PingFang SC","Noto Sans SC",sans-serif;
   --mono:"IBM Plex Mono","Microsoft YaHei UI","PingFang SC",monospace;
 }
 *{box-sizing:border-box}
-body{margin:0;background:#D9D5CC;font-family:var(--sans);color:var(--ink);font-size:14px;-webkit-font-smoothing:antialiased}
+body{margin:0;background:#D3D9E2;font-family:var(--sans);color:var(--ink);font-size:14px;-webkit-font-smoothing:antialiased}
 .num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
 .mono{font-family:var(--mono);font-size:12px;color:var(--ink-2)}
 .proto-bar{display:flex;gap:8px;padding:14px 24px;align-items:center}
@@ -23,16 +24,16 @@ body{margin:0;background:#D9D5CC;font-family:var(--sans);color:var(--ink);font-s
 .proto-bar .jump{text-decoration:none;font:inherit;border:1px solid var(--rule-2);background:var(--surface);padding:6px 14px;border-radius:6px;cursor:pointer;color:var(--ink-2)}
 
 .screen{padding:0 24px 40px}
-.win{width:1280px;height:800px;background:var(--paper);border:1px solid #BDB7AA;border-radius:8px;overflow:hidden;display:flex}
-.side{width:176px;border-right:1px solid var(--rule);display:flex;flex-direction:column;padding:16px 10px}
+.win{width:1280px;height:800px;background:var(--paper);border:1px solid #B7C0CD;border-radius:10px;overflow:hidden;display:flex}
+.side{width:176px;background:var(--nav);color:var(--nav-ink);display:flex;flex-direction:column;padding:16px 10px}
 .brand{display:flex;align-items:center;gap:8px;font-weight:600;padding:4px 10px 18px;font-size:15px}
-.brand i{color:var(--acc);font-size:20px}
-.nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;color:var(--ink-2);text-decoration:none;margin-bottom:2px}
+.brand{color:#fff}.brand i{color:#6F9BFF;font-size:20px}
+.nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--nav-ink);text-decoration:none;margin-bottom:2px}
 .nav a i{font-size:18px}
-.nav a.on{background:var(--acc-tint);color:var(--acc-deep);font-weight:600}
-.nav a:hover:not(.on){background:var(--sunken)}
-.side .foot{margin-top:auto;border-top:1px solid var(--rule);padding:12px 10px 0;font-size:12px;color:var(--ink-3);line-height:1.6}
-.list{width:240px;border-right:1px solid var(--rule);display:flex;flex-direction:column}
+.nav a.on{background:var(--acc);color:#fff;font-weight:600}
+.nav a:hover:not(.on){background:var(--nav-2)}
+.side .foot{margin-top:auto;border-top:1px solid var(--nav-2);padding:12px 10px 0;font-size:12px;color:var(--nav-ink-3);line-height:1.6}
+.list{width:240px;border-right:1px solid var(--rule);background:var(--paper);display:flex;flex-direction:column}
 .search{margin:14px;font-size:13px;display:flex;align-items:center;gap:8px;border:1px solid var(--rule-2);border-radius:6px;background:var(--surface);padding:7px 10px;color:var(--ink-3)}
 .search kbd{margin-left:auto;font-family:var(--mono);font-size:11px;border:1px solid var(--rule);border-radius:4px;padding:0 5px}
 .chips{display:flex;gap:6px;padding:0 14px 10px}
@@ -72,9 +73,9 @@ th{position:sticky;top:0;white-space:nowrap;background:var(--sunken);color:var(-
 th.num{text-align:right}
 td{padding:8px 10px;border-bottom:1px solid var(--rule);vertical-align:top;white-space:nowrap}
 td:first-child{white-space:normal}
-tr.group td{background:#F8F6F2;font-weight:600;padding:7px 10px}
+tr.group td{background:#F6F8FB;font-weight:600;padding:7px 10px}
 tr.group .sub{font-weight:400;color:var(--ink-3);font-size:12px;margin-left:8px}
-tr:hover:not(.group) td{background:#FBFAF7}
+tr:hover:not(.group) td{background:#F5F8FF}
 .item-n{font-weight:500}
 .hint{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--amber);background:var(--amber-bg);padding:1px 7px;border-radius:4px;white-space:nowrap}
 .hint.red{color:var(--red);background:var(--red-bg)}
@@ -107,7 +108,7 @@ tr.attention td:first-child{box-shadow:inset 3px 0 0 var(--amber)}
 .foot-form{display:flex;gap:10px;align-items:center;margin:12px 28px 16px;padding:12px 14px;background:var(--surface);border:1px solid var(--rule);border-radius:6px}
 .field{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--ink-3)}
 .field input{font:inherit;font-size:13px;color:var(--ink);border:1px solid var(--rule-2);border-radius:5px;padding:6px 8px;width:140px;background:var(--surface)}
-.phone{width:380px;height:800px;background:var(--paper);border:10px solid #22262A;border-radius:36px;overflow:hidden;display:flex;flex-direction:column}
+.phone{width:380px;height:800px;background:var(--paper);border:10px solid #0E1729;border-radius:36px;overflow:hidden;display:flex;flex-direction:column}
 .appbar{display:flex;align-items:center;gap:12px;padding:14px 16px 10px;background:var(--paper)}
 .appbar i{font-size:22px;color:var(--ink-2)}
 .appbar .t{flex:1}.appbar .t b{display:block;font-size:17px}.appbar .t small{font-size:12px;color:var(--ink-3)}
@@ -152,7 +153,7 @@ tr.attention td:first-child{box-shadow:inset 3px 0 0 var(--amber)}
       <a href="#"><i class="ti ti-box"></i>物料</a>
       <a href="#"><i class="ti ti-arrows-exchange"></i>数据交换</a>
     </div>
-    <div class="foot"><a href="#" style="display:flex;gap:8px;align-items:center;color:var(--ink-2);text-decoration:none;margin-bottom:10px"><i class="ti ti-settings"></i>设置</a>本机：采购部-01<br>上次交换：9月19日</div>
+    <div class="foot"><a href="#" style="display:flex;gap:8px;align-items:center;color:var(--nav-ink);text-decoration:none;margin-bottom:10px"><i class="ti ti-settings"></i>设置</a>本机：采购部-01<br>上次交换：9月19日</div>
   </nav>
   <div class="list">
     <div class="search"><i class="ti ti-search"></i>搜索项目、编号或客户<kbd>/</kbd></div>
@@ -216,7 +217,7 @@ tr.attention td:first-child{box-shadow:inset 3px 0 0 var(--amber)}
       <a href="#"><i class="ti ti-box"></i>物料</a>
       <a href="#"><i class="ti ti-arrows-exchange"></i>数据交换</a>
     </div>
-    <div class="foot"><a href="#" style="display:flex;gap:8px;align-items:center;color:var(--ink-2);text-decoration:none;margin-bottom:10px"><i class="ti ti-settings"></i>设置</a>AI：DeepSeek · deepseek-flash</div>
+    <div class="foot"><a href="#" style="display:flex;gap:8px;align-items:center;color:var(--nav-ink);text-decoration:none;margin-bottom:10px"><i class="ti ti-settings"></i>设置</a>AI：DeepSeek · deepseek-flash</div>
   </nav>
   <main class="main">
     <div class="head" style="padding-bottom:4px">
