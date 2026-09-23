@@ -1,0 +1,37 @@
+{
+  "scope": "Current build; does not retroactively identify historical browser-test artifacts",
+  "sdk": "Dart SDK version: 3.13.3 (stable) (Tue Sep 1 01:07:17 2026 -0700) on \"macos_arm64\"",
+  "commands": [
+    {
+      "cwd": "/Users/muyi/Downloads/dev/software-cost-calculator/prototypes/web_storage_gate",
+      "argv": [
+        "/private/tmp/supplier-inquiry-toolchain/flutter/bin/dart",
+        "compile",
+        "js",
+        "web/main.dart",
+        "-o",
+        "web/main.dart.js"
+      ]
+    },
+    {
+      "cwd": "/Users/muyi/Downloads/dev/software-cost-calculator/prototypes/web_storage_gate",
+      "argv": [
+        "/private/tmp/supplier-inquiry-toolchain/flutter/bin/dart",
+        "compile",
+        "js",
+        "web/restore.dart",
+        "-o",
+        "web/restore.dart.js"
+      ]
+    }
+  ],
+  "sources": {
+    "web/main.dart": "8224b9e6a939f0dd40760bc78596c03bd48c60cd4b7d1676936b10b676bafc47",
+    "web/restore.dart": "15e3dbbf036813062b017e352c7a0f71afd5d6fddbed26c09120ecbef8170fd2"
+  },
+  "assets": {
+    "web/main.dart.js": "6a99fa3ac67022322404d4cb08f016555d103886cf22c413482fce0490b62c98",
+    "web/restore.dart.js": "e62a607006ea1b3ac1b5246e7bd4f5d947f962f1ddf97a957fb0009146488fb1"
+  },
+  "utc": "2026-09-17T00:36:02Z"
+}

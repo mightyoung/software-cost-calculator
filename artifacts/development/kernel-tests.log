@@ -1,0 +1,109 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/protocol_test.dart
+00:00 +0: test/protocol_test.dart: restricted JCS UTF-16 key ordering and JSON escaping
+00:00 +1: test/protocol_test.dart: restricted JCS UTF-16 key ordering and JSON escaping
+00:00 +2: test/space_budget_test.dart: accumulation remains exact beyond JavaScript safe sum
+00:00 +3: test/protocol_test.dart: restricted JCS rejects fractions, unsafe integers, invalid strings and keys
+00:00 +4: test/space_budget_test.dart: actual expanded bytes are counted across entries before admission
+00:00 +5: test/protocol_test.dart: versioned source and operation fingerprints missing blank and value source states remain distinct
+00:00 +6: test/protocol_test.dart: versioned source and operation fingerprints missing blank and value source states remain distinct
+00:00 +7: test/contracts_test.dart: preview rejects recovered database with same generation
+00:00 +8: test/protocol_test.dart: versioned source and operation fingerprints keep clear set intent and quantity define operation identity
+00:00 +9: test/protocol_test.dart: versioned source and operation fingerprints keep clear set intent and quantity define operation identity
+00:00 +10: test/protocol_test.dart: versioned source and operation fingerprints keep clear set intent and quantity define operation identity
+00:00 +11: test/protocol_test.dart: independent quotation date instant and historical golden vectors
+00:00 +12: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:00 +13: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:00 +14: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:00 +15: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:00 +16: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:00 +17: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:00 +18: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:00 +19: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:00 +20: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:00 +21: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:00 +22: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:00 +23: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:00 +24: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:00 +25: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:00 +26: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:00 +27: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:00 +28: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:00 +29: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:00 +30: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:00 +31: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:00 +32: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:00 +33: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:00 +34: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:00 +35: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:01 +36: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:01 +37: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:01 +38: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:01 +39: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:01 +40: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:01 +41: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:01 +42: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:01 +43: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:01 +44: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:01 +45: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:01 +46: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:01 +47: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:01 +48: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:01 +49: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:01 +50: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:01 +51: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:01 +52: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:02 +53: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:02 +54: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:02 +55: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:02 +56: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:02 +57: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:02 +58: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:02 +59: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:02 +60: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:02 +61: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:02 +62: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:02 +63: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:02 +64: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:02 +65: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:02 +66: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:02 +67: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:02 +68: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:02 +69: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:02 +70: test/storage_test.dart: page:2 rolls back every page, heads, generation and receipt
+00:02 +71: test/record_service_test.dart: generic create rejects quotation, dedicated create and copy enforce standard
+00:03 +72: test/record_service_test.dart: generic create rejects quotation, dedicated create and copy enforce standard
+00:03 +73: test/storage_test.dart: page:5 rolls back every page, heads, generation and receipt
+00:03 +74: test/record_service_test.dart: quotation clearing requires explicit acknowledgement and cannot downgrade
+00:03 +75: test/storage_test.dart: before_commit rolls back every page, heads, generation and receipt
+00:03 +76: test/record_service_test.dart: contact binding validates supplier and immutable capture snapshot
+00:03 +77: test/record_service_test.dart: contact binding validates supplier and immutable capture snapshot
+00:03 +78: test/record_service_test.dart: contact binding validates supplier and immutable capture snapshot
+00:03 +79: test/record_service_test.dart: contact binding validates supplier and immutable capture snapshot
+00:03 +80: test/record_service_test.dart: contact binding validates supplier and immutable capture snapshot
+00:03 +81: test/record_service_test.dart: contact binding validates supplier and immutable capture snapshot
+00:03 +82: test/record_service_test.dart: contact binding validates supplier and immutable capture snapshot
+00:03 +83: test/storage_test.dart: missing parent fails deferred FK and rolls back
+00:03 +84: test/record_service_test.dart: notes correction preserves deleted historical association IDs
+00:03 +85: test/record_service_test.dart: notes correction preserves deleted historical association IDs
+00:03 +86: test/record_service_test.dart: notes correction preserves deleted historical association IDs
+00:03 +87: test/record_service_test.dart: notes correction preserves deleted historical association IDs
+00:03 +88: test/storage_test.dart: failed cleanup persistently quarantines reads and reset across reopen
+00:03 +89: test/record_service_test.dart: notes after supplier merge and contact correction retain original snapshot
+00:03 +90: test/storage_test.dart: bounded SQL workspace validates deep entity history
+00:03 +91: test/storage_test.dart: bounded SQL workspace validates deep entity history
+00:03 +92: test/storage_test.dart: bounded SQL workspace validates deep entity history
+00:03 +93: test/storage_test.dart: bounded SQL workspace validates deep entity history
+00:03 +94: test/record_service_test.dart: merge redirects source and repair creates one canonical keeper
+00:03 +95: test/storage_test.dart: SQL schema independently enforces authority FK and entity UUID uniqueness
+00:04 +96: test/record_service_test.dart: imported historical is allowed but standard ancestry survives deletion
+00:04 +97: test/record_service_test.dart: imported historical is allowed but standard ancestry survives deletion
+00:04 +98: test/record_service_test.dart: imported historical is allowed but standard ancestry survives deletion
+00:04 +99: test/record_service_test.dart: imported historical is allowed but standard ancestry survives deletion
+00:04 +100: test/storage_test.dart: cleanup failure retains original fault and committed receipt at after_commit
+00:04 +101: test/record_service_test.dart: parallel quote heads retain conflict summary and can resolve all heads
+00:04 +102: test/record_service_test.dart: parallel quote heads retain conflict summary and can resolve all heads
+00:04 +103: test/record_service_test.dart: parallel quote heads retain conflict summary and can resolve all heads
+00:04 +104: test/record_service_test.dart: parallel quote heads retain conflict summary and can resolve all heads
+00:04 +105: test/storage_test.dart: 100 fixed seed DAGs agree with independent head-set oracle
+00:05 +106: test/storage_test.dart: unsupported migration leaves old schema and data intact
+00:05 +107: All tests passed!

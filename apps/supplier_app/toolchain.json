@@ -1,0 +1,14 @@
+{
+  "flutter": "3.47.4",
+  "framework_revision_prefix": "9584c6713b",
+  "engine_revision_prefix": "06a2e2a110",
+  "dart": "3.13.3",
+  "android_gradle_plugin": "9.1.0",
+  "kotlin": "2.4.0",
+  "gradle": "9.3.1",
+  "android_min_sdk": 29,
+  "storage_backend": null,
+  "sqlite_engine": null,
+  "sqlite_wasm": null,
+  "sqlite_worker": null
+}

@@ -1,0 +1,62 @@
+{
+  "source": {
+    "value": {
+      "version": 1,
+      "fields": {
+        "notes": {
+          "presence": "blank",
+          "value": null
+        },
+        "project_number": {
+          "presence": "value",
+          "value": "000123-A"
+        },
+        "inquiry_location": {
+          "presence": "missing",
+          "value": null
+        }
+      },
+      "input_identity": {
+        "supplier": "原供应商",
+        "record_id": "11111111-1111-4111-8111-111111111111"
+      },
+      "mapping_semantics": {
+        "notes": "text",
+        "project_number": "identifier_text"
+      },
+      "batch_defaults": {
+        "inquirer_name": "张三"
+      },
+      "capture_mode": "historical"
+    },
+    "canonical": "{\"batch_defaults\":{\"inquirer_name\":\"张三\"},\"capture_mode\":\"historical\",\"fields\":{\"inquiry_location\":{\"presence\":\"missing\",\"value\":null},\"notes\":{\"presence\":\"blank\",\"value\":null},\"project_number\":{\"presence\":\"value\",\"value\":\"000123-A\"}},\"input_identity\":{\"record_id\":\"11111111-1111-4111-8111-111111111111\",\"supplier\":\"原供应商\"},\"mapping_semantics\":{\"notes\":\"text\",\"project_number\":\"identifier_text\"},\"version\":1}",
+    "sha256": "73c0015d12d88111708e01cde2498f9e780f85c48c10885865e7829d759320b3"
+  },
+  "operation": {
+    "value": {
+      "version": 1,
+      "source_fingerprint": "73c0015d12d88111708e01cde2498f9e780f85c48c10885865e7829d759320b3",
+      "intent": "modify",
+      "original_bindings": {
+        "supplier_id": "11111111-1111-4111-8111-111111111111"
+      },
+      "operations": {
+        "notes": {
+          "kind": "keep",
+          "value": null
+        },
+        "inquiry_location": {
+          "kind": "clear",
+          "value": null
+        },
+        "project_number": {
+          "kind": "set",
+          "value": "000123-A"
+        }
+      },
+      "confirmed_quantity": 1
+    },
+    "canonical": "{\"confirmed_quantity\":1,\"intent\":\"modify\",\"operations\":{\"inquiry_location\":{\"kind\":\"clear\",\"value\":null},\"notes\":{\"kind\":\"keep\",\"value\":null},\"project_number\":{\"kind\":\"set\",\"value\":\"000123-A\"}},\"original_bindings\":{\"supplier_id\":\"11111111-1111-4111-8111-111111111111\"},\"source_fingerprint\":\"73c0015d12d88111708e01cde2498f9e780f85c48c10885865e7829d759320b3\",\"version\":1}",
+    "sha256": "80d07b2c0311dde760354ccae0f61d8c61fb9d7e9de7f1f04843ae1f5b91ba58"
+  }
+}

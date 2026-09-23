@@ -1,0 +1,23 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/query_test.dart
+00:00 +0: history materializes page keys before display joins
+00:02 +1: NFKC full casefold whitespace and model punctuation search only
+00:03 +2: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:05 +3: cursor binds filters and all database version dimensions
+00:05 +4: full price groups latest supplier date ties and all minimum ties
+00:05 +5: history retains deleted/conflicted reference rows and snapshots
+00:05 +6: conflicting quotations filter through any head without choosing a winner
+00:05 +7: exact prefix contains candidates return stable reasons without wildcard interpretation
+00:05 +8: normalized project/person and date/price/missing filters compose
+00:05 +9: cursor rejects changed instance with same business generation
+00:06 +10: cursor rejects changed epoch with same business generation
+00:06 +11: unknown quote dates and validity stay visible pending confirmation
+00:06 +12: conflict summary nulls are not misreported as unknown inquiry date
+00:06 +13: quote detail preserves snapshot when canonical contact changes
+00:06 +14: conflict head canonical refs refresh after target redirects
+00:06 +15: deleted product remains discoverable by historical name brand and model
+00:06 +16: prefix successor skips surrogates without admitting unrelated private-use keys
+00:06 +17: merged product history remains searchable by original and canonical names
+00:06 +18: parallel deletion heads preserve historical product discovery without winner
+00:06 +19: explicit null included tax rate selects its own comparison group
+00:06 +20: money range distinguishes maximum values one millionth apart
+00:07 +21: All tests passed!

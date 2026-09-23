@@ -1,0 +1,6 @@
+{
+  "schema_version": 2,
+  "revisions_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "business_digest": "0da68179a0085bcf2d86a8aa926b1fac144740405bd516892a0f854fafe1d666",
+  "independent_oracle": "Python hashlib.sha256 over the four literal header arrays in SCHEMA.md, each followed by LF"
+}

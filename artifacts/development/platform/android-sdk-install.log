@@ -1,0 +1,9 @@
+WARNING: The SDK Manager CLI tool (sdkmanager) is deprecated. Use Android CLI instead.
+The 'android' binary can also be found in the cmdline-tools directory, and 'android sdk' is the replacement for 'sdkmanager'.
+To learn more about the Android CLI and how to use it, see the documentation (https://d.android.com/tools/agents/android-cli)
+
+                                                                                Warning: Failed to download any source lists!
+                                                                                Warning: IO exception while downloading manifest
+                                                                                Warning: IO exception while downloading manifest
+                                                                                Warning: Still waiting for package manifests to be fetched remotely.
+                                                                                Warning: Failed to find package 'platforms;android-36'

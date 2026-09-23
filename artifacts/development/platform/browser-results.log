@@ -1,0 +1,8 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "Script ran on page and returned:\n```json\n{\"time\":\"2026-09-16T16:49:24.513Z\",\"userAgent\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36\",\"secureContext\":true,\"scope\":\"Isolated browser primitive experiments, not production storage or crash/restart proof\",\"results\":{\"webLocksWorkerContention\":{\"status\":\"PASS\",\"detail\":{\"blocked\":{\"acquired\":false},\"free\":{\"acquired\":true}}},\"opfsChunkedWriteCloseRangeRead\":{\"status\":\"PASS\",\"detail\":{\"bytes\":8388608,\"chunkBytes\":65536,\"awaitedClose\":true,\"rangeBytes\":65536}},\"idbPointerAbortCommitReopen\":{\"status\":\"PASS\",\"detail\":{\"aborted\":\"old\",\"committed\":\"new\",\"connectionReopened\":true,\"processCrashTested\":false}}},\"remainingBlocked\":[\"browser process restart durability\",\"cross-tab stale writer rejection\",\"real user-chosen export file and close failure\",\"SQLite engine/worker/WASM selection\",\"consistent bounded SQLite snapshot\",\"crash at active-pointer activation and old-connection fencing\"]}\n```"
+    }
+  ]
+}

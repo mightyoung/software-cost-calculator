@@ -1,0 +1,23 @@
+{
+  "date": "2026-09-23",
+  "status": "BLOCKED",
+  "application": "WPS Office for macOS",
+  "version": "7.5.1",
+  "bundle_version": "8994",
+  "libreoffice_installed": false,
+  "source": "artifacts/development/business-export-v1.xlsx",
+  "disposable_copy": "artifacts/development/office-roundtrip-wps.xlsx",
+  "source_and_copy_sha256": "6633e6048097a2c0e9f33b2e7882cdc9f32b5f74c8c2b9ece28ffc249f7d5677",
+  "attempts": [
+    {"action": "sandbox open -a wpsoffice", "result": "kLSNoExecutableErr -10827"},
+    {"action": "approved unsandboxed open -a wpsoffice", "result": "exit 0"},
+    {"action": "bounded AppleScript version query", "result": "7.5.1"},
+    {"action": "AppleScript open disposable document", "timeout_seconds": 10, "result": "AppleEvent timeout -1712"},
+    {"action": "System Events read WPS window names", "timeout_seconds": 5, "result": "AppleEvent timeout -1712"},
+    {"action": "open -a wpsoffice disposable document", "result": "exit 0; WPS process running"},
+    {"action": "AppleScript read document names after fallback launch", "timeout_seconds": 5, "result": "AppleEvent timeout -1712"}
+  ],
+  "office_save_verified": false,
+  "formal_reimport_verified": false,
+  "reason": "WPS launch and version succeeded, but bounded document access and accessibility queries timed out. The disposable XLSX remains byte-identical to the source; no real Office save or roundtrip is claimed."
+}

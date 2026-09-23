@@ -1,0 +1,54 @@
+00:00 +0: loading /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/platform_capabilities_test.dart
+Shell: ../../../flutter/third_party/dart/runtime/vm/cpuinfo_macos.cc: 42: error: unreachable code
+Shell: version=3.13.3 (stable) (Tue Sep 1 01:07:17 2026 -0700) on "macos_x64"
+Shell: pid=1648, thread=259, isolate_group=(nil)(0x0), isolate=(nil)(0x0)
+Shell: os=macos, arch=x64, comp=no, sim=no
+Shell: isolate_instructions=0, vm_instructions=0
+Shell: fp=3104cec70, sp=3104cec40, pc=104fb1c80
+Shell:   pc 0x0000000104fb1c80 fp 0x00000003104cec70 dart::Profiler::DumpStackTrace(bool)+0x30
+Shell:   pc 0x0000000104e479a2 fp 0x00000003104ced50 dart::Assert::Fail(char const*, ...) const+0x82
+Shell: ../../../flutter/third_party/dart/runtime/vm/cpuinfo_macos.cc: 42: error: unreachable code
+Shell: version=3.13.3 (stable) (Tue Sep 1 01:07:17 2026 -0700) on "macos_x64"
+Shell: pid=1649, thread=259, isolate_group=(nil)(0x0), isolate=(nil)(0x0)
+Shell: os=macos, arch=x64, comp=no, sim=no
+Shell: isolate_instructions=0, vm_instructions=0
+Shell: fp=30f4e0c80, sp=30f4e0c50, pc=10474bc80
+Shell:   pc 0x000000010474bc80 fp 0x000000030f4e0c80 dart::Profiler::DumpStackTrace(bool)+0x30
+Shell:   pc 0x00000001045e19a2 fp 0x000000030f4e0d60 dart::Assert::Fail(char const*, ...) const+0x82
+Shell:   pc 0x000000010463795d fp 0x000000030f4e11a0 dart::CpuInfo::FieldContains(dart::CpuInfoIndices, char const*)+0xad
+Shell:   pc 0x00000001046376df fp 0x000000030f4e11c0 dart::HostCPUFeatures::Init()+0x5f
+Shell:   pc 0x0000000104637ba0 fp 0x000000030f4e1240 dart::Dart::DartInit(Dart_InitializeParams const*)+0x120
+Shell:   pc 0x0000000104637cbe fp 0x000000030f4e1260 dart::Dart::Init(Dart_InitializeParams const*)+0x2e
+Shell:   pc 0x00000001050f0cbc fp 0x000000030f4e13c0 DartVMInitializer::Initialize(Dart_InitializeParams*, bool, bool)+0x2c
+Shell:   pc 0x00000001050efb2b fp 0x000000030f4e15e0 flutter::DartVM::DartVM(std::__fl::shared_ptr<flutter::DartVMData const> const&, std::__fl::shared_ptr<flutter::IsolateNameServer>)+0x1d7b
+Shell:   pc 0x00000001050edcb1 fp 0x000000030f4e1760 flutter::DartVM::Create(flutter::Settings const&, fml::RefPtr<flutter::DartSnapshot const>, fml::RefPtr<flutter::DartSnapshot const>, std::__fl::shared_ptr<flutter::IsolateNameServer>)+0xf1
+Shell:   pc 0x00000001050f1791 fp 0x000000030f4e1900 flutter::DartVMRef::Create(flutter::Settings const&, fml::RefPtr<flutter::DartSnapshot const>, fml::RefPtr<flutter::DartSnapshot const>)+0x1f1
+Shell:   pc 0x00000001043846f8 fp 0x000000030f4e1970 flutter::Shell::InferVmInitDataFromSettings(flutter::Settings&)+0x68
+Shell:   pc 0x0000000104384973 fp 0x000000030f4e20c0 flutter::Shell::Create(flutter::PlatformData const&, flutter::TaskRunners const&, flutter::Settings, std::__fl::function<std::__fl::unique_ptr<flutter::PlatformView, std::__fl::default_delete<flutter::PlatformView>> (flutter::Shell&)> const&, std::__fl::function<std::__fl::unique_ptr<flutter::Rasterizer, std::__fl::default_delete<flutter::Rasterizer>> (flutter::Shell&)> const&, bool)+0xe3
+Shell:   pc 0x00000001042f66e6 fp 0x000000030f4e2b60 flutter::RunTester(flutter::Settings const&, bool, bool)+0x4a6
+Shell:   pc 0x00000001042f81e0 fp 0x000000030f4e3390 main+0x430
+Shell:   pc 0x00000002070e2b28 fp 0x000000030f4e3a20 Unknown symbol
+Shell: -- End of DumpStackTrace
+Shell:   pc 0x0000000104e9d95d fp 0x00000003104cf190 dart::CpuInfo::FieldContains(dart::CpuInfoIndices, char const*)+0xad
+Shell:   pc 0x0000000104e9d6df fp 0x00000003104cf1b0 dart::HostCPUFeatures::Init()+0x5f
+Shell:   pc 0x0000000104e9dba0 fp 0x00000003104cf230 dart::Dart::DartInit(Dart_InitializeParams const*)+0x120
+Shell:   pc 0x0000000104e9dcbe fp 0x00000003104cf250 dart::Dart::Init(Dart_InitializeParams const*)+0x2e
+Shell:   pc 0x0000000105956cbc fp 0x00000003104cf3b0 DartVMInitializer::Initialize(Dart_InitializeParams*, bool, bool)+0x2c
+Shell:   pc 0x0000000105955b2b fp 0x00000003104cf5d0 flutter::DartVM::DartVM(std::__fl::shared_ptr<flutter::DartVMData const> const&, std::__fl::shared_ptr<flutter::IsolateNameServer>)+0x1d7b
+Shell:   pc 0x0000000105953cb1 fp 0x00000003104cf750 flutter::DartVM::Create(flutter::Settings const&, fml::RefPtr<flutter::DartSnapshot const>, fml::RefPtr<flutter::DartSnapshot const>, std::__fl::shared_ptr<flutter::IsolateNameServer>)+0xf1
+Shell:   pc 0x0000000105957791 fp 0x00000003104cf8f0 flutter::DartVMRef::Create(flutter::Settings const&, fml::RefPtr<flutter::DartSnapshot const>, fml::RefPtr<flutter::DartSnapshot const>)+0x1f1
+Shell:   pc 0x0000000104bea6f8 fp 0x00000003104cf960 flutter::Shell::InferVmInitDataFromSettings(flutter::Settings&)+0x68
+Shell:   pc 0x0000000104bea973 fp 0x00000003104d00b0 flutter::Shell::Create(flutter::PlatformData const&, flutter::TaskRunners const&, flutter::Settings, std::__fl::function<std::__fl::unique_ptr<flutter::PlatformView, std::__fl::default_delete<flutter::PlatformView>> (flutter::Shell&)> const&, std::__fl::function<std::__fl::unique_ptr<flutter::Rasterizer, std::__fl::default_delete<flutter::Rasterizer>> (flutter::Shell&)> const&, bool)+0xe3
+Shell:   pc 0x0000000104b5c6e6 fp 0x00000003104d0b50 flutter::RunTester(flutter::Settings const&, bool, bool)+0x4a6
+Shell:   pc 0x0000000104b5e1e0 fp 0x00000003104d1380 main+0x430
+Shell:   pc 0x000000020786ab28 fp 0x00000003104d1a10 Unknown symbol
+Shell: -- End of DumpStackTrace
+00:00 +0 -1: loading /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/platform_capabilities_test.dart [E]
+  Failed to load "/Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/platform_capabilities_test.dart": Shell subprocess crashed with SIGABRT (-6).
+00:00 +0 -2: loading /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/widget_test.dart [E]
+  Failed to load "/Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/widget_test.dart": Shell subprocess crashed with SIGABRT (-6).
+00:00 +0 -2: Some tests failed.
+
+Failing tests:
+  /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/platform_capabilities_test.dart: loading /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/platform_capabilities_test.dart
+  /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/widget_test.dart: loading /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/widget_test.dart

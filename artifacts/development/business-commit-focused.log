@@ -1,0 +1,10 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/business_commit_test.dart
+00:00 +0: double confirmation and reopen reuse one persisted event
+00:01 +1: canonical and main results commit atomically; retry reuses event
+00:01 +2: lost response and reopened retry preserve durable business receipts
+00:01 +3: failure after receipt insertion rolls back entire batch
+00:01 +4: opaque decision digest cannot bypass persisted import validation
+00:01 +5: excluded error never becomes successful source receipt
+00:01 +6: matching version cannot be rebound when sealing business preview
+00:01 +7: sealed decision and result mapping cannot be changed
+00:01 +8: All tests passed!

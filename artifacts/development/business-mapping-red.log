@@ -1,0 +1,52 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/business_mapping_test.dart
+00:00 +0 -1: loading test/business_mapping_test.dart [E]
+  Failed to load "test/business_mapping_test.dart":
+  test/business_mapping_test.dart:1:8: Error: Error when reading 'lib/src/exchange/business_mapping.dart': No such file or directory
+  import 'package:supplier_core/src/exchange/business_mapping.dart';
+         ^
+  test/business_mapping_test.dart:5:3: Error: 'RawBusinessCell' isn't a type.
+    RawBusinessCell number(String value) => RawBusinessCell(
+    ^^^^^^^^^^^^^^^
+  test/business_mapping_test.dart:6:29: Error: Undefined name 'BusinessCellKind'.
+      coordinate: 'C7', kind: BusinessCellKind.number, lexical: value);
+                              ^^^^^^^^^^^^^^^^
+  test/business_mapping_test.dart:5:43: Error: Method not found: 'RawBusinessCell'.
+    RawBusinessCell number(String value) => RawBusinessCell(
+                                            ^^^^^^^^^^^^^^^
+  test/business_mapping_test.dart:7:3: Error: 'RawBusinessCell' isn't a type.
+    RawBusinessCell text(String value) => RawBusinessCell(
+    ^^^^^^^^^^^^^^^
+  test/business_mapping_test.dart:8:29: Error: Undefined name 'BusinessCellKind'.
+      coordinate: 'C7', kind: BusinessCellKind.text, lexical: value);
+                              ^^^^^^^^^^^^^^^^
+  test/business_mapping_test.dart:7:41: Error: Method not found: 'RawBusinessCell'.
+    RawBusinessCell text(String value) => RawBusinessCell(
+                                          ^^^^^^^^^^^^^^^
+  test/business_mapping_test.dart:36:61: Error: Undefined name 'BusinessCellKind'.
+      final formula = RawBusinessCell(coordinate: 'D2', kind: BusinessCellKind.number,
+                                                              ^^^^^^^^^^^^^^^^
+  test/business_mapping_test.dart:36:21: Error: Method not found: 'RawBusinessCell'.
+      final formula = RawBusinessCell(coordinate: 'D2', kind: BusinessCellKind.number,
+                      ^^^^^^^^^^^^^^^
+  test/business_mapping_test.dart:40:25: Error: Undefined name 'BusinessCellKind'.
+      for (final kind in [BusinessCellKind.boolean, BusinessCellKind.error]) {
+                          ^^^^^^^^^^^^^^^^
+  test/business_mapping_test.dart:40:51: Error: Undefined name 'BusinessCellKind'.
+      for (final kind in [BusinessCellKind.boolean, BusinessCellKind.error]) {
+                                                    ^^^^^^^^^^^^^^^^
+  test/business_mapping_test.dart:41:20: Error: Method not found: 'RawBusinessCell'.
+        final cell = RawBusinessCell(coordinate: 'A1', kind: kind, lexical: '1');
+                     ^^^^^^^^^^^^^^^
+  test/business_mapping_test.dart:48:12: Error: Method not found: 'businessSourceCell'.
+      expect(businessSourceCell(null, (c) => c.text()).presence.name, 'missing');
+             ^^^^^^^^^^^^^^^^^^
+  test/business_mapping_test.dart:49:12: Error: Method not found: 'businessSourceCell'.
+      expect(businessSourceCell(text('  '), (c) => c.text()).presence.name, 'blank');
+             ^^^^^^^^^^^^^^^^^^
+  test/business_mapping_test.dart:50:12: Error: Method not found: 'businessSourceCell'.
+      expect(businessSourceCell(number('0'), (c) => c.decimal()).value, '0');
+             ^^^^^^^^^^^^^^^^^^
+00:00 +0 -1: Some tests failed.
+
+Failing tests:
+  test/business_mapping_test.dart: loading test/business_mapping_test.dart

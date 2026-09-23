@@ -1,0 +1,17 @@
+2026-09-17: host macOS; Android/Windows device validation deferred by user.
+Command (apps/supplier_app): flutter test test/native_file_ports_test.dart --reporter expanded
+Flutter SDK: /private/tmp/supplier-inquiry-toolchain/flutter
+PUB_CACHE: /private/tmp/supplier-inquiry-toolchain/pub-cache
+NO_PROXY/no_proxy: localhost,127.0.0.1,::1
+Execution: local host engine with sandbox exception; no device selected.
+Captured test output:
+00:00 +0: range reads are exact, bounded and reject truncation
+00:00 +1: publish follows close; abort cannot remove a published output
+00:00 +2: stream failure removes partial output and preserves initiating error
+00:00 +3: existing temporary and destination files are preserved
+00:00 +4: two lock instances serialize; failures release the local queue
+00:00 +5: recursive lock acquisition is rejected instead of hanging
+00:00 +6: All tests passed!
+Process exit code: 0.
+Scope: range input, private-directory output, same-isolate lock queue and recursive rejection.
+Not established: external save target, Web adapter, device persistence, arbitrary cross-isolate locking.

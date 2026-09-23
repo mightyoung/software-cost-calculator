@@ -1,0 +1,10 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/backup_service_test.dart
+00:00 +0: same snapshot includes all authority settings and successful receipts
+00:03 +1: unfinished jobs and their confirmations stay outside logical backup
+00:03 +2: stale active identity fails before snapshot or publication
+00:03 +3: failed output aborts without changing business state
+00:04 +4: backup composes under the existing lock and expires its context
+00:04 +5: both cleanup failures retain the original output failure
+00:04 +6: private readback corruption prevents external publication
+00:04 +7: oversized SQLite preference is rejected before fetching its payload
+00:04 +8: All tests passed!

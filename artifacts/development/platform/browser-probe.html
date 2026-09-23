@@ -1,0 +1,27 @@
+<!doctype html><meta charset="utf-8"><title>平台独立能力实验</title><h1>平台独立能力实验</h1><pre id="result">尚未运行</pre><script>
+const DB = 'supplier-t1-isolated-meta-v1';
+function openDb() { return new Promise((resolve, reject) => { const r = indexedDB.open(DB, 1); r.onupgradeneeded = () => r.result.createObjectStore('meta'); r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error); }); }
+function writePointer(db, value, abort = false) { return new Promise((resolve, reject) => { const t = db.transaction('meta', 'readwrite'); t.objectStore('meta').put(value, 'active'); t.oncomplete = () => resolve('committed'); t.onabort = () => abort ? resolve('aborted') : reject(t.error); t.onerror = () => {}; if(abort) t.abort(); }); }
+function readPointer(db) { return new Promise((resolve, reject) => { const r = db.transaction('meta').objectStore('meta').get('active'); r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error); }); }
+function assert(v, why) { if (!v) throw Error(why); }
+window.runProbe = async () => {
+ const report = {time:new Date().toISOString(), userAgent:navigator.userAgent, secureContext:isSecureContext, scope:'Isolated browser primitive experiments, not production storage or crash/restart proof', results:{}};
+ async function check(name, fn) { try { report.results[name] = {status:'PASS', detail:await fn()}; } catch(e) { report.results[name] = {status:'FAIL', detail:String(e)}; } }
+ await check('webLocksWorkerContention', async () => {
+   const worker = new Worker('lock-worker.js'); let release; const held = new Promise(r => release=r); let ready; const acquired = new Promise(r => ready=r); const lockName='supplier-t1-'+crypto.randomUUID();
+   const owner = navigator.locks.request(lockName, async () => { ready(); await held; }); await acquired;
+   const workerResult = () => new Promise((resolve,reject) => { const timer=setTimeout(()=>reject(Error('worker timeout')),5000); worker.onmessage=e=>{clearTimeout(timer); resolve(e.data);}; worker.onerror=e=>{clearTimeout(timer); reject(Error(e.message));}; worker.postMessage(lockName); });
+   try { const blocked=await workerResult(); assert(blocked.acquired===false, JSON.stringify(blocked)); release(); await owner; const free=await workerResult(); assert(free.acquired===true, JSON.stringify(free)); return {blocked,free}; } finally {release(); await owner; worker.terminate();}
+ });
+ await check('opfsChunkedWriteCloseRangeRead', async () => {
+   const root=await navigator.storage.getDirectory(); const name='supplier-t1-stream.bin'; const handle=await root.getFileHandle(name,{create:true}); const out=await handle.createWritable(); const chunk=new Uint8Array(65536); let closed=false;
+   try { for(let i=0;i<128;i++){chunk.fill(i); await out.write(chunk);} await out.close(); closed=true; const file=await handle.getFile(); assert(file.size===8388608,'wrong size'); const range=new Uint8Array(await file.slice(64*65536,65*65536).arrayBuffer()); assert(range.length===65536 && range.every(x=>x===64),'wrong range'); return {bytes:file.size,chunkBytes:65536,awaitedClose:true,rangeBytes:range.length}; } finally {if(!closed) await out.abort(); await root.removeEntry(name);}
+ });
+ await check('idbPointerAbortCommitReopen', async () => {
+   let db=await openDb(); const old={instance:'old',epoch:1}, next={instance:'new',epoch:2}; await writePointer(db,old); await writePointer(db,next,true); db.close(); db=await openDb(); assert(JSON.stringify(await readPointer(db))===JSON.stringify(old),'aborted pointer persisted'); await writePointer(db,next); db.close(); db=await openDb(); assert(JSON.stringify(await readPointer(db))===JSON.stringify(next),'committed pointer missing'); db.close(); return {aborted:'old',committed:'new',connectionReopened:true,processCrashTested:false};
+ });
+ report.remainingBlocked=['browser process restart durability','cross-tab stale writer rejection','real user-chosen export file and close failure','SQLite engine/worker/WASM selection','consistent bounded SQLite snapshot','crash at active-pointer activation and old-connection fencing'];
+ window.probeReport=report; document.getElementById('result').textContent=JSON.stringify(report,null,2); return report;
+};
+window.checkReopen = async () => {const db=await openDb(); const value=await readPointer(db);db.close();assert(value?.instance==='new'&&value?.epoch===2,'pointer not retained across page reload'); return {status:'PASS',value,scope:'page reload only; not browser process restart'};};
+</script>

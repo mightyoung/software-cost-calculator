@@ -1,0 +1,4 @@
+.dart_tool/
+web/main.dart.js*
+web/restore.dart.js*
+tool/__pycache__/

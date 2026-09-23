@@ -1,0 +1,3 @@
+{"kind":"header","format":"supplier-logical-backup","backup_version":1,"schema_version":2,"source_instance":"00000000-0000-4000-8000-000000000071","source_epoch":0,"generation":7,"counts":{"revision":0,"local_settings":1,"import_job":0,"confirmation_event":0,"commit_receipt":0,"receipt_result":0,"import_row_receipt":0}}
+{"kind":"row","table":"local_settings","row":{"key":"theme","value_json":"\"dark\""}}
+{"kind":"footer","sha256":"03287f2f6376dcb0d95502e60e69cb113e7f700078729f438c88e76da9460d51"}

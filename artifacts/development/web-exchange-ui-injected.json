@@ -1,0 +1,89 @@
+{
+  "status": "PASS",
+  "scope": "Flutter release UI with injected open/save handles",
+  "native_system_picker_verified": false,
+  "steps": [
+    "business UI mapping, row decision and commit",
+    "bundle UI export, preview and commit"
+  ],
+  "fixture_sha256": "dbe1ca00a0f64efe41291f0b8f8695d87bff5827954751efd2b2922e95f62553",
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/153.0.8010.53",
+    "revision": "@792bf6722e73a45aa9e47c163b9901bdc17f3230",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+    "jsVersion": "15.3.76.13"
+  },
+  "picker_state": {
+    "injected": true,
+    "open_calls": [
+      {
+        "name": "ui-business.xlsx",
+        "size": 1594
+      }
+    ],
+    "handler": "async()=>{const f=window.uiInjectedFile;window.uiInjectedOpens.push({name:f.name,size:f.si"
+  },
+  "chooser_events": [],
+  "business_text": "导入已提交。成功回执：63afacfb97fa5494a65f4cc8563df39479a52849be0e50fd\nBack\n导入业务 Excel\n导入结果\n所有行均需明确决定。确认汇总后才写入；导入前会创建并校验完整备份。\n导入已提交。成功回执：63afacfb97fa5494a65f4cc8563df39479a52849be0e50fd\n分页查看提交结果（3 个修订）",
+  "receipt": "63afacfb97fa5494a65f4cc8563df39479a52849be0e50fd",
+  "job_id": null,
+  "export_text": "完整同步包已自验并写入所选文件：3 条修订 · fda3bbec58cb4e90b3b756874b7e1a15c31595bc32c910e03247db6f9da1999f\nBack\n完整同步\n分卷完整历史\n完整同步包用于设备之间交换全部因果历史。业务 Excel 仍用于日常编辑，两种文件不能互相替代。\n完整同步包已自验并写入所选文件：3 条修订 · fda3bbec58cb4e90b3b756874b7e1a15c31595bc32c910e03247db6f9da1999f\n选择并预览\n生成同步包\n恢复预览并继续确认",
+  "bundle_text": "完整同步已一次提交：3 条修订，generation 2。 \nBack\n完整同步\n分卷完整历史\n完整同步包用于设备之间交换全部因果历史。业务 Excel 仍用于日常编辑，两种文件不能互相替代。\n完整同步已一次提交：3 条修订，generation 2。\n选择并预览\n生成同步包\n恢复预览并继续确认",
+  "injected_open_calls": [
+    {
+      "name": "ui-business.xlsx",
+      "size": 1594
+    },
+    {
+      "name": "supplier.bundle.zip",
+      "size": 13748
+    }
+  ],
+  "saved_files": [
+    {
+      "name": "supplier.bundle.zip",
+      "size": 13748
+    }
+  ],
+  "browser_restart": {
+    "pid": 98245,
+    "exitCode": 0,
+    "method": "CDP Browser.close"
+  },
+  "durable_history_text": "Back\n文件任务记录\n刷新\nBack\n文件任务记录\n刷新\nBack\n文件任务记录\n刷新\nBack\n文件任务记录\n刷新\nBack\n文件任务记录\n刷新\nBack\n文件任务记录\n刷新\nBack\n刷新\n\n\n\n\n\n",
+  "task_history_ocr": "文件任务记录\n\n人 B尝成\n13748 字节 基线 generation 1\n任务 474d6c8d0d402f1d16cb1f88ca671f12e015ddc83b844237\n源摘要 eb41b18ab9518433150a583efa78dc1f85fe69279b2ba335a23a17a66d44b0cb\n\nOO B沈成\n1594 字节 . 基线 generation 0\n任务 018e3352b362055feb268617b47371672ca3da548a3154ef\n源摘要 dbe1ca00a0f64efe41291f0b8f8695d87bff5827954751efd2b2922e95f62553\n",
+  "durable_opfs_files": [
+    {
+      "path": "supplier-inquiry-v2-backups/d99b2a5b-c3a6-4a60-9fae-a28f380274aa.logical",
+      "size": 444
+    },
+    {
+      "path": "supplier-inquiry-v2-backups/80c60094-4755-4d73-b9c1-81568978a0ea.logical",
+      "size": 8474
+    },
+    {
+      "path": "drift_db/supplier-inquiry-v2-db-219afa29-e0d9-402b-82ef-a8820072050c/database",
+      "size": 1138688
+    },
+    {
+      "path": "drift_db/inquiry-v2-business-018e3352b362055feb268617b47371672ca3da548a3154ef/database",
+      "size": 49152
+    }
+  ],
+  "backup_files": [
+    {
+      "path": "supplier-inquiry-v2-backups/d99b2a5b-c3a6-4a60-9fae-a28f380274aa.logical",
+      "size": 444
+    },
+    {
+      "path": "supplier-inquiry-v2-backups/80c60094-4755-4d73-b9c1-81568978a0ea.logical",
+      "size": 8474
+    }
+  ],
+  "limitations": [
+    "Open/save handles injected; native chooser not verified.",
+    "Backup files persist; semantic backup verification belongs to formal adapter test."
+  ],
+  "final_text": "Back\n文件任务记录\n刷新"
+}

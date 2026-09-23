@@ -1,0 +1,27 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/storage_gate_test.dart
+00:00 +0: test/storage_gate_test.dart: disk reopen, FK enforcement, and native runtime evidence
+{"os":"macos","osVersion":"Version 26.5.2 (Build 25F84)","dart":"3.13.3 (stable) (Tue Sep 1 01:07:17 2026 -0700) on \"macos_arm64\""}
+SQLite: 3.53.4
+journal_mode: {journal_mode: delete}
+00:00 +1: test/storage_gate_test.dart: business failure after_record rolls back rows and generation
+00:00 +2: test/storage_gate_test.dart: business failure before_commit rolls back rows and generation
+00:00 +3: test/storage_gate_test.dart: real SQLITE_FULL rolls back business row and generation
+00:00 +4: test/storage_gate_test.dart: after COMMIT response failure keeps complete durable transaction
+00:00 +5: test/storage_gate_test.dart: same-process concurrent writers serialize and reject stale generation
+00:00 +6: test/storage_gate_test.dart: separate process holds application lock until released
+00:02 +7: test/storage_gate_test.dart: snapshot pages are bounded; all reads remain on frozen generation
+fixture snapshot SHA256: 2a0f1cd3fbd8bcbc2ff4bb4243640c4093e145a859b89d13a30491cac012139e
+00:02 +8: test/storage_gate_test.dart: snapshot failure on page 1 never affects active DB
+00:02 +9: test/storage_gate_test.dart: snapshot failure on page 2 never affects active DB
+00:02 +10: test/storage_gate_test.dart: snapshot failure on page 4 never affects active DB
+00:02 +11: test/storage_gate_test.dart: snapshot write request waits and does not mix generations
+00:02 +12: test/storage_gate_test.dart: activation fences old connection, preserves backup, new writer works
+00:02 +13: test/storage_gate_test.dart: stale restore generation is rejected after an intervening edit
+00:02 +14: test/storage_gate_test.dart: same-instance snapshot connection cannot write as active file
+00:02 +15: test/storage_gate_test.dart: snapshot failure immediately before COMMIT rolls back all copied pages
+00:02 +16: test/storage_gate_test.dart: candidate tampering rejected before pointer publication
+00:02 +17: test/storage_gate_test.dart: reopen failure restores old pointer with a fresh epoch
+00:02 +18: test/storage_gate_test.dart: process crash before_pointer reopens a complete old or new database
+00:04 +19: test/storage_gate_test.dart: process crash inside_pointer reopens a complete old or new database
+00:06 +20: test/storage_gate_test.dart: process crash after_pointer reopens a complete old or new database
+00:09 +21: All tests passed!

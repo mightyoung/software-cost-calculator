@@ -1,0 +1,8 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "Script ran on page and returned:\n```json\n{\"status\":\"PASS\",\"value\":{\"instance\":\"new\",\"epoch\":2},\"scope\":\"page reload only; not browser process restart\"}\n```"
+    }
+  ]
+}

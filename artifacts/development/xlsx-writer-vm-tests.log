@@ -1,0 +1,27 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/xlsx_writer_test.dart
+00:00 +0: rejects CR in worksheet names
+00:00 +1: rejects LF in worksheet names
+00:00 +2: rejects tab in worksheet names
+00:00 +3: inline text preserves identifiers, exact decimals, UTC and raw Unicode
+00:02 +4: maximum UTF16 cell with escaping passes; no implicit trim or normalization
+00:02 +5: reject invalid cell length or scalar 32768
+00:02 +6: reject invalid cell length or scalar 32768
+00:02 +7: reject invalid cell length or scalar 1
+00:02 +8: reject invalid cell length or scalar 1
+00:02 +9: null and empty string remain distinct throughout readback
+00:02 +10: row width mismatch cannot silently erase missing columns
+00:02 +11: sync and ordinary row policies are explicit
+00:02 +12: sync cannot raise default row cap; adapter cannot raise byte ceilings
+00:02 +13: actual expanded XML budget includes escaping and all package parts
+00:02 +14: compressed output budget is enforced during package construction
+00:02 +15: reader requires a fresh validation database and preserves existing run
+00:02 +16: cancel during rows preserves the original failure and does not validate
+00:02 +17: publish chunking is bounded and sink mutation cannot alter validated bytes
+00:02 +18: output write failure aborts
+00:02 +19: output publish failure aborts
+00:02 +20: primary and abort failures retain both stacks
+00:02 +21: quotation headers cover payload and four non-authoritative hints
+00:02 +22: actual sync volume row boundary includes header separately
+00:03 +23: source stream failure cannot produce a publishable volume
+00:03 +24: output checkpoint cancellation aborts target before publication
+00:03 +25: All tests passed!

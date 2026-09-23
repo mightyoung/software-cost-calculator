@@ -1,0 +1,5 @@
+[
+  {"fixture":"v1-golden-fixed-matrices","cells":131,"xlsxBytes":9586,"budgetB":1088266,"encoderWithinBudget":true},
+  {"fixture":"100-unique-24000-unit-escaped-strings","cells":100,"xlsxBytes":51240,"budgetB":21870176,"encoderWithinBudget":true,"formalAdmission":"REJECT: B exceeds 20 MiB"},
+  {"fixture":"100-unique-32767-unit-unicode-cells","cells":100,"xlsxBytes":40061,"budgetB":14179976,"encoderWithinBudget":true}
+]

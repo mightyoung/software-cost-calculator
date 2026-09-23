@@ -1,0 +1,15 @@
+Compiled 15,302,389 input bytes (9,871,372 characters source) to 383,391 characters JavaScript in 2.86 seconds
+Compiled 16,597,279 input bytes (11,166,262 characters source) to 865,741 characters JavaScript in 4.47 seconds
+{
+  "status": "PASS",
+  "first": {
+    "status": "PASS",
+    "cases": 17,
+    "storage": "OPFS SQLite",
+    "raw_formula_date": true
+  },
+  "reopened": {
+    "status": "PASS",
+    "process_reopen": true
+  }
+}

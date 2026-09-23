@@ -1,0 +1,64 @@
+Resolving dependencies...
+Downloading packages...
+  material_color_utilities 0.13.0 (0.13.1 available)
+  test_api 0.7.12 (0.7.14 available)
+  unorm_dart 0.3.1 (0.3.2 available)
+  vector_math 2.4.0 (2.4.2 available)
+Got dependencies!
+4 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_database_host_test.dart
+00:00 +0: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_database_host_test.dart: persistent business and installation identity survive reopening
+00:04 +1: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_backup_artifact_test.dart: real SQLite backup is reread and published after private artifact cleanup
+00:04 +2: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_database_host_test.dart: epoch mismatch refuses startup without replacing data
+00:04 +3: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_database_host_test.dart: reactivation never grants an old connection the new epoch
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:294:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:17:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:30:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_database_host_test.dart:76:19)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#8      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#9      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:95:23)
+<asynchronous suspension>
+#5      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#6      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:33:7)
+<asynchronous suspension>
+#7      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_database_host_test.dart:76:19)
+<asynchronous suspension>
+#8      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#10     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:04 +4: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_database_host_test.dart: missing active file is never recreated silently
+00:05 +5: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_database_host_test.dart: empty active file is never recreated silently
+00:05 +6: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_database_host_test.dart: missing installation metadata does not hide an existing business file
+00:06 +7: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_database_host_test.dart: durable bootstrap resumes completed candidate before pointer publication
+00:06 +8: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_database_host_test.dart: nonzero schema-zero SQLite is not initialized
+00:06 +9: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_database_host_test.dart: nonzero schema-zero SQLite with unrelated data is not initialized
+00:06 +10: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_database_host_test.dart: corrupt active file is rejected without replacing bytes
+00:06 +11: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_database_host_test.dart: missing required table rejects a schema-two database unchanged
+00:07 +12: All tests passed!

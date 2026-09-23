@@ -1,0 +1,61 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/xlsx_reader_test.dart
+00:00 +0: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:01 +1: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:01 +2: test/xlsx_reader_test.dart: shared strings SQL persists more than cache; rich text exact
+00:01 +3: test/xlsx_reader_test.dart: shared strings SQL persists more than cache; rich text exact
+00:01 +4: test/xlsx_reader_test.dart: formula nodes including empty shared formula remain row errors
+00:01 +5: test/xlsx_reader_test.dart: reject duplicate coordinate and quarantine
+00:01 +6: test/xlsx_reader_test.dart: reject wrong row and quarantine
+00:01 +7: test/xlsx_reader_test.dart: reject unsorted coordinate and quarantine
+00:01 +8: test/xlsx_reader_test.dart: reject duplicate row and quarantine
+00:01 +9: test/xlsx_reader_test.dart: reject missing row coordinate and quarantine
+00:01 +10: test/xlsx_reader_test.dart: reject unknown shared string and quarantine
+00:01 +11: test/xlsx_reader_test.dart: reject duplicate value and quarantine
+00:01 +12: test/xlsx_reader_test.dart: reject unquoted attribute and quarantine
+00:01 +13: test/xlsx_reader_test.dart: reject missing assignment and quarantine
+00:01 +14: test/xlsx_reader_test.dart: reject oversized cell and quarantine
+00:01 +15: test/xlsx_reader_test.dart: reject merged
+00:01 +16: test/xlsx_reader_test.dart: reject wrong namespace
+00:01 +17: test/xlsx_reader_test.dart: reject undeclared prefix
+00:01 +18: test/xlsx_reader_test.dart: reject DTD
+00:01 +19: test/xlsx_reader_test.dart: reject bad nesting
+00:01 +20: test/xlsx_reader_test.dart: reject multiple roots
+00:01 +21: test/xlsx_reader_test.dart: 5000 data plus header enforced by actual row elements, not dimension
+00:01 +22: test/xlsx_reader_test.dart: selected sheet relationship is respected
+00:01 +23: test/xlsx_reader_test.dart: ST_Xstring single-pass decode retains CR and escaped-looking IDs
+00:01 +24: test/xlsx_reader_test.dart: CDATA and escaped ampersands remain literal while date type is preserved
+00:01 +25: test/xlsx_reader_test.dart: strict scalar/entity/escaped character <v>1<garbage>9</garbage>2</v>
+00:01 +26: test/xlsx_reader_test.dart: strict scalar/entity/escaped character <v>A&bogus;B</v>
+00:01 +27: test/xlsx_reader_test.dart: strict scalar/entity/escaped character <v>A&B</v>
+00:01 +28: test/xlsx_reader_test.dart: strict scalar/entity/escaped character <v>A]]>B</v>
+00:01 +29: test/xlsx_reader_test.dart: strict scalar/entity/escaped character <is><garbage>00123</garbage></is>
+00:01 +30: test/xlsx_reader_test.dart: strict scalar/entity/escaped character <is>00123</is>
+00:01 +31: test/xlsx_reader_test.dart: strict scalar/entity/escaped character <is><r><garbage>00123</garbage></r></is>
+00:01 +32: test/xlsx_reader_test.dart: strict scalar/entity/escaped character <v>&#0;</v>
+00:01 +33: test/xlsx_reader_test.dart: strict scalar/entity/escaped character <is><t>_x0001_</t></is>
+00:01 +34: test/xlsx_reader_test.dart: strict scalar/entity/escaped character <is><t>_xD800_</t></is>
+00:01 +35: test/xlsx_reader_test.dart: mid-parse cancellation preserves error and quarantines staging
+00:01 +36: test/xlsx_reader_test.dart: explicit row policy is independent of sync-volume default
+00:01 +37: test/xlsx_reader_test.dart: last nonselected resource CRC failure cannot publish earlier rows
+00:01 +38: test/xlsx_reader_test.dart: strict namespace/declaration/attribute rejection <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:q="urn:x"><sheetData a:1b="x"/></worksheet>
+00:01 +39: test/xlsx_reader_test.dart: strict namespace/declaration/attribute rejection <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:q="http://www.w3.org/XML/1998/namespace"><sheetData/></worksheet>
+00:01 +40: test/xlsx_reader_test.dart: strict namespace/declaration/attribute rejection <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><!--bad--comment--><sheetData/></worksheet>
+00:01 +41: test/xlsx_reader_test.dart: strict namespace/declaration/attribute rejection <?xml version=1.0?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData/></worksheet>
+00:01 +42: test/xlsx_reader_test.dart: strict namespace/declaration/attribute rejection <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData x="A&bad;"/></worksheet>
+00:01 +43: test/xlsx_reader_test.dart: specific WPS workbook calculation metadata is structurally ignored
+00:01 +44: test/xlsx_reader_test.dart: calculation extension cannot bypass location/URI/QName/text bounds <extLst><ext uri="wrong" xmlns:xcalcf="http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures"><xcalcf:calcFeatures/></ext></extLst>
+00:01 +45: test/xlsx_reader_test.dart: calculation extension cannot bypass location/URI/QName/text bounds <extLst><ext uri="{B58B0392-4F1F-4190-BB64-5DF3571DCE5F}" xmlns:xcalcf="http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures"><xcalcf:calcFeatures><sheet name="ignored-business" r:id="s"/></xcalcf:calcFeatures></ext></extLst>
+00:01 +46: test/xlsx_reader_test.dart: calculation extension cannot bypass location/URI/QName/text bounds <extLst><ext uri="{B58B0392-4F1F-4190-BB64-5DF3571DCE5F}" xmlns:xcalcf="http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures"><xcalcf:calcFeatures>business text</xcalcf:calcFeatures></ext></extLst>
+00:01 +47: test/xlsx_reader_test.dart: calculation extension cannot bypass location/URI/QName/text bounds <extLst><ext uri="{B58B0392-4F1F-4190-BB64-5DF3571DCE5F}" xmlns:xcalcf="http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures"><xcalcf:calcFeatures><xcalcf:unknown/></xcalcf:calcFeatures></ext></extLst>
+00:01 +48: test/xlsx_reader_test.dart: calculation extension cannot bypass location/URI/QName/text bounds <bookViews><extLst><ext uri="{B58B0392-4F1F-4190-BB64-5DF3571DCE5F}" xmlns:xcalcf="http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures"><xcalcf:calcFeatures/></ext></extLst></bookViews>
+00:01 +49: test/xlsx_reader_test.dart: unsupported or unbound MC instruction MustUnderstand="r"
+00:01 +50: test/xlsx_reader_test.dart: unsupported or unbound MC instruction ProcessContent="r:sheet"
+00:01 +51: test/xlsx_reader_test.dart: unsupported or unbound MC instruction PreserveElements="r:sheet"
+00:01 +52: test/xlsx_reader_test.dart: unsupported or unbound MC instruction Unknown="x"
+00:01 +53: test/xlsx_reader_test.dart: unsupported or unbound MC instruction Ignorable="unbound"
+00:01 +54: test/xlsx_reader_test.dart: Ignorable is not permission to discard unknown business elements
+00:01 +55: test/xlsx_reader_test.dart: empty WPS slicer style metadata does not affect raw cells
+00:01 +56: test/xlsx_reader_test.dart: nonempty/unknown slicer metadata is unsupported <x14:slicerStyles defaultSlicerStyle="x"><x14:slicerStyle name="x"/></x14:slicerStyles>
+00:01 +57: test/xlsx_reader_test.dart: nonempty/unknown slicer metadata is unsupported <x14:slicerStyles defaultSlicerStyle="x">business text</x14:slicerStyles>
+00:01 +58: test/xlsx_reader_test.dart: nonempty/unknown slicer metadata is unsupported <x14:slicerStyles defaultSlicerStyle="x" unknown="y"/>
+00:01 +59: All tests passed!

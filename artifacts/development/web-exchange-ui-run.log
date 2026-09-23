@@ -1,0 +1,150 @@
+{
+  "status": "BLOCKED",
+  "scope": "real Flutter release UI; no picker replacement",
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/153.0.8010.53",
+    "revision": "@792bf6722e73a45aa9e47c163b9901bdc17f3230",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+    "jsVersion": "15.3.76.13"
+  },
+  "initial_text": "供应商与询价\n新增报价\n查询与比价\n搜索\n没有符合条件的记录\n新建记录或导入业务 Excel 后即可查询。\n清除筛选",
+  "semantics": [
+    {
+      "label": null,
+      "text": "供应商与询价\n新增报价\n查询与比价\n搜索\n没有符合条件的记录\n新建记录或导入业务 Excel 后即可查询。\n清除筛选",
+      "role": null
+    },
+    {
+      "label": null,
+      "text": "供应商与询价\n新增报价\n查询与比价\n搜索\n没有符合条件的记录\n新建记录或导入业务 Excel 后即可查询。\n清除筛选",
+      "role": null
+    },
+    {
+      "label": null,
+      "text": "供应商与询价\n新增报价\n查询与比价\n搜索\n没有符合条件的记录\n新建记录或导入业务 Excel 后即可查询。\n清除筛选",
+      "role": null
+    },
+    {
+      "label": null,
+      "text": "供应商与询价\n新增报价\n查询与比价\n搜索\n没有符合条件的记录\n新建记录或导入业务 Excel 后即可查询。\n清除筛选",
+      "role": null
+    },
+    {
+      "label": null,
+      "text": "供应商与询价\n新增报价",
+      "role": null
+    },
+    {
+      "label": null,
+      "text": "新增报价",
+      "role": "button"
+    },
+    {
+      "label": null,
+      "text": "查询与比价",
+      "role": null
+    },
+    {
+      "label": null,
+      "text": "",
+      "role": null
+    },
+    {
+      "label": null,
+      "text": "搜索",
+      "role": "button"
+    },
+    {
+      "label": "全部记录",
+      "text": "",
+      "role": "checkbox"
+    },
+    {
+      "label": "每家最新",
+      "text": "",
+      "role": "checkbox"
+    },
+    {
+      "label": "有效最低价",
+      "text": "",
+      "role": "checkbox"
+    },
+    {
+      "label": "历史缺失",
+      "text": "",
+      "role": "checkbox"
+    },
+    {
+      "label": "组合筛选",
+      "text": "",
+      "role": "checkbox"
+    },
+    {
+      "label": null,
+      "text": "没有符合条件的记录\n新建记录或导入业务 Excel 后即可查询。\n清除筛选",
+      "role": "group"
+    },
+    {
+      "label": null,
+      "text": "没有符合条件的记录",
+      "role": null
+    },
+    {
+      "label": null,
+      "text": "新建记录或导入业务 Excel 后即可查询。",
+      "role": null
+    },
+    {
+      "label": null,
+      "text": "清除筛选",
+      "role": "button"
+    },
+    {
+      "label": null,
+      "text": "",
+      "role": "tablist"
+    },
+    {
+      "label": "查询与比价",
+      "text": "",
+      "role": "tab"
+    },
+    {
+      "label": "供应商",
+      "text": "",
+      "role": "tab"
+    },
+    {
+      "label": "产品",
+      "text": "",
+      "role": "tab"
+    },
+    {
+      "label": "文件与备份",
+      "text": "",
+      "role": "tab"
+    }
+  ],
+  "exchange_text": "供应商与询价\n新增报价\n导入导出与备份\n业务 Excel 用于整理报价；完整备份用于保存全部历史和导入记录。\n导入业务 Excel 选择资料模式、映射列并预览，确认后才写入。\n导入业务 Excel\n导出业务 Excel 导出已确认的业务字段，保留原始编号和精确金额。\n导出业务 Excel\n生成完整备份 校验完成后才报告生成成功；浏览器下载状态单独显示。\n生成完整备份\n恢复备份 先验证备份，再确认切换；当前数据保留至重新打开校验完成。\n恢复备份",
+  "business_text": "Back\n导入业务 Excel\n选择资料与工作表\n所有行均需明确决定。确认汇总后才写入；导入前会创建并校验完整备份。\n选择 Excel 文件\n恢复导入任务",
+  "after_picker_text": "Back\n导入业务 Excel\n选择资料与工作表\n所有行均需明确决定。确认汇总后才写入；导入前会创建并校验完整备份。\n操作未完成：AbortError: Failed to execute 'showOpenFilePicker' on 'Window': Intercepted by Page.setInterceptFileChooserDialog().\n选择 Excel 文件\n恢复导入任务",
+  "file_chooser_events": [
+    {
+      "method": "Page.fileChooserOpened",
+      "params": {
+        "frameId": "05C5034A0DA2F6D7B38BD9C59DCE4CDB",
+        "mode": "selectSingle"
+      }
+    }
+  ],
+  "handle_file_chooser_error": "{'id': 35, 'error': {'code': -32601, 'message': \"'Page.handleFileChooser' wasn't found\"}}",
+  "input_elements": [
+    {
+      "type": "text",
+      "accept": ""
+    }
+  ],
+  "limitation": "Native File System Access showOpenFilePicker cannot be populated with DOM.setFileInputFiles; no HTML file input exists. No picker replacement was used.",
+  "final_text": "Back\n导入业务 Excel\n选择资料与工作表\n所有行均需明确决定。确认汇总后才写入；导入前会创建并校验完整备份。\n操作未完成：AbortError: Failed to execute 'showOpenFilePicker' on 'Window': Intercepted by Page.setInterceptFileChooserDialog().\n选择 Excel 文件\n恢复导入任务"
+}

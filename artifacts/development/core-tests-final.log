@@ -1,0 +1,66 @@
+00:00 +0: loading test/protocol_test.dart
+00:00 +0: test/protocol_test.dart: restricted JCS UTF-16 key ordering and JSON escaping
+00:00 +1: test/protocol_test.dart: restricted JCS rejects fractions, unsafe integers, invalid strings and keys
+00:00 +2: test/protocol_test.dart: versioned source and operation fingerprints missing blank and value source states remain distinct
+00:00 +3: test/protocol_test.dart: versioned source and operation fingerprints missing blank and value source states remain distinct
+00:00 +4: test/protocol_test.dart: versioned source and operation fingerprints missing blank and value source states remain distinct
+00:00 +5: test/protocol_test.dart: versioned source and operation fingerprints missing blank and value source states remain distinct
+00:00 +6: test/protocol_test.dart: versioned source and operation fingerprints keep clear set intent and quantity define operation identity
+00:00 +7: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:00 +8: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:00 +9: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:00 +10: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:01 +11: test/protocol_test.dart: independent quotation date instant and historical golden vectors
+00:01 +12: test/protocol_test.dart: independent quotation date instant and historical golden vectors
+00:01 +13: test/protocol_test.dart: independent quotation date instant and historical golden vectors
+00:01 +14: test/protocol_test.dart: independent quotation date instant and historical golden vectors
+00:01 +15: test/protocol_test.dart: independent quotation date instant and historical golden vectors
+00:01 +16: test/protocol_test.dart: independent quotation date instant and historical golden vectors
+00:01 +17: test/graph_test.dart: empty union is valid and version is bound before all reads
+00:01 +18: test/graph_test.dart: empty union is valid and version is bound before all reads
+00:01 +19: test/domain_test.dart: every text field enforces its codepoint boundary
+00:01 +20: test/domain_test.dart: every text field enforces its codepoint boundary
+00:01 +21: test/domain_test.dart: every text field enforces its codepoint boundary
+00:01 +22: test/domain_test.dart: every text field enforces its codepoint boundary
+00:01 +23: test/domain_test.dart: every text field enforces its codepoint boundary
+00:01 +24: test/domain_test.dart: every text field enforces its codepoint boundary
+00:01 +25: test/domain_test.dart: every text field enforces its codepoint boundary
+00:01 +26: test/domain_test.dart: every text field enforces its codepoint boundary
+00:01 +27: test/graph_test.dart: 100 fixed-seed DAGs match independent set-difference heads oracle
+00:01 +28: test/graph_test.dart: 100 fixed-seed DAGs match independent set-difference heads oracle
+00:01 +29: test/graph_test.dart: 100 fixed-seed DAGs match independent set-difference heads oracle
+00:01 +30: test/graph_test.dart: 100 fixed-seed DAGs match independent set-difference heads oracle
+00:02 +31: test/graph_test.dart: 100 fixed-seed DAGs match independent set-difference heads oracle
+00:02 +32: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +33: test/graph_test.dart: wide fan-out children and heads are not collected by validator
+00:04 +34: test/graph_test.dart: graph_missing_parent rejects graph and discards all work
+00:04 +35: test/graph_test.dart: graph_multiple_roots rejects graph and discards all work
+00:04 +36: test/graph_test.dart: graph_parent_entity rejects graph and discards all work
+00:04 +37: test/graph_test.dart: graph_root_kind rejects graph and discards all work
+00:04 +38: test/graph_test.dart: graph_cycle rejects graph and discards all work
+00:04 +39: test/graph_test.dart: graph_missing_reference rejects graph and discards all work
+00:04 +40: test/graph_test.dart: instance change during scan invalidates entire run
+00:04 +41: test/graph_test.dart: epoch change during scan invalidates entire run
+00:04 +42: test/graph_test.dart: generation change during scan invalidates entire run
+00:04 +43: test/graph_test.dart: job change during scan invalidates entire run
+00:04 +44: test/graph_test.dart: sealed change during scan invalidates entire run
+00:04 +45: test/graph_test.dart: source exception discards partially built topology and permits fresh retry
+00:04 +46: test/graph_test.dart: redirect cycle and feeder are relation anomalies, preserving valid history
+00:04 +47: test/graph_test.dart: parallel redirect heads propagate anomaly without choosing a winner
+00:04 +48: test/graph_test.dart: deep redirects use persistent visits and memoized terminal results
+00:04 +49: test/graph_test.dart: delete is retained and redirect resolves to tombstone without resurrection
+00:04 +50: test/graph_test.dart: all put payload references exist; tombstones and old snapshots remain valid history
+00:04 +51: test/graph_test.dart: missing referenced supplier rejects union
+00:04 +52: test/graph_test.dart: missing referenced product rejects union
+00:04 +53: test/graph_test.dart: missing referenced contact rejects union
+00:04 +54: test/graph_test.dart: superseded put payload still requires historical reference closure
+00:04 +55: test/graph_test.dart: reference of wrong entity type is not accepted by matching UUID alone
+00:04 +56: test/graph_test.dart: explicit descendant repairs old redirect cycle without erasing history
+00:04 +57: test/graph_test.dart: merge of all parallel heads repairs component without using old edges
+00:04 +58: test/graph_test.dart: redirect into conflicted target stays conflicted, with no canonical winner
+00:04 +59: test/graph_test.dart: binding read failure clears prior successful run
+00:04 +60: test/graph_test.dart: cycle through parallel heads keeps entire component anomalous
+00:04 +61: test/graph_test.dart: missing parent plus cleanup failure preserves both failures and stacks
+00:04 +62: test/graph_test.dart: metadata plus cleanup failure preserves original identity and exact stack
+00:04 +63: test/graph_test.dart: successful cleanup rethrows original metadata failure with original stack
+00:04 +64: All tests passed!

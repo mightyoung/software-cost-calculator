@@ -1,0 +1,520 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/export_snapshot_test.dart
+00:00 +0: test/export_snapshot_test.dart: all volumes use a frozen snapshot while unrelated live data changes
+00:01 +1: test/export_snapshot_test.dart: all volumes use a frozen snapshot while unrelated live data changes
+00:01 +2: test/export_snapshot_test.dart: all volumes use a frozen snapshot while unrelated live data changes
+00:01 +3: test/export_snapshot_test.dart: all volumes use a frozen snapshot while unrelated live data changes
+00:01 +4: test/export_snapshot_test.dart: all volumes use a frozen snapshot while unrelated live data changes
+00:01 +5: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +6: test/candidate_digest_test.dart: only activation epoch is ignored
+00:02 +7: test/candidate_digest_test.dart: only activation epoch is ignored
+00:02 +8: test/candidate_digest_test.dart: only activation epoch is ignored
+00:02 +9: test/business_commit_test.dart: double confirmation and reopen reuse one persisted event
+00:02 +10: test/storage_migration_test.dart: explicit migration preserves authority settings receipts and increments once after reopen
+00:02 +11: test/storage_migration_test.dart: explicit migration preserves authority settings receipts and increments once after reopen
+00:02 +12: test/storage_migration_test.dart: explicit migration preserves authority settings receipts and increments once after reopen
+00:02 +13: test/storage_migration_test.dart: explicit migration preserves authority settings receipts and increments once after reopen
+00:02 +14: test/storage_migration_test.dart: explicit migration preserves authority settings receipts and increments once after reopen
+00:02 +15: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:02 +16: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:02 +17: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:02 +18: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:02 +19: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:02 +20: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:02 +21: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:02 +22: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:02 +23: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:02 +24: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:02 +25: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:02 +26: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:02 +27: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:02 +28: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:02 +29: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:02 +30: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:02 +31: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:02 +32: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:02 +33: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:02 +34: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:02 +35: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:03 +36: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:03 +37: test/xlsx_reader_test.dart: lexical text/numeric types, date1904, style and actual counts
+00:03 +38: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +39: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +40: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +41: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +42: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +43: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +44: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +45: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +46: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +47: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +48: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +49: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +50: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +51: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +52: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +53: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +54: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +55: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +56: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +57: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +58: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +59: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +60: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +61: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +62: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +63: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +64: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +65: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +66: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:03 +67: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +68: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +69: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +70: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +71: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +72: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +73: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +74: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +75: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +76: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +77: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +78: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +79: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +80: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +81: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +82: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +83: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +84: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +85: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +86: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +87: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +88: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +89: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +90: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +91: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +92: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +93: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +94: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +95: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +96: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +97: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +98: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +99: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:04 +100: test/bundle_exchange_service_test.dart: full bundle confirmation commits once and reimport deduplicates the revision set
+00:04 +101: test/bundle_exchange_service_test.dart: full bundle confirmation commits once and reimport deduplicates the revision set
+00:04 +102: test/bundle_exchange_service_test.dart: full bundle confirmation commits once and reimport deduplicates the revision set
+00:04 +103: test/bundle_exchange_service_test.dart: full bundle confirmation commits once and reimport deduplicates the revision set
+00:04 +104: test/bundle_exchange_service_test.dart: full bundle confirmation commits once and reimport deduplicates the revision set
+00:04 +105: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:04 +106: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:05 +107: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:05 +108: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:05 +109: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:05 +110: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:05 +111: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:05 +112: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:05 +113: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:05 +114: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:05 +115: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:05 +116: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:05 +117: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:05 +118: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:05 +119: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:05 +120: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:05 +121: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:05 +122: test/import_receipts_test.dart: empty synthetic jobs have explicit zero count and stable digest
+00:05 +123: test/import_receipts_test.dart: empty synthetic jobs have explicit zero count and stable digest
+00:05 +124: test/import_receipts_test.dart: empty synthetic jobs have explicit zero count and stable digest
+00:05 +125: test/import_receipts_test.dart: empty synthetic jobs have explicit zero count and stable digest
+00:05 +126: test/import_receipts_test.dart: empty synthetic jobs have explicit zero count and stable digest
+00:05 +127: test/import_receipts_test.dart: empty synthetic jobs have explicit zero count and stable digest
+00:05 +128: test/import_receipts_test.dart: empty synthetic jobs have explicit zero count and stable digest
+00:05 +129: test/import_receipts_test.dart: empty synthetic jobs have explicit zero count and stable digest
+00:05 +130: test/import_receipts_test.dart: empty synthetic jobs have explicit zero count and stable digest
+00:06 +131: test/import_receipts_test.dart: empty synthetic jobs have explicit zero count and stable digest
+00:06 +132: test/import_receipts_test.dart: empty synthetic jobs have explicit zero count and stable digest
+00:06 +133: test/import_receipts_test.dart: empty synthetic jobs have explicit zero count and stable digest
+00:06 +134: test/query_test.dart: history materializes page keys before display joins
+00:06 +135: test/query_test.dart: history materializes page keys before display joins
+00:06 +136: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +137: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +138: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +139: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +140: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +141: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +142: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +143: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +144: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +145: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +146: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +147: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +148: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +149: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +150: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +151: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +152: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +153: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +154: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +155: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +156: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +157: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +158: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +159: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +160: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +161: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +162: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +163: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +164: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:06 +165: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:06 +166: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +167: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +168: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +169: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +170: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +171: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +172: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +173: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +174: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +175: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +176: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +177: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +178: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +179: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +180: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +181: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +182: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +183: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +184: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +185: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +186: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +187: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +188: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +189: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +190: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +191: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +192: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +193: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +194: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +195: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +196: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +197: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +198: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +199: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +200: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:07 +201: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +202: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +203: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +204: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +205: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +206: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +207: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +208: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +209: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +210: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +211: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +212: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +213: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +214: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +215: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +216: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +217: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +218: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +219: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +220: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +221: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +222: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +223: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +224: test/backup_candidate_test.dart: v1 successful legacy receipt restores without invented operation details
+00:08 +225: test/backup_candidate_test.dart: v1 successful legacy receipt restores without invented operation details
+00:08 +226: test/backup_candidate_test.dart: v1 successful legacy receipt restores without invented operation details
+00:08 +227: test/backup_candidate_test.dart: v1 successful legacy receipt restores without invented operation details
+00:08 +228: test/backup_candidate_test.dart: v1 successful legacy receipt restores without invented operation details
+00:08 +229: test/backup_candidate_test.dart: v1 successful legacy receipt restores without invented operation details
+00:08 +230: test/graph_test.dart: 100 fixed-seed DAGs match independent set-difference heads oracle
+00:09 +231: test/graph_test.dart: 100 fixed-seed DAGs match independent set-difference heads oracle
+00:09 +232: test/graph_test.dart: 100 fixed-seed DAGs match independent set-difference heads oracle
+00:09 +233: test/graph_test.dart: 100 fixed-seed DAGs match independent set-difference heads oracle
+00:09 +234: test/graph_test.dart: 100 fixed-seed DAGs match independent set-difference heads oracle
+00:09 +235: test/graph_test.dart: 100 fixed-seed DAGs match independent set-difference heads oracle
+00:09 +236: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:09 +237: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:09 +238: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:09 +239: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:09 +240: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:09 +241: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:09 +242: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:09 +243: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:09 +244: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:09 +245: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:09 +246: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:09 +247: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:09 +248: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:09 +249: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:09 +250: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:09 +251: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:09 +252: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:09 +253: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:09 +254: test/graph_test.dart: single entity deep history remains paged and iterative
+00:09 +255: test/graph_test.dart: single entity deep history remains paged and iterative
+00:09 +256: test/graph_test.dart: single entity deep history remains paged and iterative
+00:09 +257: test/graph_test.dart: single entity deep history remains paged and iterative
+00:09 +258: test/graph_test.dart: single entity deep history remains paged and iterative
+00:09 +259: test/graph_test.dart: single entity deep history remains paged and iterative
+00:09 +260: test/graph_test.dart: single entity deep history remains paged and iterative
+00:09 +261: test/graph_test.dart: single entity deep history remains paged and iterative
+00:09 +262: test/graph_test.dart: single entity deep history remains paged and iterative
+00:09 +263: test/graph_test.dart: single entity deep history remains paged and iterative
+00:09 +264: test/graph_test.dart: single entity deep history remains paged and iterative
+00:09 +265: test/graph_test.dart: single entity deep history remains paged and iterative
+00:09 +266: test/graph_test.dart: single entity deep history remains paged and iterative
+00:09 +267: test/graph_test.dart: single entity deep history remains paged and iterative
+00:09 +268: test/graph_test.dart: single entity deep history remains paged and iterative
+00:09 +269: test/graph_test.dart: single entity deep history remains paged and iterative
+00:10 +270: test/graph_test.dart: single entity deep history remains paged and iterative
+00:10 +271: test/graph_test.dart: single entity deep history remains paged and iterative
+00:10 +272: test/graph_test.dart: single entity deep history remains paged and iterative
+00:10 +273: test/graph_test.dart: single entity deep history remains paged and iterative
+00:10 +274: test/graph_test.dart: single entity deep history remains paged and iterative
+00:10 +275: test/graph_test.dart: single entity deep history remains paged and iterative
+00:10 +276: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:10 +277: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:10 +278: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:10 +279: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:10 +280: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:10 +281: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:10 +282: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:10 +283: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:10 +284: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:10 +285: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:10 +286: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:10 +287: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:10 +288: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:10 +289: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:10 +290: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:10 +291: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:10 +292: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:10 +293: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:10 +294: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:10 +295: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +296: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +297: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +298: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +299: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +300: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +301: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +302: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +303: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +304: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +305: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +306: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +307: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +308: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +309: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +310: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +311: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +312: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +313: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +314: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +315: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +316: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +317: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +318: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +319: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +320: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +321: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +322: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +323: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +324: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +325: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +326: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:10 +327: test/backup_job_test.dart: source hash and version persist across reopen with bounded reads
+00:10 +328: test/backup_job_test.dart: source hash and version persist across reopen with bounded reads
+00:11 +329: test/bundle_database_test.dart: dangling contact supplier reference rejects a closed parent graph
+00:11 +330: test/bundle_database_test.dart: dangling contact supplier reference rejects a closed parent graph
+00:11 +331: test/bundle_database_test.dart: dangling contact supplier reference rejects a closed parent graph
+00:11 +332: test/bundle_database_test.dart: dangling contact supplier reference rejects a closed parent graph
+00:11 +333: test/bundle_database_test.dart: dangling contact supplier reference rejects a closed parent graph
+00:11 +334: test/bundle_database_test.dart: dangling contact supplier reference rejects a closed parent graph
+00:11 +335: test/bundle_database_test.dart: dangling contact supplier reference rejects a closed parent graph
+00:11 +336: test/bundle_database_test.dart: dangling contact supplier reference rejects a closed parent graph
+00:11 +337: test/bundle_database_test.dart: dangling contact supplier reference rejects a closed parent graph
+00:11 +338: test/bundle_database_test.dart: dangling contact supplier reference rejects a closed parent graph
+00:11 +339: test/bundle_database_test.dart: dangling contact supplier reference rejects a closed parent graph
+00:11 +340: test/bundle_database_test.dart: dangling contact supplier reference rejects a closed parent graph
+00:11 +341: test/bundle_database_test.dart: dangling contact supplier reference rejects a closed parent graph
+00:11 +342: test/bundle_database_test.dart: dangling contact supplier reference rejects a closed parent graph
+00:11 +343: test/bundle_database_test.dart: dangling contact supplier reference rejects a closed parent graph
+00:11 +344: test/bundle_database_test.dart: dangling contact supplier reference rejects a closed parent graph
+00:11 +345: test/backup_concurrency_test.dart: snapshot concurrency preserves the frozen backup generation
+00:11 +346: test/backup_concurrency_test.dart: snapshot concurrency preserves the frozen backup generation
+00:11 +347: test/backup_concurrency_test.dart: snapshot concurrency preserves the frozen backup generation
+00:11 +348: test/backup_job_test.dart: real coordinator receipt proves committed state after reopen
+00:11 +349: test/backup_job_test.dart: real coordinator receipt proves committed state after reopen
+00:11 +350: test/backup_job_test.dart: real coordinator receipt proves committed state after reopen
+00:11 +351: test/backup_job_test.dart: real coordinator receipt proves committed state after reopen
+00:11 +352: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:11 +353: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:11 +354: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:11 +355: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:11 +356: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:11 +357: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:11 +358: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:11 +359: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:11 +360: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:12 +361: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:12 +362: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:12 +363: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:12 +364: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:12 +365: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:12 +366: test/storage_test.dart: production validates and commits sealed canonical graph
+00:12 +367: test/storage_test.dart: production validates and commits sealed canonical graph
+00:13 +368: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:13 +369: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:13 +370: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:13 +371: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:13 +372: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:13 +373: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:13 +374: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:13 +375: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:13 +376: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:13 +377: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:13 +378: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:13 +379: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:13 +380: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:13 +381: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:13 +382: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:13 +383: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:13 +384: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:13 +385: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:13 +386: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:13 +387: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:13 +388: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:14 +389: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:14 +390: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:14 +391: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:14 +392: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:14 +393: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:14 +394: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:14 +395: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:14 +396: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:14 +397: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:14 +398: test/large_data_test.dart: disk-backed 257-revision history commits one head and survives reopen
+00:14 +399: test/business_import_service_test.dart: backup locator association failure retains confirmation for retry
+00:14 +400: test/business_import_service_test.dart: backup locator association failure retains confirmation for retry
+00:14 +401: test/business_import_service_test.dart: backup locator association failure retains confirmation for retry
+00:14 +402: test/business_import_service_test.dart: backup locator association failure retains confirmation for retry
+00:14 +403: test/business_import_service_test.dart: backup locator association failure retains confirmation for retry
+00:14 +404: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:14 +405: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:14 +406: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:14 +407: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:14 +408: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:14 +409: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:15 +410: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:15 +410: test/business_import_service_test.dart: applied subset is source-first on the next attempt
+WARNING (drift): It looks like you've created the database class XlsxStaging multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new XlsxStaging (package:supplier_core/src/exchange/xlsx_staging.dart)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/packages/supplier_core/test/business_import_service_test.dart:257:25)
+<asynchronous suspension>
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:15 +411: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:15 +412: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:15 +413: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:15 +414: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:15 +414: test/business_import_service_test.dart: bounded business export pages fixed columns and roundtrips exact text
+WARNING (drift): It looks like you've created the database class XlsxStaging multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new XlsxStaging (package:supplier_core/src/exchange/xlsx_staging.dart)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/packages/supplier_core/test/business_import_service_test.dart:312:26)
+<asynchronous suspension>
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class XlsxStaging multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new XlsxStaging (package:supplier_core/src/exchange/xlsx_staging.dart)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/packages/supplier_core/test/business_import_service_test.dart:313:24)
+<asynchronous suspension>
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:15 +415: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:15 +416: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:15 +416: test/business_import_service_test.dart: export detects version drift after writing and aborts before publication
+WARNING (drift): It looks like you've created the database class XlsxStaging multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new XlsxStaging (package:supplier_core/src/exchange/xlsx_staging.dart)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/packages/supplier_core/test/business_import_service_test.dart:361:26)
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:25)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:15 +417: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:15 +418: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:15 +419: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:15 +420: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:15 +421: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:15 +422: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:15 +422: test/business_import_service_test.dart: export output failure aborts without changing business data
+WARNING (drift): It looks like you've created the database class XlsxStaging multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new XlsxStaging (package:supplier_core/src/exchange/xlsx_staging.dart)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/packages/supplier_core/test/business_import_service_test.dart:389:24)
+<asynchronous suspension>
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:15 +423: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:15 +424: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:15 +425: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:15 +426: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:15 +427: test/large_data_test.dart: unique long shared strings preserve every row using one-row oracle
+00:16 +428: test/storage_test.dart: 100 fixed seed DAGs agree with independent head-set oracle
+00:16 +429: test/storage_test.dart: 100 fixed seed DAGs agree with independent head-set oracle
+00:16 +430: test/storage_test.dart: 100 fixed seed DAGs agree with independent head-set oracle
+00:16 +431: test/storage_test.dart: 100 fixed seed DAGs agree with independent head-set oracle
+00:17 +432: test/storage_test.dart: committed staging cleanup keeps durable event retry and seal
+00:17 +433: test/storage_test.dart: cancelled sealed staging can be reclaimed but never committed
+00:17 +434: test/storage_test.dart: unsupported migration leaves old schema and data intact
+00:17 +435: All tests passed!

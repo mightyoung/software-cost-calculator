@@ -1,0 +1,113 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/storage_migration_test.dart
+00:00 +0: test/storage_migration_test.dart: bootstrap v2 marker survives framework version-write failure
+00:00 +1: test/storage_schema3_test.dart: applied source and operation unique; source-less excluded error legal
+00:00 +2: test/storage_schema3_test.dart: applied source and operation unique; source-less excluded error legal
+00:00 +3: test/storage_schema3_test.dart: applied source and operation unique; source-less excluded error legal
+00:00 +4: test/storage_schema3_test.dart: applied source and operation unique; source-less excluded error legal
+00:00 +5: test/storage_schema3_test.dart: applied source and operation unique; source-less excluded error legal
+00:00 +6: test/storage_schema3_test.dart: applied source and operation unique; source-less excluded error legal
+00:00 +7: test/storage_schema3_test.dart: applied source and operation unique; source-less excluded error legal
+00:00 +8: test/storage_schema3_test.dart: applied source and operation unique; source-less excluded error legal
+00:00 +9: test/storage_schema3_test.dart: applied source and operation unique; source-less excluded error legal
+00:00 +10: test/storage_schema3_test.dart: applied source and operation unique; source-less excluded error legal
+00:00 +11: test/storage_schema3_test.dart: applied source and operation unique; source-less excluded error legal
+00:00 +12: test/storage_schema3_test.dart: applied source and operation unique; source-less excluded error legal
+00:00 +13: test/storage_schema3_test.dart: applied source and operation unique; source-less excluded error legal
+00:00 +14: test/storage_schema3_test.dart: applied source and operation unique; source-less excluded error legal
+00:00 +15: test/storage_schema3_test.dart: applied source and operation unique; source-less excluded error legal
+00:00 +16: test/storage_schema3_test.dart: applied source and operation unique; source-less excluded error legal
+00:00 +17: test/storage_schema3_test.dart: applied source and operation unique; source-less excluded error legal
+00:00 +18: test/storage_schema3_test.dart: applied source and operation unique; source-less excluded error legal
+00:00 +19: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:00 +20: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:00 +21: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:00 +22: test/storage_migration_test.dart: explicit migration preserves authority settings receipts and increments once after reopen
+00:01 +23: test/storage_migration_test.dart: explicit migration preserves authority settings receipts and increments once after reopen
+00:01 +24: test/storage_migration_test.dart: explicit migration preserves authority settings receipts and increments once after reopen
+00:01 +25: test/backup_candidate_test.dart: v1 successful legacy receipt restores without invented operation details
+00:01 +26: test/backup_candidate_test.dart: v1 successful legacy receipt restores without invented operation details
+00:01 +27: test/backup_candidate_test.dart: v1 successful legacy receipt restores without invented operation details
+00:01 +28: test/backup_candidate_test.dart: v1 successful legacy receipt restores without invented operation details
+00:01 +29: test/backup_candidate_test.dart: v1 successful legacy receipt restores without invented operation details
+00:01 +30: test/backup_candidate_test.dart: v1 successful legacy receipt restores without invented operation details
+00:01 +31: test/backup_candidate_test.dart: v1 successful legacy receipt restores without invented operation details
+00:01 +32: test/backup_candidate_test.dart: v1 successful legacy receipt restores without invented operation details
+00:01 +33: test/backup_candidate_test.dart: v1 successful legacy receipt restores without invented operation details
+00:01 +34: test/backup_candidate_test.dart: v1 successful legacy receipt restores without invented operation details
+00:01 +35: test/backup_candidate_test.dart: v1 successful legacy receipt restores without invented operation details
+00:01 +36: test/backup_candidate_test.dart: v1 successful legacy receipt restores without invented operation details
+00:01 +37: test/backup_candidate_test.dart: v1 successful legacy receipt restores without invented operation details
+00:01 +38: test/backup_candidate_test.dart: v1 successful legacy receipt restores without invented operation details
+00:01 +39: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +40: test/candidate_digest_test.dart: only activation epoch is ignored
+00:02 +41: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +42: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +43: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +44: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +45: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +46: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +47: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +48: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +49: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +50: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +51: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +52: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +53: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +54: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +55: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +56: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +57: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +58: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +59: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +60: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +61: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +62: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +63: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +64: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +65: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +66: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +67: test/storage_test.dart: production validates and commits sealed canonical graph
+00:02 +68: test/backup_job_test.dart: receipt must match source attempt version binding
+00:02 +69: test/backup_candidate_test.dart: bad receipt count rejects after graph validation
+00:02 +70: test/backup_candidate_test.dart: bad receipt count rejects after graph validation
+00:02 +71: test/storage_test.dart: page:2 rolls back every page, heads, generation and receipt
+00:02 +72: test/storage_test.dart: page:2 rolls back every page, heads, generation and receipt
+00:02 +73: test/storage_test.dart: page:2 rolls back every page, heads, generation and receipt
+00:02 +74: test/storage_test.dart: page:2 rolls back every page, heads, generation and receipt
+00:02 +75: test/storage_test.dart: page:2 rolls back every page, heads, generation and receipt
+00:02 +76: test/storage_test.dart: page:2 rolls back every page, heads, generation and receipt
+00:02 +77: test/backup_candidate_test.dart: duplicate auxiliary identity rejected before authority install
+00:02 +78: test/storage_test.dart: page:4 rolls back every page, heads, generation and receipt
+00:02 +79: test/storage_test.dart: page:4 rolls back every page, heads, generation and receipt
+00:02 +80: test/storage_test.dart: page:4 rolls back every page, heads, generation and receipt
+00:02 +81: test/backup_candidate_test.dart: paged auxiliary restoration survives native file reopen
+00:03 +82: test/storage_test.dart: page:5 rolls back every page, heads, generation and receipt
+00:03 +83: test/backup_candidate_test.dart: same-source receipt cannot be newer than snapshot generation
+00:03 +84: test/storage_test.dart: before_commit rolls back every page, heads, generation and receipt
+00:03 +85: test/storage_test.dart: before_commit rolls back every page, heads, generation and receipt
+00:03 +86: test/backup_candidate_test.dart: actual SQLITE_FULL quarantines candidate across reopen
+00:03 +87: test/storage_test.dart: lost after-commit response retries same durable event after reopen
+00:03 +88: test/storage_test.dart: seal immutable against insert update delete and digest substitution
+00:03 +89: test/storage_test.dart: reject stale instance token without writes
+00:03 +90: test/storage_test.dart: reject stale epoch token without writes
+00:03 +91: test/storage_test.dart: reject stale generation token without writes
+00:03 +92: test/storage_test.dart: scan pages bound original version and close
+00:03 +93: test/storage_test.dart: missing parent fails deferred FK and rolls back
+00:03 +94: test/storage_test.dart: confirmation ID cannot be rebound to another seal
+00:03 +95: test/storage_test.dart: duplicate parallel redirects share adjacency while preserving all heads
+00:03 +96: test/storage_test.dart: wrong canonical revision hash cannot be hidden by staging seal
+00:03 +97: test/storage_test.dart: failed cleanup persistently quarantines reads and reset across reopen
+00:03 +98: test/storage_test.dart: bounded SQL workspace validates deep entity history
+00:03 +99: test/storage_test.dart: SQL schema independently enforces authority FK and entity UUID uniqueness
+00:03 +100: test/storage_test.dart: confirmation cannot be reused at a different epoch with same content
+00:03 +101: test/storage_test.dart: cleanup failure retains original fault and committed receipt at null
+00:03 +102: test/storage_test.dart: cleanup failure retains original fault and committed receipt at before_commit
+00:03 +103: test/storage_test.dart: cleanup failure retains original fault and committed receipt at after_commit
+00:03 +104: test/storage_test.dart: restore epoch CAS preserves generation and invalidates old preview
+00:03 +105: test/storage_test.dart: entity keyset plan seeks tuple index
+00:03 +106: test/storage_test.dart: redirect neighbor plans seek bounded ranges in both directions
+00:03 +107: test/storage_test.dart: 100 fixed seed DAGs agree with independent head-set oracle
+00:04 +108: test/storage_test.dart: committed staging cleanup keeps durable event retry and seal
+00:04 +109: test/storage_test.dart: cancelled sealed staging can be reclaimed but never committed
+00:04 +110: test/storage_test.dart: unsupported migration leaves old schema and data intact
+00:04 +111: All tests passed!

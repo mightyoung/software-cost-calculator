@@ -1,0 +1,35 @@
+00:00 +0: loading test/contracts_test.dart
+00:00 +0: preview rejects recovered database with same generation
+00:00 +0 -1: preview rejects recovered database with same generation [E]
+  Expected: false
+    Actual: <true>
+  
+  package:matcher               expect
+  test/contracts_test.dart 8:5  main.<fn>
+  
+00:00 +0 -1: preview binds every mutable input
+00:00 +0 -2: preview binds every mutable input [E]
+  Expected: false
+    Actual: <true>
+  
+  package:matcher                expect
+  test/contracts_test.dart 12:5  main.<fn>
+  
+00:00 +0 -2: scan pages own an immutable bounded copy
+00:00 +0 -3: scan pages own an immutable bounded copy [E]
+  Expected: [1, 2]
+    Actual: [1, 2, 3]
+     Which: at location [2] is [1, 2, 3] which longer than expected
+  
+  package:matcher                expect
+  test/contracts_test.dart 23:5  main.<fn>
+  
+00:00 +0 -3: Some tests failed.
+
+Failing tests:
+  test/contracts_test.dart: preview binds every mutable input
+  test/contracts_test.dart: preview rejects recovered database with same generation
+  test/contracts_test.dart: scan pages own an immutable bounded copy
+
+Consider enabling the flag chain-stack-traces to receive more detailed exceptions.
+For example, 'dart test --chain-stack-traces'.

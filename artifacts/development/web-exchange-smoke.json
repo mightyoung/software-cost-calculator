@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "run_id": "964a9693-173c-43c2-a190-e346892d463c",
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/153.0.8010.53",
+    "revision": "@792bf6722e73a45aa9e47c163b9901bdc17f3230",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+    "jsVersion": "15.3.76.13"
+  },
+  "prepare": {
+    "business": true,
+    "bundle": true,
+    "cancel_no_receipt": true,
+    "malformed_no_receipt": true,
+    "business_job": "e5152bc1d7b43e8b951531a5197b28c4dca17ba0cadc2a08",
+    "bundle_job": "942b2b8e4b177b042b1287c49c4a8458d98849c1350d4a9f",
+    "input_boundary": "real OPFS files; native chooser bypassed"
+  },
+  "browser_process_restart": {
+    "pid": 3357,
+    "exitCode": 0,
+    "method": "CDP Browser.close"
+  },
+  "reopen": {
+    "business": {
+      "locator_readable": true,
+      "precommit_revisions": 2,
+      "retry_same_receipt": true,
+      "quotation_count": 1
+    },
+    "bundle": {
+      "locator_readable": true,
+      "precommit_revisions": 0,
+      "retry_same_receipt": true,
+      "quotation_count": 1
+    }
+  },
+  "limitations": [
+    "System file chooser and Flutter widget click path not exercised; production adapters receive real OPFS-backed XLSX/ZIP files."
+  ]
+}

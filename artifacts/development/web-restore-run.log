@@ -1,0 +1,166 @@
+Compiled 15,302,389 input bytes (9,871,372 characters source) to 383,391 characters JavaScript in 2.47 seconds
+Compiled 16,642,021 input bytes (11,211,004 characters source) to 950,405 characters JavaScript in 4.40 seconds
+io_faults fixture fault-private-create
+io_faults fixture fault-durable-write
+io_faults fixture fault-durable-publish
+io_faults fixture fault-idb-arm
+io_faults fixture fault-idb-switch
+io_faults fixture fault-idb-accept
+io_faults fixture fault-ack-after-accept
+normal_prepare fixture normal
+activate:844cc0a0-0963-4e11-8153-a043e538d835 fixture normal
+boundaries fixture armed
+boundaries replay armed
+boundaries fixture armed_epoch
+boundaries fixture switched
+boundaries replay switched
+boundaries fixture rollback_pending
+boundaries replay rollback_pending
+boundaries fixture rollback_epoch
+boundaries fixture tampered
+boundaries fixture armed_tampered
+boundaries replay armed_tampered
+boundaries fixture projection_tampered
+boundaries fixture missing_backup
+boundaries replay missing_backup
+stale fixture stale
+invalid fixture stale
+crash_prepare fixture process
+{
+  "status": "PASS",
+  "scope": "isolated Chrome OPFS + IDB production restore; durable crash boundary fixtures",
+  "capacity": {
+    "actual_sample": {
+      "status": "estimated",
+      "scope": "web-storage-key",
+      "available_bytes": 10737418240,
+      "usage_bytes": 0,
+      "quota_bytes": 10737418240,
+      "sampled_at": "2026-09-17T17:14:27.232Z"
+    },
+    "prepare_rejected": true,
+    "activate_resampled": true,
+    "candidate_preserved": true,
+    "recovery_not_gated": true
+  },
+  "source_reselection": {
+    "lost_read_rejected": true,
+    "renamed_same_bytes_accepted": true,
+    "changed_bytes_rejected": true,
+    "binding_preserved": true,
+    "cancelled": true
+  },
+  "io_faults": {
+    "private-create": {
+      "failed_safely": true,
+      "stats": {
+        "injected": true,
+        "aborts": 1,
+        "publishes": 0
+      },
+      "epoch": 0,
+      "journal": null
+    },
+    "durable-write": {
+      "failed_safely": true,
+      "stats": {
+        "injected": true,
+        "aborts": 1,
+        "publishes": 0
+      },
+      "epoch": 0,
+      "journal": null
+    },
+    "durable-publish": {
+      "failed_safely": true,
+      "stats": {
+        "injected": true,
+        "aborts": 1,
+        "publishes": 0
+      },
+      "epoch": 0,
+      "journal": null
+    },
+    "idb-arm": {
+      "failed_safely": true,
+      "stats": {
+        "injected": true,
+        "aborts": 0,
+        "publishes": 1
+      },
+      "epoch": 0,
+      "journal": null
+    },
+    "idb-switch": {
+      "failed_safely": true,
+      "stats": {
+        "injected": true,
+        "aborts": 0,
+        "publishes": 1
+      },
+      "epoch": 2,
+      "journal": "rolled_back"
+    },
+    "idb-accept": {
+      "failed_safely": true,
+      "stats": {
+        "injected": true,
+        "aborts": 0,
+        "publishes": 1
+      },
+      "epoch": 2,
+      "journal": "rolled_back"
+    },
+    "ack-after-accept": {
+      "failed_safely": true,
+      "stats": {
+        "injected": true,
+        "aborts": 0,
+        "publishes": 1
+      },
+      "epoch": 1,
+      "journal": "accepted"
+    }
+  },
+  "accepted": {
+    "accepted": true,
+    "old_fenced": true,
+    "backup_revisions": 2,
+    "device": "23b770b0-b76a-4185-8c05-1a7e800b0d66",
+    "instance": "844cc0a0-0963-4e11-8153-a043e538d835"
+  },
+  "cross_tab_old_host": {
+    "fenced": true
+  },
+  "boundaries": {
+    "armed": "accepted",
+    "armed_epoch": "accepted",
+    "switched": "accepted",
+    "rollback_pending": "rolled_back",
+    "rollback_epoch": "rolled_back",
+    "tampered": "rolled_back",
+    "armed_tampered": "rolled_back",
+    "projection_tampered": "rolled_back",
+    "missing_backup": "rolled_back"
+  },
+  "stale": {
+    "stale_rejected": true
+  },
+  "invalid": {
+    "invalid_prepare_isolated": true
+  },
+  "process_restart": {
+    "process_replay": true,
+    "durable_backup": true
+  },
+  "accepted_after_restart": {
+    "accepted_no_rollback": true,
+    "device": "23b770b0-b76a-4185-8c05-1a7e800b0d66",
+    "instance": "844cc0a0-0963-4e11-8153-a043e538d835",
+    "names": [
+      "after-accepted",
+      "snapshot"
+    ]
+  },
+  "crash_candidate": "21eb59b2-7530-48d2-94a4-a467fdf6fa88"
+}

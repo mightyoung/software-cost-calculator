@@ -1,0 +1,3 @@
+Running build hooks...Running build hooks...Running link hooks...Running link hooks...Copying 1 build assets:
+package:sqlite3/src/ffi/libsqlite3.g.dart
+Generated: /private/tmp/storage-gate-cli/bundle/bin/probe_child

@@ -1,0 +1,17 @@
+name: supplier_probe
+description: Isolated local storage and XLSX snapshot feasibility probe.
+publish_to: none
+version: 0.1.0
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+dependencies:
+  drift: 2.35.0
+  sqlite3: ^3.4.0
+  excel: 4.0.6
+  archive: 3.6.1
+  xml: 6.6.1
+  unorm_dart: ^0.3.1
+  web: ^1.1.0
+dev_dependencies:
+  test: ^1.25.0
+  lints: ^6.0.0

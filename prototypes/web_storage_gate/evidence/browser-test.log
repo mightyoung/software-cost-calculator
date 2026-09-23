@@ -1,0 +1,231 @@
+{
+  "status": "PASS",
+  "stages": {
+    "normalExit": {
+      "pid": 65096,
+      "exitCode": 0,
+      "method": "CDP Browser.close"
+    },
+    "crashBarrier": "SQL UPDATE rows and generation executed; transaction not committed",
+    "forcedExit": {
+      "pid": 65219,
+      "exitCode": -9,
+      "method": "SIGKILL isolated process group"
+    },
+    "finalExit": {
+      "pid": 65244,
+      "exitCode": 0,
+      "method": "CDP Browser.close"
+    }
+  },
+  "result": {
+    "status": "PASS",
+    "scope": "NONPRODUCT two top-level pages",
+    "snapshot": {
+      "instance": "old",
+      "generation": 1,
+      "rows": 1025,
+      "maxPage": 64,
+      "allOriginal": true,
+      "sha256": "304a25d12c363aeba43ad83fa3d54e2aa3b9667d6137aa6270d33e2a8cda759f"
+    },
+    "after": {
+      "id": 1,
+      "instance": "old",
+      "generation": 2,
+      "changed": 1025
+    },
+    "lockBlocked": true,
+    "fenced": true,
+    "writerBlocked": true,
+    "afterTwoWriters": {
+      "id": 1,
+      "instance": "old",
+      "generation": 4,
+      "changed": 1025
+    },
+    "bytes": 286952,
+    "usageBefore": {
+      "quota": 10737732399,
+      "usage": 314159,
+      "usageDetails": {
+        "fileSystem": 311838,
+        "indexedDB": 2321
+      }
+    },
+    "usageAfter": {
+      "quota": 10738023802,
+      "usage": 605562,
+      "usageDetails": {
+        "fileSystem": 599016,
+        "indexedDB": 6546
+      }
+    },
+    "storage": {
+      "backend": "opfsLocks",
+      "sqlite": {
+        "version": "3.53.4"
+      },
+      "journal": {
+        "journal_mode": "delete"
+      },
+      "missing": [
+        "dedicatedWorkersInSharedWorkers"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36",
+    "topLevelTargets": [
+      {
+        "id": "0B92852E006027B6417F3E486EF06132",
+        "type": "page",
+        "url": "http://127.0.0.1:50579/?run=1789604158110841000&peer=1"
+      },
+      {
+        "id": "5657FAA8000A6FD6E280D32B3071DFA9",
+        "type": "page",
+        "url": "http://127.0.0.1:50579/?run=1789604158110841000"
+      }
+    ],
+    "exportReadbackSha256": "304a25d12c363aeba43ad83fa3d54e2aa3b9667d6137aa6270d33e2a8cda759f"
+  },
+  "reload": {
+    "status": "PASS",
+    "state": {
+      "id": 1,
+      "instance": "old",
+      "generation": 4,
+      "changed": 1025
+    },
+    "pointer": {
+      "instance": "new",
+      "epoch": 2
+    },
+    "storage": {
+      "backend": "opfsLocks",
+      "sqlite": {
+        "version": "3.53.4"
+      },
+      "journal": {
+        "journal_mode": "delete"
+      },
+      "missing": [
+        "dedicatedWorkersInSharedWorkers"
+      ]
+    }
+  },
+  "normalRestart": {
+    "status": "PASS",
+    "state": {
+      "id": 1,
+      "instance": "old",
+      "generation": 4,
+      "changed": 1025
+    },
+    "pointer": {
+      "instance": "new",
+      "epoch": 2
+    },
+    "storage": {
+      "backend": "opfsLocks",
+      "sqlite": {
+        "version": "3.53.4"
+      },
+      "journal": {
+        "journal_mode": "delete"
+      },
+      "missing": [
+        "dedicatedWorkersInSharedWorkers"
+      ]
+    },
+    "pid": 65219,
+    "exportReadbackSha256": "304a25d12c363aeba43ad83fa3d54e2aa3b9667d6137aa6270d33e2a8cda759f"
+  },
+  "beforeCrash": {
+    "status": "PASS",
+    "state": {
+      "id": 1,
+      "instance": "old",
+      "generation": 5,
+      "changed": 1025
+    },
+    "pointer": {
+      "instance": "new",
+      "epoch": 2
+    },
+    "storage": {
+      "backend": "opfsLocks",
+      "sqlite": {
+        "version": "3.53.4"
+      },
+      "journal": {
+        "journal_mode": "delete"
+      },
+      "missing": [
+        "dedicatedWorkersInSharedWorkers"
+      ]
+    }
+  },
+  "forcedRecovery": {
+    "status": "PASS",
+    "state": {
+      "id": 1,
+      "instance": "old",
+      "generation": 5,
+      "changed": 1025
+    },
+    "pointer": {
+      "instance": "new",
+      "epoch": 2
+    },
+    "storage": {
+      "backend": "opfsLocks",
+      "sqlite": {
+        "version": "3.53.4"
+      },
+      "journal": {
+        "journal_mode": "delete"
+      },
+      "missing": [
+        "dedicatedWorkersInSharedWorkers"
+      ]
+    },
+    "pid": 65244,
+    "integrity": {
+      "integrity_check": "ok"
+    }
+  },
+  "afterRecoveryCommit": {
+    "status": "PASS",
+    "state": {
+      "id": 1,
+      "instance": "old",
+      "generation": 6,
+      "changed": 1025
+    },
+    "pointer": {
+      "instance": "new",
+      "epoch": 2
+    },
+    "storage": {
+      "backend": "opfsLocks",
+      "sqlite": {
+        "version": "3.53.4"
+      },
+      "journal": {
+        "journal_mode": "delete"
+      },
+      "missing": [
+        "dedicatedWorkersInSharedWorkers"
+      ]
+    }
+  },
+  "utc": "2026-09-17T00:16:10Z",
+  "hashes": {
+    "web/sqlite3.wasm": "13d3f11d05b39ba0618a7115fb41640a5d48b6300f5d3f325f554b42bd6688a4",
+    "web/drift_worker.js": "df0066e75363a9bed59a14eedbbded421c1f5910f8379812df164716aa2e6eed",
+    "web/main.dart": "8224b9e6a939f0dd40760bc78596c03bd48c60cd4b7d1676936b10b676bafc47",
+    "web/harness.js": "2af0f23a9fdd0a1addba178ae90534224df111dda5e2a09c952f9d80aad855bd",
+    "tool/browser_test.py": "3c9a6a511fcc238b8bfbd97b3748f7958c44290d4cb469d1a59b07413a6f1bf4",
+    "pubspec.lock": "29388b1306023fd196007df01d9bbf312a0058106d52e3854d87d05a8e4bc33e"
+  }
+}

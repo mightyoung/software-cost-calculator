@@ -1,0 +1,14 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/backup_job_test.dart
+00:00 +0: source hash and version persist across reopen with bounded reads
+00:00 +1: creation returns observable ID before any source read
+00:00 +2: hashing can be cancelled through its durable job ID
+00:00 +3: unbound source lost at reopen fails instead of guessing identity
+00:00 +4: truncated source never acquires a valid source binding
+00:00 +5: job receipt lookup has a bounded indexed access path
+00:00 +6: illegal edges and unproved success fail
+00:00 +7: real coordinator receipt proves committed state after reopen
+00:01 +8: receipt must match source attempt version binding
+00:01 +9: stale seal restarts as empty linked attempt without mutating old seal
+00:01 +10: version drift rejects preview and inactive identity rejects writes
+00:01 +11: cancel and fail are terminal and state CAS rejects stale UI
+00:01 +12: All tests passed!

@@ -1,0 +1,22 @@
+{
+  "native_process_reopen_and_empty_db_import": "PASS",
+  "wps_saved_file_to_database_all_rows_equal": "PASS",
+  "databases": [
+    "native-a",
+    "native-b",
+    "wps-final"
+  ],
+  "row_counts": {
+    "suppliers": 1,
+    "contacts": 1,
+    "products": 1,
+    "quotations": 1
+  },
+  "v1_golden_revision_hashes_and_digests": "PASS",
+  "files": {
+    "supplier-sample.xlsx": "89e8b4ad5b1fbccd947db96fe55a901553de44eda692e57487e5118062f78e34",
+    "supplier-wps.xlsx": "89e8b4ad5b1fbccd947db96fe55a901553de44eda692e57487e5118062f78e34",
+    "v1-golden-encoder.xlsx": "71c07c3a3495b167388689509686caa14e11bb2b25a94cf7d1e54f0fb82a2f81",
+    "supplier-wps-roundtrip.xlsx": "feaa65a30d6e433cbd83bd2507c9fe08d5239b6be06d1f49bb84022c485453fb"
+  }
+}

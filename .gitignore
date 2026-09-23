@@ -1,0 +1,16 @@
+.dart_tool/
+build/
+__pycache__/
+*.iml
+**/android/local.properties
+.claude/worktrees/
+.omx-state-locks/
+.omx-state-locks.identity.json
+.omx/state/
+.omx/logs/
+# Benchmark databases/backups are multi-GB; keep only reports.
+artifacts/benchmark/**/*
+!artifacts/benchmark/**/
+!artifacts/benchmark/**/*.json
+!artifacts/benchmark/**/*.md
+!artifacts/benchmark/**/*.log

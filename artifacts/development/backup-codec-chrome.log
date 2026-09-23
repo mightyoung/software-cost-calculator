@@ -1,0 +1,20 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/backup_format_test.dart
+00:00 +0: test/space_budget_test.dart: working space includes all caller estimates without a package cap
+00:00 +1: test/backup_format_test.dart: rejects oversized escaped preferences before parsing or encoding
+00:00 +2: test/space_budget_test.dart: accumulation remains exact beyond JavaScript safe sum
+00:00 +3: test/backup_format_test.dart: receipt numeric columns require safe numbers and normalize integral doubles
+00:00 +4: test/space_budget_test.dart: actual expanded bytes are counted across entries before admission
+00:00 +5: test/backup_format_test.dart: strict wrappers reject unknown fields even with a matching digest
+00:00 +6: test/space_budget_test.dart: compressed entry and row caps reject one over their exact boundary
+00:00 +7: test/backup_format_test.dart: format diagnostics are structured but callback failures retain identity
+00:00 +8: test/backup_format_test.dart: logical backup round trip keeps revisions settings version and digest
+00:00 +9: test/backup_format_test.dart: modified bytes fail digest even when JSON stays valid
+00:00 +10: test/backup_format_test.dart: truncation missing footer and trailing data never return success
+00:00 +11: test/backup_format_test.dart: encoder rejects snapshot counts before producing a footer
+00:00 +12: test/backup_format_test.dart: oversize row rejected independently of stream chunking
+00:00 +13: test/backup_format_test.dart: short range cannot silently drop source bytes
+00:00 +14: test/backup_format_test.dart: unknown tables or extra columns and unfinished jobs are refused
+00:00 +15: test/backup_format_test.dart: semantic parse errors retain line and byte position
+00:00 +16: test/backup_format_test.dart: callback failures are preserved without parser relabeling
+00:00 +17: test/backup_format_test.dart: revision row cannot relabel a valid canonical envelope
+00:00 +18: All tests passed!

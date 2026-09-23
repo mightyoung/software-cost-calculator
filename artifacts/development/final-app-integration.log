@@ -1,0 +1,12 @@
+[1/2] Web SDK                                                      18.3s
+[2/2] MacOS SDK
+  ├─ [1/8] darwin-x64/framework                                    35.3s
+  ├─ [2/8] darwin-x64/gen_snapshot                                  4.9s
+  ├─ [3/8] darwin-x64-profile/framework                            32.5s
+  ├─ [4/8] darwin-x64-profile                                    2,823ms
+  ├─ [5/8] darwin-x64-profile/gen_snapshot                          3.7s
+  ├─ [6/8] darwin-x64-release/framework                            25.3s
+  ├─ [7/8] darwin-x64-release                                       4.2s
+  └─ [8/8] darwin-x64-release/gen_snapshot                          5.8s
+Checking for wireless devices...
+Web devices are not supported for integration tests yet.

@@ -1,0 +1,698 @@
+{
+  "status": "PASS",
+  "scenarios": [
+    {
+      "point": "wrong-range-candidate",
+      "prepared": {
+        "old": {
+          "id": 1,
+          "instance": "old",
+          "generation": 1,
+          "rows": 1025,
+          "minId": 1,
+          "maxId": 1025,
+          "validRows": 1025,
+          "integrity": "ok"
+        },
+        "candidate": {
+          "id": 1,
+          "instance": "candidate",
+          "generation": 42,
+          "rows": 17,
+          "minId": 1,
+          "maxId": 17,
+          "validRows": 17,
+          "integrity": "ok"
+        }
+      },
+      "negative": {
+        "invalid": {
+          "id": 1,
+          "instance": "candidate",
+          "generation": 42,
+          "rows": 17,
+          "minId": 2,
+          "maxId": 18,
+          "validRows": 17,
+          "integrity": "ok"
+        },
+        "activationRejected": true,
+        "preserved": {
+          "pointer": {
+            "instance": "old",
+            "epoch": 1
+          },
+          "boundPointer": {
+            "instance": "old",
+            "epoch": 1
+          },
+          "facts": {
+            "id": 1,
+            "instance": "old",
+            "generation": 1,
+            "rows": 1025,
+            "minId": 1,
+            "maxId": 1025,
+            "validRows": 1025,
+            "integrity": "ok"
+          },
+          "storage": {
+            "backend": "opfsLocks"
+          }
+        },
+        "reopenRejected": true,
+        "reopenError": "Error: Dart exception thrown from converted Future. Use the properties 'error' to fetch the boxed error and 'stack' to recover the stack trace.",
+        "writeRejected": true,
+        "writeEnabled": false
+      },
+      "status": "PASS"
+    },
+    {
+      "point": "before-pointer",
+      "prepared": {
+        "old": {
+          "id": 1,
+          "instance": "old",
+          "generation": 1,
+          "rows": 1025,
+          "minId": 1,
+          "maxId": 1025,
+          "validRows": 1025,
+          "integrity": "ok"
+        },
+        "candidate": {
+          "id": 1,
+          "instance": "candidate",
+          "generation": 42,
+          "rows": 17,
+          "minId": 1,
+          "maxId": 17,
+          "validRows": 17,
+          "integrity": "ok"
+        }
+      },
+      "barrier": "before-pointer",
+      "exit": {
+        "pid": 81237,
+        "exitCode": -9,
+        "method": "SIGKILL isolated process group"
+      },
+      "restartedPid": 81269,
+      "reopened": {
+        "pointer": {
+          "instance": "old",
+          "epoch": 1
+        },
+        "boundPointer": {
+          "instance": "old",
+          "epoch": 1
+        },
+        "facts": {
+          "id": 1,
+          "instance": "old",
+          "generation": 1,
+          "rows": 1025,
+          "minId": 1,
+          "maxId": 1025,
+          "validRows": 1025,
+          "integrity": "ok"
+        },
+        "storage": {
+          "backend": "opfsLocks"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "point": "inside-pointer",
+      "prepared": {
+        "old": {
+          "id": 1,
+          "instance": "old",
+          "generation": 1,
+          "rows": 1025,
+          "minId": 1,
+          "maxId": 1025,
+          "validRows": 1025,
+          "integrity": "ok"
+        },
+        "candidate": {
+          "id": 1,
+          "instance": "candidate",
+          "generation": 42,
+          "rows": 17,
+          "minId": 1,
+          "maxId": 17,
+          "validRows": 17,
+          "integrity": "ok"
+        }
+      },
+      "barrier": "inside-pointer",
+      "idbPendingRequestCount": 1616,
+      "exit": {
+        "pid": 81295,
+        "exitCode": -9,
+        "method": "SIGKILL isolated process group"
+      },
+      "restartedPid": 81325,
+      "reopened": {
+        "pointer": {
+          "instance": "old",
+          "epoch": 1
+        },
+        "boundPointer": {
+          "instance": "old",
+          "epoch": 1
+        },
+        "facts": {
+          "id": 1,
+          "instance": "old",
+          "generation": 1,
+          "rows": 1025,
+          "minId": 1,
+          "maxId": 1025,
+          "validRows": 1025,
+          "integrity": "ok"
+        },
+        "storage": {
+          "backend": "opfsLocks"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "point": "after-pointer",
+      "prepared": {
+        "old": {
+          "id": 1,
+          "instance": "old",
+          "generation": 1,
+          "rows": 1025,
+          "minId": 1,
+          "maxId": 1025,
+          "validRows": 1025,
+          "integrity": "ok"
+        },
+        "candidate": {
+          "id": 1,
+          "instance": "candidate",
+          "generation": 42,
+          "rows": 17,
+          "minId": 1,
+          "maxId": 17,
+          "validRows": 17,
+          "integrity": "ok"
+        }
+      },
+      "barrier": "after-pointer",
+      "exit": {
+        "pid": 81348,
+        "exitCode": -9,
+        "method": "SIGKILL isolated process group"
+      },
+      "restartedPid": 81380,
+      "reopened": {
+        "pointer": {
+          "instance": "candidate",
+          "epoch": 2
+        },
+        "boundPointer": {
+          "instance": "candidate",
+          "epoch": 2
+        },
+        "facts": {
+          "id": 1,
+          "instance": "candidate",
+          "generation": 42,
+          "rows": 17,
+          "minId": 1,
+          "maxId": 17,
+          "validRows": 17,
+          "integrity": "ok"
+        },
+        "storage": {
+          "backend": "opfsLocks"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "point": "success-new-write",
+      "prepared": {
+        "old": {
+          "id": 1,
+          "instance": "old",
+          "generation": 1,
+          "rows": 1025,
+          "minId": 1,
+          "maxId": 1025,
+          "validRows": 1025,
+          "integrity": "ok"
+        },
+        "candidate": {
+          "id": 1,
+          "instance": "candidate",
+          "generation": 42,
+          "rows": 17,
+          "minId": 1,
+          "maxId": 17,
+          "validRows": 17,
+          "integrity": "ok"
+        }
+      },
+      "success": {
+        "active": {
+          "id": 1,
+          "instance": "candidate",
+          "generation": 42,
+          "rows": 17,
+          "minId": 1,
+          "maxId": 17,
+          "validRows": 17,
+          "integrity": "ok"
+        },
+        "fenced": true,
+        "oldUnchanged": {
+          "id": 1,
+          "instance": "old",
+          "generation": 1,
+          "rows": 1025,
+          "minId": 1,
+          "maxId": 1025,
+          "validRows": 1025,
+          "integrity": "ok"
+        },
+        "written": {
+          "id": 1,
+          "instance": "candidate",
+          "generation": 43,
+          "rows": 17,
+          "minId": 1,
+          "maxId": 17,
+          "validRows": 17,
+          "integrity": "ok"
+        },
+        "rollbackDenied": true,
+        "final": {
+          "pointer": {
+            "instance": "candidate",
+            "epoch": 2
+          },
+          "boundPointer": {
+            "instance": "candidate",
+            "epoch": 2
+          },
+          "facts": {
+            "id": 1,
+            "instance": "candidate",
+            "generation": 43,
+            "rows": 17,
+            "minId": 1,
+            "maxId": 17,
+            "validRows": 17,
+            "integrity": "ok"
+          },
+          "storage": {
+            "backend": "opfsLocks"
+          }
+        }
+      },
+      "pageTargets": [
+        "73F805265354B40B5E1421DE841B694D",
+        "5409FE29DFE1664FF294D3F66322051A"
+      ],
+      "exit": {
+        "pid": 81413,
+        "exitCode": -9,
+        "method": "SIGKILL isolated process group"
+      },
+      "restartedPid": 81443,
+      "reopened": {
+        "pointer": {
+          "instance": "candidate",
+          "epoch": 2
+        },
+        "boundPointer": {
+          "instance": "candidate",
+          "epoch": 2
+        },
+        "facts": {
+          "id": 1,
+          "instance": "candidate",
+          "generation": 43,
+          "rows": 17,
+          "minId": 1,
+          "maxId": 17,
+          "validRows": 17,
+          "integrity": "ok"
+        },
+        "storage": {
+          "backend": "opfsLocks"
+        }
+      },
+      "rollbackStillDeniedAfterRestart": true,
+      "retained": {
+        "pointer": {
+          "instance": "candidate",
+          "epoch": 2
+        },
+        "boundPointer": {
+          "instance": "candidate",
+          "epoch": 2
+        },
+        "facts": {
+          "id": 1,
+          "instance": "candidate",
+          "generation": 43,
+          "rows": 17,
+          "minId": 1,
+          "maxId": 17,
+          "validRows": 17,
+          "integrity": "ok"
+        },
+        "storage": {
+          "backend": "opfsLocks"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "point": "rollback-success",
+      "prepared": {
+        "old": {
+          "id": 1,
+          "instance": "old",
+          "generation": 1,
+          "rows": 1025,
+          "minId": 1,
+          "maxId": 1025,
+          "validRows": 1025,
+          "integrity": "ok"
+        },
+        "candidate": {
+          "id": 1,
+          "instance": "candidate",
+          "generation": 42,
+          "rows": 17,
+          "minId": 1,
+          "maxId": 17,
+          "validRows": 17,
+          "integrity": "ok"
+        }
+      },
+      "rollback": {
+        "failure": {
+          "reopenRejected": true,
+          "writeEnabled": false,
+          "failed": {
+            "id": 1,
+            "instance": "candidate",
+            "generation": 42,
+            "rows": 17,
+            "minId": 2,
+            "maxId": 18,
+            "validRows": 17,
+            "integrity": "ok"
+          }
+        },
+        "restored": {
+          "id": 1,
+          "instance": "old",
+          "generation": 1,
+          "rows": 1025,
+          "minId": 1,
+          "maxId": 1025,
+          "validRows": 1025,
+          "integrity": "ok"
+        },
+        "oldEpochFenced": true,
+        "candidateEpochFenced": true,
+        "current": {
+          "pointer": {
+            "instance": "old",
+            "epoch": 3
+          },
+          "boundPointer": {
+            "instance": "old",
+            "epoch": 3
+          },
+          "facts": {
+            "id": 1,
+            "instance": "old",
+            "generation": 1,
+            "rows": 1025,
+            "minId": 1,
+            "maxId": 1025,
+            "validRows": 1025,
+            "integrity": "ok"
+          },
+          "storage": {
+            "backend": "opfsLocks"
+          }
+        }
+      },
+      "pageTargets": [
+        "ABC4386A3BE510E4106769EBBB9448F9",
+        "4DE6439980616CC7AA4E41BFDC15AD3B",
+        "2127165B1E8B07D400CDB8B731AB77B2"
+      ],
+      "exit": {
+        "pid": 81473,
+        "exitCode": -9,
+        "method": "SIGKILL isolated process group"
+      },
+      "restartedPid": 81541,
+      "reopened": {
+        "pointer": {
+          "instance": "old",
+          "epoch": 3
+        },
+        "state": {
+          "id": 1,
+          "instance": "old",
+          "generation": 1,
+          "rows": 1025,
+          "minId": 1,
+          "maxId": 1025,
+          "validRows": 1025,
+          "integrity": "ok"
+        },
+        "writeEnabled": true,
+        "validationError": ""
+      },
+      "status": "PASS"
+    },
+    {
+      "point": "rollback-inside-pointer",
+      "prepared": {
+        "old": {
+          "id": 1,
+          "instance": "old",
+          "generation": 1,
+          "rows": 1025,
+          "minId": 1,
+          "maxId": 1025,
+          "validRows": 1025,
+          "integrity": "ok"
+        },
+        "candidate": {
+          "id": 1,
+          "instance": "candidate",
+          "generation": 42,
+          "rows": 17,
+          "minId": 1,
+          "maxId": 17,
+          "validRows": 17,
+          "integrity": "ok"
+        }
+      },
+      "barrier": "rollback-inside-pointer",
+      "idbPendingRequestCount": 1087,
+      "failureBeforeRollback": {
+        "reopenRejected": true,
+        "writeEnabled": false,
+        "failed": {
+          "id": 1,
+          "instance": "candidate",
+          "generation": 42,
+          "rows": 17,
+          "minId": 2,
+          "maxId": 18,
+          "validRows": 17,
+          "integrity": "ok"
+        }
+      },
+      "exit": {
+        "pid": 81564,
+        "exitCode": -9,
+        "method": "SIGKILL isolated process group"
+      },
+      "restartedPid": 81628,
+      "reopened": {
+        "pointer": {
+          "instance": "candidate",
+          "epoch": 2
+        },
+        "state": {
+          "id": 1,
+          "instance": "candidate",
+          "generation": 42,
+          "rows": 17,
+          "minId": 2,
+          "maxId": 18,
+          "validRows": 17,
+          "integrity": "ok"
+        },
+        "writeEnabled": false,
+        "validationError": "Bad state: Reopen validation failed"
+      },
+      "resumedRollback": {
+        "id": 1,
+        "instance": "old",
+        "generation": 1,
+        "rows": 1025,
+        "minId": 1,
+        "maxId": 1025,
+        "validRows": 1025,
+        "integrity": "ok"
+      },
+      "afterResume": {
+        "pointer": {
+          "instance": "old",
+          "epoch": 3
+        },
+        "state": {
+          "id": 1,
+          "instance": "old",
+          "generation": 1,
+          "rows": 1025,
+          "minId": 1,
+          "maxId": 1025,
+          "validRows": 1025,
+          "integrity": "ok"
+        },
+        "writeEnabled": true,
+        "validationError": ""
+      },
+      "status": "PASS"
+    },
+    {
+      "point": "rollback-after-pointer",
+      "prepared": {
+        "old": {
+          "id": 1,
+          "instance": "old",
+          "generation": 1,
+          "rows": 1025,
+          "minId": 1,
+          "maxId": 1025,
+          "validRows": 1025,
+          "integrity": "ok"
+        },
+        "candidate": {
+          "id": 1,
+          "instance": "candidate",
+          "generation": 42,
+          "rows": 17,
+          "minId": 1,
+          "maxId": 17,
+          "validRows": 17,
+          "integrity": "ok"
+        }
+      },
+      "barrier": "rollback-after-pointer",
+      "failureBeforeRollback": {
+        "reopenRejected": true,
+        "writeEnabled": false,
+        "failed": {
+          "id": 1,
+          "instance": "candidate",
+          "generation": 42,
+          "rows": 17,
+          "minId": 2,
+          "maxId": 18,
+          "validRows": 17,
+          "integrity": "ok"
+        }
+      },
+      "exit": {
+        "pid": 81652,
+        "exitCode": -9,
+        "method": "SIGKILL isolated process group"
+      },
+      "restartedPid": 81719,
+      "reopened": {
+        "pointer": {
+          "instance": "old",
+          "epoch": 3
+        },
+        "state": {
+          "id": 1,
+          "instance": "old",
+          "generation": 1,
+          "rows": 1025,
+          "minId": 1,
+          "maxId": 1025,
+          "validRows": 1025,
+          "integrity": "ok"
+        },
+        "writeEnabled": true,
+        "validationError": ""
+      },
+      "status": "PASS"
+    }
+  ],
+  "utc": "2026-09-17T00:37:09Z",
+  "build": {
+    "scope": "Current build; does not retroactively identify historical browser-test artifacts",
+    "sdk": "Dart SDK version: 3.13.3 (stable) (Tue Sep 1 01:07:17 2026 -0700) on \"macos_arm64\"",
+    "commands": [
+      {
+        "cwd": "/Users/muyi/Downloads/dev/software-cost-calculator/prototypes/web_storage_gate",
+        "argv": [
+          "/private/tmp/supplier-inquiry-toolchain/flutter/bin/dart",
+          "compile",
+          "js",
+          "web/main.dart",
+          "-o",
+          "web/main.dart.js"
+        ]
+      },
+      {
+        "cwd": "/Users/muyi/Downloads/dev/software-cost-calculator/prototypes/web_storage_gate",
+        "argv": [
+          "/private/tmp/supplier-inquiry-toolchain/flutter/bin/dart",
+          "compile",
+          "js",
+          "web/restore.dart",
+          "-o",
+          "web/restore.dart.js"
+        ]
+      }
+    ],
+    "sources": {
+      "web/main.dart": "8224b9e6a939f0dd40760bc78596c03bd48c60cd4b7d1676936b10b676bafc47",
+      "web/restore.dart": "15e3dbbf036813062b017e352c7a0f71afd5d6fddbed26c09120ecbef8170fd2"
+    },
+    "assets": {
+      "web/main.dart.js": "6a99fa3ac67022322404d4cb08f016555d103886cf22c413482fce0490b62c98",
+      "web/restore.dart.js": "e62a607006ea1b3ac1b5246e7bd4f5d947f962f1ddf97a957fb0009146488fb1"
+    },
+    "utc": "2026-09-17T00:36:02Z"
+  },
+  "executedEntryPoint": "web/restore.dart.js",
+  "hashes": {
+    "web/restore.dart.js": "e62a607006ea1b3ac1b5246e7bd4f5d947f962f1ddf97a957fb0009146488fb1",
+    "web/main.dart.js": "6a99fa3ac67022322404d4cb08f016555d103886cf22c413482fce0490b62c98",
+    "web/restore.dart": "15e3dbbf036813062b017e352c7a0f71afd5d6fddbed26c09120ecbef8170fd2",
+    "web/restore_harness.js": "e37c01288761714c947e54e75453ea911613e710b9e52b18d048b3a324110402",
+    "web/restore.html": "bd50c4b16df020cc35f7a9586c179eb5ca368547099748f0919f060e67ecd7ea",
+    "web/main.dart": "8224b9e6a939f0dd40760bc78596c03bd48c60cd4b7d1676936b10b676bafc47",
+    "web/harness.js": "2af0f23a9fdd0a1addba178ae90534224df111dda5e2a09c952f9d80aad855bd",
+    "tool/restore_test.py": "fb0c88ca5979e9b78b2459222be23505372e4efc896d3e4e30815c913d6cb324",
+    "tool/browser_test.py": "3c9a6a511fcc238b8bfbd97b3748f7958c44290d4cb469d1a59b07413a6f1bf4",
+    "web/sqlite3.wasm": "13d3f11d05b39ba0618a7115fb41640a5d48b6300f5d3f325f554b42bd6688a4",
+    "web/drift_worker.js": "df0066e75363a9bed59a14eedbbded421c1f5910f8379812df164716aa2e6eed",
+    "pubspec.lock": "29388b1306023fd196007df01d9bbf312a0058106d52e3854d87d05a8e4bc33e"
+  }
+}

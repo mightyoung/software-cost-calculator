@@ -1,0 +1,10 @@
+Resolving dependencies...
+Downloading packages...
+  lints 6.0.0 (6.1.0 available)
+  unorm_dart 0.3.1 (0.3.2 available)
+These packages are no longer being depended on:
+- petitparser 7.0.2
+- xml 6.6.1
+Changed 2 dependencies!
+2 packages have newer versions incompatible with dependency constraints.
+Try `dart pub outdated` for more information.

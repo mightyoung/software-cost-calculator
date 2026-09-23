@@ -1,0 +1,17 @@
+{
+  "artifact": "apps/supplier_app/build/app/outputs/flutter-apk/app-debug.apk",
+  "sha256": "95838e580b9a7179d5ab6ca12562b72a8046a66ac32d57ec67c17008775fd739",
+  "bytes": 84923963,
+  "variant": "debug",
+  "runtime_verified": false,
+  "production_ready": false,
+  "java": "Microsoft OpenJDK 17.0.20.1+1",
+  "command_line_tools": "22.0 / 15859902",
+  "sdk_platform": "android-36 revision 2",
+  "ndk": "28.2.13676358",
+  "gradle": "9.3.1",
+  "agp": "9.1.0",
+  "build_log": "artifacts/development/platform/flutter-build-android-isolated.log",
+  "badging_log": "artifacts/development/platform/android-apk-badging.log",
+  "signature_log": "artifacts/development/platform/android-apk-signature.log"
+}

@@ -1,0 +1,17 @@
+WARNING: The SDK Manager CLI tool (sdkmanager) is deprecated. Use Android CLI instead.
+The 'android' binary can also be found in the cmdline-tools directory, and 'android sdk' is the replacement for 'sdkmanager'.
+To learn more about the Android CLI and how to use it, see the documentation (https://d.android.com/tools/agents/android-cli)
+
+Info: Parsing legacy package: /private/tmp/supplier-inquiry-toolchain/android-sdk/cmdline-tools/latest
+Info: SDK Manager found the following installed packages: build-tools;36.0.0 platform-tools
+                                                                                Info: Preparing "Install NDK (Side by side) 28.2.13676358 v.28.2.13676358".
+                                                                                Info: "Install NDK (Side by side) 28.2.13676358 v.28.2.13676358" ready.
+                                                                                Info: Installing NDK (Side by side) 28.2.13676358 in /private/tmp/supplier-inquiry-toolchain/android-sdk/ndk/28.2.13676358
+                                                                                Info: "Install NDK (Side by side) 28.2.13676358 v.28.2.13676358" complete.
+                                                                                Info: "Install NDK (Side by side) 28.2.13676358 v.28.2.13676358" finished.
+                                                                                Info: Preparing "Install Android SDK Platform 36 (revision 2)".
+                                                                                Info: "Install Android SDK Platform 36 (revision 2)" ready.
+                                                                                Info: Installing Android SDK Platform 36 in /private/tmp/supplier-inquiry-toolchain/android-sdk/platforms/android-36
+Info: "Install Android SDK Platform 36 (revision 2)" complete.
+Info: "Install Android SDK Platform 36 (revision 2)" finished.
+

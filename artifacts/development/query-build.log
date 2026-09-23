@@ -1,0 +1,8 @@
+Generated: /private/tmp/supplier-query-smoke
+SEARCH graph_entity USING COVERING INDEX sqlite_autoindex_graph_entity_1 (run_id=? AND (entity_type,entity_id)>(?,?))
+MERGE (UNION)
+LEFT
+SEARCH graph_redirect USING COVERING INDEX sqlite_autoindex_graph_redirect_1 (run_id=? AND entity_type=? AND source_id=? AND target_id>?)
+RIGHT
+SEARCH graph_redirect USING COVERING INDEX graph_redirect_reverse (run_id=? AND entity_type=? AND target_id=? AND source_id>?)
+Compiled core SQL create+projection+generation+query smoke passed

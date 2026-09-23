@@ -1,0 +1,3 @@
+10k integrity_check ok
+10k foreign_key_check None
+10k counts {'revision': 50000, 'quotation_projection': 10000, 'supplier_projection': 1000, 'product_projection': 2000, 'contact_projection': 2000}

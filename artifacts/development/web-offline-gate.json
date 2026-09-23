@@ -1,0 +1,613 @@
+{
+  "status": "FAIL",
+  "scope": "Current Flutter release UI, isolated Chrome; no Android/Windows; no business fixture imported",
+  "hashes": {
+    "index.html": "8a439c186b72481dd14f8fe58bf4a425da016eaba929bce29538afd32c7e1ff3",
+    "main.dart.js": "ded9cdcc4e722e96d0888a027f5d9e71a195daaec97ceef769d44e1fd967eaf5",
+    "flutter_bootstrap.js": "af9bbca689df6a805d4803e74e112b67e0faf903114b179de30e79a3842cd5b0",
+    "flutter_service_worker.js": "a131df5ca46154cc4eb79044f7f5a14029c2f8bfccf8cef34e3ec3b5a9f5a88c",
+    "drift_worker.js": "731d41b1f788963cd7cc7fce8f752f2e405adfbba22384da834830bd3460fb57",
+    "sqlite3.wasm": "13d3f11d05b39ba0618a7115fb41640a5d48b6300f5d3f325f554b42bd6688a4"
+  },
+  "cases": {
+    "offline-restart": {
+      "pid": 7905,
+      "browser": {
+        "protocolVersion": "1.3",
+        "product": "Chrome/153.0.8010.53",
+        "revision": "@792bf6722e73a45aa9e47c163b9901bdc17f3230",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+        "jsVersion": "15.3.76.13"
+      },
+      "online": {
+        "url": "http://127.0.0.1:64989/",
+        "text": "供应商与询价\n新增报价\n查询与比价\n搜索\n没有符合条件的记录\n新建记录或导入业务 Excel 后即可查询。\n清除筛选",
+        "controller": null,
+        "registrations": [],
+        "caches": [],
+        "resources": [
+          {
+            "name": "http://127.0.0.1:64989/supplier_platform.js",
+            "transferSize": 9939
+          },
+          {
+            "name": "http://127.0.0.1:64989/flutter_bootstrap.js",
+            "transferSize": 13393
+          },
+          {
+            "name": "http://127.0.0.1:64989/manifest.json",
+            "transferSize": 1220
+          },
+          {
+            "name": "https://www.gstatic.com/flutter-canvaskit/06a2e2a110089dff50fe635cffd2a61e1b24fbcd/chromium/canvaskit.wasm",
+            "transferSize": 0
+          },
+          {
+            "name": "https://www.gstatic.com/flutter-canvaskit/06a2e2a110089dff50fe635cffd2a61e1b24fbcd/chromium/canvaskit.js",
+            "transferSize": 0
+          },
+          {
+            "name": "http://127.0.0.1:64989/main.dart.js",
+            "transferSize": 3915485
+          },
+          {
+            "name": "http://127.0.0.1:64989/favicon.png",
+            "transferSize": 1217
+          },
+          {
+            "name": "http://127.0.0.1:64989/icons/Icon-192.png",
+            "transferSize": 5592
+          },
+          {
+            "name": "http://127.0.0.1:64989/assets/FontManifest.json",
+            "transferSize": 382
+          },
+          {
+            "name": "http://127.0.0.1:64989/assets/fonts/MaterialIcons-Regular.otf",
+            "transferSize": 10796
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/roboto/v32/KFOmCnqEu92Fr1Me4GZLCzYlKw.woff2",
+            "transferSize": 63764
+          },
+          {
+            "name": "http://127.0.0.1:64989/drift_worker.js",
+            "transferSize": 0
+          }
+        ]
+      },
+      "settled": {
+        "url": "http://127.0.0.1:64989/",
+        "text": "供应商与询价\n新增报价\n查询与比价\n搜索\n没有符合条件的记录\n新建记录或导入业务 Excel 后即可查询。\n清除筛选",
+        "controller": null,
+        "registrations": [],
+        "caches": [],
+        "resources": [
+          {
+            "name": "http://127.0.0.1:64989/supplier_platform.js",
+            "transferSize": 9939
+          },
+          {
+            "name": "http://127.0.0.1:64989/flutter_bootstrap.js",
+            "transferSize": 13393
+          },
+          {
+            "name": "http://127.0.0.1:64989/manifest.json",
+            "transferSize": 1220
+          },
+          {
+            "name": "https://www.gstatic.com/flutter-canvaskit/06a2e2a110089dff50fe635cffd2a61e1b24fbcd/chromium/canvaskit.wasm",
+            "transferSize": 0
+          },
+          {
+            "name": "https://www.gstatic.com/flutter-canvaskit/06a2e2a110089dff50fe635cffd2a61e1b24fbcd/chromium/canvaskit.js",
+            "transferSize": 0
+          },
+          {
+            "name": "http://127.0.0.1:64989/main.dart.js",
+            "transferSize": 3915485
+          },
+          {
+            "name": "http://127.0.0.1:64989/favicon.png",
+            "transferSize": 1217
+          },
+          {
+            "name": "http://127.0.0.1:64989/icons/Icon-192.png",
+            "transferSize": 5592
+          },
+          {
+            "name": "http://127.0.0.1:64989/assets/FontManifest.json",
+            "transferSize": 382
+          },
+          {
+            "name": "http://127.0.0.1:64989/assets/fonts/MaterialIcons-Regular.otf",
+            "transferSize": 10796
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/roboto/v32/KFOmCnqEu92Fr1Me4GZLCzYlKw.woff2",
+            "transferSize": 63764
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.118.woff2",
+            "transferSize": 25080
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.117.woff2",
+            "transferSize": 28252
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.116.woff2",
+            "transferSize": 28516
+          },
+          {
+            "name": "http://127.0.0.1:64989/drift_worker.js",
+            "transferSize": 0
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.119.woff2",
+            "transferSize": 41688
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.115.woff2",
+            "transferSize": 30356
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.113.woff2",
+            "transferSize": 31344
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.107.woff2",
+            "transferSize": 32764
+          }
+        ]
+      },
+      "close": {
+        "pid": 7905,
+        "exitCode": 0,
+        "method": "CDP Browser.close"
+      },
+      "restart_pid": 8020,
+      "navigation": {
+        "frameId": "D7CB1A712E691A23B8855BCB6D37F8C5",
+        "loaderId": "DA3A886F54B5F8ABEEFA3B69DD0BDC7D",
+        "isDownload": false
+      },
+      "offline": {
+        "url": "http://127.0.0.1:64989/",
+        "text": "供应商与询价\n新增报价\n查询与比价\n搜索\n没有符合条件的记录\n新建记录或导入业务 Excel 后即可查询。\n清除筛选",
+        "controller": null,
+        "registrations": [],
+        "caches": [],
+        "resources": [
+          {
+            "name": "http://127.0.0.1:64989/supplier_platform.js",
+            "transferSize": 0
+          },
+          {
+            "name": "http://127.0.0.1:64989/flutter_bootstrap.js",
+            "transferSize": 0
+          },
+          {
+            "name": "http://127.0.0.1:64989/manifest.json",
+            "transferSize": 0
+          },
+          {
+            "name": "https://www.gstatic.com/flutter-canvaskit/06a2e2a110089dff50fe635cffd2a61e1b24fbcd/chromium/canvaskit.wasm",
+            "transferSize": 0
+          },
+          {
+            "name": "https://www.gstatic.com/flutter-canvaskit/06a2e2a110089dff50fe635cffd2a61e1b24fbcd/chromium/canvaskit.js",
+            "transferSize": 0
+          },
+          {
+            "name": "http://127.0.0.1:64989/main.dart.js",
+            "transferSize": 0
+          },
+          {
+            "name": "http://127.0.0.1:64989/icons/Icon-192.png",
+            "transferSize": 0
+          },
+          {
+            "name": "http://127.0.0.1:64989/assets/FontManifest.json",
+            "transferSize": 0
+          },
+          {
+            "name": "http://127.0.0.1:64989/assets/fonts/MaterialIcons-Regular.otf",
+            "transferSize": 0
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/roboto/v32/KFOmCnqEu92Fr1Me4GZLCzYlKw.woff2",
+            "transferSize": 0
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.118.woff2",
+            "transferSize": 0
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.117.woff2",
+            "transferSize": 0
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.116.woff2",
+            "transferSize": 0
+          },
+          {
+            "name": "http://127.0.0.1:64989/drift_worker.js",
+            "transferSize": 0
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.119.woff2",
+            "transferSize": 0
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.115.woff2",
+            "transferSize": 0
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.113.woff2",
+            "transferSize": 0
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.107.woff2",
+            "transferSize": 0
+          }
+        ]
+      },
+      "status": "FAIL",
+      "offline_without_http_cache": {
+        "url": "chrome-error://chromewebdata/",
+        "text": "按空格键即可开始游戏\n\n请试试以下办法：\n\n检查网线、调制解调器和路由器\n重新连接到 Wi-Fi 网络\nERR_INTERNET_DISCONNECTED",
+        "controller": null,
+        "registrations": [],
+        "caches": [],
+        "resources": []
+      },
+      "managed_cache_status": "FAIL",
+      "server_requests": [
+        "",
+        "supplier_platform.js",
+        "flutter_bootstrap.js",
+        "manifest.json",
+        "main.dart.js",
+        "favicon.png",
+        "icons/Icon-192.png",
+        "assets/FontManifest.json",
+        "assets/fonts/MaterialIcons-Regular.otf",
+        "drift_worker.js",
+        "sqlite3.wasm"
+      ]
+    },
+    "worker-bytes": {
+      "pid": 8097,
+      "browser": {
+        "protocolVersion": "1.3",
+        "product": "Chrome/153.0.8010.53",
+        "revision": "@792bf6722e73a45aa9e47c163b9901bdc17f3230",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+        "jsVersion": "15.3.76.13"
+      },
+      "online": {
+        "url": "http://127.0.0.1:64989/",
+        "text": "供应商与询价\n新增报价\n查询与比价\n搜索\n没有符合条件的记录\n新建记录或导入业务 Excel 后即可查询。\n清除筛选",
+        "controller": null,
+        "registrations": [],
+        "caches": [],
+        "resources": [
+          {
+            "name": "http://127.0.0.1:64989/supplier_platform.js",
+            "transferSize": 9939
+          },
+          {
+            "name": "http://127.0.0.1:64989/flutter_bootstrap.js",
+            "transferSize": 13393
+          },
+          {
+            "name": "http://127.0.0.1:64989/manifest.json",
+            "transferSize": 1220
+          },
+          {
+            "name": "https://www.gstatic.com/flutter-canvaskit/06a2e2a110089dff50fe635cffd2a61e1b24fbcd/chromium/canvaskit.wasm",
+            "transferSize": 0
+          },
+          {
+            "name": "https://www.gstatic.com/flutter-canvaskit/06a2e2a110089dff50fe635cffd2a61e1b24fbcd/chromium/canvaskit.js",
+            "transferSize": 0
+          },
+          {
+            "name": "http://127.0.0.1:64989/main.dart.js",
+            "transferSize": 3915485
+          },
+          {
+            "name": "http://127.0.0.1:64989/favicon.png",
+            "transferSize": 1217
+          },
+          {
+            "name": "http://127.0.0.1:64989/icons/Icon-192.png",
+            "transferSize": 5592
+          },
+          {
+            "name": "http://127.0.0.1:64989/assets/FontManifest.json",
+            "transferSize": 382
+          },
+          {
+            "name": "http://127.0.0.1:64989/assets/fonts/MaterialIcons-Regular.otf",
+            "transferSize": 10796
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/roboto/v32/KFOmCnqEu92Fr1Me4GZLCzYlKw.woff2",
+            "transferSize": 63764
+          },
+          {
+            "name": "http://127.0.0.1:64989/drift_worker.js",
+            "transferSize": 383736
+          }
+        ]
+      },
+      "settled": {
+        "url": "http://127.0.0.1:64989/",
+        "text": "供应商与询价\n新增报价\n查询与比价\n搜索\n没有符合条件的记录\n新建记录或导入业务 Excel 后即可查询。\n清除筛选",
+        "controller": null,
+        "registrations": [],
+        "caches": [],
+        "resources": [
+          {
+            "name": "http://127.0.0.1:64989/supplier_platform.js",
+            "transferSize": 9939
+          },
+          {
+            "name": "http://127.0.0.1:64989/flutter_bootstrap.js",
+            "transferSize": 13393
+          },
+          {
+            "name": "http://127.0.0.1:64989/manifest.json",
+            "transferSize": 1220
+          },
+          {
+            "name": "https://www.gstatic.com/flutter-canvaskit/06a2e2a110089dff50fe635cffd2a61e1b24fbcd/chromium/canvaskit.wasm",
+            "transferSize": 0
+          },
+          {
+            "name": "https://www.gstatic.com/flutter-canvaskit/06a2e2a110089dff50fe635cffd2a61e1b24fbcd/chromium/canvaskit.js",
+            "transferSize": 0
+          },
+          {
+            "name": "http://127.0.0.1:64989/main.dart.js",
+            "transferSize": 3915485
+          },
+          {
+            "name": "http://127.0.0.1:64989/favicon.png",
+            "transferSize": 1217
+          },
+          {
+            "name": "http://127.0.0.1:64989/icons/Icon-192.png",
+            "transferSize": 5592
+          },
+          {
+            "name": "http://127.0.0.1:64989/assets/FontManifest.json",
+            "transferSize": 382
+          },
+          {
+            "name": "http://127.0.0.1:64989/assets/fonts/MaterialIcons-Regular.otf",
+            "transferSize": 10796
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/roboto/v32/KFOmCnqEu92Fr1Me4GZLCzYlKw.woff2",
+            "transferSize": 63764
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.118.woff2",
+            "transferSize": 25080
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.117.woff2",
+            "transferSize": 28252
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.116.woff2",
+            "transferSize": 28516
+          },
+          {
+            "name": "http://127.0.0.1:64989/drift_worker.js",
+            "transferSize": 383736
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.119.woff2",
+            "transferSize": 41688
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.115.woff2",
+            "transferSize": 30356
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.113.woff2",
+            "transferSize": 31344
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.107.woff2",
+            "transferSize": 32764
+          }
+        ]
+      },
+      "modified_sha256": "b654f12b389b9259c6b62571a7f4fc4e0917d339410aa04842f704e793068ada",
+      "status": "OBSERVED",
+      "limitation": "Compatible worker-byte mutation only; no claim that incompatible Drift versions were accepted.",
+      "server_requests": [
+        "",
+        "supplier_platform.js",
+        "flutter_bootstrap.js",
+        "manifest.json",
+        "favicon.png",
+        "main.dart.js",
+        "icons/Icon-192.png",
+        "assets/FontManifest.json",
+        "assets/fonts/MaterialIcons-Regular.otf",
+        "drift_worker.js",
+        "drift_worker.js",
+        "sqlite3.wasm",
+        "drift_worker.js"
+      ]
+    },
+    "invalid-wasm": {
+      "pid": 8214,
+      "browser": {
+        "protocolVersion": "1.3",
+        "product": "Chrome/153.0.8010.53",
+        "revision": "@792bf6722e73a45aa9e47c163b9901bdc17f3230",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+        "jsVersion": "15.3.76.13"
+      },
+      "online": {
+        "url": "http://127.0.0.1:64989/",
+        "text": "本地数据库未能打开\n重试",
+        "controller": null,
+        "registrations": [],
+        "caches": [],
+        "resources": [
+          {
+            "name": "http://127.0.0.1:64989/supplier_platform.js",
+            "transferSize": 9939
+          },
+          {
+            "name": "http://127.0.0.1:64989/flutter_bootstrap.js",
+            "transferSize": 13393
+          },
+          {
+            "name": "http://127.0.0.1:64989/manifest.json",
+            "transferSize": 1220
+          },
+          {
+            "name": "https://www.gstatic.com/flutter-canvaskit/06a2e2a110089dff50fe635cffd2a61e1b24fbcd/chromium/canvaskit.wasm",
+            "transferSize": 0
+          },
+          {
+            "name": "https://www.gstatic.com/flutter-canvaskit/06a2e2a110089dff50fe635cffd2a61e1b24fbcd/chromium/canvaskit.js",
+            "transferSize": 0
+          },
+          {
+            "name": "http://127.0.0.1:64989/main.dart.js",
+            "transferSize": 3915485
+          },
+          {
+            "name": "http://127.0.0.1:64989/favicon.png",
+            "transferSize": 1217
+          },
+          {
+            "name": "http://127.0.0.1:64989/icons/Icon-192.png",
+            "transferSize": 5592
+          },
+          {
+            "name": "http://127.0.0.1:64989/assets/FontManifest.json",
+            "transferSize": 382
+          },
+          {
+            "name": "http://127.0.0.1:64989/assets/fonts/MaterialIcons-Regular.otf",
+            "transferSize": 10796
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/roboto/v32/KFOmCnqEu92Fr1Me4GZLCzYlKw.woff2",
+            "transferSize": 63764
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.118.woff2",
+            "transferSize": 25080
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.117.woff2",
+            "transferSize": 28252
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.116.woff2",
+            "transferSize": 28516
+          },
+          {
+            "name": "http://127.0.0.1:64989/drift_worker.js",
+            "transferSize": 0
+          }
+        ]
+      },
+      "settled": {
+        "url": "http://127.0.0.1:64989/",
+        "text": "本地数据库未能打开\n重试",
+        "controller": null,
+        "registrations": [],
+        "caches": [],
+        "resources": [
+          {
+            "name": "http://127.0.0.1:64989/supplier_platform.js",
+            "transferSize": 9939
+          },
+          {
+            "name": "http://127.0.0.1:64989/flutter_bootstrap.js",
+            "transferSize": 13393
+          },
+          {
+            "name": "http://127.0.0.1:64989/manifest.json",
+            "transferSize": 1220
+          },
+          {
+            "name": "https://www.gstatic.com/flutter-canvaskit/06a2e2a110089dff50fe635cffd2a61e1b24fbcd/chromium/canvaskit.wasm",
+            "transferSize": 0
+          },
+          {
+            "name": "https://www.gstatic.com/flutter-canvaskit/06a2e2a110089dff50fe635cffd2a61e1b24fbcd/chromium/canvaskit.js",
+            "transferSize": 0
+          },
+          {
+            "name": "http://127.0.0.1:64989/main.dart.js",
+            "transferSize": 3915485
+          },
+          {
+            "name": "http://127.0.0.1:64989/favicon.png",
+            "transferSize": 1217
+          },
+          {
+            "name": "http://127.0.0.1:64989/icons/Icon-192.png",
+            "transferSize": 5592
+          },
+          {
+            "name": "http://127.0.0.1:64989/assets/FontManifest.json",
+            "transferSize": 382
+          },
+          {
+            "name": "http://127.0.0.1:64989/assets/fonts/MaterialIcons-Regular.otf",
+            "transferSize": 10796
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/roboto/v32/KFOmCnqEu92Fr1Me4GZLCzYlKw.woff2",
+            "transferSize": 63764
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.118.woff2",
+            "transferSize": 25080
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.117.woff2",
+            "transferSize": 28252
+          },
+          {
+            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.116.woff2",
+            "transferSize": 28516
+          },
+          {
+            "name": "http://127.0.0.1:64989/drift_worker.js",
+            "transferSize": 0
+          }
+        ]
+      },
+      "status": "OBSERVED",
+      "server_requests": [
+        "",
+        "supplier_platform.js",
+        "flutter_bootstrap.js",
+        "manifest.json",
+        "main.dart.js",
+        "favicon.png",
+        "icons/Icon-192.png",
+        "assets/FontManifest.json",
+        "assets/fonts/MaterialIcons-Regular.otf",
+        "drift_worker.js",
+        "sqlite3.wasm"
+      ]
+    }
+  }
+}

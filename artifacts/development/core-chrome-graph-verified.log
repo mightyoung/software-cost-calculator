@@ -1,0 +1,53 @@
+00:00 +0: loading test/contracts_test.dart
+00:00 +0: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:00 +1: test/contracts_test.dart: preview rejects recovered database with same generation
+00:00 +2: test/protocol_values_test.dart: Unicode and object ordering stay canonical across VM and JavaScript
+00:00 +3: test/graph_test.dart: empty union is valid and version is bound before all reads
+00:00 +4: test/domain_test.dart: exact decimals
+00:00 +5: test/contracts_test.dart: preview binds every mutable input
+00:00 +6: test/protocol_values_test.dart: safe integral inputs canonicalize identically on VM and JavaScript
+00:00 +7: test/graph_test.dart: 100 fixed-seed DAGs match independent set-difference heads oracle
+00:00 +8: test/domain_test.dart: date precision offsets and invalid inputs
+00:00 +9: test/contracts_test.dart: scan pages own an immutable bounded copy
+00:00 +10: test/protocol_values_test.dart: protocol numeric input normalizes but wire spelling stays canonical
+00:00 +11: test/graph_test.dart: single entity deep history remains paged and iterative
+00:01 +12: test/domain_test.dart: supplier exact keys and immutable payload
+00:01 +13: test/graph_test.dart: wide fan-out children and heads are not collected by validator
+00:01 +14: test/domain_test.dart: quotation standard and historical validation
+00:01 +15: test/graph_test.dart: graph_missing_parent rejects graph and discards all work
+00:01 +16: test/domain_test.dart: contact snapshot detached and supplier binding checked
+00:01 +17: test/graph_test.dart: graph_multiple_roots rejects graph and discards all work
+00:01 +18: test/domain_test.dart: every text field enforces its codepoint boundary
+00:01 +19: test/graph_test.dart: graph_parent_entity rejects graph and discards all work
+00:01 +20: test/domain_test.dart: array, snapshot, numeric, enum and UUID counterexamples
+00:01 +21: test/graph_test.dart: graph_root_kind rejects graph and discards all work
+00:01 +22: test/domain_test.dart: explicit clearing and date/instant canonical payloads
+00:01 +23: test/graph_test.dart: graph_cycle rejects graph and discards all work
+00:01 +24: test/domain_test.dart: clearing nested contact methods requires explicit confirmation
+00:01 +25: test/graph_test.dart: graph_missing_reference rejects graph and discards all work
+00:01 +26: test/domain_test.dart: integer business fields normalize integral numbers across VM and Web
+00:01 +27: test/graph_test.dart: instance change during scan invalidates entire run
+00:01 +28: test/graph_test.dart: epoch change during scan invalidates entire run
+00:01 +29: test/graph_test.dart: generation change during scan invalidates entire run
+00:01 +30: test/graph_test.dart: job change during scan invalidates entire run
+00:01 +31: test/graph_test.dart: sealed change during scan invalidates entire run
+00:01 +32: test/graph_test.dart: source exception discards partially built topology and permits fresh retry
+00:01 +33: test/graph_test.dart: redirect cycle and feeder are relation anomalies, preserving valid history
+00:01 +34: test/graph_test.dart: parallel redirect heads propagate anomaly without choosing a winner
+00:01 +35: test/graph_test.dart: deep redirects use persistent visits and memoized terminal results
+00:02 +36: test/graph_test.dart: delete is retained and redirect resolves to tombstone without resurrection
+00:02 +37: test/graph_test.dart: all put payload references exist; tombstones and old snapshots remain valid history
+00:02 +38: test/graph_test.dart: missing referenced supplier rejects union
+00:02 +39: test/graph_test.dart: missing referenced product rejects union
+00:02 +40: test/graph_test.dart: missing referenced contact rejects union
+00:02 +41: test/graph_test.dart: superseded put payload still requires historical reference closure
+00:02 +42: test/graph_test.dart: reference of wrong entity type is not accepted by matching UUID alone
+00:02 +43: test/graph_test.dart: explicit descendant repairs old redirect cycle without erasing history
+00:02 +44: test/graph_test.dart: merge of all parallel heads repairs component without using old edges
+00:02 +45: test/graph_test.dart: redirect into conflicted target stays conflicted, with no canonical winner
+00:02 +46: test/graph_test.dart: binding read failure clears prior successful run
+00:02 +47: test/graph_test.dart: cycle through parallel heads keeps entire component anomalous
+00:02 +48: test/graph_test.dart: missing parent plus cleanup failure preserves both failures and stacks
+00:02 +49: test/graph_test.dart: metadata plus cleanup failure preserves original identity and exact stack
+00:02 +50: test/graph_test.dart: successful cleanup rethrows original metadata failure with original stack
+00:02 +51: All tests passed!

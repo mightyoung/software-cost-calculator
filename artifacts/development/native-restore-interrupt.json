@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "boundaries": {
+    "before_switch": {
+      "signal_exit": -9,
+      "recovered_instance": "778b0a0d-b76b-48c8-94a0-568c23a5d0ec",
+      "device_preserved": true,
+      "post_accept_write_preserved": true
+    },
+    "inside_switch": {
+      "signal_exit": -9,
+      "recovered_instance": "cec83426-bf4b-4083-ad8a-083e50277a15",
+      "device_preserved": true,
+      "post_accept_write_preserved": true
+    },
+    "after_switch": {
+      "signal_exit": -9,
+      "recovered_instance": "75ed3d53-2490-4593-a0a0-a150c2adadfc",
+      "device_preserved": true,
+      "post_accept_write_preserved": true
+    },
+    "after_accept": {
+      "signal_exit": -9,
+      "recovered_instance": "eaffe10d-dd39-4bf9-b8a6-acf7764f3229",
+      "device_preserved": true,
+      "post_accept_write_preserved": true
+    }
+  }
+}

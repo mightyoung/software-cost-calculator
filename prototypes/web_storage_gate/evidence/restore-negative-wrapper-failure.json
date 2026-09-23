@@ -1,0 +1,84 @@
+{
+  "status": "FAIL",
+  "scenarios": [
+    {
+      "point": "wrong-range-candidate",
+      "prepared": {
+        "old": {
+          "id": 1,
+          "instance": "old",
+          "generation": 1,
+          "rows": 1025,
+          "minId": 1,
+          "maxId": 1025,
+          "validRows": 1025,
+          "integrity": "ok"
+        },
+        "candidate": {
+          "id": 1,
+          "instance": "candidate",
+          "generation": 42,
+          "rows": 17,
+          "minId": 1,
+          "maxId": 17,
+          "validRows": 17,
+          "integrity": "ok"
+        }
+      }
+    }
+  ],
+  "failure": "RuntimeError({'result': {'type': 'object', 'value': {}}, 'exceptionDetails': {'exceptionId': 1, 'text': 'Uncaught (in promise) Error: wrong-range reopen failed assertion: {\"reopenRejected\":false,\"reopenError\":\"Error: Dart exception thrown from converted Future. Use the properties \\'error\\' to fetch the boxed error and \\'stack\\' to recover the stack trace.\",\"writeEnabled\":false}', 'lineNumber': 0, 'columnNumber': 0, 'exception': {'type': 'object', 'subtype': 'error', 'className': 'Error', 'description': 'Error: wrong-range reopen failed assertion: {\"reopenRejected\":false,\"reopenError\":\"Error: Dart exception thrown from converted Future. Use the properties \\'error\\' to fetch the boxed error and \\'stack\\' to recover the stack trace.\",\"writeEnabled\":false}\\n    at check (http://127.0.0.1:54065/harness.js:5:41)\\n    at window.restoreWrongRangeTests (http://127.0.0.1:54065/restore_harness.js:126:3)', 'objectId': '-6458002511527602981.1.1'}}})",
+  "utc": "2026-09-17T00:30:40Z",
+  "build": {
+    "scope": "Current build; does not retroactively identify historical browser-test artifacts",
+    "sdk": "Dart SDK version: 3.13.3 (stable) (Tue Sep 1 01:07:17 2026 -0700) on \"macos_arm64\"",
+    "commands": [
+      {
+        "cwd": "/Users/muyi/Downloads/dev/software-cost-calculator/prototypes/web_storage_gate",
+        "argv": [
+          "/private/tmp/supplier-inquiry-toolchain/flutter/bin/dart",
+          "compile",
+          "js",
+          "web/main.dart",
+          "-o",
+          "web/main.dart.js"
+        ]
+      },
+      {
+        "cwd": "/Users/muyi/Downloads/dev/software-cost-calculator/prototypes/web_storage_gate",
+        "argv": [
+          "/private/tmp/supplier-inquiry-toolchain/flutter/bin/dart",
+          "compile",
+          "js",
+          "web/restore.dart",
+          "-o",
+          "web/restore.dart.js"
+        ]
+      }
+    ],
+    "sources": {
+      "web/main.dart": "8224b9e6a939f0dd40760bc78596c03bd48c60cd4b7d1676936b10b676bafc47",
+      "web/restore.dart": "f19b43f548bc2dc7431b08167144ce111795ad5df10e39a81688ba99d4368b7b"
+    },
+    "assets": {
+      "web/main.dart.js": "6a99fa3ac67022322404d4cb08f016555d103886cf22c413482fce0490b62c98",
+      "web/restore.dart.js": "4cc4423170e0e93abb41760bfdc2235d8c2cd01ca65970d5d0181536672fa1d9"
+    },
+    "utc": "2026-09-17T00:29:40Z"
+  },
+  "executedEntryPoint": "web/restore.dart.js",
+  "hashes": {
+    "web/restore.dart.js": "4cc4423170e0e93abb41760bfdc2235d8c2cd01ca65970d5d0181536672fa1d9",
+    "web/main.dart.js": "6a99fa3ac67022322404d4cb08f016555d103886cf22c413482fce0490b62c98",
+    "web/restore.dart": "f19b43f548bc2dc7431b08167144ce111795ad5df10e39a81688ba99d4368b7b",
+    "web/restore_harness.js": "0b07e2d4691d47e76d470e8bcfec60a87548f2a9f48fc448c97d581705f648cc",
+    "web/restore.html": "bd50c4b16df020cc35f7a9586c179eb5ca368547099748f0919f060e67ecd7ea",
+    "web/main.dart": "8224b9e6a939f0dd40760bc78596c03bd48c60cd4b7d1676936b10b676bafc47",
+    "web/harness.js": "2af0f23a9fdd0a1addba178ae90534224df111dda5e2a09c952f9d80aad855bd",
+    "tool/restore_test.py": "e97b3dc03a531eb60695b2ce9721e1f2caf3b47690f78f7671a7739697478303",
+    "tool/browser_test.py": "3c9a6a511fcc238b8bfbd97b3748f7958c44290d4cb469d1a59b07413a6f1bf4",
+    "web/sqlite3.wasm": "13d3f11d05b39ba0618a7115fb41640a5d48b6300f5d3f325f554b42bd6688a4",
+    "web/drift_worker.js": "df0066e75363a9bed59a14eedbbded421c1f5910f8379812df164716aa2e6eed",
+    "pubspec.lock": "29388b1306023fd196007df01d9bbf312a0058106d52e3854d87d05a8e4bc33e"
+  }
+}

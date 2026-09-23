@@ -1,0 +1,2053 @@
+00:00 +0: loading /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_storage_migration_test.dart
+00:00 +0: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted armed boundary
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#7      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#8      _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:83:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#9      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#10     _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:01 +1: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted armed boundary
+00:01 +2: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted armed boundary
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore.prepareRestore (package:supplier_app/platform/native_restore.dart:59:19)
+<asynchronous suspension>
+#5      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:68:18)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#8      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:02 +3: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted armed boundary
+00:02 +4: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted armed boundary
+00:02 +4: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_database_host_test.dart: reactivation never grants an old connection the new epoch
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_database_host_test.dart:94:19)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#8      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#9      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:112:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_database_host_test.dart:94:19)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#11     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:02 +5: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted armed boundary
+00:02 +6: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted armed boundary
+00:02 +7: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted armed boundary
+00:02 +8: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted armed boundary
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#8      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#9      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._finishActivation (package:supplier_app/platform/native_restore.dart:285:18)
+<asynchronous suspension>
+#5      NativeRestore._recoverActivation (package:supplier_app/platform/native_restore.dart:208:11)
+<asynchronous suspension>
+#6      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:54:9)
+<asynchronous suspension>
+#7      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#8      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#9      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#10     main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#11     Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#12     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#13     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._finishActivation (package:supplier_app/platform/native_restore.dart:334:16)
+<asynchronous suspension>
+#5      NativeRestore._recoverActivation (package:supplier_app/platform/native_restore.dart:208:11)
+<asynchronous suspension>
+#6      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:54:9)
+<asynchronous suspension>
+#7      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#8      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#9      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#10     main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#11     Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#12     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#13     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:02 +9: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted armed boundary
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:112:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#11     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:02 +10: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_storage_migration_test.dart: replays legacy armed before migrating final active storage
+00:02 +11: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_storage_migration_test.dart: replays legacy armed before migrating final active storage
+00:02 +12: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_storage_migration_test.dart: replays legacy armed before migrating final active storage
+00:02 +12: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted armed_epoch boundary
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#7      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#8      _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:02 +13: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_storage_migration_test.dart: replays legacy armed before migrating final active storage
+00:02 +13: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted armed_epoch boundary
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:83:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#9      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#10     _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:02 +14: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_storage_migration_test.dart: replays legacy armed before migrating final active storage
+00:03 +15: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_storage_migration_test.dart: replays legacy armed before migrating final active storage
+00:03 +15: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted armed_epoch boundary
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore.prepareRestore (package:supplier_app/platform/native_restore.dart:59:19)
+<asynchronous suspension>
+#5      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:68:18)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#8      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:03 +16: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted armed_epoch boundary
+WARNING (drift): It looks like you've created the database class _Metadata multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _Metadata (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:271:26)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:104:27)
+<asynchronous suspension>
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#8      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#9      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._finishActivation (package:supplier_app/platform/native_restore.dart:285:18)
+<asynchronous suspension>
+#5      NativeRestore._recoverActivation (package:supplier_app/platform/native_restore.dart:208:11)
+<asynchronous suspension>
+#6      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:54:9)
+<asynchronous suspension>
+#7      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#8      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#9      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#10     main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#11     Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#12     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#13     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._finishActivation (package:supplier_app/platform/native_restore.dart:334:16)
+<asynchronous suspension>
+#5      NativeRestore._recoverActivation (package:supplier_app/platform/native_restore.dart:208:11)
+<asynchronous suspension>
+#6      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:54:9)
+<asynchronous suspension>
+#7      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#8      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#9      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#10     main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#11     Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#12     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#13     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:112:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#11     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:03 +17: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_storage_migration_test.dart: replays legacy armed_epoch before migrating final active storage
+00:03 +17: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted switched boundary
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#7      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#8      _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:83:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#9      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#10     _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:03 +17: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_storage_migration_test.dart: replays legacy armed_epoch before migrating final active storage
+WARNING (drift): It looks like you've created the database class _Raw multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _Raw (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_storage_migration_test.dart:316:21)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_storage_migration_test.dart:199:21)
+<asynchronous suspension>
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:03 +17: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted switched boundary
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore.prepareRestore (package:supplier_app/platform/native_restore.dart:59:19)
+<asynchronous suspension>
+#5      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:68:18)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#8      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:03 +18: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted switched boundary
+WARNING (drift): It looks like you've created the database class _Metadata multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _Metadata (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:271:26)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:104:27)
+<asynchronous suspension>
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#8      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#9      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._finishActivation (package:supplier_app/platform/native_restore.dart:334:16)
+<asynchronous suspension>
+#5      NativeRestore._recoverActivation (package:supplier_app/platform/native_restore.dart:208:11)
+<asynchronous suspension>
+#6      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:54:9)
+<asynchronous suspension>
+#7      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#8      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#9      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#10     main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#11     Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#12     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#13     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:112:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#11     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:03 +19: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_storage_migration_test.dart: replays legacy switched before migrating final active storage
+WARNING (drift): It looks like you've created the database class _Raw multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _Raw (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_storage_migration_test.dart:316:21)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_storage_migration_test.dart:199:21)
+<asynchronous suspension>
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:03 +19: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted rollback_pending boundary
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#7      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#8      _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:83:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#9      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#10     _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:04 +20: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted rollback_pending boundary
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore.prepareRestore (package:supplier_app/platform/native_restore.dart:59:19)
+<asynchronous suspension>
+#5      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:68:18)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#8      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class _Metadata multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _Metadata (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:271:26)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:104:27)
+<asynchronous suspension>
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#8      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#9      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._rollbackActivation (package:supplier_app/platform/native_restore.dart:446:22)
+<asynchronous suspension>
+#5      NativeRestore._recoverActivation (package:supplier_app/platform/native_restore.dart:218:9)
+<asynchronous suspension>
+#6      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:54:9)
+<asynchronous suspension>
+#7      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#8      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#9      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#10     main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#11     Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#12     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#13     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:112:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#11     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:04 +20: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_storage_migration_test.dart: replays legacy rollback_pending before migrating final active storage
+WARNING (drift): It looks like you've created the database class _Raw multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _Raw (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_storage_migration_test.dart:316:21)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_storage_migration_test.dart:199:21)
+<asynchronous suspension>
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:04 +21: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_storage_migration_test.dart: replays legacy rollback_pending before migrating final active storage
+00:04 +21: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted rollback_epoch boundary
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#7      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#8      _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:83:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#9      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#10     _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:04 +22: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted rollback_epoch boundary
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore.prepareRestore (package:supplier_app/platform/native_restore.dart:59:19)
+<asynchronous suspension>
+#5      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:68:18)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#8      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:04 +23: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted rollback_epoch boundary
+WARNING (drift): It looks like you've created the database class _Metadata multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _Metadata (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:271:26)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:104:27)
+<asynchronous suspension>
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class _Metadata multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _Metadata (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:271:26)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:119:26)
+<asynchronous suspension>
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:04 +24: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted rollback_epoch boundary
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#8      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#9      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._rollbackActivation (package:supplier_app/platform/native_restore.dart:446:22)
+<asynchronous suspension>
+#5      NativeRestore._recoverActivation (package:supplier_app/platform/native_restore.dart:218:9)
+<asynchronous suspension>
+#6      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:54:9)
+<asynchronous suspension>
+#7      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#8      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#9      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#10     main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#11     Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#12     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#13     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:112:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#11     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:04 +25: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_storage_migration_test.dart: owned bootstrap handles empty schema, foreign=true
+00:04 +25: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted switched_corrupt boundary
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#7      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#8      _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:83:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#9      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#10     _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:04 +26: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted switched_corrupt boundary
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore.prepareRestore (package:supplier_app/platform/native_restore.dart:59:19)
+<asynchronous suspension>
+#5      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:68:18)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#8      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class _Metadata multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _Metadata (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:271:26)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:104:27)
+<asynchronous suspension>
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#8      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#9      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._rollbackActivation (package:supplier_app/platform/native_restore.dart:446:22)
+<asynchronous suspension>
+#5      NativeRestore._finishActivation (package:supplier_app/platform/native_restore.dart:392:11)
+<asynchronous suspension>
+#6      NativeRestore._recoverActivation (package:supplier_app/platform/native_restore.dart:208:11)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:54:9)
+<asynchronous suspension>
+#8      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#9      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#10     NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#11     main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#12     Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#13     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#14     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:112:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#11     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:05 +27: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted armed_epoch_setting boundary
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#7      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#8      _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:83:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#9      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#10     _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore.prepareRestore (package:supplier_app/platform/native_restore.dart:59:19)
+<asynchronous suspension>
+#5      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:68:18)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#8      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class _Metadata multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _Metadata (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:271:26)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:104:27)
+<asynchronous suspension>
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class _Metadata multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _Metadata (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:271:26)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:132:25)
+<asynchronous suspension>
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#8      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#9      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._finishActivation (package:supplier_app/platform/native_restore.dart:285:18)
+<asynchronous suspension>
+#5      NativeRestore._recoverActivation (package:supplier_app/platform/native_restore.dart:208:11)
+<asynchronous suspension>
+#6      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:54:9)
+<asynchronous suspension>
+#7      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#8      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#9      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#10     main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#11     Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#12     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#13     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._finishActivation (package:supplier_app/platform/native_restore.dart:334:16)
+<asynchronous suspension>
+#5      NativeRestore._recoverActivation (package:supplier_app/platform/native_restore.dart:208:11)
+<asynchronous suspension>
+#6      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:54:9)
+<asynchronous suspension>
+#7      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#8      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#9      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#10     main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#11     Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#12     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#13     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._rollbackActivation (package:supplier_app/platform/native_restore.dart:446:22)
+<asynchronous suspension>
+#5      NativeRestore._finishActivation (package:supplier_app/platform/native_restore.dart:392:11)
+<asynchronous suspension>
+#6      NativeRestore._recoverActivation (package:supplier_app/platform/native_restore.dart:208:11)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:54:9)
+<asynchronous suspension>
+#8      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#9      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#10     NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#11     main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#12     Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#13     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#14     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:112:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#11     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:05 +28: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restart recovers persisted switched_projection boundary
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#7      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#8      _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:83:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#9      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#10     _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore.prepareRestore (package:supplier_app/platform/native_restore.dart:59:19)
+<asynchronous suspension>
+#5      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:68:18)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#8      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class _Metadata multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _Metadata (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:271:26)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:104:27)
+<asynchronous suspension>
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class _Metadata multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _Metadata (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:271:26)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:132:25)
+<asynchronous suspension>
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#8      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#9      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._finishActivation (package:supplier_app/platform/native_restore.dart:334:16)
+<asynchronous suspension>
+#5      NativeRestore._recoverActivation (package:supplier_app/platform/native_restore.dart:208:11)
+<asynchronous suspension>
+#6      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:54:9)
+<asynchronous suspension>
+#7      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#8      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#9      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#10     main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#11     Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#12     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#13     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._rollbackActivation (package:supplier_app/platform/native_restore.dart:446:22)
+<asynchronous suspension>
+#5      NativeRestore._finishActivation (package:supplier_app/platform/native_restore.dart:392:11)
+<asynchronous suspension>
+#6      NativeRestore._recoverActivation (package:supplier_app/platform/native_restore.dart:208:11)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:54:9)
+<asynchronous suspension>
+#8      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#9      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#10     NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#11     main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#12     Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#13     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#14     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:112:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:148:16)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#11     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:06 +29: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: restores through fresh identity and retained backup, fencing old connections
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#7      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#8      _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:83:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#9      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#10     _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore.prepareRestore (package:supplier_app/platform/native_restore.dart:59:19)
+<asynchronous suspension>
+#5      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:167:16)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#8      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._finishActivation (package:supplier_app/platform/native_restore.dart:285:18)
+<asynchronous suspension>
+#5      NativeRestore.activateRestore.<anonymous closure> (package:supplier_app/platform/native_restore.dart:170:5)
+<asynchronous suspension>
+#6      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#7      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:168:23)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#11     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._finishActivation (package:supplier_app/platform/native_restore.dart:334:16)
+<asynchronous suspension>
+#5      NativeRestore.activateRestore.<anonymous closure> (package:supplier_app/platform/native_restore.dart:170:5)
+<asynchronous suspension>
+#6      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#7      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:168:23)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#11     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:172:22)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#8      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#9      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:112:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:172:22)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#11     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:06 +30: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: ready candidate survives host restart
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#7      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#8      _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:83:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#9      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#10     _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore.prepareRestore (package:supplier_app/platform/native_restore.dart:59:19)
+<asynchronous suspension>
+#5      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:200:16)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#8      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:202:14)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#8      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#9      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:112:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:202:14)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#11     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._finishActivation (package:supplier_app/platform/native_restore.dart:285:18)
+<asynchronous suspension>
+#5      NativeRestore.activateRestore.<anonymous closure> (package:supplier_app/platform/native_restore.dart:170:5)
+<asynchronous suspension>
+#6      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#7      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:203:13)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#11     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._finishActivation (package:supplier_app/platform/native_restore.dart:334:16)
+<asynchronous suspension>
+#5      NativeRestore.activateRestore.<anonymous closure> (package:supplier_app/platform/native_restore.dart:170:5)
+<asynchronous suspension>
+#6      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#7      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:203:13)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#11     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:07 +31: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: intervening business write invalidates candidate preview
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#7      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#8      _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:83:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#9      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#10     _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore.prepareRestore (package:supplier_app/platform/native_restore.dart:59:19)
+<asynchronous suspension>
+#5      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:207:16)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#8      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:08 +32: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: changed candidate never switches active pointer
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#7      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#8      _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:83:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#9      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#10     _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore.prepareRestore (package:supplier_app/platform/native_restore.dart:59:19)
+<asynchronous suspension>
+#5      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:219:16)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#8      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:08 +33: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart: accepted activation never rolls back after a new write or corrupt reopen
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#7      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#8      _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:83:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:29:14)
+<asynchronous suspension>
+#9      Future._kTrue (dart:async/future.dart:702:3)
+<asynchronous suspension>
+#10     _CustomZone.bindUnaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:748:12)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore.prepareRestore (package:supplier_app/platform/native_restore.dart:59:19)
+<asynchronous suspension>
+#5      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:234:18)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#8      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._finishActivation (package:supplier_app/platform/native_restore.dart:285:18)
+<asynchronous suspension>
+#5      NativeRestore.activateRestore.<anonymous closure> (package:supplier_app/platform/native_restore.dart:170:5)
+<asynchronous suspension>
+#6      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#7      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:235:7)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#11     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._finishActivation (package:supplier_app/platform/native_restore.dart:334:16)
+<asynchronous suspension>
+#5      NativeRestore.activateRestore.<anonymous closure> (package:supplier_app/platform/native_restore.dart:170:5)
+<asynchronous suspension>
+#6      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#7      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:235:7)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#11     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:236:24)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#8      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#9      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:112:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:236:24)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#11     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      Throws._matchFuture (package:matcher/src/expect/throws_matcher.dart:103:19)
+<asynchronous suspension>
+#7      _expect.<anonymous closure> (package:matcher/src/expect/expect.dart:153:17)
+<asynchronous suspension>
+#8      StackZoneSpecification._registerCallback.<anonymous closure> (package:stack_trace/src/stack_zone_specification.dart:114:42)
+<asynchronous suspension>
+#9      expectLater.<anonymous closure> (package:flutter_test/src/widget_tester.dart:508:19)
+<asynchronous suspension>
+#10     main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/native_restore_test.dart:241:7)
+<asynchronous suspension>
+#11     Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#12     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#13     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:09 +34: All tests passed!

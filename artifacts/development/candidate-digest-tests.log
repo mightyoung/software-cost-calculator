@@ -1,0 +1,11 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/candidate_digest_test.dart
+00:00 +0 -1: loading test/candidate_digest_test.dart [E]
+  Failed to load "test/candidate_digest_test.dart":
+  lib/src/exchange/backup_format.dart:313:28: Error: The argument type 'BackupHeader?' can't be assigned to the parameter type 'BackupHeader'.
+   - 'BackupHeader' is from 'package:supplier_core/src/exchange/backup_format.dart' ('lib/src/exchange/backup_format.dart').
+        await onHeader?.call(header);
+                             ^
+00:00 +0 -1: Some tests failed.
+
+Failing tests:
+  test/candidate_digest_test.dart: loading test/candidate_digest_test.dart

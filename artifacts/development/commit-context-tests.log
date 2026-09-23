@@ -1,0 +1,33 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/commit_context_test.dart
+00:00 +0: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:01 +1: test/storage_test.dart: production validates and commits sealed canonical graph
+00:01 +2: test/commit_context_test.dart: expired or different-lock contexts cannot commit
+00:01 +3: test/storage_test.dart: page:2 rolls back every page, heads, generation and receipt
+00:01 +4: test/storage_test.dart: page:4 rolls back every page, heads, generation and receipt
+00:01 +5: test/storage_test.dart: page:5 rolls back every page, heads, generation and receipt
+00:01 +6: test/storage_test.dart: before_commit rolls back every page, heads, generation and receipt
+00:01 +7: test/storage_test.dart: lost after-commit response retries same durable event after reopen
+00:01 +8: test/storage_test.dart: seal immutable against insert update delete and digest substitution
+00:01 +9: test/storage_test.dart: reject stale instance token without writes
+00:01 +10: test/storage_test.dart: reject stale epoch token without writes
+00:01 +11: test/storage_test.dart: reject stale generation token without writes
+00:01 +12: test/storage_test.dart: scan pages bound original version and close
+00:02 +13: test/storage_test.dart: missing parent fails deferred FK and rolls back
+00:02 +14: test/storage_test.dart: confirmation ID cannot be rebound to another seal
+00:02 +15: test/storage_test.dart: duplicate parallel redirects share adjacency while preserving all heads
+00:02 +16: test/storage_test.dart: wrong canonical revision hash cannot be hidden by staging seal
+00:02 +17: test/storage_test.dart: failed cleanup persistently quarantines reads and reset across reopen
+00:02 +18: test/storage_test.dart: bounded SQL workspace validates deep entity history
+00:03 +19: test/storage_test.dart: SQL schema independently enforces authority FK and entity UUID uniqueness
+00:03 +20: test/storage_test.dart: confirmation cannot be reused at a different epoch with same content
+00:03 +21: test/storage_test.dart: cleanup failure retains original fault and committed receipt at null
+00:03 +22: test/storage_test.dart: cleanup failure retains original fault and committed receipt at before_commit
+00:03 +23: test/storage_test.dart: cleanup failure retains original fault and committed receipt at after_commit
+00:03 +24: test/storage_test.dart: restore epoch CAS preserves generation and invalidates old preview
+00:03 +25: test/storage_test.dart: entity keyset plan seeks tuple index
+00:03 +26: test/storage_test.dart: redirect neighbor plans seek bounded ranges in both directions
+00:03 +27: test/storage_test.dart: 100 fixed seed DAGs agree with independent head-set oracle
+00:04 +28: test/storage_test.dart: committed staging cleanup keeps durable event retry and seal
+00:04 +29: test/storage_test.dart: cancelled sealed staging can be reclaimed but never committed
+00:04 +30: test/storage_test.dart: unsupported migration leaves old schema and data intact
+00:04 +31: All tests passed!

@@ -1,0 +1,8 @@
+Analyzing business_mapping.dart, business_mapping_test.dart...
+
+   info - lib/src/exchange/business_mapping.dart:16:7 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - lib/src/exchange/business_mapping.dart:30:7 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - lib/src/exchange/business_mapping.dart:143:5 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - lib/src/exchange/business_mapping.dart:146:5 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+
+4 issues found.

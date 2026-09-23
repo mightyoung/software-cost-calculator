@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "revision_count": 500,
+  "quotation_count": 100,
+  "authority_sha256": "5a00ef9bcca8b8dd3a8118e0fa1d7d537b9abbb63f46a744e160f42e51a74f1b",
+  "volume_count": 9,
+  "sqlite_cache_kib": 8192,
+  "retained_sqlite_rows": 1,
+  "zip_chunk_bytes": 65536,
+  "scope": "Independent authority/receipt/ZIP integrity; production self-verifier owns XML/projection validation"
+}

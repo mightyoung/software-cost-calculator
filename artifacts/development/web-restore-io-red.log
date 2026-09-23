@@ -1,0 +1,12 @@
+Compiled 15,301,983 input bytes (9,871,372 characters source) to 383,391 characters JavaScript in 2.53 seconds
+Compiled 15,815,668 input bytes (10,385,057 characters source) to 927,810 characters JavaScript in 4.03 seconds
+io_faults fixture fault-private-create
+Traceback (most recent call last):
+  File "/Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/tool/web_restore_test.py", line 154, in <module>
+    main()
+    ~~~~^^
+  File "/Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/tool/web_restore_test.py", line 116, in main
+    io_faults = invoke(browser, 'io_faults')
+  File "/Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/tool/web_restore_test.py", line 41, in invoke
+    raise RuntimeError(json.dumps(state, ensure_ascii=False))
+RuntimeError: {"pending": false, "error": "Error: Dart exception thrown from converted Future. Use the properties 'error' to fetch the boxed error and 'stack' to recover the stack trace.", "stage": "fixture fault-private-create"}

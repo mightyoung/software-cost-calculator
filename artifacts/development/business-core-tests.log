@@ -1,0 +1,220 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/candidate_digest_test.dart
+00:00 +0: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +1: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +2: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +3: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +4: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +5: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +6: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +7: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +8: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +9: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +10: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +11: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +12: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +13: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +14: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +15: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +16: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +17: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +18: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +19: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +20: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +21: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +22: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +23: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +24: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +25: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +26: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +27: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +28: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +29: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +30: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +31: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +32: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:01 +33: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:01 +34: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:01 +35: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +36: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +37: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +38: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +39: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +40: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +41: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +42: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +43: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +44: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +45: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +46: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +47: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +48: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +49: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +50: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +51: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +52: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +53: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +54: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +55: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +56: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +57: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +58: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +59: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +60: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +61: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +62: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +63: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +64: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +65: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +66: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +67: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +68: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +69: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +70: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +71: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +72: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +73: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +74: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +75: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +76: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +77: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +78: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +79: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +80: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +81: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +82: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +83: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +84: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +85: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +86: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +87: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +88: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +89: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +90: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +91: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +92: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +93: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +94: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +95: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +96: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +97: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +98: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +99: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +100: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:04 +101: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:04 +102: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:04 +103: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:04 +104: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:04 +105: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:04 +106: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:04 +107: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:04 +108: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +109: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +110: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +111: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +112: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +113: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +114: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +115: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +116: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +117: test/graph_test.dart: single entity deep history remains paged and iterative
+00:05 +118: test/graph_test.dart: single entity deep history remains paged and iterative
+00:05 +119: test/graph_test.dart: single entity deep history remains paged and iterative
+00:05 +120: test/query_test.dart: normalized project/person and date/price/missing filters compose
+00:05 +121: test/query_test.dart: normalized project/person and date/price/missing filters compose
+00:05 +122: test/query_test.dart: normalized project/person and date/price/missing filters compose
+00:05 +123: test/query_test.dart: normalized project/person and date/price/missing filters compose
+00:05 +124: test/query_test.dart: normalized project/person and date/price/missing filters compose
+00:05 +125: test/query_test.dart: normalized project/person and date/price/missing filters compose
+00:05 +126: test/query_test.dart: normalized project/person and date/price/missing filters compose
+00:05 +127: test/query_test.dart: normalized project/person and date/price/missing filters compose
+00:05 +128: test/query_test.dart: normalized project/person and date/price/missing filters compose
+00:05 +129: test/query_test.dart: normalized project/person and date/price/missing filters compose
+00:05 +130: test/query_test.dart: normalized project/person and date/price/missing filters compose
+00:05 +131: test/query_test.dart: normalized project/person and date/price/missing filters compose
+00:05 +132: test/query_test.dart: normalized project/person and date/price/missing filters compose
+00:05 +133: test/query_test.dart: normalized project/person and date/price/missing filters compose
+00:05 +134: test/query_test.dart: normalized project/person and date/price/missing filters compose
+00:05 +135: test/record_service_test.dart: generic create rejects quotation, dedicated create and copy enforce standard
+00:05 +136: test/record_service_test.dart: generic create rejects quotation, dedicated create and copy enforce standard
+00:06 +137: test/record_service_test.dart: generic create rejects quotation, dedicated create and copy enforce standard
+00:06 +138: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +139: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +140: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +141: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +142: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +143: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +144: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +145: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +146: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +147: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +148: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +149: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +150: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +151: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +152: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +153: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +154: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +155: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +156: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +157: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +158: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +159: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +160: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +161: test/storage_test.dart: production validates and commits sealed canonical graph
+00:06 +162: test/record_service_test.dart: contact binding validates supplier and immutable capture snapshot
+00:06 +163: test/record_service_test.dart: contact binding validates supplier and immutable capture snapshot
+00:06 +164: test/query_test.dart: conflict head canonical refs refresh after target redirects
+00:06 +165: test/query_test.dart: conflict head canonical refs refresh after target redirects
+00:06 +166: test/record_service_test.dart: notes correction preserves deleted historical association IDs
+00:06 +167: test/record_service_test.dart: notes correction preserves deleted historical association IDs
+00:06 +168: test/record_service_test.dart: notes correction preserves deleted historical association IDs
+00:06 +169: test/record_service_test.dart: notes correction preserves deleted historical association IDs
+00:06 +170: test/record_service_test.dart: notes correction preserves deleted historical association IDs
+00:06 +171: test/storage_test.dart: page:4 rolls back every page, heads, generation and receipt
+00:06 +172: test/storage_test.dart: page:4 rolls back every page, heads, generation and receipt
+00:06 +173: test/storage_test.dart: page:4 rolls back every page, heads, generation and receipt
+00:06 +174: test/storage_test.dart: page:4 rolls back every page, heads, generation and receipt
+00:06 +175: test/storage_test.dart: page:4 rolls back every page, heads, generation and receipt
+00:06 +176: test/storage_test.dart: page:4 rolls back every page, heads, generation and receipt
+00:06 +177: test/storage_test.dart: page:4 rolls back every page, heads, generation and receipt
+00:06 +178: test/storage_test.dart: page:4 rolls back every page, heads, generation and receipt
+00:06 +179: test/storage_test.dart: page:4 rolls back every page, heads, generation and receipt
+00:06 +180: test/record_service_test.dart: notes after supplier merge and contact correction retain original snapshot
+00:06 +181: test/record_service_test.dart: notes after supplier merge and contact correction retain original snapshot
+00:06 +182: test/record_service_test.dart: notes after supplier merge and contact correction retain original snapshot
+00:06 +183: test/record_service_test.dart: notes after supplier merge and contact correction retain original snapshot
+00:06 +184: test/storage_test.dart: before_commit rolls back every page, heads, generation and receipt
+00:06 +185: test/query_test.dart: parallel deletion heads preserve historical product discovery without winner
+00:07 +186: test/query_test.dart: parallel deletion heads preserve historical product discovery without winner
+00:07 +187: test/storage_test.dart: lost after-commit response retries same durable event after reopen
+00:07 +188: test/record_service_test.dart: unaffected projections stay untouched and dependent canonical refs update
+00:07 +189: test/record_service_test.dart: unaffected projections stay untouched and dependent canonical refs update
+00:07 +190: test/record_service_test.dart: unaffected projections stay untouched and dependent canonical refs update
+00:07 +191: test/record_service_test.dart: unaffected projections stay untouched and dependent canonical refs update
+00:07 +192: test/record_service_test.dart: unaffected projections stay untouched and dependent canonical refs update
+00:07 +193: test/record_service_test.dart: unaffected projections stay untouched and dependent canonical refs update
+00:07 +194: test/query_test.dart: money range distinguishes maximum values one millionth apart
+00:07 +195: test/storage_test.dart: scan pages bound original version and close
+00:07 +196: test/storage_test.dart: scan pages bound original version and close
+00:07 +197: test/record_service_test.dart: merge redirects source and repair creates one canonical keeper
+00:07 +198: test/record_service_test.dart: merge redirects source and repair creates one canonical keeper
+00:07 +199: test/record_service_test.dart: merge redirects source and repair creates one canonical keeper
+00:07 +200: test/storage_test.dart: duplicate parallel redirects share adjacency while preserving all heads
+00:07 +201: test/record_service_test.dart: imported historical is allowed but standard ancestry survives deletion
+00:07 +202: test/record_service_test.dart: imported historical is allowed but standard ancestry survives deletion
+00:07 +203: test/record_service_test.dart: imported historical is allowed but standard ancestry survives deletion
+00:07 +204: test/storage_test.dart: bounded SQL workspace validates deep entity history
+00:07 +205: test/storage_test.dart: bounded SQL workspace validates deep entity history
+00:07 +206: test/storage_test.dart: SQL schema independently enforces authority FK and entity UUID uniqueness
+00:07 +207: test/storage_test.dart: confirmation cannot be reused at a different epoch with same content
+00:07 +208: test/storage_test.dart: cleanup failure retains original fault and committed receipt at null
+00:07 +209: test/storage_test.dart: cleanup failure retains original fault and committed receipt at before_commit
+00:07 +210: test/storage_test.dart: cleanup failure retains original fault and committed receipt at after_commit
+00:07 +211: test/storage_test.dart: restore epoch CAS preserves generation and invalidates old preview
+00:07 +212: test/storage_test.dart: entity keyset plan seeks tuple index
+00:07 +213: test/storage_test.dart: redirect neighbor plans seek bounded ranges in both directions
+00:07 +214: test/storage_test.dart: 100 fixed seed DAGs agree with independent head-set oracle
+00:08 +215: test/storage_test.dart: committed staging cleanup keeps durable event retry and seal
+00:08 +216: test/storage_test.dart: cancelled sealed staging can be reclaimed but never committed
+00:08 +217: test/storage_test.dart: unsupported migration leaves old schema and data intact
+00:08 +218: All tests passed!

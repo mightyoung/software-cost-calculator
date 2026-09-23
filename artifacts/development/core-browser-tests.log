@@ -1,0 +1,9 @@
+00:00 +0: loading test/domain_test.dart
+00:00 +0 -1: loading test/contracts_test.dart [E]
+  Failed to load "test/contracts_test.dart": Failed to run Chrome: Chrome failed with exit code -6..
+  package:test/src/runner/browser/browser.dart 103:11  new Browser.<fn>
+  
+00:00 +0 -1: Some tests failed.
+
+Failing tests:
+  test/contracts_test.dart: loading test/contracts_test.dart

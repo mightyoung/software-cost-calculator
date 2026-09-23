@@ -1,0 +1,28 @@
+2026-09-16 final frozen prototype validation
+dart analyze: No issues found! Exit 0.
+dart compile js web/main.dart -o web/main.dart.js: Exit 0.
+Compiled 16,599,700 input bytes to 2,991,152 characters JavaScript.
+Running build hooks...Running build hooks...00:00 +0: loading test/probe_test.dart
+00:00 +0: test/probe_test.dart: real WPS save roundtrip and narrow style compatibility
+00:02 +1: test/probe_test.dart: creation and upgrade roll back DDL and version together
+00:03 +2: test/probe_test.dart: merged optional fields rejected before the parser can erase values
+00:03 +3: test/probe_test.dart: invalid Unicode rejected while supplementary characters roundtrip
+00:03 +4: test/probe_test.dart: inline CRLF is rejected instead of silently normalizing text
+00:03 +5: test/probe_test.dart: parent row numbers cannot silently discard or relocate cells
+00:03 +6: test/probe_test.dart: snapshot model NFC, exact decimals and project number
+00:03 +7: test/probe_test.dart: snapshot model strict date timezone and millisecond rules
+00:03 +8: test/probe_test.dart: snapshot model null context remains null, field length and missing offset rejected
+00:03 +9: test/probe_test.dart: xlsx all business data, nulls, project fields and offsets roundtrip
+00:03 +10: test/probe_test.dart: xlsx nontext cell/formula/unknown header/schema and inconsistent offset rejected
+00:04 +11: test/probe_test.dart: xlsx declared and actual ZIP output bounded
+00:04 +12: test/probe_test.dart: drift storage file close/reopen, XLSX to empty db, duplicate restore and rollback
+00:04 +13: test/probe_test.dart: drift storage memory fallback refuses business write
+00:04 +14: test/probe_test.dart: drift storage legacy v1 quotation schema adds nullable context without rewrite
+00:04 +15: test/probe_test.dart: selected contact needs snapshot and local time remains representable
+00:04 +16: test/probe_test.dart: forged small ZIP metadata cannot bypass actual expanded limit
+00:04 +17: test/probe_test.dart: formula tagged as shared text is rejected before library cache coercion
+00:04 +18: test/probe_test.dart: out-of-range sparse cell coordinates rejected before XLSX allocation
+00:04 +19: All tests passed!
+Independent code-reviewer and architect separately reran analyze/test: PASS.
+Final native WPS import: exit 0; independent SQLite comparison matches original.
+Final browser reload: PASS sharedIndexedDb, all four tables, xlsxRoundtrip true.

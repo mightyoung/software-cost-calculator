@@ -1,0 +1,41 @@
+Compiled 15,302,389 input bytes (9,871,372 characters source) to 383,391 characters JavaScript in 2.61 seconds
+Compiled 16,668,200 input bytes (11,237,183 characters source) to 849,040 characters JavaScript in 4.06 seconds
+{
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/152.0.7977.84",
+    "revision": "@4334922f44c77b1208072c4deac29db3af39bbea",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36",
+    "jsVersion": "15.2.124.21"
+  },
+  "scenarios": {
+    "normal": "PASS",
+    "private-create-failure": {
+      "injected": true,
+      "aborts": 1
+    },
+    "private-create": "PASS",
+    "metadata-failure": {
+      "injected": true,
+      "aborts": 0
+    },
+    "metadata": "PASS",
+    "corrupt-read-failure": {
+      "injected": true,
+      "aborts": 0
+    },
+    "corrupt-read": "PASS",
+    "bootstrap": "PASS",
+    "empty": "PASS",
+    "reject-zero-false": "PASS",
+    "reject-zero-true": "PASS",
+    "sealed-candidate": "PASS",
+    "old-pending-armed": "PASS",
+    "old-pending-switched": "PASS",
+    "old-pending-rollback_pending": "PASS"
+  },
+  "process_restart": {
+    "restart_generation": 8
+  },
+  "status": "PASS"
+}

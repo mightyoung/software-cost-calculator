@@ -1,0 +1,72 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/business_commit_test.dart
+00:00 +0: test/business_commit_test.dart: canonical and main results commit atomically; retry reuses event
+00:00 +1: test/business_commit_test.dart: canonical and main results commit atomically; retry reuses event
+00:00 +2: test/business_commit_test.dart: canonical and main results commit atomically; retry reuses event
+00:00 +3: test/business_commit_test.dart: canonical and main results commit atomically; retry reuses event
+00:00 +4: test/business_commit_test.dart: canonical and main results commit atomically; retry reuses event
+00:00 +5: test/business_commit_test.dart: canonical and main results commit atomically; retry reuses event
+00:00 +6: test/business_commit_test.dart: canonical and main results commit atomically; retry reuses event
+00:00 +7: test/business_commit_test.dart: canonical and main results commit atomically; retry reuses event
+00:01 +8: test/business_commit_test.dart: canonical and main results commit atomically; retry reuses event
+00:01 +9: test/business_commit_test.dart: canonical and main results commit atomically; retry reuses event
+00:01 +10: test/business_commit_test.dart: canonical and main results commit atomically; retry reuses event
+00:01 +11: test/backup_job_test.dart: real coordinator receipt proves committed state after reopen
+00:01 +12: test/backup_candidate_test.dart: v2 restores canonical decisions and keeps original result relation
+00:01 +13: test/business_commit_test.dart: lost response and reopened retry preserve durable business receipts
+00:01 +14: test/business_commit_test.dart: lost response and reopened retry preserve durable business receipts
+00:01 +15: test/backup_candidate_test.dart: v2 rejects auxiliary main results and repeated quotation entities
+00:01 +16: test/backup_candidate_test.dart: v2 rejects auxiliary main results and repeated quotation entities
+00:01 +17: test/backup_candidate_test.dart: v2 rejects auxiliary main results and repeated quotation entities
+00:01 +18: test/business_commit_test.dart: failure after receipt insertion rolls back entire batch
+00:01 +19: test/business_commit_test.dart: failure after receipt insertion rolls back entire batch
+00:01 +20: test/business_commit_test.dart: failure after receipt insertion rolls back entire batch
+00:01 +21: test/storage_test.dart: production validates and commits sealed canonical graph
+00:01 +22: test/storage_test.dart: production validates and commits sealed canonical graph
+00:01 +23: test/storage_test.dart: production validates and commits sealed canonical graph
+00:01 +24: test/storage_test.dart: production validates and commits sealed canonical graph
+00:01 +25: test/storage_test.dart: production validates and commits sealed canonical graph
+00:01 +26: test/storage_test.dart: production validates and commits sealed canonical graph
+00:01 +27: test/storage_test.dart: production validates and commits sealed canonical graph
+00:01 +28: test/storage_test.dart: production validates and commits sealed canonical graph
+00:01 +29: test/storage_test.dart: production validates and commits sealed canonical graph
+00:01 +30: test/storage_test.dart: production validates and commits sealed canonical graph
+00:01 +31: test/storage_test.dart: production validates and commits sealed canonical graph
+00:01 +32: test/storage_test.dart: production validates and commits sealed canonical graph
+00:01 +33: test/storage_test.dart: production validates and commits sealed canonical graph
+00:01 +34: test/storage_test.dart: production validates and commits sealed canonical graph
+00:01 +35: test/storage_test.dart: production validates and commits sealed canonical graph
+00:01 +36: test/storage_test.dart: production validates and commits sealed canonical graph
+00:01 +37: test/storage_test.dart: production validates and commits sealed canonical graph
+00:01 +38: test/backup_candidate_test.dart: paged auxiliary restoration survives native file reopen
+00:01 +39: test/storage_test.dart: page:2 rolls back every page, heads, generation and receipt
+00:01 +40: test/storage_test.dart: page:2 rolls back every page, heads, generation and receipt
+00:01 +41: test/storage_test.dart: page:2 rolls back every page, heads, generation and receipt
+00:01 +42: test/backup_candidate_test.dart: actual SQLITE_FULL quarantines candidate across reopen
+00:01 +43: test/storage_test.dart: page:4 rolls back every page, heads, generation and receipt
+00:01 +44: test/storage_test.dart: page:5 rolls back every page, heads, generation and receipt
+00:01 +45: test/storage_test.dart: before_commit rolls back every page, heads, generation and receipt
+00:01 +46: test/storage_test.dart: lost after-commit response retries same durable event after reopen
+00:01 +47: test/storage_test.dart: seal immutable against insert update delete and digest substitution
+00:01 +48: test/storage_test.dart: reject stale instance token without writes
+00:01 +49: test/storage_test.dart: reject stale epoch token without writes
+00:01 +50: test/storage_test.dart: reject stale generation token without writes
+00:01 +51: test/storage_test.dart: scan pages bound original version and close
+00:01 +52: test/storage_test.dart: missing parent fails deferred FK and rolls back
+00:01 +53: test/storage_test.dart: confirmation ID cannot be rebound to another seal
+00:02 +54: test/storage_test.dart: duplicate parallel redirects share adjacency while preserving all heads
+00:02 +55: test/storage_test.dart: wrong canonical revision hash cannot be hidden by staging seal
+00:02 +56: test/storage_test.dart: failed cleanup persistently quarantines reads and reset across reopen
+00:02 +57: test/storage_test.dart: bounded SQL workspace validates deep entity history
+00:02 +58: test/storage_test.dart: SQL schema independently enforces authority FK and entity UUID uniqueness
+00:02 +59: test/storage_test.dart: confirmation cannot be reused at a different epoch with same content
+00:02 +60: test/storage_test.dart: cleanup failure retains original fault and committed receipt at null
+00:02 +61: test/storage_test.dart: cleanup failure retains original fault and committed receipt at before_commit
+00:02 +62: test/storage_test.dart: cleanup failure retains original fault and committed receipt at after_commit
+00:02 +63: test/storage_test.dart: restore epoch CAS preserves generation and invalidates old preview
+00:02 +64: test/storage_test.dart: entity keyset plan seeks tuple index
+00:02 +65: test/storage_test.dart: redirect neighbor plans seek bounded ranges in both directions
+00:02 +66: test/storage_test.dart: 100 fixed seed DAGs agree with independent head-set oracle
+00:03 +67: test/storage_test.dart: committed staging cleanup keeps durable event retry and seal
+00:03 +68: test/storage_test.dart: cancelled sealed staging can be reclaimed but never committed
+00:03 +69: test/storage_test.dart: unsupported migration leaves old schema and data intact
+00:03 +70: All tests passed!

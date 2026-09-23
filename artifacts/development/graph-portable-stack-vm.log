@@ -1,0 +1,3 @@
+00:00 +0: loading test/graph_test.dart
+00:00 +0: missing parent plus cleanup failure preserves both failures and stacks
+00:00 +1: All tests passed!

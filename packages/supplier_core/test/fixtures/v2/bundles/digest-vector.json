@@ -1,0 +1,7 @@
+{
+  "status": "test-only-column-contract-not-release-schema",
+  "business_columns": ["entity_id", "name"],
+  "empty_revisions_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "empty_business_digest": "12654f0d48b24e8edc09e75ee5c0f0d6a394b98365ca35895c7c220ebe7c9cbf",
+  "independent_oracle": "Python hashlib.sha256 over four UTF-8 lines: [\"entity_id\",\"name\"] + LF"
+}

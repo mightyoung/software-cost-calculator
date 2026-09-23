@@ -1,0 +1,8 @@
+.dart_tool/
+build/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+web/*.wasm
+web/drift_worker.js
+web/main.dart.js*

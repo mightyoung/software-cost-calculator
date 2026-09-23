@@ -1,0 +1,13 @@
+[1/1] Android SDK
+  ├─ [1/6] android-arm-profile/darwin-x64                           4.8s
+  ├─ [2/6] android-arm-release/darwin-x64                           3.8s
+  ├─ [3/6] android-arm64-profile/darwin-x64                         4.8s
+  ├─ [4/6] android-arm64-release/darwin-x64                         6.7s
+  ├─ [5/6] android-x64-profile/darwin-x64                          54.2s
+  └─ [6/6] android-x64-release/darwin-x64                           4.5s
+Running Gradle task 'assembleRelease'...                        
+The operation couldn’t be completed. Unable to locate a Java Runtime.
+Please visit http://www.java.com for information on installing Java.
+
+Running Gradle task 'assembleRelease'...                         2,474ms
+Gradle task assembleRelease failed with exit code 1

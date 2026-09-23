@@ -1,0 +1,26 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/candidate_digest_test.dart
+00:00 +0: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +1: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +2: test/backup_candidate_test.dart: duplicate revision refuses candidate before authority install
+00:01 +3: test/candidate_digest_test.dart: trigger changes binding
+00:01 +4: test/backup_candidate_test.dart: bad hash refuses candidate before authority install
+00:01 +5: test/candidate_digest_test.dart: index changes binding
+00:01 +6: test/backup_candidate_test.dart: bad receipt count rejects after graph validation
+00:01 +7: test/candidate_digest_test.dart: setting changes binding
+00:01 +8: test/backup_candidate_test.dart: bad receipt FK rejects and leaves original untouched
+00:01 +9: test/candidate_digest_test.dart: projection changes binding
+00:01 +10: test/backup_candidate_test.dart: dangling graph parent rejected by real graph validator
+00:01 +11: test/candidate_digest_test.dart: revision changes binding
+00:01 +12: test/candidate_digest_test.dart: revision changes binding
+00:01 +13: test/backup_candidate_test.dart: empty backup restores source generation without synthetic receipts
+00:01 +14: test/candidate_digest_test.dart: receipt changes binding
+00:02 +15: test/backup_candidate_test.dart: row receipt must belong to the same event result set
+00:02 +16: test/candidate_digest_test.dart: work table changes binding
+00:02 +17: test/backup_candidate_test.dart: paged auxiliary restoration survives native file reopen
+00:02 +18: test/backup_candidate_test.dart: paged auxiliary restoration survives native file reopen
+00:02 +19: test/candidate_digest_test.dart: unexpected user table refused rather than omitting its data
+00:02 +20: test/backup_candidate_test.dart: same-source receipt cannot be newer than snapshot generation
+00:02 +21: test/backup_candidate_test.dart: same-source receipt cannot be newer than snapshot generation
+00:02 +22: test/candidate_digest_test.dart: oversized row refused before reading payload
+00:02 +23: test/candidate_digest_test.dart: oversized row refused before reading payload
+00:02 +24: All tests passed!

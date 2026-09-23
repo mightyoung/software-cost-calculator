@@ -1,0 +1,365 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/candidate_digest_test.dart
+00:00 +0: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +1: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +2: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +3: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +4: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +5: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +6: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +7: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +8: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +9: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +10: test/candidate_digest_test.dart: only activation epoch is ignored
+00:00 +11: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +12: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +13: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +14: test/candidate_digest_test.dart: only activation epoch is ignored
+00:01 +15: test/business_commit_test.dart: double confirmation and reopen reuse one persisted event
+00:01 +16: test/business_commit_test.dart: double confirmation and reopen reuse one persisted event
+00:01 +17: test/business_commit_test.dart: double confirmation and reopen reuse one persisted event
+00:01 +18: test/storage_migration_test.dart: explicit migration preserves authority settings receipts and increments once after reopen
+00:01 +19: test/storage_migration_test.dart: explicit migration preserves authority settings receipts and increments once after reopen
+00:01 +20: test/storage_migration_test.dart: explicit migration preserves authority settings receipts and increments once after reopen
+00:01 +21: test/storage_migration_test.dart: explicit migration preserves authority settings receipts and increments once after reopen
+00:01 +22: test/storage_migration_test.dart: explicit migration preserves authority settings receipts and increments once after reopen
+00:01 +23: test/storage_migration_test.dart: explicit migration preserves authority settings receipts and increments once after reopen
+00:01 +24: test/storage_migration_test.dart: explicit migration preserves authority settings receipts and increments once after reopen
+00:01 +25: test/storage_migration_test.dart: explicit migration preserves authority settings receipts and increments once after reopen
+00:01 +26: test/storage_migration_test.dart: explicit migration preserves authority settings receipts and increments once after reopen
+00:01 +27: test/business_commit_test.dart: canonical and main results commit atomically; retry reuses event
+00:01 +28: test/business_commit_test.dart: canonical and main results commit atomically; retry reuses event
+00:01 +29: test/xlsx_reader_test.dart: 5000 data plus header enforced by actual row elements, not dimension
+00:01 +30: test/xlsx_reader_test.dart: 5000 data plus header enforced by actual row elements, not dimension
+00:01 +31: test/xlsx_reader_test.dart: 5000 data plus header enforced by actual row elements, not dimension
+00:01 +32: test/xlsx_reader_test.dart: 5000 data plus header enforced by actual row elements, not dimension
+00:01 +33: test/xlsx_reader_test.dart: 5000 data plus header enforced by actual row elements, not dimension
+00:01 +34: test/xlsx_reader_test.dart: 5000 data plus header enforced by actual row elements, not dimension
+00:01 +35: test/xlsx_reader_test.dart: 5000 data plus header enforced by actual row elements, not dimension
+00:01 +36: test/xlsx_reader_test.dart: 5000 data plus header enforced by actual row elements, not dimension
+00:01 +37: test/xlsx_reader_test.dart: 5000 data plus header enforced by actual row elements, not dimension
+00:01 +38: test/xlsx_reader_test.dart: 5000 data plus header enforced by actual row elements, not dimension
+00:01 +39: test/candidate_digest_test.dart: revision changes binding
+00:01 +40: test/candidate_digest_test.dart: revision changes binding
+00:01 +41: test/candidate_digest_test.dart: revision changes binding
+00:01 +42: test/candidate_digest_test.dart: revision changes binding
+00:01 +43: test/business_commit_test.dart: failure after receipt insertion rolls back entire batch
+00:01 +44: test/business_commit_test.dart: failure after receipt insertion rolls back entire batch
+00:01 +45: test/business_commit_test.dart: failure after receipt insertion rolls back entire batch
+00:01 +46: test/business_commit_test.dart: failure after receipt insertion rolls back entire batch
+00:01 +47: test/business_commit_test.dart: failure after receipt insertion rolls back entire batch
+00:01 +48: test/business_commit_test.dart: failure after receipt insertion rolls back entire batch
+00:01 +49: test/business_commit_test.dart: failure after receipt insertion rolls back entire batch
+00:01 +50: test/business_commit_test.dart: failure after receipt insertion rolls back entire batch
+00:01 +51: test/business_commit_test.dart: failure after receipt insertion rolls back entire batch
+00:01 +52: test/business_commit_test.dart: failure after receipt insertion rolls back entire batch
+00:01 +53: test/business_commit_test.dart: failure after receipt insertion rolls back entire batch
+00:01 +54: test/business_commit_test.dart: failure after receipt insertion rolls back entire batch
+00:01 +55: test/business_commit_test.dart: failure after receipt insertion rolls back entire batch
+00:01 +56: test/business_commit_test.dart: failure after receipt insertion rolls back entire batch
+00:01 +57: test/business_commit_test.dart: failure after receipt insertion rolls back entire batch
+00:01 +58: test/business_commit_test.dart: failure after receipt insertion rolls back entire batch
+00:01 +59: test/xlsx_reader_test.dart: explicit row policy is independent of sync-volume default
+00:01 +60: test/xlsx_reader_test.dart: explicit row policy is independent of sync-volume default
+00:01 +61: test/business_commit_test.dart: opaque decision digest cannot bypass persisted import validation
+00:01 +62: test/candidate_digest_test.dart: unexpected user table refused rather than omitting its data
+00:01 +63: test/candidate_digest_test.dart: unexpected user table refused rather than omitting its data
+00:01 +64: test/candidate_digest_test.dart: unexpected user table refused rather than omitting its data
+00:01 +65: test/candidate_digest_test.dart: unexpected user table refused rather than omitting its data
+00:01 +66: test/business_commit_test.dart: excluded error never becomes successful source receipt
+00:01 +67: test/business_commit_test.dart: excluded error never becomes successful source receipt
+00:01 +68: test/business_commit_test.dart: excluded error never becomes successful source receipt
+00:01 +69: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +70: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +71: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +72: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +73: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +74: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +75: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +76: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +77: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +78: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +79: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +80: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +81: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +82: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +83: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +84: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +85: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +86: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +87: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +88: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +89: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +90: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +91: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +92: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +93: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +94: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:01 +95: test/query_test.dart: history materializes page keys before display joins
+00:01 +96: test/query_test.dart: history materializes page keys before display joins
+00:01 +97: test/query_test.dart: history materializes page keys before display joins
+00:01 +98: test/query_test.dart: history materializes page keys before display joins
+00:01 +99: test/query_test.dart: history materializes page keys before display joins
+00:01 +100: test/query_test.dart: history materializes page keys before display joins
+00:01 +101: test/query_test.dart: history materializes page keys before display joins
+00:01 +102: test/query_test.dart: history materializes page keys before display joins
+00:01 +103: test/query_test.dart: history materializes page keys before display joins
+00:01 +104: test/query_test.dart: history materializes page keys before display joins
+00:01 +105: test/query_test.dart: history materializes page keys before display joins
+00:02 +106: test/query_test.dart: history materializes page keys before display joins
+00:02 +107: test/query_test.dart: history materializes page keys before display joins
+00:02 +108: test/query_test.dart: history materializes page keys before display joins
+00:02 +109: test/query_test.dart: history materializes page keys before display joins
+00:02 +110: test/query_test.dart: history materializes page keys before display joins
+00:02 +111: test/query_test.dart: history materializes page keys before display joins
+00:02 +112: test/query_test.dart: history materializes page keys before display joins
+00:02 +113: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:02 +114: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:02 +115: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:02 +116: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:02 +117: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:02 +118: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:02 +119: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:02 +120: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:02 +121: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:02 +122: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:02 +123: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:02 +124: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:02 +125: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:02 +126: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:02 +127: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:02 +128: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:02 +129: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +130: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +131: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +132: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +133: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +134: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +135: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +136: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +137: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +138: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +139: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +140: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +141: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +142: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +143: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +144: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +145: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +146: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +147: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +148: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +149: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +150: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +151: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +152: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +153: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +154: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +155: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +156: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +157: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +158: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +159: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +160: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +161: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +162: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +163: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +164: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +165: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +166: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +167: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:02 +168: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +169: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +170: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +171: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +172: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +173: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +174: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +175: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +176: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +177: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +178: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +179: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +180: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +181: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +182: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +183: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +184: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +185: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +186: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +187: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +188: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +189: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +190: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +191: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +192: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:03 +193: test/graph_test.dart: 100 fixed-seed DAGs match independent set-difference heads oracle
+00:03 +194: test/graph_test.dart: 100 fixed-seed DAGs match independent set-difference heads oracle
+00:03 +195: test/graph_test.dart: 100 fixed-seed DAGs match independent set-difference heads oracle
+00:03 +196: test/graph_test.dart: 100 fixed-seed DAGs match independent set-difference heads oracle
+00:03 +197: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:03 +198: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:03 +199: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:03 +200: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:03 +201: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:03 +202: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:03 +203: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:03 +204: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:03 +205: test/xlsx_writer_test.dart: actual sync volume row boundary includes header separately
+00:03 +206: test/graph_test.dart: single entity deep history remains paged and iterative
+00:03 +207: test/graph_test.dart: single entity deep history remains paged and iterative
+00:03 +208: test/graph_test.dart: single entity deep history remains paged and iterative
+00:03 +209: test/graph_test.dart: single entity deep history remains paged and iterative
+00:03 +210: test/graph_test.dart: single entity deep history remains paged and iterative
+00:03 +211: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +212: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +213: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +214: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +215: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +216: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +217: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +218: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +219: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +220: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +221: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +222: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +223: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +224: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +225: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +226: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +227: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +228: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +229: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +230: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +231: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +232: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +233: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +234: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +235: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +236: test/graph_test.dart: single entity deep history remains paged and iterative
+00:04 +237: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:04 +238: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:04 +239: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:04 +240: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:04 +241: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:04 +242: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:04 +243: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:04 +244: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:04 +245: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:04 +246: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:04 +247: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:04 +248: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:04 +249: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:04 +250: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:04 +251: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:04 +252: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:04 +253: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:04 +254: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:04 +255: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +256: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +257: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +258: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +259: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +260: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +261: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +262: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +263: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +264: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +265: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +266: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +267: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +268: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +269: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +270: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +271: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +272: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +273: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +274: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +275: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +276: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +277: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +278: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +279: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +280: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +281: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +282: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +283: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +284: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +285: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +286: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +287: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +288: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +289: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +290: test/commit_context_test.dart: held context commits and retries without reacquiring its lock
+00:04 +291: test/backup_job_test.dart: source hash and version persist across reopen with bounded reads
+00:04 +292: test/backup_job_test.dart: source hash and version persist across reopen with bounded reads
+00:04 +293: test/backup_concurrency_test.dart: snapshot concurrency preserves the frozen backup generation
+00:04 +294: test/backup_concurrency_test.dart: snapshot concurrency preserves the frozen backup generation
+00:04 +295: test/backup_concurrency_test.dart: snapshot concurrency preserves the frozen backup generation
+00:04 +296: test/backup_concurrency_test.dart: snapshot concurrency preserves the frozen backup generation
+00:04 +297: test/backup_concurrency_test.dart: snapshot concurrency preserves the frozen backup generation
+00:04 +298: test/backup_concurrency_test.dart: snapshot concurrency preserves the frozen backup generation
+00:04 +299: test/backup_concurrency_test.dart: snapshot concurrency preserves the frozen backup generation
+00:05 +300: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:05 +301: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:05 +302: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:05 +303: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:05 +304: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:05 +305: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:05 +306: test/record_service_test.dart: create correct delete restore and CAS stale protection
+00:05 +307: test/storage_test.dart: page:2 rolls back every page, heads, generation and receipt
+00:05 +308: test/storage_test.dart: page:2 rolls back every page, heads, generation and receipt
+00:05 +309: test/record_service_test.dart: generic create rejects quotation, dedicated create and copy enforce standard
+00:05 +310: test/storage_test.dart: page:4 rolls back every page, heads, generation and receipt
+00:05 +311: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +312: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +313: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +314: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +315: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +316: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +317: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +318: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +319: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +320: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +321: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +322: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +323: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +324: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +325: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +326: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +327: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +328: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +329: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +330: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +331: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +332: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +333: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:05 +334: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:06 +335: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:06 +336: test/xlsx_staging_test.dart: ready raw cells and shared strings survive disk reopen
+00:06 +337: test/record_service_test.dart: notes correction preserves deleted historical association IDs
+00:06 +338: test/record_service_test.dart: notes correction preserves deleted historical association IDs
+00:06 +339: test/record_service_test.dart: notes correction preserves deleted historical association IDs
+00:06 +340: test/storage_test.dart: duplicate parallel redirects share adjacency while preserving all heads
+00:06 +341: test/record_service_test.dart: notes after supplier merge and contact correction retain original snapshot
+00:06 +342: test/record_service_test.dart: notes after supplier merge and contact correction retain original snapshot
+00:06 +343: test/record_service_test.dart: notes after supplier merge and contact correction retain original snapshot
+00:06 +344: test/storage_test.dart: bounded SQL workspace validates deep entity history
+00:06 +345: test/storage_test.dart: bounded SQL workspace validates deep entity history
+00:06 +346: test/storage_test.dart: bounded SQL workspace validates deep entity history
+00:06 +347: test/storage_test.dart: bounded SQL workspace validates deep entity history
+00:06 +348: test/record_service_test.dart: merge redirects source and repair creates one canonical keeper
+00:06 +349: test/storage_test.dart: SQL schema independently enforces authority FK and entity UUID uniqueness
+00:06 +350: test/record_service_test.dart: imported historical is allowed but standard ancestry survives deletion
+00:06 +351: test/record_service_test.dart: imported historical is allowed but standard ancestry survives deletion
+00:06 +352: test/record_service_test.dart: imported historical is allowed but standard ancestry survives deletion
+00:06 +353: test/record_service_test.dart: imported historical is allowed but standard ancestry survives deletion
+00:06 +354: test/storage_test.dart: cleanup failure retains original fault and committed receipt at after_commit
+00:06 +355: test/record_service_test.dart: parallel quote heads retain conflict summary and can resolve all heads
+00:06 +356: test/record_service_test.dart: parallel quote heads retain conflict summary and can resolve all heads
+00:06 +357: test/record_service_test.dart: parallel quote heads retain conflict summary and can resolve all heads
+00:06 +358: test/record_service_test.dart: parallel quote heads retain conflict summary and can resolve all heads
+00:06 +359: test/storage_test.dart: 100 fixed seed DAGs agree with independent head-set oracle
+00:07 +360: test/storage_test.dart: committed staging cleanup keeps durable event retry and seal
+00:07 +361: test/storage_test.dart: cancelled sealed staging can be reclaimed but never committed
+00:07 +362: test/storage_test.dart: unsupported migration leaves old schema and data intact
+00:07 +363: All tests passed!

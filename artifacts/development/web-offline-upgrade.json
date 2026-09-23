@@ -1,0 +1,305 @@
+{
+  "status": "PASS",
+  "scope": "same-origin old/new tabs and rejected then valid update; compatible worker change",
+  "old_release": "0d3cf656dc9f064abeec2dc49512528267374820c3d96b111e287dd16ffb6f39",
+  "new_release": "1a52a64a92b046165747ced4c3773d749dff819d55b42a6a1e5d85ed0b15023b",
+  "initial_ui": {
+    "url": "http://127.0.0.1:50332/",
+    "text": "供应商与询价\n新增报价\n查询与比价\n搜索",
+    "controller": "http://127.0.0.1:50332/supplier_offline_sw.js",
+    "registrations": [
+      {
+        "scope": "http://127.0.0.1:50332/",
+        "active": "http://127.0.0.1:50332/supplier_offline_sw.js"
+      }
+    ],
+    "caches": [
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A50332%2F-0d3cf656dc9f064abeec2dc49512528267374820c3d96b111e287dd16ffb6f39"
+    ],
+    "resources": [
+      {
+        "name": "http://127.0.0.1:50332/flutter_bootstrap.js",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/manifest.json",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/favicon.png",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/supplier_platform.js",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/canvaskit/chromium/canvaskit.wasm",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/canvaskit/chromium/canvaskit.js",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/main.dart.js",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/icons/Icon-192.png",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/assets/FontManifest.json",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/assets/fonts/MaterialIcons-Regular.otf",
+        "transferSize": 0
+      },
+      {
+        "name": "https://fonts.gstatic.com/s/roboto/v32/KFOmCnqEu92Fr1Me4GZLCzYlKw.woff2",
+        "transferSize": 63764
+      },
+      {
+        "name": "http://127.0.0.1:50332/drift_worker.js",
+        "transferSize": 0
+      }
+    ]
+  },
+  "initial": {
+    "release": "0d3cf656dc9f064abeec2dc49512528267374820c3d96b111e287dd16ffb6f39",
+    "workerHash": "731d41b1f788963cd7cc7fce8f752f2e405adfbba22384da834830bd3460fb57",
+    "waiting": null,
+    "caches": [
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A50332%2F-0d3cf656dc9f064abeec2dc49512528267374820c3d96b111e287dd16ffb6f39"
+    ]
+  },
+  "rejected_update": {
+    "state": "redundant",
+    "waiting": null
+  },
+  "after_rejected": {
+    "release": "0d3cf656dc9f064abeec2dc49512528267374820c3d96b111e287dd16ffb6f39",
+    "workerHash": "731d41b1f788963cd7cc7fce8f752f2e405adfbba22384da834830bd3460fb57",
+    "waiting": null,
+    "caches": [
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A50332%2F-0d3cf656dc9f064abeec2dc49512528267374820c3d96b111e287dd16ffb6f39",
+      "supplier-offline-other-deployment-sentinel"
+    ]
+  },
+  "old_tab_with_waiting_update": {
+    "release": "0d3cf656dc9f064abeec2dc49512528267374820c3d96b111e287dd16ffb6f39",
+    "workerHash": "731d41b1f788963cd7cc7fce8f752f2e405adfbba22384da834830bd3460fb57",
+    "waiting": "installed",
+    "caches": [
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A50332%2F-0d3cf656dc9f064abeec2dc49512528267374820c3d96b111e287dd16ffb6f39",
+      "supplier-offline-other-deployment-sentinel",
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A50332%2F-1a52a64a92b046165747ced4c3773d749dff819d55b42a6a1e5d85ed0b15023b"
+    ]
+  },
+  "second_tab_ui": {
+    "url": "http://127.0.0.1:50332/",
+    "text": "供应商与询价\n新增报价\n查询与比价\n搜索\n没有符合条件的记录\n新建记录或导入业务 Excel 后即可查询。\n清除筛选",
+    "controller": "http://127.0.0.1:50332/supplier_offline_sw.js",
+    "registrations": [
+      {
+        "scope": "http://127.0.0.1:50332/",
+        "active": "http://127.0.0.1:50332/supplier_offline_sw.js"
+      }
+    ],
+    "caches": [
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A50332%2F-0d3cf656dc9f064abeec2dc49512528267374820c3d96b111e287dd16ffb6f39",
+      "supplier-offline-other-deployment-sentinel",
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A50332%2F-1a52a64a92b046165747ced4c3773d749dff819d55b42a6a1e5d85ed0b15023b"
+    ],
+    "resources": [
+      {
+        "name": "http://127.0.0.1:50332/flutter_bootstrap.js",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/manifest.json",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/icons/Icon-192.png",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/supplier_platform.js",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/canvaskit/chromium/canvaskit.wasm",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/canvaskit/chromium/canvaskit.js",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/main.dart.js",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/assets/FontManifest.json",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/assets/fonts/MaterialIcons-Regular.otf",
+        "transferSize": 0
+      },
+      {
+        "name": "https://fonts.gstatic.com/s/roboto/v32/KFOmCnqEu92Fr1Me4GZLCzYlKw.woff2",
+        "transferSize": 0
+      },
+      {
+        "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.118.woff2",
+        "transferSize": 0
+      },
+      {
+        "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.117.woff2",
+        "transferSize": 0
+      },
+      {
+        "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.116.woff2",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/drift_worker.js",
+        "transferSize": 0
+      },
+      {
+        "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.119.woff2",
+        "transferSize": 0
+      },
+      {
+        "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.115.woff2",
+        "transferSize": 0
+      },
+      {
+        "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.113.woff2",
+        "transferSize": 0
+      },
+      {
+        "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.107.woff2",
+        "transferSize": 0
+      }
+    ]
+  },
+  "second_tab": {
+    "release": "0d3cf656dc9f064abeec2dc49512528267374820c3d96b111e287dd16ffb6f39",
+    "workerHash": "731d41b1f788963cd7cc7fce8f752f2e405adfbba22384da834830bd3460fb57",
+    "waiting": "installed",
+    "caches": [
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A50332%2F-0d3cf656dc9f064abeec2dc49512528267374820c3d96b111e287dd16ffb6f39",
+      "supplier-offline-other-deployment-sentinel",
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A50332%2F-1a52a64a92b046165747ced4c3773d749dff819d55b42a6a1e5d85ed0b15023b"
+    ]
+  },
+  "close": {
+    "pid": 13637,
+    "exitCode": 0,
+    "method": "CDP Browser.close"
+  },
+  "after_all_clients_closed_ui": {
+    "url": "http://127.0.0.1:50332/",
+    "text": "供应商与询价\n新增报价\n查询与比价\n搜索\n没有符合条件的记录\n新建记录或导入业务 Excel 后即可查询。\n清除筛选",
+    "controller": "http://127.0.0.1:50332/supplier_offline_sw.js",
+    "registrations": [
+      {
+        "scope": "http://127.0.0.1:50332/",
+        "active": "http://127.0.0.1:50332/supplier_offline_sw.js"
+      }
+    ],
+    "caches": [
+      "supplier-offline-other-deployment-sentinel",
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A50332%2F-1a52a64a92b046165747ced4c3773d749dff819d55b42a6a1e5d85ed0b15023b"
+    ],
+    "resources": [
+      {
+        "name": "http://127.0.0.1:50332/flutter_bootstrap.js",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/manifest.json",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/supplier_platform.js",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/canvaskit/chromium/canvaskit.wasm",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/canvaskit/chromium/canvaskit.js",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/main.dart.js",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/icons/Icon-192.png",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/assets/FontManifest.json",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/assets/fonts/MaterialIcons-Regular.otf",
+        "transferSize": 0
+      },
+      {
+        "name": "https://fonts.gstatic.com/s/roboto/v32/KFOmCnqEu92Fr1Me4GZLCzYlKw.woff2",
+        "transferSize": 0
+      },
+      {
+        "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.118.woff2",
+        "transferSize": 0
+      },
+      {
+        "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.117.woff2",
+        "transferSize": 0
+      },
+      {
+        "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.116.woff2",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:50332/drift_worker.js",
+        "transferSize": 0
+      },
+      {
+        "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.119.woff2",
+        "transferSize": 0
+      },
+      {
+        "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.115.woff2",
+        "transferSize": 0
+      },
+      {
+        "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.113.woff2",
+        "transferSize": 0
+      },
+      {
+        "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.107.woff2",
+        "transferSize": 0
+      }
+    ]
+  },
+  "after_all_clients_closed": {
+    "release": "1a52a64a92b046165747ced4c3773d749dff819d55b42a6a1e5d85ed0b15023b",
+    "workerHash": "dff88399da0ac351d67cc6661c13e709765a9d2843712eb5d7ed6482ee8dc4a2",
+    "waiting": null,
+    "caches": [
+      "supplier-offline-other-deployment-sentinel",
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A50332%2F-1a52a64a92b046165747ced4c3773d749dff819d55b42a6a1e5d85ed0b15023b"
+    ]
+  },
+  "preserved_opfs_marker": "A14 persistent marker"
+}

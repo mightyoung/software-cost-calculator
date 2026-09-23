@@ -1,0 +1,211 @@
+{
+  "status": "PASS",
+  "scope": "isolated Chrome production Web ports, OPFS and IndexedDB",
+  "first": {
+    "status": "PASS",
+    "generation": 1,
+    "instance": "a1788542-1847-44f0-ac2a-f35a4f1fad0c",
+    "device": "271d41a7-8656-4a27-ac04-a43f4a5c5863",
+    "backup_digest": "0256c98dac366b4f24a1c5d6856041e8582a2621019831dd9bfc1ba59fcbc5b6",
+    "backup_revisions": 1,
+    "nested_lock_rejected": true,
+    "metadata_cas_rejected": true
+  },
+  "process_reopen": {
+    "status": "PASS",
+    "instance": "a1788542-1847-44f0-ac2a-f35a4f1fad0c",
+    "generation": 1,
+    "device": "271d41a7-8656-4a27-ac04-a43f4a5c5863"
+  },
+  "cross_tab_lock": true,
+  "worker_samples_after_reopen": [
+    [
+      {
+        "type": "shared_worker",
+        "url": "http://127.0.0.1:54293/drift_worker.js"
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      }
+    ],
+    [
+      {
+        "type": "shared_worker",
+        "url": "http://127.0.0.1:54293/drift_worker.js"
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      }
+    ],
+    [
+      {
+        "type": "shared_worker",
+        "url": "http://127.0.0.1:54293/drift_worker.js"
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      }
+    ],
+    [
+      {
+        "type": "shared_worker",
+        "url": "http://127.0.0.1:54293/drift_worker.js"
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      }
+    ],
+    [
+      {
+        "type": "shared_worker",
+        "url": "http://127.0.0.1:54293/drift_worker.js"
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      }
+    ]
+  ],
+  "workers_after_page_gc": [
+    {
+      "type": "shared_worker",
+      "url": "http://127.0.0.1:54293/drift_worker.js"
+    },
+    {
+      "type": "worker",
+      "url": ""
+    },
+    {
+      "type": "worker",
+      "url": ""
+    },
+    {
+      "type": "worker",
+      "url": ""
+    },
+    {
+      "type": "worker",
+      "url": ""
+    },
+    {
+      "type": "worker",
+      "url": ""
+    },
+    {
+      "type": "worker",
+      "url": ""
+    },
+    {
+      "type": "worker",
+      "url": ""
+    },
+    {
+      "type": "worker",
+      "url": ""
+    }
+  ]
+}

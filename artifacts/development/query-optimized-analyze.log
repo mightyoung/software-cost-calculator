@@ -1,0 +1,8 @@
+Analyzing query, generate_benchmark.dart, query_test.dart...
+
+   info - test/query_test.dart:112:12 - Unnecessary constructor invocation. Try using a collection literal. - prefer_collection_literals
+   info - tools/generate_benchmark.dart:432:5 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - tools/generate_benchmark.dart:473:11 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - tools/generate_benchmark.dart:501:7 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+
+4 issues found.

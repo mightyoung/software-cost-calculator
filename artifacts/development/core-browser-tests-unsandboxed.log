@@ -1,0 +1,50 @@
+00:00 +0: loading test/domain_test.dart
+00:00 +0: test/domain_test.dart: NFC codepoints XML validity and array ordering
+00:00 +1: test/contracts_test.dart: preview rejects recovered database with same generation
+00:00 +2: test/domain_test.dart: exact decimals
+00:00 +3: test/contracts_test.dart: preview binds every mutable input
+00:00 +4: test/domain_test.dart: date precision offsets and invalid inputs
+00:00 +5: test/contracts_test.dart: scan pages own an immutable bounded copy
+00:00 +6: test/domain_test.dart: supplier exact keys and immutable payload
+00:00 +7: test/domain_test.dart: quotation standard and historical validation
+00:00 +8: test/domain_test.dart: contact snapshot detached and supplier binding checked
+00:00 +9: test/domain_test.dart: every text field enforces its codepoint boundary
+00:00 +10: test/domain_test.dart: array, snapshot, numeric, enum and UUID counterexamples
+00:00 +10 -1: test/domain_test.dart: array, snapshot, numeric, enum and UUID counterexamples [E]
+  Expected: throws <Instance of 'FormatException'>
+    Actual: <Closure 'main__closure8'>
+     Which: returned <Instance of 'Quotation'>
+  {lead_time_days: 1}
+  
+  org-dartlang-sdk:///lib/_internal/js_runtime/lib/js_helper.dart 1424:15   Object.throwExpression
+  package:test_api                                                          <fn>
+  org-dartlang-sdk:///lib/_internal/js_runtime/lib/async_patch.dart 339:19  _wrapJsFunctionForAsync.closure.$protected
+  org-dartlang-sdk:///lib/_internal/js_runtime/lib/async_patch.dart 365:23  _wrapJsFunctionForAsync.<fn>
+  org-dartlang-sdk:///lib/_internal/js_runtime/lib/async_patch.dart 313:7   _awaitOnObject.<fn>
+  org-dartlang-sdk:///lib/async/zone_root.dart 48:39                        StaticClosure._rootRunUnary
+  org-dartlang-sdk:///lib/async/zone.dart 816:12                            _CustomZone.runUnary
+  
+00:00 +10 -1: test/domain_test.dart: explicit clearing and date/instant canonical payloads
+00:00 +11 -1: test/domain_test.dart: clearing nested contact methods requires explicit confirmation
+00:00 +11 -2: test/domain_test.dart: clearing nested contact methods requires explicit confirmation [E]
+  Expected: throws <Instance of 'FormatException'> with `field`: contains 'contact_snapshot.phone'
+    Actual: <Closure 'main__closure'>
+     Which: returned <null>
+  phone
+  
+  org-dartlang-sdk:///lib/_internal/js_runtime/lib/js_helper.dart 1424:15   Object.throwExpression
+  package:test_api                                                          <fn>
+  org-dartlang-sdk:///lib/_internal/js_runtime/lib/async_patch.dart 339:19  _wrapJsFunctionForAsync.closure.$protected
+  org-dartlang-sdk:///lib/_internal/js_runtime/lib/async_patch.dart 365:23  _wrapJsFunctionForAsync.<fn>
+  org-dartlang-sdk:///lib/_internal/js_runtime/lib/async_patch.dart 313:7   _awaitOnObject.<fn>
+  org-dartlang-sdk:///lib/async/zone_root.dart 48:39                        StaticClosure._rootRunUnary
+  org-dartlang-sdk:///lib/async/zone.dart 816:12                            _CustomZone.runUnary
+  
+00:00 +11 -2: Some tests failed.
+
+Failing tests:
+  test/domain_test.dart: array, snapshot, numeric, enum and UUID counterexamples
+  test/domain_test.dart: clearing nested contact methods requires explicit confirmation
+
+Consider enabling the flag chain-stack-traces to receive more detailed exceptions.
+For example, 'dart test --chain-stack-traces'.

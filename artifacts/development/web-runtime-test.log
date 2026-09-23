@@ -1,0 +1,219 @@
+Compiled 15,301,780 input bytes (9,871,372 characters source) to 383,391 characters JavaScript in 3.46 seconds
+Compiled 15,792,097 input bytes (10,361,689 characters source) to 2,494,861 characters JavaScript in 8.61 seconds
+Stage: open
+Stage: locked version read
+Stage: create record
+Stage: reopen
+Worker counts: [5, 6, 7, 8, 9]
+Worker count after page GC: 9
+{
+  "status": "PASS",
+  "scope": "isolated Chrome production Web ports, OPFS and IndexedDB",
+  "first": {
+    "status": "PASS",
+    "generation": 1,
+    "instance": "192d47d9-7e80-412e-bf7c-61490aeb3b04",
+    "device": "e0270cfc-9df0-4312-b1a2-03fdf59c50c0",
+    "backup_digest": "6ef993f3429c5aff719e225baeef9a1e772e45b8caeec6f71d68007440f0e3bb",
+    "backup_revisions": 1,
+    "nested_lock_rejected": true,
+    "metadata_cas_rejected": true
+  },
+  "process_reopen": {
+    "status": "PASS",
+    "instance": "192d47d9-7e80-412e-bf7c-61490aeb3b04",
+    "generation": 1,
+    "device": "e0270cfc-9df0-4312-b1a2-03fdf59c50c0"
+  },
+  "cross_tab_lock": true,
+  "worker_samples_after_reopen": [
+    [
+      {
+        "type": "shared_worker",
+        "url": "http://127.0.0.1:56992/drift_worker.js"
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      }
+    ],
+    [
+      {
+        "type": "shared_worker",
+        "url": "http://127.0.0.1:56992/drift_worker.js"
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      }
+    ],
+    [
+      {
+        "type": "shared_worker",
+        "url": "http://127.0.0.1:56992/drift_worker.js"
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      }
+    ],
+    [
+      {
+        "type": "shared_worker",
+        "url": "http://127.0.0.1:56992/drift_worker.js"
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      }
+    ],
+    [
+      {
+        "type": "shared_worker",
+        "url": "http://127.0.0.1:56992/drift_worker.js"
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      },
+      {
+        "type": "worker",
+        "url": ""
+      }
+    ]
+  ],
+  "workers_after_page_gc": [
+    {
+      "type": "shared_worker",
+      "url": "http://127.0.0.1:56992/drift_worker.js"
+    },
+    {
+      "type": "worker",
+      "url": ""
+    },
+    {
+      "type": "worker",
+      "url": ""
+    },
+    {
+      "type": "worker",
+      "url": ""
+    },
+    {
+      "type": "worker",
+      "url": ""
+    },
+    {
+      "type": "worker",
+      "url": ""
+    },
+    {
+      "type": "worker",
+      "url": ""
+    },
+    {
+      "type": "worker",
+      "url": ""
+    },
+    {
+      "type": "worker",
+      "url": ""
+    }
+  ]
+}

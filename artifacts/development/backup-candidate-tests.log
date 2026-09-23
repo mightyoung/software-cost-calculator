@@ -1,0 +1,13 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/backup_candidate_test.dart
+00:00 +0: restores graph projections settings and original receipts with new identity
+00:03 +1: duplicate revision refuses candidate before authority install
+00:03 +2: bad hash refuses candidate before authority install
+00:03 +3: bad receipt count rejects after graph validation
+00:03 +4: bad receipt FK rejects and leaves original untouched
+00:03 +5: dangling graph parent rejected by real graph validator
+00:03 +6: duplicate auxiliary identity rejected before authority install
+00:03 +7: empty backup restores source generation without synthetic receipts
+00:04 +8: row receipt must belong to the same event result set
+00:04 +9: paged auxiliary restoration survives native file reopen
+00:04 +10: nonempty candidate rejected
+00:04 +11: All tests passed!

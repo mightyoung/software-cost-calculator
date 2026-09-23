@@ -1,0 +1,264 @@
+Compiled 15,302,389 input bytes (9,871,372 characters source) to 383,391 characters JavaScript in 2.42 seconds
+Compiled 16,660,309 input bytes (11,229,292 characters source) to 952,892 characters JavaScript in 4.27 seconds
+quota_prepare fixture actual-quota
+quota_activate fixture actual-quota
+actual quota failure {"failed": true, "estimate_allowed": true, "error": "QuotaExceededError: The operation failed because it would cause the application to exceed its storage quota."} [{'stage': 'durable-output-create', 'name': 'QuotaExceededError', 'message': 'QuotaExceededError: The operation failed because it would cause the application to exceed its storage quota.'}]
+quota_verify fixture actual-quota
+source_reselection fixture actual-quota
+io_faults fixture fault-private-create
+io_faults fixture fault-durable-write
+io_faults fixture fault-durable-publish
+io_faults fixture fault-idb-arm
+io_faults fixture fault-idb-switch
+io_faults fixture fault-idb-accept
+io_faults fixture fault-ack-after-accept
+normal_prepare fixture normal
+activate:a5ca98a2-dddb-4505-8d78-58b5ecee887e fixture normal
+boundaries fixture armed
+boundaries fixture armed_epoch
+boundaries fixture switched
+boundaries fixture rollback_pending
+boundaries fixture rollback_epoch
+boundaries fixture tampered
+boundaries replay tampered
+boundaries fixture armed_tampered
+boundaries replay armed_tampered
+boundaries fixture projection_tampered
+boundaries replay projection_tampered
+boundaries fixture missing_backup
+stale fixture stale
+invalid fixture stale
+crash_prepare fixture process
+{
+  "status": "PASS",
+  "scope": "isolated Chrome OPFS + IDB production restore; durable crash boundary fixtures",
+  "capacity": {
+    "actual_sample": {
+      "status": "estimated",
+      "scope": "web-storage-key",
+      "available_bytes": 10737418240,
+      "usage_bytes": 0,
+      "quota_bytes": 10737418240,
+      "sampled_at": "2026-09-17T17:31:16.965Z"
+    },
+    "prepare_rejected": true,
+    "activate_resampled": true,
+    "candidate_preserved": true,
+    "recovery_not_gated": true
+  },
+  "actual_quota": {
+    "browser": {
+      "protocolVersion": "1.3",
+      "product": "Chrome/152.0.7977.84",
+      "revision": "@4334922f44c77b1208072c4deac29db3af39bbea",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36",
+      "jsVersion": "15.2.124.21"
+    },
+    "before": {
+      "usage": 4313528,
+      "quota": 147064317542,
+      "overrideActive": false,
+      "usageBreakdown": [
+        {
+          "storageType": "file_systems",
+          "usage": 4298044
+        },
+        {
+          "storageType": "indexeddb",
+          "usage": 15484
+        },
+        {
+          "storageType": "cache_storage",
+          "usage": 0
+        },
+        {
+          "storageType": "service_workers",
+          "usage": 0
+        }
+      ]
+    },
+    "limited": {
+      "usage": 4313528,
+      "quota": 1,
+      "overrideActive": true,
+      "usageBreakdown": [
+        {
+          "storageType": "file_systems",
+          "usage": 4298044
+        },
+        {
+          "storageType": "indexeddb",
+          "usage": 15484
+        },
+        {
+          "storageType": "cache_storage",
+          "usage": 0
+        },
+        {
+          "storageType": "service_workers",
+          "usage": 0
+        }
+      ]
+    },
+    "reset": {
+      "usage": 4313528,
+      "quota": 147064317542,
+      "overrideActive": false,
+      "usageBreakdown": [
+        {
+          "storageType": "file_systems",
+          "usage": 4298044
+        },
+        {
+          "storageType": "indexeddb",
+          "usage": 15484
+        },
+        {
+          "storageType": "cache_storage",
+          "usage": 0
+        },
+        {
+          "storageType": "service_workers",
+          "usage": 0
+        }
+      ]
+    },
+    "failure": {
+      "failed": true,
+      "estimate_allowed": true,
+      "error": "QuotaExceededError: The operation failed because it would cause the application to exceed its storage quota."
+    },
+    "errors": [
+      {
+        "stage": "durable-output-create",
+        "name": "QuotaExceededError",
+        "message": "QuotaExceededError: The operation failed because it would cause the application to exceed its storage quota."
+      }
+    ],
+    "reopened": {
+      "original_preserved": true,
+      "receipts_preserved": true,
+      "unarmed": true
+    }
+  },
+  "source_reselection": {
+    "lost_read_rejected": true,
+    "renamed_same_bytes_accepted": true,
+    "changed_bytes_rejected": true,
+    "binding_preserved": true,
+    "cancelled": true
+  },
+  "io_faults": {
+    "private-create": {
+      "failed_safely": true,
+      "stats": {
+        "injected": true,
+        "aborts": 1,
+        "publishes": 0
+      },
+      "epoch": 0,
+      "journal": null
+    },
+    "durable-write": {
+      "failed_safely": true,
+      "stats": {
+        "injected": true,
+        "aborts": 1,
+        "publishes": 0
+      },
+      "epoch": 0,
+      "journal": null
+    },
+    "durable-publish": {
+      "failed_safely": true,
+      "stats": {
+        "injected": true,
+        "aborts": 1,
+        "publishes": 0
+      },
+      "epoch": 0,
+      "journal": null
+    },
+    "idb-arm": {
+      "failed_safely": true,
+      "stats": {
+        "injected": true,
+        "aborts": 0,
+        "publishes": 1
+      },
+      "epoch": 0,
+      "journal": null
+    },
+    "idb-switch": {
+      "failed_safely": true,
+      "stats": {
+        "injected": true,
+        "aborts": 0,
+        "publishes": 1
+      },
+      "epoch": 2,
+      "journal": "rolled_back"
+    },
+    "idb-accept": {
+      "failed_safely": true,
+      "stats": {
+        "injected": true,
+        "aborts": 0,
+        "publishes": 1
+      },
+      "epoch": 2,
+      "journal": "rolled_back"
+    },
+    "ack-after-accept": {
+      "failed_safely": true,
+      "stats": {
+        "injected": true,
+        "aborts": 0,
+        "publishes": 1
+      },
+      "epoch": 1,
+      "journal": "accepted"
+    }
+  },
+  "accepted": {
+    "accepted": true,
+    "old_fenced": true,
+    "backup_revisions": 2,
+    "device": "ea09717b-a5c8-42af-99e9-c0f2084e617c",
+    "instance": "a5ca98a2-dddb-4505-8d78-58b5ecee887e"
+  },
+  "cross_tab_old_host": {
+    "fenced": true
+  },
+  "boundaries": {
+    "armed": "accepted",
+    "armed_epoch": "accepted",
+    "switched": "accepted",
+    "rollback_pending": "rolled_back",
+    "rollback_epoch": "rolled_back",
+    "tampered": "rolled_back",
+    "armed_tampered": "rolled_back",
+    "projection_tampered": "rolled_back",
+    "missing_backup": "rolled_back"
+  },
+  "stale": {
+    "stale_rejected": true
+  },
+  "invalid": {
+    "invalid_prepare_isolated": true
+  },
+  "process_restart": {
+    "process_replay": true,
+    "durable_backup": true
+  },
+  "accepted_after_restart": {
+    "accepted_no_rollback": true,
+    "device": "ea09717b-a5c8-42af-99e9-c0f2084e617c",
+    "instance": "a5ca98a2-dddb-4505-8d78-58b5ecee887e",
+    "names": [
+      "after-accepted",
+      "snapshot"
+    ]
+  },
+  "crash_candidate": "33f581ea-029a-4610-856c-6eda96b47e3a"
+}

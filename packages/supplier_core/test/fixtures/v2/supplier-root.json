@@ -1,0 +1,4 @@
+{
+  "canonical": "{\"authored_at\":\"2026-09-16T08:00:00.000Z\",\"entity_id\":\"11111111-1111-4111-8111-111111111111\",\"entity_type\":\"supplier\",\"kind\":\"put\",\"origin_device_id\":\"22222222-2222-4222-8222-222222222222\",\"parents\":[],\"payload\":{\"address\":null,\"aliases\":[],\"categories\":[],\"name\":\"供应商 é\",\"notes\":\"line\\n\\\"quoted\\\"\"},\"protocol\":2}",
+  "sha256": "d6ba013a7241d94631307e44eb6672a43d869e674f4a06feb71227dd660ce020"
+}

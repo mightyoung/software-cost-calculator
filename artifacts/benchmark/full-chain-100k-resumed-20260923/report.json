@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "kind": "formal-full-chain-resumed",
+  "status": "RUNNING",
+  "count": 100000,
+  "expected_revisions": 500000,
+  "expected_authority_sha256": "3f7f7485379be19648f4ddeefce27687afdaf9dace8b01ebae8699b4950867da",
+  "resumed": true,
+  "separate_process": true,
+  "original_source_path": "/Users/muyi/Downloads/dev/software-cost-calculator/packages/supplier_core/../../artifacts/benchmark/full-chain-100k-20260923/source.sqlite",
+  "original_backup_path": "/Users/muyi/Downloads/dev/software-cost-calculator/packages/supplier_core/../../artifacts/benchmark/full-chain-100k-20260923/source.backup",
+  "started_at": "2026-09-23T15:10:04.323714Z",
+  "missing_original_phase_timings": [
+    "formal_fixture_commit",
+    "source_digest",
+    "backup"
+  ],
+  "performance_acceptance": "NOT_EVALUATED: interrupted original process; no aggregate time or RSS claim",
+  "unverified": [
+    "Android/Windows deferred by user",
+    "restore active-pointer publication",
+    "A17 concurrency/cancellation",
+    "Web total memory"
+  ],
+  "source_sha256": {
+    "lib/src/application/backup_candidate.dart": "02c8a22364346a6674fae2ca659946263a1d01d075b2cad75bc549493ac9e56c",
+    "lib/src/application/backup_service.dart": "186330019dc16d7d05e4f6fa511eed638032fa2e3f2dc69f54b1ee9c24fe23b5",
+    "lib/src/application/bundle_exchange_service.dart": "ba1c25d4ec62964a5cc790cb31167f58b8836dd88080c662cb7d5e0ddc31d6ee",
+    "lib/src/application/business_import_workflow.dart": "0b379b22be8b78ee8e0d38f0f24e7a7af13ef61f74442066a9f488e8a23a1d67",
+    "lib/src/application/exchange_service.dart": "d0269cd06c7187ef46aaffafb25cd938664d85a6103fa25c4d0bb75235aeed25",
+    "lib/src/application/record_service.dart": "84ef24dde8c03df5c167eaddabbca116746516d3d16d5c8806c6d648242681b7",
+    "lib/src/contracts.dart": "1cdfcb9044eccea90a28cabeae4b006515b2bb00920e1e68bc1591caffc4b70d",
+    "lib/src/data/candidate_digest.dart": "917f15aeaa1d3083f02c344bc58a93a9bba3e3115c5ced832d1da1f019a2e1ea",
+    "lib/src/data/commit_coordinator.dart": "1bff1a0e10e6ad4bc85a1906a8b08f1df8422e8e0b35bfa09733c5c5d8839eaf",
+    "lib/src/data/database.dart": "9e49bd9682f6c1633d8a5579a2cbbec437ef1ab2e1d273b8d62523579570e660",
+    "lib/src/data/graph_workspace.dart": "e2a2d443904deef1f3e41613c7cd347ef950a143ef044813dbec116f3ebbd7ca",
+    "lib/src/data/migrations.dart": "f4b64f8a6e75ad5ced19df6032cc358c785dc0e407355f0c3fad990eb7f9a23c",
+    "lib/src/data/projection_writer.dart": "712ce793d0abe44f277f57cb275c40688c41671ff48bc40afc208aac1e6cd1bf",
+    "lib/src/data/tables.dart": "435165fa7cdf33e41ea417d948231b6d72c7331b6280f16706f1d58f72fe5809",
+    "lib/src/domain/aliases.dart": "29915d3d72f34c4f68cd5ad6cf8f5284749e2ad88e3cf0957d85ef08d2635f59",
+    "lib/src/domain/canonical.dart": "f3ee8051d608770c1421c00d1d6b6c1f66494a939819a006182a957a6cb623ef",
+    "lib/src/domain/entities.dart": "2ca3245bf39df7d17a60dd9a630c550d1d42a4dd9feba3655420eb1967846d4b",
+    "lib/src/domain/quotation.dart": "379d96d817090a9c11c09be2e76ee001f32605973874a6c3e13f7e69cffccace",
+    "lib/src/domain/revision.dart": "446be82f7c0482ce78dde5844f833c878832f0092db12ca321fad28b54c01239",
+    "lib/src/domain/revision_graph.dart": "40f5e9979631491e61d6d479afbe6ce4328f096e83c1b45ca507e6c4fb87e322",
+    "lib/src/domain/values.dart": "96529acc4f8808e6c53a8e88732da798393b7829ae070a35e620c77e4b15fd03",
+    "lib/src/exchange/backup_format.dart": "99e7032e9722034940daa46c7182cabd0dc9dd78f9af31e1d82f4a6ba04bb282",
+    "lib/src/exchange/bounded_zip.dart": "1f9103f7bb3d8ee9e300f66a32c8d7903fef36966261adb97ca9696af874d60b",
+    "lib/src/exchange/bundle_database.dart": "bb249e4b220f4c3c52279c40069dbd4d4a824c9f0df101a7b7650b140876dbd7",
+    "lib/src/exchange/bundle_export.dart": "4a5037c2e9a4788a006769be51f352f371f48be88a2e17605bac72adf9ada21b",
+    "lib/src/exchange/bundle_import.dart": "f45bbb95fda5bd3d50a6f32a2c97b0104e7b60534fa43dcdc3bb0531320f0ca7",
+    "lib/src/exchange/bundle_manifest.dart": "c310dff6d57024b93554aaf5cfcec85b58c40a5a56e5728a9085ae1390abf033",
+    "lib/src/exchange/business_import.dart": "f7f4c649770156d2280419a2a4dd096e0ddb37434797ae05ec384828f7bf775e",
+    "lib/src/exchange/business_mapping.dart": "c33217b7dac15cc6e9141c6a8fbd1cb34ea39a8903dcac7e1aba4c40a242041e",
+    "lib/src/exchange/business_preview.dart": "55b38ce3b321f9278e3d60e21d194e1b6f77c0b471ef2e11caae1684120bf1b8",
+    "lib/src/exchange/import_receipts.dart": "cb53174d2f80ee348050c7e166b38ae1e043802f0c9089278bf1548357688094",
+    "lib/src/exchange/job_store.dart": "363d72ff6c79a6b6698cc730bf55bf434a0ec88b58af1ddc992f10a018fcf8e8",
+    "lib/src/exchange/projection_digest.dart": "209ea13eb62b8df16bd54abceebc3ceb8e0d9330a846d24326c573044692705b",
+    "lib/src/exchange/restore_space.dart": "6a04d00ddeb49e939ae3ba98f11009b01bf72df23fc4e5aac11feee78c53f1c0",
+    "lib/src/exchange/space_budget.dart": "475092dad33ecbf23a521527c147c0b691a0a16e61ac493b1261b5ddde257d09",
+    "lib/src/exchange/xlsx_reader.dart": "da66175f11ba90d8e414c4821977fb0f86e4548f66e153280ec702c8a1a3851a",
+    "lib/src/exchange/xlsx_staging.dart": "64f8638e251451d3f795c7e94cd99c47c4d623da8fa8de21e4f767ed5e7ac5b3",
+    "lib/src/exchange/xlsx_writer.dart": "f5d996ac44940f47bee00d73250473063c6428dbe07ff7a3205ecb4ac56f9444",
+    "lib/src/query/candidates.dart": "6bd3736277595ce27a71f6e8764ec51311c4535658606e87f29da8a3f9d5a974",
+    "lib/src/query/comparison.dart": "339ebc5b1fc1e9179ee4ee6c57a41fee42432deab38ada2f2ee351cf3cf8717b",
+    "lib/src/query/query_repository.dart": "a8c5a339b9a51889b45e0fff2894fb1db4bf0bfbfb44f7ee9af65966cadb042f",
+    "lib/src/query/search_keys.dart": "56d0dc6d691b03d9f7eedffbb7b1abf15e0c89e555f63b734a8a6142b57ecc70",
+    "lib/supplier_core.dart": "e540f8ddfbca09ad26e2e365ba172d401d9020d394f5e57e4f64d9366c23ac2e",
+    "pubspec.lock": "a0deb6edd57832aee01bc3997b495a2cba0c22b149e2f8628d399b619b59f8d9",
+    "test/support/test_rig.dart": "114f917298cd00693a92be1338a52cde4b0f67b5a0ed32a86fce839f2087d514",
+    "tool/full_chain_scale.dart": "618420aeb757a316e67dcc33f660356866f30656576802e635c52f8912811cab",
+    "tool/run_benchmarks.dart": "e4c760c62d2d084375260d4460398fdc3f6a9de69beac970c9c04b4cb850477f",
+    "tool/resume_full_chain.dart": "a9b5e0b8cc7131ba1becd6ad463cc03a053caf15b9826937a16847e418cb87ff"
+  },
+  "input_file_sha256": {
+    "source": "535931f9dd9a038209d282d99375ac35335cd69dabce4f20dd539c38e14f6f58",
+    "backup": "e2aff6e38c7eb81e084323bbe59c9f29e8f950dd1b6382ddab03b370276ff8be"
+  },
+  "phase_space_checks": {
+    "source_digest": {
+      "incremental_working_bytes": 33554432,
+      "required_free_bytes": 40265319,
+      "available_free_bytes": 28246335488
+    },
+    "verify_backup": {
+      "incremental_working_bytes": 33554432,
+      "required_free_bytes": 40265319,
+      "available_free_bytes": 28256518144
+    },
+    "restore_candidate": {
+      "incremental_working_bytes": 11452784640,
+      "required_free_bytes": 13743341568,
+      "available_free_bytes": 28186902528
+    }
+  },
+  "current_phase": "restore_candidate"
+}

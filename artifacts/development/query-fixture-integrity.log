@@ -1,0 +1,10 @@
+10k verification_cache_kib 262144
+10k quick_check ('ok',) elapsed_s 4.223
+10k integrity_check ('ok',) elapsed_s 1.412
+10k foreign_key_check None elapsed_s 0.427
+10k counts {'revision': 50000, 'quotation_projection': 10000, 'supplier_projection': 1000, 'product_projection': 2000, 'contact_projection': 2000}
+100k verification_cache_kib 262144
+100k quick_check ('ok',) elapsed_s 113.99
+100k integrity_check ('ok',) elapsed_s 186.055
+100k foreign_key_check None elapsed_s 65.391
+100k counts {'revision': 500000, 'quotation_projection': 100000, 'supplier_projection': 10000, 'product_projection': 20000, 'contact_projection': 20000}

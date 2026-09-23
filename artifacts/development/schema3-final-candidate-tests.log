@@ -1,0 +1,32 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/backup_candidate_test.dart
+00:00 +0: test/backup_candidate_test.dart: v2 restores canonical decisions and keeps original result relation
+00:01 +1: test/backup_candidate_test.dart: v2 restores canonical decisions and keeps original result relation
+00:01 +2: test/backup_candidate_test.dart: v2 restores canonical decisions and keeps original result relation
+00:01 +3: test/storage_migration_test.dart: explicit migration preserves authority settings receipts and increments once after reopen
+00:01 +4: test/backup_candidate_test.dart: v2 rejects auxiliary main results and repeated quotation entities
+00:01 +5: test/backup_candidate_test.dart: v2 rejects auxiliary main results and repeated quotation entities
+00:01 +6: test/storage_migration_test.dart: generation failure rolls back every migration statement
+00:01 +7: test/backup_candidate_test.dart: v2 quantity cannot count two revisions of the same quotation
+00:01 +8: test/backup_candidate_test.dart: v2 quantity cannot count two revisions of the same quotation
+00:01 +9: test/backup_candidate_test.dart: v2 quantity cannot count two revisions of the same quotation
+00:01 +10: test/backup_candidate_test.dart: v2 quantity cannot count two revisions of the same quotation
+00:01 +11: test/storage_migration_test.dart: migration rejects another lock context and stale version
+00:01 +12: test/backup_candidate_test.dart: v2 decision original target must match result receipt
+00:01 +13: test/backup_candidate_test.dart: v2 decision original target must match result receipt
+00:01 +14: test/backup_candidate_test.dart: v2 decision original target must match result receipt
+00:01 +15: test/backup_candidate_test.dart: v2 confirmed quantity must match result set
+00:01 +16: test/backup_candidate_test.dart: v2 canonical mismatch is rejected before accepting a row
+00:01 +17: test/backup_candidate_test.dart: restores graph projections settings and original receipts with new identity
+00:01 +18: test/backup_candidate_test.dart: duplicate revision refuses candidate before authority install
+00:01 +19: test/backup_candidate_test.dart: bad hash refuses candidate before authority install
+00:01 +20: test/backup_candidate_test.dart: bad receipt count rejects after graph validation
+00:01 +21: test/backup_candidate_test.dart: bad receipt FK rejects and leaves original untouched
+00:02 +22: test/backup_candidate_test.dart: dangling graph parent rejected by real graph validator
+00:02 +23: test/backup_candidate_test.dart: duplicate auxiliary identity rejected before authority install
+00:02 +24: test/backup_candidate_test.dart: empty backup restores source generation without synthetic receipts
+00:02 +25: test/backup_candidate_test.dart: row receipt must belong to the same event result set
+00:02 +26: test/backup_candidate_test.dart: paged auxiliary restoration survives native file reopen
+00:02 +27: test/backup_candidate_test.dart: same-source receipt cannot be newer than snapshot generation
+00:02 +28: test/backup_candidate_test.dart: nonempty candidate rejected
+00:02 +29: test/backup_candidate_test.dart: actual SQLITE_FULL quarantines candidate across reopen
+00:02 +30: All tests passed!

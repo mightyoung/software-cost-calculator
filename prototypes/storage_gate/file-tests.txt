@@ -1,0 +1,8 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/file_gate_test.dart
+00:00 +0: 8 MiB source: exact bounded ranges and invalid boundaries
+00:00 +1: publication requires a completed close and preserves all bytes
+00:00 +2: source failure discards partial output and prevents publication
+00:00 +3: existing files survive failed reservation and publication
+00:00 +4: truncation during range read fails instead of short success
+00:00 +5: cleanup permission failure preserves source failure and allows retry
+00:00 +6: All tests passed!

@@ -1,0 +1,7 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/large_data_test.dart
+00:00 +0: disk-backed 257-revision history commits one head and survives reopen
+00:01 +1: unique long shared strings preserve every row using one-row oracle
+00:02 +2: 32768-character cell fails the XLSX cell boundary
+00:02 +3: 32767-character shared string preserves the permitted boundary
+00:02 +4: benchmark fixture itself refuses unbounded allocation
+00:02 +5: All tests passed!
