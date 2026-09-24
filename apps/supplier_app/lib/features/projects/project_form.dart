@@ -108,6 +108,33 @@ class _ProjectFormState extends State<_ProjectForm> {
     Navigator.pop(context, id);
   }
 
+  Future<void> _delete() async {
+    final sure = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('删除这个项目？'),
+        content: const Text(
+          '项目和它的成本预算行会从列表中移除，报价记录保留。'
+          '变更记录会保留删除操作；交换文件导入到其他设备后，那里也会删除。',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Tokens.red),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('删除项目'),
+          ),
+        ],
+      ),
+    );
+    if (sure != true || !mounted) return;
+    widget.state.write((s) => s.delete('project', widget.id!));
+    Navigator.pop(context);
+  }
+
   Widget _dropdown(String key, String label, Map<String?, String> options) =>
       DropdownButtonFormField<String?>(
         initialValue: data[key] as String?,
@@ -235,6 +262,12 @@ class _ProjectFormState extends State<_ProjectForm> {
         ),
       ),
       actions: [
+        if (!creating)
+          TextButton(
+            onPressed: _delete,
+            style: TextButton.styleFrom(foregroundColor: Tokens.red),
+            child: const Text('删除项目'),
+          ),
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: const Text('取消'),

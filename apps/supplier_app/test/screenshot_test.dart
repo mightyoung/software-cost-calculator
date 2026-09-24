@@ -333,4 +333,17 @@ void main() {
     }),
     skip: !hasFont,
   );
+
+  testWidgets(
+    'desktop quote comparison',
+    (t) => shoot(t, const Size(1280, 800), 'desktop_compare', () async {
+      await t.tap(find.text('报价查询'));
+      await t.pumpAndSettle();
+      await t.enterText(find.byType(TextField).first, '离心泵');
+      await t.pumpAndSettle();
+      await t.tap(find.byType(ActionChip).first);
+      await t.pumpAndSettle();
+    }),
+    skip: !hasFont,
+  );
 }

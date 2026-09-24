@@ -1,5 +1,6 @@
 export 'src/assistant.dart';
 export 'src/budget.dart';
+export 'src/compare.dart';
 export 'src/entities.dart';
 export 'src/exchange.dart';
 export 'src/list_import.dart';

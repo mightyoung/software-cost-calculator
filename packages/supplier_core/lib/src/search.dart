@@ -109,4 +109,19 @@ extension Search on Store {
         ),
     ];
   }
+
+  /// Active contacts of one supplier, by name.
+  List<Hit> contactsOf(String supplierId) => [
+    for (final r in db.select(
+      "SELECT id, data FROM contact WHERE deleted = 0 AND "
+      "json_extract(data,'\$.supplier_id') = ? "
+      "ORDER BY json_extract(data,'\$.name')",
+      [supplierId],
+    ))
+      Hit(
+        r['id'] as String,
+        jsonDecode(r['data'] as String) as Map<String, Object?>,
+        1,
+      ),
+  ];
 }

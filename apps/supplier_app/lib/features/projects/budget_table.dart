@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 import '../../app/app_state.dart';
@@ -13,7 +14,9 @@ const _warningText = {
   'needs_inquiry': ('待询价', Icons.help_outline, HintTone.warning),
 };
 
-bool _unpriced(BudgetLine l) => l.warnings.contains('needs_inquiry');
+/// Still to be inquired and no estimate typed in yet: show "—", not 0.
+bool _unpriced(BudgetLine l) =>
+    l.warnings.contains('needs_inquiry') && l.data['unit_cost'] == '0';
 
 /// Grouped by cost category with subtotal rows; rows open the line editor.
 class BudgetTable extends StatelessWidget {
@@ -199,6 +202,20 @@ class _GroupRow extends StatelessWidget {
 }
 
 class _LineRow extends StatelessWidget {
+  /// Saves one inline edit. A cost that no longer equals the linked quote's
+  /// price becomes a manual estimate, so the quote link is dropped.
+  String? _saveCell(BuildContext context, String field, String value) {
+    final d = line.data;
+    final payload = {...d, field: value.replaceAll(',', '')};
+    if (field == 'unit_cost' && d['quotation_id'] != null) {
+      final quote = state.store.get('quotation', d['quotation_id']! as String);
+      if (quote?.data['price'] != payload['unit_cost']) {
+        payload['quotation_id'] = null;
+      }
+    }
+    return state.write((s) => s.save('project_item', payload, id: line.id));
+  }
+
   const _LineRow({
     required this.state,
     required this.projectId,
@@ -296,14 +313,21 @@ class _LineRow extends StatelessWidget {
             children: [
               Expanded(child: title),
               for (final (i, child) in [
-                Text(qty(d['qty']! as String), style: _num),
+                _InlineCell(
+                  key: ValueKey('${line.id}-qty'),
+                  value: d['qty']! as String,
+                  display: qty(d['qty']! as String),
+                  onSave: (v) => _saveCell(context, 'qty', v),
+                ),
                 Text(
                   d['unit']! as String,
                   style: const TextStyle(fontSize: 13),
                 ),
-                Text(
-                  unpriced ? '—' : money(d['unit_cost']! as String),
-                  style: _num,
+                _InlineCell(
+                  key: ValueKey('${line.id}-cost'),
+                  value: d['unit_cost']! as String,
+                  display: unpriced ? '—' : money(d['unit_cost']! as String),
+                  onSave: (v) => _saveCell(context, 'unit_cost', v),
                 ),
                 Text(unpriced ? '—' : money(line.cost), style: _num),
                 Text(unpriced ? '—' : money(line.price), style: _num),
@@ -409,4 +433,133 @@ class BudgetTotals extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A table cell that edits in place: click to edit, Enter or leaving saves,
+/// Esc cancels. Unsaved text is underlined with dashes (not yet confirmed).
+class _InlineCell extends StatefulWidget {
+  const _InlineCell({
+    super.key,
+    required this.value,
+    required this.display,
+    required this.onSave,
+  });
+  final String value, display;
+
+  /// Returns an error message, or null when saved.
+  final String? Function(String value) onSave;
+
+  @override
+  State<_InlineCell> createState() => _InlineCellState();
+}
+
+class _InlineCellState extends State<_InlineCell> {
+  late final controller = TextEditingController(text: widget.value);
+  final focus = FocusNode();
+  var editing = false;
+  String? error;
+
+  @override
+  void initState() {
+    super.initState();
+    focus.addListener(() {
+      if (!focus.hasFocus && editing) _commit();
+    });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    focus.dispose();
+    super.dispose();
+  }
+
+  void _commit() {
+    final text = controller.text.trim();
+    if (text == widget.value || text.isEmpty) return _cancel();
+    final err = widget.onSave(text);
+    if (!mounted) return;
+    setState(() {
+      error = err;
+      editing = err != null;
+    });
+  }
+
+  void _cancel() => setState(() {
+    controller.text = widget.value;
+    editing = false;
+    error = null;
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (!editing) {
+      return InkWell(
+        onTap: () {
+          controller.text = widget.value;
+          setState(() => editing = true);
+          focus.requestFocus();
+        },
+        child: Text(widget.display, style: _num),
+      );
+    }
+    final dirty = controller.text.trim() != widget.value;
+    return Tooltip(
+      message: error ?? '',
+      child: CustomPaint(
+        foregroundPainter: dirty
+            ? _DashedUnderline(error != null ? Tokens.red : Tokens.accent)
+            : null,
+        child: CallbackShortcuts(
+          bindings: {const SingleActivator(LogicalKeyboardKey.escape): _cancel},
+          child: TextField(
+            controller: controller,
+            focusNode: focus,
+            textAlign: TextAlign.right,
+            style: _num,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            onChanged: (_) => setState(() {}),
+            onSubmitted: (_) => _commit(),
+            decoration: InputDecoration(
+              isDense: true,
+              filled: false,
+              contentPadding: const EdgeInsets.symmetric(vertical: 2),
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: dirty
+                  ? InputBorder.none
+                  : UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: error != null ? Tokens.red : Tokens.accent,
+                        width: 2,
+                      ),
+                    ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DashedUnderline extends CustomPainter {
+  _DashedUnderline(this.color);
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1.5;
+    for (var x = 0.0; x < size.width; x += 6) {
+      canvas.drawLine(
+        Offset(x, size.height - 1),
+        Offset((x + 3).clamp(0, size.width), size.height - 1),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedUnderline old) => old.color != color;
 }

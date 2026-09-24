@@ -144,6 +144,45 @@ void main() {
     expect(find.text('¥97,500.00'), findsWidgets);
   });
 
+  testWidgets(
+    'inline cells save quantity and turn a changed cost into an estimate',
+    (tester) async {
+      await pumpApp(tester);
+      await tester.tap(find.text('2').first);
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).last, '5');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(state.store.get('project_item', pumpLine)!.data['qty'], '5');
+
+      await tester.tap(find.text('32,500.00').first);
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).last, '30000');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      final line = state.store.get('project_item', pumpLine)!.data;
+      expect(line['unit_cost'], '30000');
+      expect(
+        line['quotation_id'],
+        isNull,
+        reason: 'manual estimate unlinks the quote',
+      );
+      expect(find.text('¥150,000.00'), findsWidgets);
+    },
+  );
+
+  testWidgets('quote comparison marks the lowest valid price', (tester) async {
+    await pumpApp(tester);
+    await tester.tap(find.text('报价查询'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, '水泵');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(ActionChip).first);
+    await tester.pumpAndSettle();
+    expect(find.text('最低有效价'), findsOneWidget);
+    expect(find.textContaining('CNY · 含税 · 单位 台'), findsOneWidget);
+  });
+
   reviewTests();
 
   test('money formatting is exact', () {

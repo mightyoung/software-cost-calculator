@@ -6,6 +6,7 @@ import '../../app/format.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
 import '../../widgets/ledger.dart';
+import 'compare_view.dart';
 import 'quote_form.dart';
 
 const _taxShort = {'included': '含税', 'excluded': '不含税', 'unknown': '口径未知'};
@@ -20,7 +21,11 @@ class QuotesPage extends StatefulWidget {
 
 class _QuotesPageState extends State<QuotesPage> {
   String query = '';
+  String? comparing;
   Store get store => widget.state.store;
+
+  List<String> get _words =>
+      query.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
 
   List<Hit> _quotes() {
     final words = query
@@ -73,7 +78,20 @@ class _QuotesPageState extends State<QuotesPage> {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: widget.state,
     builder: (context, _) {
+      if (comparing != null) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(24, 18, 24, 16),
+          child: CompareView(
+            state: widget.state,
+            productId: comparing!,
+            onClose: () => setState(() => comparing = null),
+          ),
+        );
+      }
       final quotes = _quotes();
+      final matches = _words.isEmpty
+          ? const <Hit>[]
+          : store.searchProducts(_words, limit: 6);
       return Padding(
         padding: const EdgeInsets.fromLTRB(24, 18, 24, 16),
         child: Column(
@@ -107,6 +125,28 @@ class _QuotesPageState extends State<QuotesPage> {
               ),
               onChanged: (v) => setState(() => query = v.trim()),
             ),
+            if (matches.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  const Text('比价：', style: TextStyle(color: Tokens.ink2)),
+                  for (final m in matches)
+                    ActionChip(
+                      avatar: const Icon(Icons.compare_arrows, size: 16),
+                      label: Text(
+                        [
+                          m.data['name'],
+                          m.data['model'],
+                        ].whereType<String>().join(' '),
+                      ),
+                      onPressed: () => setState(() => comparing = m.id),
+                    ),
+                ],
+              ),
+            ],
             const SizedBox(height: 12),
             Expanded(
               child: quotes.isEmpty
@@ -114,10 +154,11 @@ class _QuotesPageState extends State<QuotesPage> {
                       title: query.isEmpty ? '还没有报价' : '没有找到相关报价',
                       body: '可以逐条新建，也可以用报价模板在 Excel 里批量填写后导入。',
                     )
-                  : DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Tokens.surface,
-                        border: Border.all(color: Tokens.rule),
+                  : Material(
+                      color: Tokens.surface,
+                      clipBehavior: Clip.antiAlias,
+                      shape: RoundedRectangleBorder(
+                        side: const BorderSide(color: Tokens.rule),
                         borderRadius: BorderRadius.circular(Tokens.radius),
                       ),
                       child: ListView.separated(

@@ -4,6 +4,7 @@ import 'package:supplier_core/supplier_core.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../widgets/ledger.dart';
+import 'contacts.dart';
 
 typedef _Field = (String key, String label, String? hint);
 
@@ -94,10 +95,11 @@ class _CatalogPageState extends State<CatalogPage> {
                           ? '物料是报价和预算的基础，建立后可在项目中直接选用。'
                           : '记录供应商后，报价和预算会显示对应的供应商。',
                     )
-                  : DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Tokens.surface,
-                        border: Border.all(color: Tokens.rule),
+                  : Material(
+                      color: Tokens.surface,
+                      clipBehavior: Clip.antiAlias,
+                      shape: RoundedRectangleBorder(
+                        side: const BorderSide(color: Tokens.rule),
                         borderRadius: BorderRadius.circular(Tokens.radius),
                       ),
                       child: ListView.separated(
@@ -241,6 +243,19 @@ class _CatalogFormState extends State<_CatalogForm> {
               ],
               if (error != null)
                 Text(error!, style: const TextStyle(color: Tokens.red)),
+              if (widget.type == 'supplier') ...[
+                const Divider(height: 24),
+                if (widget.id == null)
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '保存后可以添加联系人',
+                      style: TextStyle(color: Tokens.ink3),
+                    ),
+                  )
+                else
+                  SupplierContacts(state: widget.state, supplierId: widget.id!),
+              ],
             ],
           ),
         ),

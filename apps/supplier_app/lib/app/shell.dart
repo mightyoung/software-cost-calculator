@@ -5,6 +5,7 @@ import '../features/ai/ask_page.dart';
 import '../features/catalog/catalog_page.dart';
 import '../features/exchange/exchange_page.dart';
 import '../features/projects/projects_page.dart';
+import '../features/quotes/quote_form.dart';
 import '../features/quotes/quotes_page.dart';
 import '../features/settings/settings_page.dart';
 import 'app_state.dart';
@@ -56,6 +57,8 @@ class _ShellState extends State<Shell> {
         for (var i = 0; i < 6; i++)
           SingleActivator(LogicalKeyboardKey(0x31 + i), control: true): () =>
               setState(() => section = Section.values[i]),
+        const SingleActivator(LogicalKeyboardKey.keyN, control: true): () =>
+            showQuoteForm(context, widget.state),
       },
       child: Focus(
         autofocus: true,

@@ -90,6 +90,10 @@ class _QuoteFormState extends State<_QuoteForm> {
       return store.searchByName(type, q, limit: 20);
     },
     onSelected: (h) => setState(() {
+      if (key == 'supplier_id' && data[key] != h.id) {
+        data['contact_id'] = null;
+        data['contact_snapshot'] = null;
+      }
       data[key] = h.id;
       if (type == 'product' && c['unit_snapshot']!.text.isEmpty) {
         c['unit_snapshot']!.text = h.data['unit']! as String;
@@ -174,6 +178,52 @@ class _QuoteFormState extends State<_QuoteForm> {
     Navigator.pop(context);
   }
 
+  /// Choosing a contact copies their details into the quotation, so later
+  /// edits to the contact never rewrite what was recorded here.
+  Widget _contactPicker() {
+    final supplierId = data['supplier_id'] as String?;
+    final contacts = supplierId == null
+        ? <Hit>[]
+        : store.contactsOf(supplierId);
+    final current = contacts.any((c) => c.id == data['contact_id'])
+        ? data['contact_id'] as String?
+        : null;
+    return DropdownButtonFormField<String?>(
+      key: ValueKey('contact-$supplierId'),
+      initialValue: current,
+      isExpanded: true,
+      decoration: InputDecoration(
+        labelText: '联系人（可选）',
+        helperText: supplierId != null && contacts.isEmpty
+            ? '这个供应商还没有联系人，可在"供应商"中添加'
+            : null,
+      ),
+      items: [
+        const DropdownMenuItem(value: null, child: Text('不指定')),
+        for (final c in contacts)
+          DropdownMenuItem(
+            value: c.id,
+            child: Text(
+              [
+                c.data['name'],
+                c.data['phone'] ?? c.data['wechat'] ?? c.data['email'],
+              ].whereType<String>().join('  '),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+      ],
+      onChanged: (id) => setState(() {
+        final c = contacts.where((c) => c.id == id).firstOrNull?.data;
+        data['contact_id'] = id;
+        data['contact_snapshot'] = c == null
+            ? null
+            : {
+                for (final k in ['name', 'phone', 'wechat', 'email']) k: c[k],
+              };
+      }),
+    );
+  }
+
   Widget _text(String key, String label, {String? hint, bool number = false}) =>
       TextField(
         controller: c[key],
@@ -221,6 +271,8 @@ class _QuoteFormState extends State<_QuoteForm> {
               _picker('supplier', 'supplier_id', '供应商'),
               _picker('product', 'product_id', '物料'),
             ),
+            _contactPicker(),
+            const SizedBox(height: 12),
             _pair(
               _text('price', '单价', number: true),
               _text('unit_snapshot', '单位'),
