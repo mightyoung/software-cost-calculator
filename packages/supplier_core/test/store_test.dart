@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:supplier_core/supplier_core.dart';
@@ -219,6 +220,63 @@ void main() {
           'cheaper_available',
           'quote_not_valid',
         ]);
+      },
+    );
+
+    test(
+      'a quote whose minimum order exceeds the line quantity is not used',
+      () {
+        final bulk = s.save('quotation', {
+          ...quotation(sup, prod, pro, '80'),
+          'min_qty': '100',
+        });
+        final small = s.save('quotation', quotation(sup, prod, pro, '95'));
+        // Quantity unknown: minimum order cannot be judged.
+        expect(s.quoteOptions(pro, prod, asOf: asOf).first.id, bulk);
+        final two = s.quoteOptions(pro, prod, asOf: asOf, qty: '2');
+        expect(two.map((o) => o.id), [small, bulk]);
+        expect(two.last.valid, isFalse);
+        expect(two.last.meetsMinQty, isFalse);
+        expect(two.last.dateValid, isTrue);
+        expect(
+          s.quoteOptions(pro, prod, asOf: asOf, qty: '100').first.id,
+          bulk,
+        );
+        final tool =
+            jsonDecode(
+                  s.runTool(
+                    'quote_options',
+                    jsonEncode({'product_id': prod, 'qty': 2}),
+                  ),
+                )
+                as List;
+        expect(tool.first['id'], small);
+        expect(tool.last['meets_min_qty'], isFalse);
+
+        // The bulk price must not raise "cheaper available" for 2 units.
+        final line = s.save(
+          'project_item',
+          item(pro, 'material', productId: prod, quotationId: small, cost: '95')
+            ..['qty'] = '2',
+        );
+        expect(s.budget(pro, asOf: asOf).lines.single.warnings, isEmpty);
+        // Linking the bulk quote to 2 units is flagged as below minimum order.
+        s.save(
+          'project_item',
+          item(pro, 'material', productId: prod, quotationId: bulk, cost: '80')
+            ..['qty'] = '2',
+          id: line,
+        );
+        expect(s.budget(pro, asOf: asOf).lines.single.warnings, [
+          'below_min_qty',
+        ]);
+        s.save(
+          'project_item',
+          item(pro, 'material', productId: prod, quotationId: bulk, cost: '80')
+            ..['qty'] = '100',
+          id: line,
+        );
+        expect(s.budget(pro, asOf: asOf).lines.single.warnings, isEmpty);
       },
     );
 

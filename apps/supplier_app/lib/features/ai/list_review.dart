@@ -90,12 +90,14 @@ class _ListReviewState extends State<ListReview> {
     super.dispose();
   }
 
-  QuoteOption? _best(String? productId) {
+  QuoteOption? _best(_Row r) {
+    final productId = r.productId;
     if (productId == null) return null;
     final o = store.quoteOptionsFor(
       productId,
       currency: widget.currency,
       taxMode: widget.taxMode,
+      qty: parseQty(r.quantityText).$1,
     );
     return o.isNotEmpty && o.first.valid ? o.first : null;
   }
@@ -116,7 +118,7 @@ class _ListReviewState extends State<ListReview> {
           productId: r.productId,
           confidence: r.line.confidence,
           reason: r.line.reason,
-          quote: _best(r.productId),
+          quote: _best(r),
         ),
     ];
     late String id;
@@ -298,7 +300,7 @@ class _ListReviewState extends State<ListReview> {
   Widget _rowView(int i, bool wide) {
     final r = rows[i];
     final item = r.line.item;
-    final best = _best(r.productId);
+    final best = _best(r);
     final (confText, confColor, confIcon) = r.productId == null
         ? ('无匹配', Tokens.red, Icons.cancel_outlined)
         : r.changedByUser

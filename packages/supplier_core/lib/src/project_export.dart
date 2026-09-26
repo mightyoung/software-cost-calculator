@@ -16,6 +16,7 @@ const categoryLabels = {
 const warningLabels = {
   'cheaper_available': '有更低报价',
   'quote_not_valid': '所选报价已失效',
+  'below_min_qty': '数量未达所选报价的起订量',
   'needs_inquiry': '待询价',
 };
 

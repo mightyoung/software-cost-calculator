@@ -11,6 +11,11 @@ import 'item_dialogs.dart';
 const _warningText = {
   'cheaper_available': ('有更低报价', Icons.trending_down, HintTone.warning),
   'quote_not_valid': ('报价已失效', Icons.event_busy_outlined, HintTone.error),
+  'below_min_qty': (
+    '未达起订量',
+    Icons.production_quantity_limits,
+    HintTone.warning,
+  ),
   'needs_inquiry': ('待询价', Icons.help_outline, HintTone.warning),
 };
 

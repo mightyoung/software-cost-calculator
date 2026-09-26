@@ -4,6 +4,7 @@ import 'budget.dart';
 import 'llm.dart';
 import 'search.dart';
 import 'store.dart';
+import 'values.dart';
 
 const maxToolRounds = 8;
 const maxToolRows = 50;
@@ -51,9 +52,10 @@ final assistantTools = [
   }),
   _tool(
     'quote_options',
-    '某物料在指定币种与税制下的可用报价，有效的在前、价格从低到高',
+    '某物料在指定币种与税制下的可用报价，有效的在前、价格从低到高；给出需求数量 qty 时，起订量超过 qty 的报价不算有效',
     {
       'product_id': _str,
+      'qty': _str,
       'currency': _str,
       'tax_mode': {
         'type': 'string',
@@ -139,10 +141,12 @@ extension Assistant on Store {
             _s(a, 'product_id'),
             currency: a['currency'] as String? ?? 'CNY',
             taxMode: a['tax_mode'] as String? ?? 'included',
+            qty: tryDecimal(a['qty']?.toString(), positive: true),
           ).take(maxToolRows))
             {
               'id': o.id,
               'valid': o.valid,
+              'meets_min_qty': o.meetsMinQty,
               'validity_pending': o.validityPending,
               ...o.data,
             },

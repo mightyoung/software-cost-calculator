@@ -31,10 +31,24 @@ String fromMicros(BigInt value) {
 BigInt multiply(BigInt a, BigInt b) => (a * b + _micro ~/ BigInt.two) ~/ _micro;
 
 class QuoteOption {
-  QuoteOption(this.id, this.data, this.valid, this.validityPending);
+  QuoteOption(
+    this.id,
+    this.data,
+    this.dateValid,
+    this.validityPending, {
+    this.meetsMinQty = true,
+  });
   final String id;
   final Map<String, Object?> data;
-  final bool valid, validityPending;
+
+  /// Quoted on or before today and not expired.
+  final bool dateValid;
+  final bool validityPending;
+
+  /// The needed quantity reaches the quote's minimum order (true when the
+  /// quantity is unknown).
+  final bool meetsMinQty;
+  bool get valid => dateValid && meetsMinQty;
   String get price => data['price']! as String;
 }
 
@@ -77,6 +91,7 @@ extension Budgets on Store {
     String projectId,
     String productId, {
     DateTime? asOf,
+    String? qty,
   }) {
     final project = get('project', projectId);
     if (project == null) invalid('project_id', 'unknown project');
@@ -85,16 +100,19 @@ extension Budgets on Store {
       currency: project.data['currency']! as String,
       taxMode: project.data['tax_mode']! as String,
       asOf: asOf,
+      qty: qty,
     );
   }
 
   /// Quotations usable for a budget line: same product and unit, in the
-  /// given currency and tax mode. Valid ones first, then by price.
+  /// given currency and tax mode. Valid ones first, then by price. With
+  /// [qty], a quote whose minimum order exceeds it is not valid.
   List<QuoteOption> quoteOptionsFor(
     String productId, {
     required String currency,
     required String taxMode,
     DateTime? asOf,
+    String? qty,
   }) {
     final product = get('product', productId);
     if (product == null) invalid('product_id', 'unknown product');
@@ -113,7 +131,13 @@ extension Budgets on Store {
         "AND json_extract(q.data,'\$.unit_snapshot') = ?",
         [productId, currency, taxMode, product.data['unit']],
       ))
-        _option(r['id'] as String, r['data'] as String, today, undatedFrom),
+        _option(
+          r['id'] as String,
+          r['data'] as String,
+          today,
+          undatedFrom,
+          qty == null ? null : micros(qty),
+        ),
     ];
     options.sort((a, b) {
       if (a.valid != b.valid) return a.valid ? -1 : 1;
@@ -122,7 +146,13 @@ extension Budgets on Store {
     return options;
   }
 
-  QuoteOption _option(String id, String raw, String today, String undatedFrom) {
+  QuoteOption _option(
+    String id,
+    String raw,
+    String today,
+    String undatedFrom,
+    BigInt? qty,
+  ) {
     final data = jsonDecode(raw) as Map<String, Object?>;
     final quoted = data['quoted_on'] as String?;
     final until = data['valid_until'] as String?;
@@ -130,7 +160,13 @@ extension Budgets on Store {
     final valid = until != null
         ? current && until.compareTo(today) >= 0
         : quoted != null && current && quoted.compareTo(undatedFrom) >= 0;
-    return QuoteOption(id, data, valid, until == null);
+    return QuoteOption(
+      id,
+      data,
+      valid,
+      until == null,
+      meetsMinQty: qty == null || micros(data['min_qty']! as String) <= qty,
+    );
   }
 
   /// [withWarnings] false skips per-line quote lookups (list screens only
@@ -213,16 +249,22 @@ extension Budgets on Store {
           ? const ['needs_inquiry']
           : const [];
     }
-    final options = quoteOptions(projectId, productId, asOf: asOf);
+    final options = quoteOptions(
+      projectId,
+      productId,
+      asOf: asOf,
+      qty: item['qty']! as String,
+    );
     final chosen = item['quotation_id'] as String?;
+    final picked = options.where((o) => o.id == chosen).firstOrNull;
     return [
       if (options.isNotEmpty &&
           options.first.valid &&
           micros(options.first.price) * BigInt.from(100) <
               unitCost * BigInt.from(100 - cheaperWarnPercent))
         'cheaper_available',
-      if (chosen != null && !options.any((o) => o.id == chosen && o.valid))
-        'quote_not_valid',
+      if (chosen != null && !(picked?.dateValid ?? false)) 'quote_not_valid',
+      if (picked != null && !picked.meetsMinQty) 'below_min_qty',
     ];
   }
 }

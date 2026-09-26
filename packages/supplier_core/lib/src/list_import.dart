@@ -151,6 +151,7 @@ extension ListImport on Store {
             currency: currency,
             taxMode: taxMode,
             asOf: asOf,
+            qty: parseQty(item.qty).$1,
           );
     final confidence = pick?['confidence'];
     final reason = pick?['reason'];

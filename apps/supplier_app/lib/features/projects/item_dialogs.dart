@@ -150,7 +150,11 @@ class _AddItemsState extends State<_AddItems> {
   }
 
   Widget _hitTile(Hit hit) {
-    final options = widget.state.store.quoteOptions(widget.projectId, hit.id);
+    final options = widget.state.store.quoteOptions(
+      widget.projectId,
+      hit.id,
+      qty: '1',
+    );
     final best = options.isNotEmpty && options.first.valid
         ? options.first
         : null;
@@ -269,10 +273,7 @@ class _ItemEditorState extends State<_ItemEditor> {
                 product?['unit'] ?? (widget.category == 'material' ? '台' : '项'),
             'unit_cost': '0',
           };
-    final pid = data['product_id'] as String?;
-    options = pid == null
-        ? const []
-        : store.quoteOptions(widget.projectId, pid);
+    options = _options(data['qty'] as String?);
     if (existing == null && options.isNotEmpty && options.first.valid) {
       data['quotation_id'] = options.first.id;
       data['unit_cost'] = options.first.price;
@@ -296,6 +297,27 @@ class _ItemEditorState extends State<_ItemEditor> {
     }
     super.dispose();
   }
+
+  /// Quotes for this line's product; the minimum order is judged against
+  /// [qty] when it is a valid number.
+  List<QuoteOption> _options(String? qty) {
+    final pid = data['product_id'] as String?;
+    return pid == null
+        ? const []
+        : store.quoteOptions(
+            widget.projectId,
+            pid,
+            qty: tryDecimal(qty?.replaceAll(',', ''), positive: true),
+          );
+  }
+
+  String _optionState(QuoteOption o) => !o.dateValid
+      ? '已失效'
+      : !o.meetsMinQty
+      ? '起订 ${o.data['min_qty']}，数量不足'
+      : o.validityPending
+      ? '有效期待确认'
+      : '有效至 ${o.data['valid_until']}';
 
   void _save() {
     final payload = {
@@ -329,12 +351,14 @@ class _ItemEditorState extends State<_ItemEditor> {
       String label, {
       String? hint,
       bool number = false,
+      ValueChanged<String>? onChanged,
     }) => TextField(
       controller: c[key],
       decoration: InputDecoration(labelText: label, hintText: hint),
       keyboardType: number
           ? const TextInputType.numberWithOptions(decimal: true)
           : null,
+      onChanged: onChanged,
       onSubmitted: (_) => _save(),
     );
     return AlertDialog(
@@ -378,7 +402,14 @@ class _ItemEditorState extends State<_ItemEditor> {
               ],
               Row(
                 children: [
-                  Expanded(child: field('qty', '数量', number: true)),
+                  Expanded(
+                    child: field(
+                      'qty',
+                      '数量',
+                      number: true,
+                      onChanged: (v) => setState(() => options = _options(v)),
+                    ),
+                  ),
                   const SizedBox(width: 12),
                   Expanded(child: field('unit', '单位')),
                 ],
@@ -398,8 +429,7 @@ class _ItemEditorState extends State<_ItemEditor> {
                       DropdownMenuItem(
                         value: o.id,
                         child: Text(
-                          '${money(o.price, prefix: '¥')} · ${store.get('supplier', o.data['supplier_id']! as String)?.data['name']} · '
-                          '${o.valid ? (o.validityPending ? '有效期待确认' : '有效至 ${o.data['valid_until']}') : '已失效'}',
+                          '${money(o.price, prefix: '¥')} · ${store.get('supplier', o.data['supplier_id']! as String)?.data['name']} · ${_optionState(o)}',
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),

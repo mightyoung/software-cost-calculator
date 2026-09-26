@@ -285,3 +285,13 @@ final class InquiryTime {
     'inquiry_utc_offset_minutes': offsetMinutes,
   });
 }
+
+/// Canonical decimal text, or null when [s] is not a plain decimal.
+String? tryDecimal(String? s, {bool positive = false}) {
+  if (s == null) return null;
+  try {
+    return ExactDecimal.parse(s.trim(), positive: positive).canonical;
+  } on FormatException {
+    return null;
+  }
+}

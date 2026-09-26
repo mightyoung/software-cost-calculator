@@ -144,6 +144,30 @@ void main() {
     expect(find.text('¥97,500.00'), findsWidgets);
   });
 
+  testWidgets('a price that needs a larger order is not used for 2 units', (
+    tester,
+  ) async {
+    final store = state.store;
+    final line = store.get('project_item', pumpLine)!.data;
+    final base = store.get('quotation', line['quotation_id']! as String)!.data;
+    store.save('quotation', {...base, 'price': '20000', 'min_qty': '10'});
+    await pumpApp(tester);
+    expect(find.text('有更低报价'), findsNothing);
+
+    await tester.tap(find.text('离心水泵').last);
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('起订 10，数量不足', skipOffstage: false),
+      findsWidgets,
+    );
+    await tester.enterText(find.widgetWithText(TextField, '数量'), '10');
+    await tester.pump();
+    expect(
+      find.textContaining('起订 10，数量不足', skipOffstage: false),
+      findsNothing,
+    );
+  });
+
   testWidgets(
     'inline cells save quantity and turn a changed cost into an estimate',
     (tester) async {

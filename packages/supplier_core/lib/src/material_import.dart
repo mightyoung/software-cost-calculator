@@ -343,7 +343,7 @@ extension MaterialImport on Store {
     if (o['name'] == null) return '缺少产品名称';
     if (o['unit'] == null) return '缺少单位';
     for (final k in ['price', 'tax_rate']) {
-      if (o[k] != null && _decimal(o[k]) == null)
+      if (o[k] != null && tryDecimal(o[k]) == null)
         return '${offerFields[k]!.$1}有误';
     }
     try {
@@ -393,7 +393,7 @@ Offer cleanOffer(Map<String, Object?> raw) {
   if (!const ['included', 'excluded'].contains(o['tax_mode'])) {
     o['tax_mode'] = 'unknown';
   }
-  o['tax_rate'] = _decimal(o['tax_rate']?.replaceAll('%', ''));
+  o['tax_rate'] = tryDecimal(o['tax_rate']?.replaceAll('%', ''));
   for (final k in ['quoted_on', 'valid_until']) {
     o[k] = _date(o[k]);
   }
@@ -420,18 +420,9 @@ String? parsePrice(String? raw) {
   );
   final wan = s.endsWith('万');
   if (wan) s = s.substring(0, s.length - 1);
-  final value = _decimal(s);
+  final value = tryDecimal(s);
   if (value == null) return null;
   return wan ? fromMicros(micros(value) * BigInt.from(10000)) : value;
-}
-
-String? _decimal(String? s) {
-  if (s == null) return null;
-  try {
-    return ExactDecimal.parse(s.trim()).canonical;
-  } on FormatException {
-    return null;
-  }
 }
 
 String? _date(String? s) {
