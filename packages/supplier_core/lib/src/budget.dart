@@ -308,3 +308,58 @@ extension Budgets on Store {
     ];
   }
 }
+
+/// A budget line whose best usable quotation differs from what it uses now.
+class RefreshLine {
+  RefreshLine(this.itemId, this.item, this.currentCost, this.option);
+  final String itemId;
+  final Map<String, Object?> item;
+  final String currentCost;
+  final QuoteOption option;
+
+  /// The deal price once awarded, else the quoted price.
+  String get newCost => option.price;
+
+  /// The line holds a hand-entered estimate (no quotation linked).
+  bool get manual =>
+      item['quotation_id'] == null && micros(currentCost) != BigInt.zero;
+}
+
+extension Refresh on Store {
+  /// Material lines where the first valid option (awards first, then the
+  /// lowest effective price) is not what the line uses. Writes nothing.
+  List<RefreshLine> refreshPlan(String projectId, {DateTime? asOf}) => [
+    for (final l in budget(projectId, withWarnings: false).lines)
+      if (l.data['product_id'] case final String productId)
+        if (quoteOptions(
+              projectId,
+              productId,
+              asOf: asOf,
+              qty: l.data['qty']! as String,
+            ).where((o) => o.valid).firstOrNull
+            case final best?
+            when best.id != l.data['quotation_id'] ||
+                best.price != l.data['unit_cost'])
+          RefreshLine(l.id, l.data, l.data['unit_cost']! as String, best),
+  ];
+
+  /// Prices the given lines with their new option in one transaction. An
+  /// extra cost is noted on the line; it is not folded into the unit cost.
+  void applyRefresh(List<RefreshLine> lines) => transaction(() {
+    for (final l in lines) {
+      final extra = l.option.data['extra_cost'] as String?;
+      final note = extra == null ? null : '另有附加费用 $extra（未计入单价）';
+      final notes = [
+        for (final n in (l.item['notes'] as String? ?? '').split('；'))
+          if (n.isNotEmpty && !n.startsWith('另有附加费用')) n,
+        ?note,
+      ].join('；');
+      save('project_item', {
+        ...l.item,
+        'quotation_id': l.option.id,
+        'unit_cost': l.newCost,
+        'notes': notes.isEmpty ? null : notes,
+      }, id: l.itemId);
+    }
+  });
+}

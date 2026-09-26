@@ -168,6 +168,29 @@ void main() {
     );
   });
 
+  testWidgets('refresh prices moves a line to a cheaper valid quote', (
+    tester,
+  ) async {
+    final store = state.store;
+    final line = store.get('project_item', pumpLine)!.data;
+    final base = store.get('quotation', line['quotation_id']! as String)!.data;
+    final cheaper = store.save('quotation', {...base, 'price': '30000'});
+    await pumpApp(tester);
+    await tester.tap(find.text('刷新价格'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('32,500.00 → 30,000.00'), findsOneWidget);
+    expect(
+      find.textContaining('-¥5,000.00'),
+      findsOneWidget,
+      reason: '2 × -2500',
+    );
+    await tester.tap(find.text('更新选中的行'));
+    await tester.pumpAndSettle();
+    final updated = store.get('project_item', pumpLine)!.data;
+    expect(updated['quotation_id'], cheaper);
+    expect(updated['unit_cost'], '30000');
+  });
+
   testWidgets(
     'inline cells save quantity and turn a changed cost into an estimate',
     (tester) async {

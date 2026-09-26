@@ -12,6 +12,7 @@ import '../inquiries/project_inquiries.dart';
 import 'budget_table.dart';
 import 'item_dialogs.dart';
 import 'project_form.dart';
+import 'refresh_dialog.dart';
 
 enum _Tab { budget, inquiries, quotes, changes }
 
@@ -86,6 +87,8 @@ class _ProjectDetailState extends State<ProjectDetail> {
                 if (msg != null && context.mounted) toast(context, msg);
               },
               onAdd: () => showAddItems(context, state, widget.projectId),
+              onRefresh: () =>
+                  showRefreshPrices(context, state, widget.projectId),
             ),
           ),
           Expanded(
@@ -215,11 +218,12 @@ class _Toolbar extends StatelessWidget {
     required this.onAdd,
     required this.onFromList,
     required this.onImport,
+    required this.onRefresh,
   });
   final _Tab tab;
   final bool compact;
   final ValueChanged<_Tab> onTab;
-  final VoidCallback onEdit, onAdd, onFromList, onImport;
+  final VoidCallback onEdit, onAdd, onFromList, onImport, onRefresh;
   final ValueChanged<String> onExport;
 
   static const _exports = [
@@ -271,11 +275,13 @@ class _Toolbar extends StatelessWidget {
               'edit' => onEdit(),
               'list' => onFromList(),
               'import' => onImport(),
+              'refresh' => onRefresh(),
               _ => onExport(v),
             },
             itemBuilder: (_) => [
               const PopupMenuItem(value: 'edit', child: Text('编辑项目')),
               const PopupMenuItem(value: 'import', child: Text('导入报价信息')),
+              const PopupMenuItem(value: 'refresh', child: Text('按最优价刷新')),
               const PopupMenuItem(value: 'list', child: Text('从清单生成新项目')),
               for (final (value, label) in _exports)
                 PopupMenuItem(value: value, child: Text(label)),
@@ -302,12 +308,18 @@ class _Toolbar extends StatelessWidget {
                 label: const Text('导入报价信息'),
               ),
               OutlinedButton.icon(
-                onPressed: onEdit,
-                icon: const Icon(Icons.edit_outlined, size: 18),
-                label: const Text('编辑项目'),
+                onPressed: onRefresh,
+                icon: const Icon(Icons.price_change_outlined, size: 18),
+                label: const Text('刷新价格'),
               ),
               MenuAnchor(
                 menuChildren: [
+                  MenuItemButton(
+                    onPressed: onEdit,
+                    leadingIcon: const Icon(Icons.edit_outlined, size: 18),
+                    child: const Text('编辑项目'),
+                  ),
+                  const Divider(height: 8),
                   for (final (value, label) in _exports)
                     MenuItemButton(
                       onPressed: () => onExport(value),
@@ -318,8 +330,8 @@ class _Toolbar extends StatelessWidget {
                   onPressed: () => controller.isOpen
                       ? controller.close()
                       : controller.open(),
-                  icon: const Icon(Icons.download_outlined, size: 18),
-                  label: const Text('导出'),
+                  icon: const Icon(Icons.more_horiz, size: 18),
+                  label: const Text('更多'),
                 ),
               ),
               FilledButton.icon(
