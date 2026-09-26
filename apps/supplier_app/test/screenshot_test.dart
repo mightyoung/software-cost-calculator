@@ -13,6 +13,8 @@ import 'package:supplier_app/app/app_state.dart';
 import 'package:supplier_app/app/shell.dart';
 import 'package:supplier_app/app/theme.dart';
 import 'package:supplier_app/features/ai/list_review.dart';
+import 'package:supplier_app/features/ai/material_import_page.dart';
+import 'package:supplier_app/features/ai/material_review.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 const _font = '/System/Library/Fonts/Supplemental/Arial Unicode.ttf';
@@ -209,6 +211,80 @@ List<ProposedLine> _proposals(Store s) {
   ];
 }
 
+const _pasted = '''张经理（甲泵业）13812345678：
+不锈钢离心泵 IS80-65-160，304 材质，Q=50m³/h H=32m，含税 31800 元/台，交期 20 天，报价有效期到 10 月 31 日。
+永泰阀门 李工 微信 yongtai_li：闸阀 Z41H-16C DN100，不含税 1180/个。
+华通仪表 陈经理 chen@huatong.cn
+1. 电磁流量计 LDG-100，DN100，远传 4-20mA，6850 元
+2. 压力变送器 0-1.6MPa，价格另报
+宝胜电缆：耐火电缆 NH-YJV 4×25，面议''';
+
+Widget _importScreen(String name, AppState state) {
+  if (name == 'desktop_import_input') return MaterialImportPage(state: state);
+  Offer o(Map<String, Object?> raw) => cleanOffer(raw);
+  final offers = [
+    o({
+      'supplier': '甲泵业',
+      'contact_name': '张经理',
+      'phone': '13812345678',
+      'name': '不锈钢离心泵',
+      'model': 'IS80-65-160',
+      'specification': '304 材质，Q=50m³/h，H=32m',
+      'unit': '台',
+      'price': '31800',
+      'tax_mode': 'included',
+      'valid_until': '2026-10-31',
+      'lead_time_days': '20',
+    }),
+    o({
+      'supplier': '永泰阀门有限公司',
+      'contact_name': '李工',
+      'wechat': 'yongtai_li',
+      'name': '闸阀',
+      'model': 'Z41H-16C DN100',
+      'unit': '个',
+      'price': '1180',
+      'tax_mode': 'excluded',
+    }),
+    o({
+      'supplier': '华通仪表',
+      'contact_name': '陈经理',
+      'email': 'chen@huatong.cn',
+      'name': '电磁流量计',
+      'model': 'LDG-100',
+      'specification': 'DN100，远传 4-20mA',
+      'unit': '台',
+      'price': '6850',
+    }),
+    o({
+      'supplier': '华通仪表',
+      'contact_name': '陈经理',
+      'email': 'chen@huatong.cn',
+      'name': '压力变送器',
+      'specification': '0-1.6MPa',
+      'unit': '台',
+      'notes': '价格另报',
+    }),
+    o({
+      'supplier': '宝胜电缆',
+      'name': '耐火电缆',
+      'model': 'NH-YJV 4×25',
+      'price': '面议',
+    }),
+  ];
+  return Scaffold(
+    appBar: AppBar(
+      backgroundColor: Tokens.canvas,
+      title: const Text('智能导入报价 · 核对'),
+    ),
+    body: MaterialReview(
+      state: state,
+      plans: [for (final x in offers) state.store.planOffer(x)],
+      onBack: () {},
+    ),
+  );
+}
+
 void main() {
   final hasFont = File(_font).existsSync();
 
@@ -247,7 +323,9 @@ void main() {
       MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: buildTheme(),
-        home: name == 'desktop_review'
+        home: name.contains('import')
+            ? _importScreen(name, state)
+            : name == 'desktop_review'
             ? Scaffold(
                 appBar: AppBar(
                   backgroundColor: Tokens.canvas,
@@ -344,6 +422,24 @@ void main() {
       await t.tap(find.byType(ActionChip).first);
       await t.pumpAndSettle();
     }),
+    skip: !hasFont,
+  );
+  testWidgets(
+    'desktop smart import input',
+    (t) => shoot(t, const Size(1280, 800), 'desktop_import_input', () async {
+      await t.enterText(find.byType(TextField), _pasted);
+      await t.pumpAndSettle();
+    }),
+    skip: !hasFont,
+  );
+  testWidgets(
+    'desktop smart import review',
+    (t) => shoot(t, const Size(1280, 800), 'desktop_import_review'),
+    skip: !hasFont,
+  );
+  testWidgets(
+    'phone smart import review',
+    (t) => shoot(t, const Size(390, 844), 'phone_import_review'),
     skip: !hasFont,
   );
 }

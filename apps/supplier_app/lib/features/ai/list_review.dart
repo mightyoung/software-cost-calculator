@@ -322,7 +322,9 @@ class _ListReviewState extends State<ListReview> {
     final picker = DropdownButtonFormField<String?>(
       initialValue: r.productId,
       isExpanded: true,
-      style: const TextStyle(fontSize: 13, color: Tokens.ink),
+      style: Theme.of(
+        context,
+      ).textTheme.bodyMedium!.copyWith(color: Tokens.ink),
       decoration: const InputDecoration(
         contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       ),

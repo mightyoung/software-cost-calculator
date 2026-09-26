@@ -296,11 +296,6 @@ class _Toolbar extends StatelessWidget {
                 label: const Text('导入报价信息'),
               ),
               OutlinedButton.icon(
-                onPressed: onFromList,
-                icon: const Icon(Icons.playlist_add_check, size: 18),
-                label: const Text('从清单生成'),
-              ),
-              OutlinedButton.icon(
                 onPressed: onEdit,
                 icon: const Icon(Icons.edit_outlined, size: 18),
                 label: const Text('编辑项目'),

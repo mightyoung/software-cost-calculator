@@ -45,17 +45,21 @@ class _MaterialReviewState extends State<MaterialReview> {
   late String? projectId =
       widget.projectId ?? (projects.isEmpty ? null : projects.first.id);
   late bool newProject = projects.isEmpty;
-  late final code = TextEditingController(
-    text: suggestProjectCode(widget.state),
-  );
+  late final TextEditingController code, inquirer;
   final name = TextEditingController();
-  late final inquirer = TextEditingController(
-    text: widget.state.setting('inquirer') ?? '',
-  );
   var addToBudget = true;
   String? error;
 
   Store get store => widget.state.store;
+
+  @override
+  void initState() {
+    super.initState();
+    code = TextEditingController(text: suggestProjectCode(widget.state));
+    inquirer = TextEditingController(
+      text: widget.state.setting('inquirer') ?? '',
+    );
+  }
 
   @override
   void dispose() {
@@ -304,7 +308,9 @@ class _MaterialReviewState extends State<MaterialReview> {
     child: DropdownButtonFormField<String?>(
       initialValue: value,
       isExpanded: true,
-      style: const TextStyle(fontSize: 13, color: Tokens.ink),
+      style: Theme.of(
+        context,
+      ).textTheme.bodyMedium!.copyWith(color: Tokens.ink),
       decoration: const InputDecoration(
         isDense: true,
         contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -341,67 +347,85 @@ class _MaterialReviewState extends State<MaterialReview> {
         border: Border.all(color: Tokens.rule),
         borderRadius: BorderRadius.circular(Tokens.radius),
       ),
-      child: Wrap(
-        spacing: 10,
-        runSpacing: 10,
-        crossAxisAlignment: WrapCrossAlignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SegmentedButton<bool>(
-            segments: const [
-              ButtonSegment(value: false, label: Text('已有项目')),
-              ButtonSegment(value: true, label: Text('新建项目')),
-            ],
-            selected: {newProject},
-            showSelectedIcon: false,
-            onSelectionChanged: projects.isEmpty
-                ? null
-                : (v) => setState(() => newProject = v.single),
-          ),
-          if (newProject) ...[
-            field(code, '项目编号', 150),
-            field(name, '项目名称', 200),
-          ] else
-            SizedBox(
-              width: 260,
-              child: DropdownButtonFormField<String>(
-                initialValue: projectId,
-                isExpanded: true,
-                decoration: const InputDecoration(labelText: '报价所属项目'),
-                items: [
-                  for (final p in projects)
-                    DropdownMenuItem(
-                      value: p.id,
-                      child: Text(
-                        '${p.data['name']}（${p.data['code']}）',
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                ],
-                onChanged: (v) => setState(() => projectId = v),
-              ),
-            ),
-          field(inquirer, '询价人', 120),
-          Row(
-            mainAxisSize: MainAxisSize.min,
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Checkbox(
-                value: addToBudget,
-                onChanged: (v) => setState(() => addToBudget = v!),
+              SegmentedButton<bool>(
+                segments: const [
+                  ButtonSegment(value: false, label: Text('已有项目')),
+                  ButtonSegment(value: true, label: Text('新建项目')),
+                ],
+                selected: {newProject},
+                showSelectedIcon: false,
+                onSelectionChanged: projects.isEmpty
+                    ? null
+                    : (v) => setState(() => newProject = v.single),
               ),
-              const Text('同时加入项目成本预算'),
+              if (newProject) ...[
+                field(code, '项目编号', 150),
+                field(name, '项目名称', 200),
+              ] else
+                SizedBox(
+                  width: 260,
+                  child: DropdownButtonFormField<String>(
+                    initialValue: projectId,
+                    isExpanded: true,
+                    decoration: const InputDecoration(labelText: '报价所属项目'),
+                    items: [
+                      for (final p in projects)
+                        DropdownMenuItem(
+                          value: p.id,
+                          child: Text(
+                            '${p.data['name']}（${p.data['code']}）',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                    ],
+                    onChanged: (v) => setState(() => projectId = v),
+                  ),
+                ),
+              field(inquirer, '询价人', 120),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Checkbox(
+                    value: addToBudget,
+                    onChanged: (v) => setState(() => addToBudget = v!),
+                  ),
+                  const Text('同时加入项目成本预算'),
+                ],
+              ),
             ],
           ),
-          Text(
-            '$priced 条报价 · 新建供应商 $newSuppliers · 新建物料 $newProducts',
-            style: const TextStyle(color: Tokens.ink2),
-          ),
-          if (error != null)
-            Text(error!, style: const TextStyle(color: Tokens.red)),
-          OutlinedButton(onPressed: widget.onBack, child: const Text('返回修改')),
-          FilledButton.icon(
-            onPressed: ready == 0 ? null : _apply,
-            icon: const Icon(Icons.check, size: 18),
-            label: Text('确认导入（$ready 条）'),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  error ??
+                      '$priced 条报价 · 新建供应商 $newSuppliers · 新建物料 $newProducts',
+                  style: TextStyle(
+                    color: error == null ? Tokens.ink2 : Tokens.red,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              OutlinedButton(
+                onPressed: widget.onBack,
+                child: const Text('返回修改'),
+              ),
+              const SizedBox(width: 8),
+              FilledButton.icon(
+                onPressed: ready == 0 ? null : _apply,
+                icon: const Icon(Icons.check, size: 18),
+                label: Text('确认导入（$ready 条）'),
+              ),
+            ],
           ),
         ],
       ),
