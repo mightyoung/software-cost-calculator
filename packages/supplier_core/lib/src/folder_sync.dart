@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'crypto_file.dart';
 import 'exchange.dart';
 import 'store.dart';
 
@@ -34,11 +35,16 @@ extension FolderSyncing on Store {
   /// still uploading) are reported and retried next time.
   // ponytail: every device keeps a full snapshot in the folder (N x database
   // size); switch to per-device change files if the folder gets too large.
-  FolderSync syncWithFolder(
+  ///
+  /// With [passphrase], this device's file is written encrypted and
+  /// encrypted files of others are decrypted; unencrypted files are still
+  /// read, so devices can switch over one by one.
+  Future<FolderSync> syncWithFolder(
     String dir, {
     required String ownName,
     required Map<String, String> seen,
-  }) {
+    String? passphrase,
+  }) async {
     final next = Map.of(seen);
     final imported = <String>[];
     final failed = <String, String>{};
@@ -55,21 +61,35 @@ extension FolderSyncing on Store {
       final stat = f.statSync();
       final mark = '${stat.modified.toUtc().toIso8601String()}|${stat.size}';
       if (seen[name] == mark) continue;
+      final temp = Directory.systemTemp.createTempSync('siq-sync');
       try {
-        importFrom(f.path);
+        if (isEncryptedExchange(f.path)) {
+          if (passphrase == null) {
+            failed[name] = '文件已加密，需要在本机设置相同的交换口令';
+            continue;
+          }
+          importFrom(await decryptExchange(f.path, passphrase, temp));
+        } else {
+          importFrom(f.path);
+        }
         imported.add(name);
         next[name] = mark;
       } on Object catch (e) {
         failed[name] = e is FormatException ? e.message : '$e';
+      } finally {
+        temp.deleteSync(recursive: true);
       }
     }
     // Rewrite our file only when this device's data changed: a fresh time
     // stamp would make every other device read it again.
     final r = db.select('SELECT max(at) AS at, count(*) AS n FROM change_log');
     final state = '${r.first['at']}|${r.first['n']}';
-    if (next[_own] != state || !File('$dir/$ownName').existsSync()) {
-      exportTo('$dir/$ownName');
-      next[_own] = state;
+    final mode = passphrase == null ? 'plain' : 'encrypted';
+    if (next[_own] != '$state|$mode' || !File('$dir/$ownName').existsSync()) {
+      passphrase == null
+          ? exportTo('$dir/$ownName')
+          : await exportEncryptedTo('$dir/$ownName', passphrase);
+      next[_own] = '$state|$mode';
     }
     return FolderSync(imported, failed, next);
   }

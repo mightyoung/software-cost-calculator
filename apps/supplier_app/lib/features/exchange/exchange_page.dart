@@ -8,6 +8,7 @@ import '../../app/theme.dart';
 import '../../platform/files.dart';
 import 'conflicts_page.dart';
 import 'folder_sync_panel.dart';
+import 'passphrase.dart';
 
 const _typeLabels = {
   'supplier': '供应商',
@@ -37,7 +38,10 @@ class _ExchangePageState extends State<ExchangePage> {
       await temp.create(recursive: true);
       final file = File('${temp.path}/export.siq');
       if (file.existsSync()) file.deleteSync();
-      state.store.exportTo(file.path);
+      final passphrase = await state.exchangePassphrase();
+      passphrase == null
+          ? state.store.exportTo(file.path)
+          : await state.store.exportEncryptedTo(file.path, passphrase);
       final bytes = await file.readAsBytes();
       file.deleteSync();
       final saved = await saveBytes(
@@ -45,14 +49,47 @@ class _ExchangePageState extends State<ExchangePage> {
         bytes,
         extensions: ['siq'],
       );
-      if (saved && mounted) toast(context, '交换文件已导出，可发送给其他设备');
+      if (saved && mounted) {
+        toast(
+          context,
+          passphrase == null ? '交换文件已导出，可发送给其他设备' : '已导出加密的交换文件，对方需要设置同一个交换口令',
+        );
+      }
     } finally {
       if (mounted) setState(() => busy = false);
     }
   }
 
+  /// Decrypts an encrypted file with the stored passphrase, asking when
+  /// there is none or it does not fit. Returns null when the user gives up.
+  Future<String?> _plain(String path) async {
+    if (!isEncryptedExchange(path)) return path;
+    var passphrase = await state.exchangePassphrase();
+    String? problem;
+    while (true) {
+      if (passphrase == null) {
+        if (!mounted) return null;
+        passphrase = await askPassphrase(
+          context,
+          title: '这个交换文件已加密',
+          message: problem ?? '请输入对方设置的交换口令。',
+        );
+        if (passphrase == null) return null;
+      }
+      try {
+        return await decryptExchange(path, passphrase, temp);
+      } on FormatException {
+        problem = '口令不对，或文件已损坏。请重新输入。';
+        passphrase = null;
+      }
+    }
+  }
+
   Future<void> _import() async {
-    final path = await pickToTemp(['siq'], temp);
+    final picked = await pickToTemp(['siq'], temp);
+    if (picked == null || !mounted) return;
+    final path = await _plain(picked);
+    if (path != picked) File(picked).deleteSync();
     if (path == null || !mounted) return;
     try {
       final Map<String, TableImport> preview;
@@ -150,6 +187,8 @@ class _ExchangePageState extends State<ExchangePage> {
           const SizedBox(height: 16),
           const LinearProgressIndicator(),
         ],
+        const SizedBox(height: 16),
+        PassphraseRow(state: state),
         if (folderSyncSupported) ...[
           const SizedBox(height: 16),
           FolderSyncPanel(state: state),

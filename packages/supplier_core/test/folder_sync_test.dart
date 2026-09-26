@@ -9,51 +9,58 @@ void main() {
   setUp(() => tmp = Directory.systemTemp.createTempSync('supplier_folder'));
   tearDown(() => tmp.deleteSync(recursive: true));
 
-  test('devices converge through a shared folder, importing only changes', () {
-    final dir = Directory('${tmp.path}/shared')..createSync();
-    final a = device('A'), b = device('B'), c = device('C');
-    final seen = {
-      'A': <String, String>{},
-      'B': <String, String>{},
-      'C': <String, String>{},
-    };
-    FolderSync sync(Store s, String name) {
-      final r = s.syncWithFolder(
-        dir.path,
-        ownName: '$name.siq',
-        seen: seen[name]!,
+  test(
+    'devices converge through a shared folder, importing only changes',
+    () async {
+      final dir = Directory('${tmp.path}/shared')..createSync();
+      final a = device('A'), b = device('B'), c = device('C');
+      final seen = {
+        'A': <String, String>{},
+        'B': <String, String>{},
+        'C': <String, String>{},
+      };
+      Future<FolderSync> sync(Store s, String name) async {
+        final r = await s.syncWithFolder(
+          dir.path,
+          ownName: '$name.siq',
+          seen: seen[name]!,
+        );
+        seen[name] = r.seen;
+        return r;
+      }
+
+      final sa = a.save('supplier', supplier('甲'));
+      expect((await sync(a, 'A')).imported, isEmpty);
+      b.save('supplier', supplier('乙'));
+      expect((await sync(b, 'B')).imported, ['A.siq']);
+      // C hears about A's supplier through B's file alone.
+      c.importFrom(exported(c)); // no-op; C starts empty
+      expect((await sync(c, 'C')).imported, containsAll(['A.siq', 'B.siq']));
+      expect(c.get('supplier', sa), isNotNull);
+
+      expect((await sync(a, 'A')).imported, containsAll(['B.siq', 'C.siq']));
+      final before = File('${dir.path}/A.siq').lastModifiedSync();
+      expect((await sync(a, 'A')).imported, isEmpty, reason: 'nothing changed');
+      expect(
+        File('${dir.path}/A.siq').lastModifiedSync(),
+        before,
+        reason: 'unchanged data is not rewritten',
       );
-      seen[name] = r.seen;
-      return r;
-    }
+      (await sync(b, 'B'));
+      (await sync(c, 'C'));
+      expect(content(a), content(b));
+      expect(content(b), content(c));
 
-    final sa = a.save('supplier', supplier('甲'));
-    expect(sync(a, 'A').imported, isEmpty);
-    b.save('supplier', supplier('乙'));
-    expect(sync(b, 'B').imported, ['A.siq']);
-    // C hears about A's supplier through B's file alone.
-    c.importFrom(exported(c)); // no-op; C starts empty
-    expect(sync(c, 'C').imported, containsAll(['A.siq', 'B.siq']));
-    expect(c.get('supplier', sa), isNotNull);
-
-    expect(sync(a, 'A').imported, containsAll(['B.siq', 'C.siq']));
-    final before = File('${dir.path}/A.siq').lastModifiedSync();
-    expect(sync(a, 'A').imported, isEmpty, reason: 'nothing changed');
-    expect(
-      File('${dir.path}/A.siq').lastModifiedSync(),
-      before,
-      reason: 'unchanged data is not rewritten',
-    );
-    sync(b, 'B');
-    sync(c, 'C');
-    expect(content(a), content(b));
-    expect(content(b), content(c));
-
-    File('${dir.path}/broken.siq').writeAsBytesSync([1, 2, 3]);
-    final r = sync(a, 'A');
-    expect(r.failed.keys, ['broken.siq']);
-    expect(r.seen.containsKey('broken.siq'), isFalse, reason: 'retried later');
-  });
+      File('${dir.path}/broken.siq').writeAsBytesSync([1, 2, 3]);
+      final r = (await sync(a, 'A'));
+      expect(r.failed.keys, ['broken.siq']);
+      expect(
+        r.seen.containsKey('broken.siq'),
+        isFalse,
+        reason: 'retried later',
+      );
+    },
+  );
 
   test('update notice from the shared folder', () {
     final dir = Directory('${tmp.path}/shared')..createSync();

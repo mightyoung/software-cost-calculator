@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:lpinyin/lpinyin.dart';
 import 'package:unorm_dart/unorm_dart.dart' as unicode;
 
 import 'store.dart';
@@ -19,6 +20,16 @@ String _key(String s) => unicode.nfkc(s).toLowerCase().trim();
 
 String _like(String s) =>
     '%${s.replaceAll(r'\', r'\\').replaceAll('%', r'\%').replaceAll('_', r'\_')}%';
+
+/// Pinyin initials in lower case, other characters kept: "离心泵" -> "lxb".
+String pinyinInitials(String s) =>
+    PinyinHelper.getShortPinyin(s).toLowerCase().replaceAll(RegExp(r'\s'), '');
+
+bool _letters(String s) => RegExp(r'^[a-zA-Z]{2,}$').hasMatch(s);
+
+/// Per-store cache: type|id -> (text, initials); recomputed when the text
+/// changes, so renames are picked up without invalidation hooks.
+final _initialsCache = Expando<Map<String, (String, String)>>();
 
 class Hit {
   Hit(this.id, this.data, this.score);
@@ -57,15 +68,62 @@ extension Search on Store {
         }
       }
     }
+    for (final k in keywords) {
+      if (!_letters(k.trim())) continue;
+      for (final id in _pinyinMatches('product', k.trim().toLowerCase())) {
+        scores[id] = (scores[id] ?? 0) + _productFields['name']!;
+        data[id] ??= get('product', id)!.data;
+      }
+    }
     final hits = [
       for (final e in scores.entries) Hit(e.key, data[e.key]!, e.value),
     ]..sort((a, b) => b.score.compareTo(a.score));
     return hits.take(limit).toList();
   }
 
+  /// Ids whose name (or alias) pinyin initials contain [letters].
+  // ponytail: scans names each query (fast for tens of thousands with the
+  // cache); store initials in a column if catalogues grow far larger.
+  List<String> _pinyinMatches(String type, String letters) {
+    final cache = _initialsCache[this] ??= {};
+    return [
+      for (final r in db.select(
+        "SELECT id, json_extract(data,'\$.name') AS n, "
+        "json_extract(data,'\$.aliases') AS a FROM $type WHERE deleted = 0 "
+        "AND json_extract(data,'\$.merged_into') IS NULL",
+      ))
+        if (() {
+          final text = [
+            r['n'] as String? ?? '',
+            if (r['a'] != null)
+              ...(jsonDecode(r['a'] as String) as List).cast<String>(),
+          ].join('|');
+          final key = '$type|${r['id']}';
+          var cached = cache[key];
+          if (cached == null || cached.$1 != text) {
+            cached = (text, text.split('|').map(pinyinInitials).join('|'));
+            cache[key] = cached;
+          }
+          return cached.$2.contains(letters);
+        }())
+          r['id'] as String,
+    ];
+  }
+
   /// Name/alias substring search for suppliers, or name/code for projects.
   List<Hit> searchByName(String type, String keyword, {int limit = 20}) {
     final key = _like(_key(keyword));
+    final byText = _byText(type, key, limit);
+    if (!_letters(keyword.trim()) || byText.length >= limit) return byText;
+    final seen = {for (final h in byText) h.id};
+    return [
+      ...byText,
+      for (final id in _pinyinMatches(type, keyword.trim().toLowerCase()))
+        if (!seen.contains(id)) Hit(id, get(type, id)!.data, 1),
+    ].take(limit).toList();
+  }
+
+  List<Hit> _byText(String type, String key, int limit) {
     return [
       for (final r in db.select(
         "SELECT id, data FROM $type WHERE deleted = 0 "

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -40,7 +41,7 @@ class AppState extends ChangeNotifier {
       settings,
     );
     state._backup();
-    state.syncNow();
+    unawaited(state.syncNow());
     return state;
   }
 
@@ -88,18 +89,39 @@ class AppState extends ChangeNotifier {
   FolderSync? lastSync;
   String? lastSyncError;
 
+  // --- Exchange passphrase (secure storage, never in the database) ---
+  static const _passName = 'exchange_passphrase';
+
+  Future<String?> exchangePassphrase() async {
+    try {
+      final v = await _secure.read(key: _passName);
+      return v == null || v.isEmpty ? null : v;
+    } catch (_) {
+      return null; // unavailable secure storage = no passphrase set
+    }
+  }
+
+  Future<void> saveExchangePassphrase(String? value) async {
+    value == null
+        ? await _secure.delete(key: _passName)
+        : await _secure.write(key: _passName, value: value);
+    // Our shared-folder file must be rewritten in the new mode.
+    saveSetting('sync_seen', null);
+  }
+
   /// Imports other devices' files from the shared folder and writes ours.
-  void syncNow() {
+  Future<void> syncNow() async {
     final dir = syncDir;
     if (dir == null) return;
     try {
       final seen = setting('sync_seen');
-      final r = store.syncWithFolder(
+      final r = await store.syncWithFolder(
         dir,
         ownName: syncFileName,
         seen: seen == null
             ? {}
             : (jsonDecode(seen) as Map).cast<String, String>(),
+        passphrase: await exchangePassphrase(),
       );
       lastSync = r;
       lastSyncError = null;

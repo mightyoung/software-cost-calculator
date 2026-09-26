@@ -37,7 +37,7 @@ class _FolderSyncPanelState extends State<FolderSyncPanel> {
   Future<void> _sync() async {
     setState(() => busy = true);
     await Future<void>.delayed(Duration.zero); // let the spinner paint
-    state.syncNow();
+    await state.syncNow();
     if (!mounted) return;
     setState(() => busy = false);
     final r = state.lastSync;
