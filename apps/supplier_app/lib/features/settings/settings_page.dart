@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../../app/app_state.dart';
@@ -75,6 +77,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           children: [
             _kv('数据位置', widget.state.dataDir.path),
+            _kv('自动备份', _backups()),
             for (final (type, label) in [
               ('project', '项目'),
               ('supplier', '供应商'),
@@ -87,6 +90,26 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
       ],
     );
+  }
+
+  /// Daily snapshots, newest seven kept. Restoring = importing one on the
+  /// exchange page.
+  String _backups() {
+    final error = widget.state.backupError;
+    if (error != null) return '今天的自动备份失败：$error';
+    final dir = Directory(widget.state.backupDir);
+    final files = dir.existsSync()
+        ? (dir
+              .listSync()
+              .whereType<File>()
+              .map((f) => f.uri.pathSegments.last)
+              .where((n) => n.endsWith('.siq'))
+              .toList()
+            ..sort())
+        : <String>[];
+    if (files.isEmpty) return '还没有';
+    return '最近：${files.last}（共 ${files.length} 份，保留最近 7 天）\n'
+        '位置：${dir.path}\n需要恢复时，在"数据交换"中导入其中一份即可。';
   }
 
   Widget _kv(String k, String v) => Padding(

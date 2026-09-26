@@ -34,11 +34,29 @@ class AppState extends ChangeNotifier {
     final device = settings['device_name'] as String? ?? _defaultDeviceName();
     settings['device_name'] = device;
     settingsFile.writeAsStringSync(jsonEncode(settings));
-    return AppState._(
+    final state = AppState._(
       Store.open('${dir.path}/supplier.db', device: device),
       dir,
       settings,
     );
+    state._backup();
+    return state;
+  }
+
+  String get backupDir => '${dataDir.path}/backups';
+
+  /// Why today's automatic backup failed, shown in settings; null if fine.
+  String? backupError;
+
+  // A failed backup must not stop the app from opening; it is reported in
+  // settings instead.
+  void _backup() {
+    try {
+      store.dailyBackup(backupDir);
+      backupError = null;
+    } catch (e) {
+      backupError = '$e';
+    }
   }
 
   static String _defaultDeviceName() {
