@@ -6,6 +6,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import 'format.dart';
+
 /// Holds the device's store. Pages read the store directly (SQLite is
 /// synchronous and local) and call [changed] after writing so every
 /// listener rebuilds with fresh data.
@@ -118,23 +120,6 @@ class AppState extends ChangeNotifier {
 
 /// Maps core validation messages ("field: reason") to short Chinese text.
 String friendlyError(String message) {
-  const fields = {
-    'name': '名称',
-    'code': '编号',
-    'unit': '单位',
-    'qty': '数量',
-    'unit_cost': '成本单价',
-    'unit_price': '对外单价',
-    'price': '单价',
-    'contract_amount': '合同金额',
-    'markup_rate': '加价率',
-    'supplier_id': '供应商',
-    'product_id': '物料',
-    'project_id': '项目',
-    'quotation_id': '报价',
-    'end_date': '结束日期',
-    'decimal': '数值',
-  };
   const reasons = {
     'required': '必填',
     'precision exceeded': '位数超出（最多 12 位整数、6 位小数）',
@@ -150,6 +135,6 @@ String friendlyError(String message) {
   if (i < 0) return message;
   final field = message.substring(0, i);
   final reason = message.substring(i + 2);
-  final label = fields[field.split('.').last] ?? field;
+  final label = fieldLabels[field.split('.').last] ?? field;
   return '$label：${reasons[reason] ?? reason}';
 }

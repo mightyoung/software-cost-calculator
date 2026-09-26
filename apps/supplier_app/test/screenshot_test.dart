@@ -16,6 +16,7 @@ import 'package:supplier_app/features/ai/list_review.dart';
 import 'package:supplier_app/features/ai/material_import_page.dart';
 import 'package:supplier_app/features/ai/material_review.dart';
 import 'package:supplier_app/features/catalog/catalog_page.dart';
+import 'package:supplier_app/features/exchange/conflicts_page.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 const _font = '/System/Library/Fonts/Supplemental/Arial Unicode.ttf';
@@ -286,6 +287,40 @@ Widget _importScreen(String name, AppState state) {
   );
 }
 
+/// Deterministic clock so timestamps in the picture never change.
+DateTime Function() _fixedClock() {
+  var t = DateTime(2026, 9, 20, 14, 30);
+  return () => t = t.add(const Duration(seconds: 1));
+}
+
+/// Two devices change the same supplier's address and phone-less notes.
+void _conflict(Store store, Directory dir) {
+  final other = Store.open(
+    '${dir.path}/other.db',
+    device: '采购部-02',
+    clock: _fixedClock(),
+  );
+  final id = store.searchByName('supplier', '永泰阀门').single.id;
+  store.exportTo('${dir.path}/a.siq');
+  other.importFrom('${dir.path}/a.siq');
+  final base = store.get('supplier', id)!.data;
+  store.save('supplier', {...base, 'address': '温州市龙湾区永强大道 88 号'}, id: id);
+  other.save('supplier', {...base, 'address': '温州市瓯海区娄桥工业园 12 号'}, id: id);
+  final pump = store.searchProducts(['离心泵']).first;
+  final pBase = store.get('product', pump.id)!.data;
+  store.save('product', {
+    ...pBase,
+    'specification': '304 不锈钢，Q=50m³/h',
+  }, id: pump.id);
+  other.save('product', {
+    ...pBase,
+    'specification': '316L 不锈钢，Q=50m³/h',
+  }, id: pump.id);
+  other.exportTo('${dir.path}/b.siq');
+  store.importFrom('${dir.path}/b.siq');
+  other.close();
+}
+
 void main() {
   final hasFont = File(_font).existsSync();
 
@@ -314,17 +349,24 @@ void main() {
     Future<void> Function()? act,
   ]) async {
     final dir = Directory.systemTemp.createTempSync('shot');
-    final store = Store.open('${dir.path}/s.db', device: '采购部-01');
+    final store = Store.open(
+      '${dir.path}/s.db',
+      device: '采购部-01',
+      clock: name == 'desktop_conflicts' ? _fixedClock() : null,
+    );
     _seed(store);
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     final state = AppState.test(store, dir);
+    if (name == 'desktop_conflicts') _conflict(store, dir);
     await tester.pumpWidget(
       MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: buildTheme(),
-        home: name.contains('import')
+        home: name == 'desktop_conflicts'
+            ? ConflictsPage(state: state)
+            : name.contains('import')
             ? _importScreen(name, state)
             : name == 'desktop_review'
             ? Scaffold(
@@ -457,6 +499,11 @@ void main() {
       showCatalogForm(t.element(shell), state, 'supplier', id: dup);
       await t.pumpAndSettle();
     }),
+    skip: !hasFont,
+  );
+  testWidgets(
+    'desktop conflicts',
+    (t) => shoot(t, const Size(1280, 800), 'desktop_conflicts'),
     skip: !hasFont,
   );
 }

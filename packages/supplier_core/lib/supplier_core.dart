@@ -1,6 +1,7 @@
 export 'src/assistant.dart';
 export 'src/budget.dart';
 export 'src/compare.dart';
+export 'src/conflicts.dart';
 export 'src/duplicates.dart';
 export 'src/entities.dart';
 export 'src/exchange.dart';

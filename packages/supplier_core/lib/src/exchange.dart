@@ -8,11 +8,18 @@ import 'quotation.dart';
 import 'store.dart';
 import 'values.dart';
 
-/// Per-table import outcome. [conflicts] lists ids both sides edited from the
-/// same version; the later edit (updated_at, then device name) wins.
+/// Per-table import outcome. [merged] counts records where this device's
+/// version wins but the file's differs: their fields are merged in.
+/// [conflicts] lists ids both sides edited from the same version.
 class TableImport {
-  TableImport(this.added, this.updated, this.ignored, this.conflicts);
-  final int added, updated, ignored;
+  TableImport(
+    this.added,
+    this.updated,
+    this.ignored,
+    this.conflicts, {
+    this.merged = 0,
+  });
+  final int added, updated, ignored, merged;
   final List<String> conflicts;
 }
 
@@ -41,6 +48,7 @@ extension Exchange on Store {
   Map<String, TableImport> importFrom(String path) => _attached(path, () {
     return transaction(() {
       final summary = _summary();
+      final diverged = {for (final type in entityTypes) type: _diverged(type)};
       for (final type in entityTypes) {
         _validateIncoming(type);
         db.execute(
@@ -59,6 +67,12 @@ extension Exchange on Store {
         'SELECT id, entity, entity_id, field, old, new, device, at '
         'FROM src.change_log',
       );
+      for (final type in entityTypes) {
+        diverged[type]!.forEach(
+          (id, deleted) => _mergeFields(type, id, deleted),
+        );
+      }
+      clockSeen();
       redirectMerged();
       checkAllReferences();
       return summary;
@@ -164,7 +178,8 @@ extension Exchange on Store {
         ),
         _count(
           'SELECT count(*) FROM src.$type s JOIN main.$type m '
-          'ON m.id = s.id WHERE NOT $_wins',
+          'ON m.id = s.id WHERE NOT $_wins '
+          'AND s.data = m.data AND s.deleted = m.deleted',
         ),
         [
           for (final r in db.select(
@@ -174,8 +189,55 @@ extension Exchange on Store {
           ))
             r['id'] as String,
         ],
+        merged: _count(
+          'SELECT count(*) FROM src.$type s JOIN main.$type m '
+          'ON m.id = s.id WHERE NOT $_wins '
+          'AND (s.data <> m.data OR s.deleted <> m.deleted)',
+        ),
       ),
   };
+
+  /// Records both sides hold with different content, and whether either
+  /// side deleted it. Read before the row-level merge overwrites one side.
+  Map<String, bool> _diverged(String type) => {
+    for (final r in db.select(
+      'SELECT s.id, max(s.deleted, m.deleted) AS deleted FROM src.$type s '
+      'JOIN main.$type m ON m.id = s.id '
+      'WHERE s.data <> m.data OR s.deleted <> m.deleted',
+    ))
+      r['id'] as String: r['deleted'] == 1,
+  };
+
+  /// Field-level merge on top of the row-level winner: each field takes the
+  /// value of its latest change in the combined change log, so edits to
+  /// different fields on different devices are all kept. Deletion wins over
+  /// edits. The result depends only on the combined log, so every device
+  /// computes the same row. If the merged fields break a cross-field rule,
+  /// the winning row is kept as it is.
+  void _mergeFields(String type, String id, bool deleted) {
+    final row = db.select('SELECT data FROM main.$type WHERE id=?', [id]);
+    final current = row.first['data'] as String;
+    final data = Map.of(jsonDecode(current) as Map<String, Object?>);
+    for (final r in db.select(
+      "SELECT field, new FROM main.change_log WHERE entity=? AND entity_id=? "
+      "AND field NOT LIKE '(%' ORDER BY at, device, id",
+      [type, id],
+    )) {
+      final field = r['field'] as String;
+      if (data.containsKey(field)) data[field] = jsonDecode(r['new'] as String);
+    }
+    var merged = current;
+    try {
+      merged = jsonEncode(validatePayload(type, data));
+    } on FormatException {
+      // keep the row-level winner
+    }
+    db.execute('UPDATE main.$type SET data=?, deleted=? WHERE id=?', [
+      merged,
+      deleted ? 1 : 0,
+      id,
+    ]);
+  }
 
   int _count(String sql) => db.select(sql).first.values.first as int;
 

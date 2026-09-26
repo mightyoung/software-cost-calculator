@@ -121,6 +121,16 @@ void migrate(Database db) {
   }
 }
 
+/// Fixed-width UTC timestamp, so text order equals time order
+/// (DateTime.toIso8601String drops trailing microsecond digits).
+String stamp(DateTime t) {
+  final u = t.toUtc();
+  String pad(int n, [int w = 2]) => n.toString().padLeft(w, '0');
+  return '${pad(u.year, 4)}-${pad(u.month)}-${pad(u.day)}T'
+      '${pad(u.hour)}:${pad(u.minute)}:${pad(u.second)}.'
+      '${pad(u.millisecond * 1000 + u.microsecond, 6)}Z';
+}
+
 class Record {
   Record(this.type, this.id, this.version, this.deleted, this.data);
   final String type, id;
@@ -163,7 +173,28 @@ class Store {
 
   void close() => db.close();
 
-  String _now() => clock().toUtc().toIso8601String();
+  DateTime? _floor;
+
+  /// Hybrid logical clock: never earlier than any change this device has
+  /// seen, so an edit made after receiving another device's edit sorts after
+  /// it even when this device's clock runs behind.
+  String _now() {
+    _floor ??= DateTime.tryParse(
+      db.select('SELECT max(at) AS at FROM change_log').first['at']
+              as String? ??
+          '',
+    );
+    var t = clock().toUtc();
+    final floor = _floor;
+    if (floor != null && !t.isAfter(floor)) {
+      t = floor.add(const Duration(microseconds: 1));
+    }
+    _floor = t;
+    return stamp(t);
+  }
+
+  /// Call after changes arrive from elsewhere (imports).
+  void clockSeen() => _floor = null;
 
   /// Re-entrant: nested calls join the outer transaction.
   T transaction<T>(T Function() action) {
@@ -253,6 +284,16 @@ class Store {
       if (old != now) _logRow(type, id, field, old, now);
     }
   }
+
+  /// Records that [field] was reviewed and its current value kept, so a
+  /// conflict on it is settled on every device that receives this log.
+  void markResolved(String type, String id, String field) => transaction(() {
+    final record = get(type, id);
+    if (record == null || record.deleted)
+      invalid('id', 'record does not exist');
+    final value = jsonEncode(record.data[field]);
+    _logRow(type, id, field, value, value);
+  });
 
   void _logRow(
     String type,

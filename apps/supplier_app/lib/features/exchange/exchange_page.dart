@@ -6,6 +6,7 @@ import 'package:supplier_core/supplier_core.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
+import 'conflicts_page.dart';
 
 const _typeLabels = {
   'supplier': '供应商',
@@ -120,7 +121,7 @@ class _ExchangePageState extends State<ExchangePage> {
       panel(
         Icons.download_outlined,
         '导入交换文件',
-        '合并其他设备的交换文件。每条记录保留较新的版本，先导入哪个文件结果都一样；导入前会先显示将发生的变化。',
+        '合并其他设备的交换文件。两台设备改了同一条记录的不同地方，都会保留；改了同一处的，采用较晚的修改并列入待确认的冲突。先导入哪个文件结果都一样；导入前会先显示将发生的变化。',
         OutlinedButton(
           onPressed: busy ? null : _import,
           child: const Text('选择交换文件'),
@@ -150,6 +151,39 @@ class _ExchangePageState extends State<ExchangePage> {
             const SizedBox(height: 16),
             const LinearProgressIndicator(),
           ],
+          ListenableBuilder(
+            listenable: state,
+            builder: (context, _) {
+              final n = state.store.openConflicts().length;
+              if (n == 0) return const SizedBox();
+              return Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
+                  decoration: BoxDecoration(
+                    color: Tokens.amberBg,
+                    borderRadius: BorderRadius.circular(Tokens.radius),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.call_split, color: Tokens.amber),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          '有 $n 处修改冲突需要确认',
+                          style: const TextStyle(color: Tokens.amber),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => showConflicts(context, state),
+                        child: const Text('去确认'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
@@ -162,7 +196,10 @@ class _Preview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final changes = preview.values.fold(0, (n, t) => n + t.added + t.updated);
+    final changes = preview.values.fold(
+      0,
+      (n, t) => n + t.added + t.updated + t.merged,
+    );
     final conflicts = preview.values.fold(0, (n, t) => n + t.conflicts.length);
     return AlertDialog(
       title: const Text('导入预览'),
@@ -225,7 +262,7 @@ class _Preview extends StatelessWidget {
             if (conflicts > 0) ...[
               const SizedBox(height: 14),
               Text(
-                '$conflicts 条记录在两台设备上都被修改过，将采用较晚的修改；另一版本保留在变更记录中。',
+                '$conflicts 条记录在两台设备上都被修改过：改了不同地方的都会保留；改了同一处的采用较晚的修改，并列入待确认的冲突。',
                 style: const TextStyle(color: Tokens.amber),
               ),
             ],

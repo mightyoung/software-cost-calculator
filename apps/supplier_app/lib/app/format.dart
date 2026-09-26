@@ -1,5 +1,48 @@
 /// Exact decimal text to display text: thousands separators, 2 to 6
 /// fraction digits, never through a double.
+/// Chinese labels for payload fields, used in messages and conflict lists.
+const fieldLabels = {
+  'name': '名称',
+  'code': '编号',
+  'unit': '单位',
+  'qty': '数量',
+  'unit_cost': '成本单价',
+  'unit_price': '对外单价',
+  'price': '单价',
+  'contract_amount': '合同金额',
+  'markup_rate': '加价率',
+  'supplier_id': '供应商',
+  'product_id': '物料',
+  'project_id': '项目',
+  'quotation_id': '报价',
+  'end_date': '结束日期',
+  'start_date': '开始日期',
+  'decimal': '数值',
+  'aliases': '别名',
+  'address': '地址',
+  'categories': '主营类别',
+  'notes': '备注',
+  'brand': '品牌',
+  'model': '型号',
+  'specification': '规格参数',
+  'category': '类别',
+  'phone': '电话',
+  'wechat': '微信',
+  'email': '邮箱',
+  'currency': '币种',
+  'tax_mode': '含税口径',
+  'tax_rate': '税率',
+  'min_qty': '起订量',
+  'quoted_on': '报价日期',
+  'valid_until': '有效期至',
+  'lead_time_days': '交期',
+  'status': '状态',
+  'customer': '客户',
+  'leader': '负责人',
+  'contract_no': '合同号',
+  'merged_into': '合并去向',
+};
+
 String money(String? decimal, {String prefix = ''}) {
   if (decimal == null) return '—';
   final negative = decimal.startsWith('-');
