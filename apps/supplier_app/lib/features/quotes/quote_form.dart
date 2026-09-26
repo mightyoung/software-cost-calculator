@@ -3,6 +3,7 @@ import 'package:supplier_core/supplier_core.dart';
 
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
+import 'quote_extras.dart';
 
 /// Records one standard quotation. Supplier, material and project are picked
 /// by typing; dates use the system picker (date only, never a fake 00:00).
@@ -56,6 +57,8 @@ class _QuoteFormState extends State<_QuoteForm> {
       'inquirer_name',
       'inquiry_location',
       'notes',
+      'extra_cost',
+      'warranty_months',
     ]) {
       final v = data[k];
       c[k] = TextEditingController(text: v == null ? '' : '$v');
@@ -158,7 +161,9 @@ class _QuoteFormState extends State<_QuoteForm> {
       final v = e.value.text.trim().replaceAll(',', '');
       payload[e.key] = v.isEmpty
           ? null
-          : (e.key == 'lead_time_days' ? int.tryParse(v) ?? v : v);
+          : (const {'lead_time_days', 'warranty_months'}.contains(e.key)
+                ? int.tryParse(v) ?? v
+                : v);
     }
     payload['min_qty'] ??= '1';
     final missing = [
@@ -303,12 +308,65 @@ class _QuoteFormState extends State<_QuoteForm> {
               _dateField('inquiry_date', '询价日期'),
               _text('inquiry_location', '询价地点'),
             ),
+            _group('报价范围'),
+            IncludesPicker(
+              value: (data['includes'] as List?)?.cast<String>(),
+              onChanged: (v) => setState(() => data['includes'] = v),
+            ),
+            const SizedBox(height: 12),
+            _pair(
+              _text('extra_cost', '附加费用（合计，如运费）', number: true),
+              _text('warranty_months', '质保（月）', number: true),
+            ),
             _group('有效期与备注'),
             _pair(
               _dateField('quoted_on', '报价日期'),
               _dateField('valid_until', '有效期至', clearable: true),
             ),
             _text('notes', '备注'),
+            const SizedBox(height: 12),
+            AttachmentsField(
+              state: widget.state,
+              ids: ((data['attachment_ids'] as List?) ?? const [])
+                  .cast<String>(),
+              onChanged: (v) =>
+                  setState(() => data['attachment_ids'] = v.isEmpty ? null : v),
+            ),
+            if (data['awarded_on'] != null) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
+                decoration: BoxDecoration(
+                  color: Tokens.accentTint,
+                  borderRadius: BorderRadius.circular(Tokens.radius),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.verified_outlined,
+                      color: Tokens.accentDeep,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '已于 ${data['awarded_on']} 定标，成交单价 ${data['deal_price']}'
+                        '${data['award_note'] == null ? '' : '：${data['award_note']}'}',
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        final err = widget.state.write(
+                          (s) => s.withdrawAward(widget.id!),
+                        );
+                        if (err != null) return setState(() => error = err);
+                        Navigator.pop(context);
+                      },
+                      child: const Text('撤销定标'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             if (error != null) ...[
               const SizedBox(height: 12),
               Text(error!, style: const TextStyle(color: Tokens.red)),

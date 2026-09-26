@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
@@ -30,6 +33,7 @@ class MaterialImportPage extends StatefulWidget {
 class _MaterialImportPageState extends State<MaterialImportPage> {
   final text = TextEditingController();
   String? fileName, error, progress;
+  Uint8List? fileBytes;
   bool? hasKey;
   List<OfferPlan>? plans;
   var run = 0; // bumps on cancel so late replies are ignored
@@ -84,7 +88,9 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
         if (offers.isEmpty) {
           error = '没有识别出产品报价，检查内容后重试。';
         } else {
-          plans = [for (final o in offers) store.planOffer(o)];
+          plans = [
+            for (final o in offers) store.planOffer(o, source: text.text),
+          ];
         }
       });
     } on LlmException catch (e) {
@@ -118,6 +124,14 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
             state: widget.state,
             plans: plans!,
             projectId: widget.projectId,
+            // Evidence kept on every new quotation: the original file when
+            // one was chosen and not edited since, else the pasted text.
+            source: fileBytes != null
+                ? (name: fileName!, bytes: fileBytes!)
+                : (
+                    name: '报价信息-${localDay(DateTime.now())}.txt',
+                    bytes: utf8.encode(text.text),
+                  ),
             onBack: () => setState(() => plans = null),
           )
         : SourceInput(
@@ -134,8 +148,9 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
             fileName: fileName,
             error: error,
             progress: progress,
-            onFile: (name, err) => setState(() {
+            onFile: (name, bytes, err) => setState(() {
               fileName = name;
+              fileBytes = err == null ? bytes : null;
               error = err;
             }),
             onStart: _start,

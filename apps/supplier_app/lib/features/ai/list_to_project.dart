@@ -139,7 +139,7 @@ class _ListToProjectPageState extends State<ListToProjectPage> {
     fileName: fileName,
     error: error,
     progress: progress,
-    onFile: (name, err) => setState(() {
+    onFile: (name, _, err) => setState(() {
       fileName = name;
       error = err;
     }),

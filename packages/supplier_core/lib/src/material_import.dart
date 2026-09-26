@@ -382,29 +382,24 @@ extension MaterialImport on Store {
 
 const _checkedFields = ['price', 'model', 'brand', 'phone', 'wechat', 'email'];
 
-/// Fields of [o] whose value cannot be found in [source], compared on
-/// normalized keys ("3,200元" contains 3200; "1.2万" matches 12000).
+/// Fields of [o] whose value cannot be found in [source]. Prices are
+/// compared as numbers against every number in the source ("3,200.00元" and
+/// "1.2万" count; 3180 does not match inside 31800); other fields as
+/// normalized text.
 Set<String> unverifiedFields(Offer o, String source) {
   final hay = normalizeKey(source);
-  bool found(String value) => hay.contains(normalizeKey(value));
-  bool ok(String k, String v) {
-    if (found(v)) return true;
-    final wan = k == 'price' ? _wan(v) : null;
-    return wan != null && found(wan);
-  }
-
+  final numbers = {
+    for (final m in RegExp(
+      r'[0-9][0-9,，]*(?:\.[0-9]+)?\s*万?',
+    ).allMatches(source))
+      ?parsePrice(m[0]!.replaceAll(RegExp(r'\s'), '')),
+  };
+  bool ok(String k, String v) =>
+      k == 'price' ? numbers.contains(v) : hay.contains(normalizeKey(v));
   return {
     for (final k in _checkedFields)
       if (o[k] != null && !ok(k, o[k]!)) k,
   };
-}
-
-/// 12000 -> "1.2万"; null when not a whole number of ten-thousandths.
-String? _wan(String price) {
-  final m = micros(price);
-  final unit = BigInt.from(10000);
-  if (m < unit * BigInt.from(1000000) || m % unit != BigInt.zero) return null;
-  return '${fromMicros(m ~/ unit)}万';
 }
 
 /// Trims, clips and normalizes whatever the model returned. Values that

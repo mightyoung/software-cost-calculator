@@ -17,6 +17,7 @@ import 'package:supplier_app/features/ai/material_import_page.dart';
 import 'package:supplier_app/features/ai/material_review.dart';
 import 'package:supplier_app/features/catalog/catalog_page.dart';
 import 'package:supplier_app/features/exchange/conflicts_page.dart';
+import 'package:supplier_app/features/inquiries/inquiry_page.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 const _font = '/System/Library/Fonts/Supplemental/Arial Unicode.ttf';
@@ -233,7 +234,7 @@ Widget _importScreen(String name, AppState state) {
       'model': 'IS80-65-160',
       'specification': '304 材质，Q=50m³/h，H=32m',
       'unit': '台',
-      'price': '31800',
+      'price': '3180',
       'tax_mode': 'included',
       'valid_until': '2026-10-31',
       'lead_time_days': '20',
@@ -281,10 +282,85 @@ Widget _importScreen(String name, AppState state) {
     ),
     body: MaterialReview(
       state: state,
-      plans: [for (final x in offers) state.store.planOffer(x)],
+      plans: [
+        for (final x in offers) state.store.planOffer(x, source: _pasted),
+      ],
       onBack: () {},
     ),
   );
+}
+
+/// An inquiry on the pump-room project: three lines, three suppliers.
+String _inquiry(Store store) {
+  String supplierId(String n) => store.searchByName('supplier', n).first.id;
+  final project = store.searchByName('project', '泵房改造工程').single.id;
+  final lines = {
+    for (final l in store.budget(project, withWarnings: false).lines)
+      if (l.data['category'] == 'material')
+        (l.data['name'] as String?) ??
+            store.get('product', l.data['product_id']! as String)!.data['name']!
+                as String: l
+            .id,
+  };
+  final jia = supplierId('甲泵业'), yi = supplierId('乙机电');
+  final yt = supplierId('永泰阀门');
+  final inq = store.createInquiry(
+    project,
+    '泵房改造 · 泵阀仪表询价',
+    itemIds: [lines['不锈钢离心泵']!, lines['闸阀']!, lines['电磁流量计']!],
+    supplierIds: [jia, yi, yt],
+  );
+  const ctx = (inquirer: '王工', asOf: null);
+  final won = store.quoteForInquiry(
+    inq,
+    lines['不锈钢离心泵']!,
+    jia,
+    price: '31800',
+    includes: const ['freight', 'installation'],
+    leadTimeDays: 20,
+    context: ctx,
+  );
+  store.quoteForInquiry(
+    inq,
+    lines['不锈钢离心泵']!,
+    yi,
+    price: '29800',
+    extraCost: '3000',
+    includes: const [],
+    leadTimeDays: 30,
+    context: ctx,
+  );
+  store.quoteForInquiry(
+    inq,
+    lines['闸阀']!,
+    yi,
+    price: '1250',
+    includes: const ['freight'],
+    context: ctx,
+  );
+  store.quoteForInquiry(
+    inq,
+    lines['闸阀']!,
+    yt,
+    price: '1180',
+    taxMode: 'excluded',
+    context: ctx,
+  );
+  store.quoteForInquiry(
+    inq,
+    lines['电磁流量计']!,
+    jia,
+    price: '6850',
+    leadTimeDays: 15,
+    context: ctx,
+  );
+  store.award(
+    won,
+    itemId: lines['不锈钢离心泵'],
+    dealPrice: '31000',
+    note: '含运输安装，交期最短',
+  );
+  return inq;
 }
 
 /// Deterministic clock so timestamps in the picture never change.
@@ -366,6 +442,8 @@ void main() {
         theme: buildTheme(),
         home: name == 'desktop_conflicts'
             ? ConflictsPage(state: state)
+            : name == 'desktop_inquiry'
+            ? InquiryPage(state: state, id: _inquiry(store))
             : name.contains('import')
             ? _importScreen(name, state)
             : name == 'desktop_review'
@@ -504,6 +582,11 @@ void main() {
   testWidgets(
     'desktop conflicts',
     (t) => shoot(t, const Size(1280, 800), 'desktop_conflicts'),
+    skip: !hasFont,
+  );
+  testWidgets(
+    'desktop inquiry matrix',
+    (t) => shoot(t, const Size(1280, 800), 'desktop_inquiry'),
     skip: !hasFont,
   );
 }

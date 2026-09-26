@@ -29,9 +29,13 @@ class MaterialReview extends StatefulWidget {
     required this.plans,
     required this.onBack,
     this.projectId,
+    this.source,
   });
   final AppState state;
   final List<OfferPlan> plans;
+
+  /// Kept as an attachment on every new quotation.
+  final ({String name, List<int> bytes})? source;
   final String? projectId;
   final VoidCallback onBack;
 
@@ -76,6 +80,7 @@ class _MaterialReviewState extends State<MaterialReview> {
     );
     if (offer == null) return;
     setState(() {
+      // Edited by the user: their values need no source check.
       r.plan = store.planOffer(offer);
       r.supplierId = r.plan.supplierId;
       r.productId = r.plan.productId;
@@ -119,6 +124,7 @@ class _MaterialReviewState extends State<MaterialReview> {
           projectId: pid,
           inquirer: person,
           addToBudget: addToBudget,
+          source: widget.source,
         );
       }),
     );
@@ -191,6 +197,12 @@ class _MaterialReviewState extends State<MaterialReview> {
         const HintTag('没有单价，只登记物料', icon: Icons.info_outline),
       if (o['price'] != null && o['tax_mode'] == 'unknown')
         const HintTag('含税口径未知', icon: Icons.help_outline),
+      if (r.plan.unverified.isNotEmpty)
+        HintTag(
+          '原文中找不到：${r.plan.unverified.map((k) => offerFields[k]!.$1).join('、')}，请核对',
+          icon: Icons.find_in_page_outlined,
+          tone: HintTone.error,
+        ),
     ];
     final price = Column(
       crossAxisAlignment: wide

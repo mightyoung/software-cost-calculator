@@ -5,6 +5,8 @@ import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
 import '../../widgets/ledger.dart';
+import '../inquiries/award_dialog.dart';
+import 'quote_extras.dart';
 import 'quote_form.dart';
 
 const _issueText = {
@@ -66,8 +68,16 @@ class CompareView extends StatelessWidget {
               : ListView(
                   children: [
                     for (final g in groups) ...[
-                      _GroupHeader(group: g),
-                      for (final r in g.rows) _row(context, r),
+                      _GroupHeader(
+                        group: g,
+                        history: store.priceHistory(
+                          productId,
+                          currency: g.currency,
+                          taxMode: g.taxMode,
+                          unit: g.unit,
+                        ),
+                      ),
+                      for (final r in g.rows) _row(context, r, g),
                       const SizedBox(height: 14),
                     ],
                   ],
@@ -77,7 +87,16 @@ class CompareView extends StatelessWidget {
     );
   }
 
-  Widget _row(BuildContext context, CompareRow r) {
+  Widget _row(BuildContext context, CompareRow r, CompareGroup g) {
+    final history = state.store.priceHistory(
+      productId,
+      currency: g.currency,
+      taxMode: g.taxMode,
+      unit: g.unit,
+    );
+    final deviation = history != null && history.count >= 3
+        ? history.deviationPercent(r.price)
+        : null;
     final store = state.store;
     final supplier =
         store.get('supplier', r.data['supplier_id']! as String)?.data['name']
@@ -122,9 +141,28 @@ class CompareView extends StatelessWidget {
                     ].join(' · '),
                     style: const TextStyle(fontSize: 12, color: Tokens.ink3),
                   ),
+                  Text(
+                    [
+                      scopeText(r.data['includes']) ?? '范围未说明',
+                      if (r.data['extra_cost'] != null)
+                        '另有附加费用 ${money(r.data['extra_cost'] as String?)}',
+                      if (r.awarded)
+                        '已定标，成交价 ${money(r.data['deal_price'] as String?)}'
+                            '（报价 ${money(r.data['price'] as String?)}）',
+                    ].join(' · '),
+                    style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+                  ),
                 ],
               ),
             ),
+            if (deviation != null && deviation.abs() >= historyWarnPercent)
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: HintTag(
+                  '比均价 ${deviation > 0 ? '+' : ''}$deviation%',
+                  icon: Icons.history,
+                ),
+              ),
             if (r.lowest)
               const Padding(
                 padding: EdgeInsets.only(right: 12),
@@ -168,6 +206,28 @@ class CompareView extends StatelessWidget {
                 ),
               ),
             ),
+            SizedBox(
+              width: 64,
+              child: !r.valid || r.awarded || r.data['project_id'] == null
+                  ? null
+                  : Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: TextButton(
+                        onPressed: () => showAwardDialog(
+                          context,
+                          state,
+                          itemId: budgetLineFor(state.store, r.data),
+                          choices: [
+                            (
+                              quotationId: r.id,
+                              label: quoteLabel(state.store, r.data),
+                            ),
+                          ],
+                        ),
+                        child: const Text('定标'),
+                      ),
+                    ),
+            ),
           ],
         ),
       ),
@@ -176,8 +236,9 @@ class CompareView extends StatelessWidget {
 }
 
 class _GroupHeader extends StatelessWidget {
-  const _GroupHeader({required this.group});
+  const _GroupHeader({required this.group, this.history});
   final CompareGroup group;
+  final PriceHistory? history;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -190,7 +251,12 @@ class _GroupHeader extends StatelessWidget {
       ),
     ),
     child: Text(
-      '${group.currency} · ${taxModeLabels[group.taxMode] ?? group.taxMode} · 单位 ${group.unit} · ${group.rows.length} 条报价',
+      [
+        '${group.currency} · ${taxModeLabels[group.taxMode] ?? group.taxMode} · 单位 ${group.unit} · ${group.rows.length} 条报价',
+        if (history case final h?)
+          '历史 最低 ${money(h.min)} · 平均 ${money(h.average)} · 最高 ${money(h.max)}'
+              '${h.lastDeal == null ? '' : ' · 最近成交 ${money(h.lastDeal)}'}',
+      ].join('    '),
       style: const TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w600,

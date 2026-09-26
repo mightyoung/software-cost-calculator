@@ -103,7 +103,7 @@ class LedgerCell extends StatelessWidget {
   );
 }
 
-enum HintTone { warning, error }
+enum HintTone { warning, error, info }
 
 /// Icon plus words, never colour alone.
 class HintTag extends StatelessWidget {
@@ -119,14 +119,17 @@ class HintTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final error = tone == HintTone.error;
-    final fg = error ? Tokens.red : Tokens.amber;
+    final (fg, bg) = switch (tone) {
+      HintTone.error => (Tokens.red, Tokens.redBg),
+      HintTone.warning => (Tokens.amber, Tokens.amberBg),
+      HintTone.info => (Tokens.accentDeep, Tokens.surface),
+    };
     return Semantics(
       label: text,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
         decoration: BoxDecoration(
-          color: error ? Tokens.redBg : Tokens.amberBg,
+          color: bg,
           borderRadius: BorderRadius.circular(4),
         ),
         child: Row(

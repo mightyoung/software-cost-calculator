@@ -183,6 +183,9 @@ void main() {
       'price': '3300',
     });
     expect(s.planOffer(bad, source: source).unverified, {'price', 'model'});
+    // A misread digit must not hide inside a longer number of the source.
+    final misread = cleanOffer({...bad, 'model': null, 'price': '320'});
+    expect(s.planOffer(misread, source: source).unverified, {'price'});
     expect(s.planOffer(bad).unverified, isEmpty, reason: 'no source, no check');
 
     final plan = s.planOffer(ok, source: source);

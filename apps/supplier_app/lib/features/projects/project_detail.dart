@@ -8,11 +8,12 @@ import '../../platform/files.dart';
 import '../../widgets/ledger.dart';
 import '../ai/list_to_project.dart';
 import '../ai/material_import_page.dart';
+import '../inquiries/project_inquiries.dart';
 import 'budget_table.dart';
 import 'item_dialogs.dart';
 import 'project_form.dart';
 
-enum _Tab { budget, quotes, changes }
+enum _Tab { budget, inquiries, quotes, changes }
 
 class ProjectDetail extends StatefulWidget {
   const ProjectDetail({
@@ -96,6 +97,10 @@ class _ProjectDetailState extends State<ProjectDetail> {
                   projectId: widget.projectId,
                   budget: b,
                   compact: widget.compact,
+                ),
+                _Tab.inquiries => ProjectInquiries(
+                  state: state,
+                  projectId: widget.projectId,
                 ),
                 _Tab.quotes => _ProjectQuotes(
                   store: state.store,
@@ -249,6 +254,7 @@ class _Toolbar extends StatelessWidget {
     );
     final tabs = [
       tabButton(_Tab.budget, '成本预算'),
+      tabButton(_Tab.inquiries, '询价单'),
       tabButton(_Tab.quotes, '报价记录'),
       tabButton(_Tab.changes, '变更记录'),
     ];

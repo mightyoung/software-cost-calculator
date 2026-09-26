@@ -123,6 +123,21 @@ List<String>? parseIncludes(String? text) {
 }
 
 extension Inquiries on Store {
+  /// A project's live inquiries, newest first.
+  List<({String id, Map<String, Object?> data})> inquiriesOf(
+    String projectId,
+  ) => [
+    for (final r in db.select(
+      "SELECT id, data FROM inquiry WHERE deleted = 0 "
+      "AND json_extract(data,'\$.project_id') = ? ORDER BY rowid DESC",
+      [projectId],
+    ))
+      (
+        id: r['id'] as String,
+        data: jsonDecode(r['data'] as String) as Map<String, Object?>,
+      ),
+  ];
+
   String createInquiry(
     String projectId,
     String title, {

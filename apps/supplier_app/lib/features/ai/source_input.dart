@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
@@ -27,7 +29,7 @@ class SourceInput extends StatelessWidget {
   final String intro, example, startLabel;
   final bool? hasKey;
   final String? fileName, error, progress;
-  final void Function(String name, String? error) onFile;
+  final void Function(String name, Uint8List bytes, String? error) onFile;
   final VoidCallback onStart, onCancel;
   final Widget? extra;
 
@@ -36,9 +38,9 @@ class SourceInput extends StatelessWidget {
     if (file == null) return;
     try {
       text.text = workbookText(readXlsx(file.bytes));
-      onFile(file.name, null);
+      onFile(file.name, file.bytes, null);
     } on FormatException catch (e) {
-      onFile(file.name, '无法读取 ${file.name}：${e.message}');
+      onFile(file.name, file.bytes, '无法读取 ${file.name}：${e.message}');
     }
   }
 

@@ -5,13 +5,13 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 /// Opens the system picker and returns the file's bytes, or null if the
-/// user cancelled.
+/// user cancelled. An empty [extensions] list allows any file.
 Future<({String name, Uint8List bytes})?> pickBytes(
   List<String> extensions,
 ) async {
   final file = await FilePicker.pickFile(
-    type: FileType.custom,
-    allowedExtensions: extensions,
+    type: extensions.isEmpty ? FileType.any : FileType.custom,
+    allowedExtensions: extensions.isEmpty ? null : extensions,
   );
   if (file == null) return null;
   return (name: file.name, bytes: await file.xFile.readAsBytes());
