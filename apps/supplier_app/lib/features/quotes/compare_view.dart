@@ -16,8 +16,6 @@ const _issueText = {
   QuoteIssue.supplierDeleted: '供应商已删除',
 };
 
-const _taxText = {'included': '含税', 'excluded': '不含税', 'unknown': '口径未知'};
-
 /// All quotations of one material, grouped by comparable basis.
 class CompareView extends StatelessWidget {
   const CompareView({
@@ -192,7 +190,7 @@ class _GroupHeader extends StatelessWidget {
       ),
     ),
     child: Text(
-      '${group.currency} · ${_taxText[group.taxMode] ?? group.taxMode} · 单位 ${group.unit} · ${group.rows.length} 条报价',
+      '${group.currency} · ${taxModeLabels[group.taxMode] ?? group.taxMode} · 单位 ${group.unit} · ${group.rows.length} 条报价',
       style: const TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w600,

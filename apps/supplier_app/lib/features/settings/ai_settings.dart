@@ -119,7 +119,7 @@ class _AiSettingsState extends State<AiSettings> {
       const Text('AI 接入', style: TextStyle(fontWeight: FontWeight.w600)),
       const SizedBox(height: 4),
       const Text(
-        '用于"按清单建项目"和"问数据"。默认使用 DeepSeek，也可以填写其他兼容 OpenAI 接口的服务。',
+        '用于"按清单建项目"、"智能导入报价"和"问数据"。默认使用 DeepSeek，也可以填写其他兼容 OpenAI 接口的服务。',
         style: TextStyle(color: Tokens.ink2),
       ),
       const SizedBox(height: 12),
@@ -189,6 +189,7 @@ class _AiSettingsState extends State<AiSettings> {
         child: const Text(
           '会发送给 AI 服务的内容：\n'
           '· 按清单建项目：你提供的清单文本，以及候选物料的名称、品牌、型号、规格和单位（不含价格和供应商）。\n'
+          '· 智能导入报价：只发送你粘贴的报价信息，不发送本机数据；与已有供应商和物料的对应在本机完成。\n'
           '· 问数据：你的问题，以及为回答问题查到的记录（可能包含价格和供应商）。\n'
           'API Key 只保存在本机的系统安全存储中，不会写入数据库，也不会随交换文件传到其他设备。',
           style: TextStyle(fontSize: 12, color: Tokens.ink2, height: 1.6),

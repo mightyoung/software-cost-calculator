@@ -8,6 +8,7 @@ A supplier inquiry and project cost tool. Each device runs on its own and stores
 - **Exchange between devices:** exporting produces an exchange file (`.siq`); importing it merges data on another device. Merging keeps the newer version of each record, so the order of imports doesn't matter and importing the same file twice changes nothing. The same file also works as a backup.
 - **AI (DeepSeek or any OpenAI-compatible service):**
   - **Build a project from a list:** matches the list against the local material catalogue; nothing is written until the user confirms.
+  - **Smart quote import:** paste supplier information (chat, email, a quote sheet or an Excel file) and the app pulls out suppliers, contacts, products (brand, model, technical specs) and prices. It matches them to existing suppliers and materials, then after review writes them into an existing or new project in one go, optionally adding them to the budget. Only the pasted text is sent to the AI.
   - **Ask your data:** answers questions using read-only queries.
   - The API key is kept only in the operating system's secure storage.
 

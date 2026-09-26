@@ -7,6 +7,7 @@ import '../../app/theme.dart';
 import '../../platform/files.dart';
 import '../../widgets/ledger.dart';
 import '../ai/list_to_project.dart';
+import '../ai/material_import_page.dart';
 import 'budget_table.dart';
 import 'item_dialogs.dart';
 import 'project_form.dart';
@@ -75,6 +76,14 @@ class _ProjectDetailState extends State<ProjectDetail> {
                   showProjectForm(context, state, id: widget.projectId),
               onExport: (k) => _export(k, p),
               onFromList: () => showListToProject(context, state),
+              onImport: () async {
+                final msg = await showMaterialImport(
+                  context,
+                  state,
+                  projectId: widget.projectId,
+                );
+                if (msg != null && context.mounted) toast(context, msg);
+              },
               onAdd: () => showAddItems(context, state, widget.projectId),
             ),
           ),
@@ -200,11 +209,12 @@ class _Toolbar extends StatelessWidget {
     required this.onExport,
     required this.onAdd,
     required this.onFromList,
+    required this.onImport,
   });
   final _Tab tab;
   final bool compact;
   final ValueChanged<_Tab> onTab;
-  final VoidCallback onEdit, onAdd, onFromList;
+  final VoidCallback onEdit, onAdd, onFromList, onImport;
   final ValueChanged<String> onExport;
 
   static const _exports = [
@@ -254,10 +264,12 @@ class _Toolbar extends StatelessWidget {
             onSelected: (v) => switch (v) {
               'edit' => onEdit(),
               'list' => onFromList(),
+              'import' => onImport(),
               _ => onExport(v),
             },
             itemBuilder: (_) => [
               const PopupMenuItem(value: 'edit', child: Text('编辑项目')),
+              const PopupMenuItem(value: 'import', child: Text('导入报价信息')),
               const PopupMenuItem(value: 'list', child: Text('从清单生成新项目')),
               for (final (value, label) in _exports)
                 PopupMenuItem(value: value, child: Text(label)),
@@ -266,42 +278,56 @@ class _Toolbar extends StatelessWidget {
         ],
       );
     }
+    // Actions wrap under the tabs when the detail pane is narrow.
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ...tabs,
-        const Spacer(),
-        OutlinedButton.icon(
-          onPressed: onFromList,
-          icon: const Icon(Icons.playlist_add_check, size: 18),
-          label: const Text('从清单生成'),
-        ),
-        const SizedBox(width: 8),
-        OutlinedButton.icon(
-          onPressed: onEdit,
-          icon: const Icon(Icons.edit_outlined, size: 18),
-          label: const Text('编辑项目'),
-        ),
-        const SizedBox(width: 8),
-        MenuAnchor(
-          menuChildren: [
-            for (final (value, label) in _exports)
-              MenuItemButton(
-                onPressed: () => onExport(value),
-                child: Text(label),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Wrap(
+            alignment: WrapAlignment.end,
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              OutlinedButton.icon(
+                onPressed: onImport,
+                icon: const Icon(Icons.auto_awesome_outlined, size: 18),
+                label: const Text('导入报价信息'),
               ),
-          ],
-          builder: (context, controller, _) => OutlinedButton.icon(
-            onPressed: () =>
-                controller.isOpen ? controller.close() : controller.open(),
-            icon: const Icon(Icons.download_outlined, size: 18),
-            label: const Text('导出'),
+              OutlinedButton.icon(
+                onPressed: onFromList,
+                icon: const Icon(Icons.playlist_add_check, size: 18),
+                label: const Text('从清单生成'),
+              ),
+              OutlinedButton.icon(
+                onPressed: onEdit,
+                icon: const Icon(Icons.edit_outlined, size: 18),
+                label: const Text('编辑项目'),
+              ),
+              MenuAnchor(
+                menuChildren: [
+                  for (final (value, label) in _exports)
+                    MenuItemButton(
+                      onPressed: () => onExport(value),
+                      child: Text(label),
+                    ),
+                ],
+                builder: (context, controller, _) => OutlinedButton.icon(
+                  onPressed: () => controller.isOpen
+                      ? controller.close()
+                      : controller.open(),
+                  icon: const Icon(Icons.download_outlined, size: 18),
+                  label: const Text('导出'),
+                ),
+              ),
+              FilledButton.icon(
+                onPressed: onAdd,
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('添加物料'),
+              ),
+            ],
           ),
-        ),
-        const SizedBox(width: 8),
-        FilledButton.icon(
-          onPressed: onAdd,
-          icon: const Icon(Icons.add, size: 18),
-          label: const Text('添加物料'),
         ),
       ],
     );

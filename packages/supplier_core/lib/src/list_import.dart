@@ -74,7 +74,7 @@ extension ListImport on Store {
     void Function(ListStage stage, int done, int total)? onProgress,
   }) async {
     final items = <RequestedItem>[];
-    final chunks = _chunks(text).toList();
+    final chunks = chunkText(text).toList();
     for (var i = 0; i < chunks.length; i++) {
       onProgress?.call(ListStage.structuring, i, chunks.length);
       final reply = await llm.json(_extractSystem, chunks[i]);
@@ -161,7 +161,7 @@ extension ListImport on Store {
       confidence: productId != null && confidences.contains(confidence)
           ? confidence as String
           : 'low',
-      reason: reason is String ? _clip(reason, 200) : null,
+      reason: reason is String ? clipText(reason, 200) : null,
       quote: options.isNotEmpty && options.first.valid ? options.first : null,
     );
   }
@@ -177,7 +177,7 @@ extension ListImport on Store {
       final product = line.productId == null
           ? null
           : get('product', line.productId!);
-      final (qty, qtyNote) = _qty(line.item.qty);
+      final (qty, qtyNote) = parseQty(line.item.qty);
       final notes = [
         if (line.item.requirements != null) '要求：${line.item.requirements}',
         ?qtyNote,
@@ -190,20 +190,20 @@ extension ListImport on Store {
         'project_id': projectId,
         'category': 'material',
         'product_id': product?.id,
-        'name': product == null ? _clip(line.item.name, 200) : null,
+        'name': product == null ? clipText(line.item.name, 200) : null,
         'qty': qty,
-        'unit': product?.data['unit'] ?? _clip(line.item.unit ?? '项', 50),
+        'unit': product?.data['unit'] ?? clipText(line.item.unit ?? '项', 50),
         'quotation_id': product == null ? null : line.quote?.id,
         'unit_cost': product == null ? '0' : line.quote?.price ?? '0',
         'unit_price': null,
-        'notes': notes.isEmpty ? null : _clip(notes, 2000),
+        'notes': notes.isEmpty ? null : clipText(notes, 2000),
       });
     }
     return projectId;
   });
 }
 
-Iterable<String> _chunks(String text) sync* {
+Iterable<String> chunkText(String text) sync* {
   final buffer = StringBuffer();
   for (final line in const LineSplitter().convert(text)) {
     if (buffer.length + line.length > _chunkChars && buffer.isNotEmpty) {
@@ -219,30 +219,30 @@ List<RequestedItem> _items(Object? raw) => [
   for (final m in (raw is List ? raw : const []).whereType<Map>())
     if (m['name'] is String && (m['name'] as String).trim().isNotEmpty)
       RequestedItem(
-        _clip((m['name'] as String).trim(), 200),
+        clipText((m['name'] as String).trim(), 200),
         _text(m['requirements'], 1000),
         _text(m['qty'] is num ? '${m['qty']}' : m['qty'], 50),
         _text(m['unit'], 50),
         [
           for (final k
               in (m['keywords'] is List ? m['keywords'] as List : const []))
-            if (k is String && k.trim().isNotEmpty) _clip(k.trim(), 50),
+            if (k is String && k.trim().isNotEmpty) clipText(k.trim(), 50),
         ].take(6).toList(),
       ),
 ];
 
 String? _text(Object? value, int limit) =>
     value is String && value.trim().isNotEmpty
-    ? _clip(value.trim(), limit)
+    ? clipText(value.trim(), limit)
     : null;
 
-String _clip(String s, int limit) =>
+String clipText(String s, int limit) =>
     s.runes.length <= limit ? s : String.fromCharCodes(s.runes.take(limit));
 
 /// Quantity text like "2", "1,000", "约 300 米" to canonical decimal (first
 /// number found). Anything that is not a plain number keeps its original text
 /// in the notes; no number at all becomes 1, flagged for the user to fix.
-(String, String?) _qty(String? raw) {
+(String, String?) parseQty(String? raw) {
   final text = (raw ?? '').trim();
   final match = RegExp(r'[0-9][0-9,]*(?:\.[0-9]+)?').firstMatch(text);
   if (match != null) {

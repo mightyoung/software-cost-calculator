@@ -6,29 +6,6 @@ import 'package:test/test.dart';
 
 import 'fixtures.dart';
 
-/// Replays scripted assistant messages and records every request body.
-class FakeModel {
-  FakeModel(this.replies);
-  final List<Map<String, Object?>> replies;
-  final requests = <Map<String, Object?>>[];
-  LlmClient get client => LlmClient(
-    const LlmConfig(apiKey: 'test'),
-    transport: (body) async {
-      requests.add(jsonDecode(jsonEncode(body)) as Map<String, Object?>);
-      return {
-        'choices': [
-          {'message': replies.removeAt(0)},
-        ],
-      };
-    },
-  );
-}
-
-Map<String, Object?> jsonReply(Object value) => {
-  'role': 'assistant',
-  'content': jsonEncode(value),
-};
-
 void main() {
   setUp(() => tmp = Directory.systemTemp.createTempSync('supplier_ai'));
   tearDown(() => tmp.deleteSync(recursive: true));

@@ -1,0 +1,148 @@
+import 'package:flutter/material.dart';
+import 'package:supplier_core/supplier_core.dart';
+
+import '../../app/app_state.dart';
+import '../../app/theme.dart';
+import 'material_review.dart';
+import 'source_input.dart';
+
+/// Opens the smart import flow; returns a summary line when something was
+/// written.
+Future<String?> showMaterialImport(
+  BuildContext context,
+  AppState state, {
+  String? projectId,
+}) => Navigator.of(context).push<String>(
+  MaterialPageRoute(
+    builder: (_) => MaterialImportPage(state: state, projectId: projectId),
+  ),
+);
+
+class MaterialImportPage extends StatefulWidget {
+  const MaterialImportPage({super.key, required this.state, this.projectId});
+  final AppState state;
+  final String? projectId;
+
+  @override
+  State<MaterialImportPage> createState() => _MaterialImportPageState();
+}
+
+class _MaterialImportPageState extends State<MaterialImportPage> {
+  final text = TextEditingController();
+  String? fileName, error, progress;
+  bool? hasKey;
+  List<OfferPlan>? plans;
+  var run = 0; // bumps on cancel so late replies are ignored
+
+  @override
+  void initState() {
+    super.initState();
+    widget.state.hasAiKey().then((v) {
+      if (mounted) setState(() => hasKey = v);
+    });
+  }
+
+  @override
+  void dispose() {
+    text.dispose();
+    super.dispose();
+  }
+
+  Future<void> _start() async {
+    if (text.text.trim().isEmpty) {
+      return setState(() => error = '先粘贴报价信息，或选择一个 Excel 文件');
+    }
+    final LlmClient? llm;
+    try {
+      llm = await widget.state.llm();
+    } on LlmException catch (e) {
+      return setState(() => error = e.message);
+    }
+    if (llm == null) {
+      return setState(
+        () => error = '还没有配置 AI 服务。在 设置 › AI 接入 中填写 API Key 后再试。',
+      );
+    }
+    final mine = ++run;
+    setState(() {
+      error = null;
+      progress = '正在分析报价信息…';
+    });
+    try {
+      final store = widget.state.store;
+      final offers = await store.extractOffers(
+        llm,
+        text.text,
+        onProgress: (done, total) {
+          if (!mounted || mine != run || total < 2) return;
+          setState(() => progress = '正在分析报价信息（第 ${done + 1}/$total 段）');
+        },
+      );
+      if (!mounted || mine != run) return;
+      setState(() {
+        progress = null;
+        if (offers.isEmpty) {
+          error = '没有识别出产品报价，检查内容后重试。';
+        } else {
+          plans = [for (final o in offers) store.planOffer(o)];
+        }
+      });
+    } on LlmException catch (e) {
+      if (mounted && mine == run) {
+        setState(() {
+          progress = null;
+          error = '连接 AI 服务失败：${e.message}。检查网络和 API Key 后重试。';
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(
+      backgroundColor: Tokens.canvas,
+      title: const Text('智能导入报价'),
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(36),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+          child: StepsBar(
+            labels: const ['粘贴信息', '核对', '导入'],
+            current: plans == null ? 0 : 1,
+          ),
+        ),
+      ),
+    ),
+    body: plans != null
+        ? MaterialReview(
+            state: widget.state,
+            plans: plans!,
+            projectId: widget.projectId,
+            onBack: () => setState(() => plans = null),
+          )
+        : SourceInput(
+            text: text,
+            intro:
+                '粘贴供应商发来的报价信息：微信聊天、邮件、报价单表格或文字都可以，也可以直接选择 Excel 文件。'
+                'AI 会整理出供应商、联系人、产品、品牌型号、技术参数和价格，并与本机已有的供应商和物料对应。'
+                '确认前不会写入任何数据。只会发送你粘贴的内容，不会发送本机数据。',
+            example:
+                '例如：\n上海甲泵业 张经理 138xxxx0000\n格兰富 CR10-5 立式多级泵，10m³/h 扬程50m，'
+                '含税单价 12500 元/台，交期 15 天，报价有效期至 10 月底',
+            startLabel: '开始分析',
+            hasKey: hasKey,
+            fileName: fileName,
+            error: error,
+            progress: progress,
+            onFile: (name, err) => setState(() {
+              fileName = name;
+              error = err;
+            }),
+            onStart: _start,
+            onCancel: () => setState(() {
+              run++;
+              progress = null;
+            }),
+          ),
+  );
+}

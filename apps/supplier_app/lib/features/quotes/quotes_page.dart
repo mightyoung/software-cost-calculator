@@ -6,10 +6,9 @@ import '../../app/format.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
 import '../../widgets/ledger.dart';
+import '../ai/material_import_page.dart';
 import 'compare_view.dart';
 import 'quote_form.dart';
-
-const _taxShort = {'included': '含税', 'excluded': '不含税', 'unknown': '口径未知'};
 
 class QuotesPage extends StatefulWidget {
   const QuotesPage({super.key, required this.state});
@@ -60,6 +59,11 @@ class _QuotesPageState extends State<QuotesPage> {
     toast(context, err ?? '已写入 $saved 条报价');
   }
 
+  Future<void> _smartImport() async {
+    final msg = await showMaterialImport(context, widget.state);
+    if (msg != null && mounted) toast(context, msg);
+  }
+
   Future<void> _export({bool blank = false}) async {
     final bytes = blank
         ? writeXlsx([
@@ -104,6 +108,11 @@ class _QuotesPageState extends State<QuotesPage> {
               children: [
                 Text('报价查询', style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(width: 16),
+                OutlinedButton.icon(
+                  onPressed: _smartImport,
+                  icon: const Icon(Icons.auto_awesome_outlined, size: 18),
+                  label: const Text('智能导入'),
+                ),
                 OutlinedButton(onPressed: _import, child: const Text('导入报价表')),
                 OutlinedButton(onPressed: _export, child: const Text('导出报价表')),
                 TextButton(
@@ -152,7 +161,7 @@ class _QuotesPageState extends State<QuotesPage> {
               child: quotes.isEmpty
                   ? EmptyState(
                       title: query.isEmpty ? '还没有报价' : '没有找到相关报价',
-                      body: '可以逐条新建，也可以用报价模板在 Excel 里批量填写后导入。',
+                      body: '可以逐条新建、用"智能导入"粘贴供应商发来的报价，或用报价模板在 Excel 里批量填写后导入。',
                     )
                   : Material(
                       color: Tokens.surface,
@@ -220,7 +229,7 @@ class _QuotesPageState extends State<QuotesPage> {
             )
           else
             Text(
-              _taxShort[q['tax_mode']] ?? '',
+              taxModeLabels[q['tax_mode']] ?? '',
               style: const TextStyle(fontSize: 12, color: Tokens.ink3),
             ),
         ],

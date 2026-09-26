@@ -5,6 +5,7 @@ export 'src/entities.dart';
 export 'src/exchange.dart';
 export 'src/list_import.dart';
 export 'src/llm.dart';
+export 'src/material_import.dart';
 export 'src/project.dart';
 export 'src/project_export.dart';
 export 'src/quotation.dart';
