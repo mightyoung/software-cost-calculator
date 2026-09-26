@@ -210,7 +210,7 @@ class Store {
       _checkQuotation(data, previous, allowClear);
     }
     if (type == 'project_item') _checkItem(data);
-    _checkReferences(type, data);
+    _checkReferences(type, data, previous);
     final key = id ?? newUuid();
     _write(type, key, (previous?.version ?? 0) + 1, false, data);
     _log(type, key, previous?.data, data);
@@ -294,14 +294,20 @@ class Store {
     } else if (data['capture_mode'] != 'standard') {
       invalid('capture_mode', 'historical records come only from imports');
     }
+    // The snapshot is copied when a contact is chosen; later edits to the
+    // contact (or its deletion) must not lock the quotation.
     final contactId = data['contact_id'] as String?;
-    if (contactId != null) {
-      final contact = get('contact', contactId);
-      if (contact == null || contact.deleted) {
-        invalid('contact_id', 'unknown contact');
+    if (contactId == null) return;
+    final contact = get('contact', contactId);
+    if (contact == null) invalid('contact_id', 'unknown contact');
+    if (previous?.data['contact_id'] == contactId) {
+      if (contact.data['supplier_id'] != data['supplier_id']) {
+        invalid('contact_id', 'contact or supplier does not match');
       }
-      quotation.validateContact(contactId, Contact.fromJson(contact.data));
+      return;
     }
+    if (contact.deleted) invalid('contact_id', 'unknown contact');
+    quotation.validateContact(contactId, Contact.fromJson(contact.data));
   }
 
   /// A material line's price must come from a quotation for the same product
@@ -321,13 +327,22 @@ class Store {
     }
   }
 
-  void _checkReferences(String type, Map<String, Object?> data) {
+  /// A newly set reference must point at a live record; one left unchanged
+  /// may point at a record deleted since, so old records stay editable.
+  void _checkReferences(
+    String type,
+    Map<String, Object?> data,
+    Record? previous,
+  ) {
     for (final MapEntry(key: field, value: target)
         in (references[type] ?? const <String, String>{}).entries) {
       final id = data[field];
       if (id == null) continue;
       final row = get(target, id as String);
-      if (row == null || row.deleted) invalid(field, 'unknown $target');
+      final kept = previous?.data[field] == id;
+      if (row == null || (row.deleted && !kept)) {
+        invalid(field, 'unknown $target');
+      }
     }
   }
 

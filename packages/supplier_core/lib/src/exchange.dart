@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:sqlite3/sqlite3.dart';
 
+import 'merge.dart';
 import 'quotation.dart';
 import 'store.dart';
 import 'values.dart';
@@ -58,6 +59,7 @@ extension Exchange on Store {
         'SELECT id, entity, entity_id, field, old, new, device, at '
         'FROM src.change_log',
       );
+      redirectMerged();
       checkAllReferences();
       return summary;
     });

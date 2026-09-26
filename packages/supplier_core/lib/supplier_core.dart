@@ -1,11 +1,13 @@
 export 'src/assistant.dart';
 export 'src/budget.dart';
 export 'src/compare.dart';
+export 'src/duplicates.dart';
 export 'src/entities.dart';
 export 'src/exchange.dart';
 export 'src/list_import.dart';
 export 'src/llm.dart';
 export 'src/material_import.dart';
+export 'src/merge.dart';
 export 'src/project.dart';
 export 'src/project_export.dart';
 export 'src/quotation.dart';

@@ -43,6 +43,7 @@ extension Search on Store {
           in _productFields.entries) {
         for (final r in db.select(
           "SELECT id, data FROM product WHERE deleted = 0 AND "
+          "json_extract(data,'\$.merged_into') IS NULL AND "
           "lower(json_extract(data,'\$.$field')) LIKE ? ESCAPE '\\'",
           [_like(term)],
         )) {
@@ -63,7 +64,8 @@ extension Search on Store {
     final key = _like(_key(keyword));
     return [
       for (final r in db.select(
-        "SELECT id, data FROM $type WHERE deleted = 0 AND ("
+        "SELECT id, data FROM $type WHERE deleted = 0 "
+        "AND json_extract(data,'\$.merged_into') IS NULL AND ("
         "lower(json_extract(data,'\$.name')) LIKE ?1 ESCAPE '\\' OR "
         "lower(coalesce(json_extract(data,'\$.aliases'),'')) LIKE ?1 ESCAPE '\\' OR "
         "lower(coalesce(json_extract(data,'\$.code'),'')) LIKE ?1 ESCAPE '\\') "

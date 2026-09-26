@@ -1,6 +1,5 @@
-import 'dart:convert';
-
 import 'budget.dart';
+import 'duplicates.dart';
 import 'entities.dart';
 import 'list_import.dart';
 import 'llm.dart';
@@ -111,21 +110,39 @@ extension MaterialImport on Store {
     return offers;
   }
 
+  /// Uses the same duplicate rules as manual entry: a single "same" match
+  /// is chosen; everything similar is offered as a candidate.
   OfferPlan planOffer(Offer offer) {
-    final supplierCandidates = _supplierCandidates(offer['supplier']);
-    final productCandidates = offer['name'] == null
-        ? const <Hit>[]
-        : searchProducts([
-            offer['name']!,
-            ?offer['model'],
-            ?offer['brand'],
-          ], limit: 6);
+    final suppliers = offer['supplier'] == null
+        ? const <Duplicate>[]
+        : similarSuppliers(offer['supplier']!);
+    final products = offer['name'] == null
+        ? const <Duplicate>[]
+        : similarProducts(offer);
+    final productCandidates = {
+      for (final d in products) d.hit.id: d.hit,
+      if (offer['name'] != null)
+        for (final h in searchProducts([
+          offer['name']!,
+          ?offer['model'],
+          ?offer['brand'],
+        ], limit: 6))
+          h.id: h,
+    };
+    String? single(List<Duplicate> ds) {
+      final same = [
+        for (final d in ds)
+          if (d.level == Similarity.same) d.hit.id,
+      ];
+      return same.length == 1 ? same.single : null;
+    }
+
     return OfferPlan(
       offer,
-      supplierId: _exactSupplier(offer['supplier'], supplierCandidates),
-      productId: _exactProduct(offer, productCandidates),
-      supplierCandidates: supplierCandidates,
-      productCandidates: productCandidates,
+      supplierId: single(suppliers),
+      productId: single(products),
+      supplierCandidates: [for (final d in suppliers.take(8)) d.hit],
+      productCandidates: productCandidates.values.take(8).toList(),
       error: offerError(offer),
     );
   }
@@ -152,7 +169,7 @@ extension MaterialImport on Store {
       final supplierId =
           c.supplierId ??
           newSuppliers.putIfAbsent(
-            _norm(o['supplier']),
+            companyKey(o['supplier']!),
             () => save('supplier', {
               for (final f in Supplier.fields) f: null,
               'name': o['supplier'],
@@ -165,7 +182,7 @@ extension MaterialImport on Store {
           newProducts.putIfAbsent(
             [
               for (final k in ['name', 'brand', 'model', 'specification'])
-                _norm(o[k]),
+                normalizeKey(o[k]),
             ].join('|'),
             () => save('product', {
               for (final f in Product.fields) f: o[f],
@@ -231,27 +248,6 @@ extension MaterialImport on Store {
       items: items,
     );
   });
-
-  List<Hit> _supplierCandidates(String? name) {
-    if (name == null) return const [];
-    // Either name may contain the other: "甲泵业" vs "上海甲泵业有限公司".
-    final rows = db.select(
-      "SELECT id, data FROM supplier WHERE deleted = 0 AND ("
-      "instr(lower(?1), lower(json_extract(data,'\$.name'))) > 0 OR "
-      "instr(lower(json_extract(data,'\$.name')), lower(?1)) > 0) LIMIT 5",
-      [name],
-    );
-    final hits = {
-      for (final r in rows)
-        r['id'] as String: Hit(
-          r['id'] as String,
-          jsonDecode(r['data'] as String) as Map<String, Object?>,
-          1,
-        ),
-      for (final h in searchByName('supplier', name, limit: 5)) h.id: h,
-    };
-    return hits.values.toList();
-  }
 
   String? _contact(Offer o, String supplierId, Map<String, String> created) {
     final methods = [o['phone'], o['wechat'], o['email']];
@@ -432,36 +428,6 @@ String? _date(String? s) {
   } on FormatException {
     return null;
   }
-}
-
-String _norm(String? s) => (s ?? '').toLowerCase().replaceAll(' ', '');
-
-String? _exactSupplier(String? name, List<Hit> candidates) {
-  final key = _norm(name);
-  final exact = [
-    for (final h in candidates)
-      if (_norm(h.data['name'] as String?) == key ||
-          (h.data['aliases']! as List).any((a) => _norm(a as String) == key))
-        h.id,
-  ];
-  return exact.length == 1 ? exact.single : null;
-}
-
-/// Same brand + model is the same product; without a model, name, brand and
-/// specification must all agree.
-String? _exactProduct(Offer o, List<Hit> candidates) {
-  bool same(Hit h, String k) => _norm(h.data[k] as String?) == _norm(o[k]);
-  final exact = [
-    for (final h in candidates)
-      if (o['model'] != null
-          ? same(h, 'model') && same(h, 'brand')
-          : same(h, 'name') &&
-                same(h, 'brand') &&
-                same(h, 'specification') &&
-                h.data['model'] == null)
-        h.id,
-  ];
-  return exact.length == 1 ? exact.single : null;
 }
 
 extension on String {

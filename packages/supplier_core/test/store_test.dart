@@ -55,6 +55,44 @@ void main() {
     },
   );
 
+  test('an old quote stays editable after its contact changes or goes', () {
+    final s = device('A');
+    final sup = s.save('supplier', supplier('甲'));
+    final prod = s.save('product', product('螺栓'));
+    final pro = s.save('project', project('P1'));
+    final contact = {
+      'supplier_id': sup,
+      'name': '张三',
+      'phone': '1',
+      'wechat': null,
+      'email': null,
+      'notes': null,
+    };
+    final cid = s.save('contact', contact);
+    final q = s.save('quotation', {
+      ...quotation(sup, prod, pro, '1'),
+      'contact_id': cid,
+      'contact_snapshot': {
+        'name': '张三',
+        'phone': '1',
+        'wechat': null,
+        'email': null,
+      },
+    });
+    s.save('contact', {...contact, 'phone': '2'}, id: cid);
+    final edited = {...s.get('quotation', q)!.data, 'notes': '改备注'};
+    s.save('quotation', edited, id: q);
+    s.delete('contact', cid);
+    s.save('quotation', {...edited, 'notes': '再改'}, id: q);
+    expect(s.get('quotation', q)!.data['notes'], '再改');
+    // A newly chosen contact must still be live and copied as it is now.
+    final other = s.save('contact', {...contact, 'name': '李四'});
+    expect(
+      () => s.save('quotation', {...edited, 'contact_id': other}, id: q),
+      throwsFormatException,
+    );
+  });
+
   test('import order does not matter and re-import changes nothing', () {
     final a = device('A'), b = device('B'), c = device('C');
     a.save('supplier', supplier('甲'));
