@@ -5,6 +5,7 @@ import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../widgets/ledger.dart';
 import '../../platform/files.dart';
+import 'attributes_editor.dart';
 import 'contacts.dart';
 import 'duplicate_hints.dart';
 
@@ -34,7 +35,7 @@ const _lists = {'aliases', 'categories'};
 /// Fields whose edits re-run the duplicate check.
 const _identity = {
   'supplier': {'name'},
-  'product': {'name', 'brand', 'model', 'specification'},
+  'product': {'name', 'brand', 'model', 'specification', 'category'},
 };
 
 /// Suppliers and materials: searchable list plus a create/edit dialog.
@@ -181,23 +182,39 @@ class _CatalogForm extends StatefulWidget {
 
 class _CatalogFormState extends State<_CatalogForm> {
   final c = <String, TextEditingController>{};
+  final attrs = <AttributeRow>[];
   String? error;
   List<Duplicate> dups = const [];
+
+  Map<String, String> _attrMap() => {
+    for (final (k, v) in attrs)
+      if (k.text.trim().isNotEmpty) k.text.trim(): v.text.trim(),
+  };
+
+  void _addAttr(String? name) => setState(
+    () => attrs.add((
+      TextEditingController(text: name ?? ''),
+      TextEditingController(),
+    )),
+  );
 
   String get noun => widget.type == 'product' ? '物料' : '供应商';
 
   List<Duplicate> _similar() {
     final store = widget.state.store;
-    final v = {
+    final v = <String, Object?>{
       for (final e in c.entries)
         e.key: e.value.text.trim().isEmpty ? null : e.value.text.trim(),
     };
     if (widget.type == 'product') {
-      return store.similarProducts(v, excludeId: widget.id);
+      return store.similarProducts({
+        ...v,
+        'attributes': _attrMap(),
+      }, excludeId: widget.id);
     }
     return v['name'] == null
         ? const []
-        : store.similarSuppliers(v['name']!, excludeId: widget.id);
+        : store.similarSuppliers(v['name']! as String, excludeId: widget.id);
   }
 
   void _open(Duplicate d) {
@@ -280,12 +297,24 @@ class _CatalogFormState extends State<_CatalogForm> {
         text: v is List ? v.join(', ') : v as String? ?? '',
       );
     }
+    final a = data?['attributes'];
+    if (a is Map) {
+      for (final e in a.entries) {
+        attrs.add((
+          TextEditingController(text: e.key as String),
+          TextEditingController(text: e.value as String),
+        ));
+      }
+    }
     dups = _similar();
   }
 
   @override
   void dispose() {
-    for (final x in c.values) {
+    for (final x in [
+      ...c.values,
+      for (final (k, v) in attrs) ...[k, v],
+    ]) {
       x.dispose();
     }
     super.dispose();
@@ -308,12 +337,55 @@ class _CatalogFormState extends State<_CatalogForm> {
                   .toList()
             : (e.value.text.trim().isEmpty ? null : e.value.text.trim()),
     };
+    if (widget.type == 'product') {
+      final missing = [
+        for (final (k, v) in attrs)
+          if (k.text.trim().isNotEmpty && v.text.trim().isEmpty) k.text.trim(),
+      ];
+      if (missing.isNotEmpty) {
+        return setState(() => error = '关键属性「${missing.first}」还没有填写值');
+      }
+      payload['attributes'] = _attrMap().isEmpty ? null : _attrMap();
+    }
     late String id;
     final err = widget.state.write(
       (s) => id = s.save(widget.type, payload, id: widget.id),
     );
     if (err != null) return setState(() => error = err);
     Navigator.pop(context, id);
+  }
+
+  /// Existing categories to pick from, so one category is not spelled
+  /// three ways.
+  Widget _categoryChips() {
+    final current = c['category']!.text.trim();
+    final options = [
+      for (final k in widget.state.store.productCategories())
+        if (k != current && (current.isEmpty || k.contains(current))) k,
+    ];
+    if (options.isEmpty) return const SizedBox();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 6,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          const Text(
+            '已有类别：',
+            style: TextStyle(fontSize: 12, color: Tokens.ink3),
+          ),
+          for (final k in options.take(8))
+            ActionChip(
+              label: Text(k),
+              onPressed: () => setState(() {
+                c['category']!.text = k;
+                dups = _similar();
+              }),
+            ),
+        ],
+      ),
+    );
   }
 
   void _delete() {
@@ -340,6 +412,24 @@ class _CatalogFormState extends State<_CatalogForm> {
                       ? (_) => setState(() => dups = _similar())
                       : null,
                   onSubmitted: (_) => _save(),
+                ),
+                const SizedBox(height: 12),
+              ],
+              if (widget.type == 'product') ...[
+                _categoryChips(),
+                AttributesEditor(
+                  rows: attrs,
+                  suggestions: widget.state.store.categoryAttributes(
+                    c['category']!.text.trim(),
+                  ),
+                  onAdd: _addAttr,
+                  onRemove: (i) => setState(() {
+                    final (k, v) = attrs.removeAt(i);
+                    k.dispose();
+                    v.dispose();
+                    dups = _similar();
+                  }),
+                  onChanged: () => setState(() => dups = _similar()),
                 ),
                 const SizedBox(height: 12),
               ],

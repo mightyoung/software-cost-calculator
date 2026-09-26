@@ -41,6 +41,24 @@ String? _mergedInto(Map<String, Object?> value) => value['merged_into'] == null
     ? null
     : requireUuid(value['merged_into'], 'merged_into');
 
+/// Key attributes of a material ("流量": "50m³/h"), in the order given;
+/// empty becomes null.
+Map<String, String>? _attributes(Object? value) {
+  if (value == null) return null;
+  if (value is! Map) invalid('attributes', 'expected object');
+  if (value.length > 12) invalid('attributes', 'too many items');
+  final result = <String, String>{
+    for (final MapEntry(:key, :value) in value.entries)
+      normalizeText(key, 'attributes', 30, required: true)!: normalizeText(
+        value,
+        'attributes',
+        100,
+        required: true,
+      )!,
+  };
+  return result.isEmpty ? null : Map.unmodifiable(result);
+}
+
 Map<String, Object?> normalizeContactSnapshot(Map<String, Object?> value) {
   exactKeys(value, ['name', 'phone', 'wechat', 'email']);
   final result = <String, Object?>{
@@ -94,6 +112,7 @@ final class Product extends EntityPayload {
     'category',
     'notes',
     'merged_into',
+    'attributes',
   ];
   factory Product.fromJson(Map<String, Object?> value) {
     exactKeys(value, fields);
@@ -110,6 +129,7 @@ final class Product extends EntityPayload {
       'category': normalizeText(value['category'], 'category', 100),
       'notes': normalizeText(value['notes'], 'notes', 2000),
       'merged_into': _mergedInto(value),
+      'attributes': _attributes(value['attributes']),
     });
   }
 }

@@ -36,6 +36,7 @@ Map<String, Object?> quote() => {
   'award_note': null,
   'inquiry_id': null,
   'attachment_ids': null,
+  'price_basis': null,
 };
 void main() {
   test('NFC codepoints XML validity and array ordering', () {
@@ -246,6 +247,7 @@ void main() {
               'category': null,
               'notes': null,
               'merged_into': null,
+              'attributes': null,
             },
             {
               'name': 200,

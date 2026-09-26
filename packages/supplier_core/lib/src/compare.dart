@@ -11,6 +11,7 @@ enum QuoteIssue {
   stale, // no valid_until and quoted more than 90 days ago
   taxUnknown,
   supplierDeleted,
+  informal, // verbal or reference price
 }
 
 class CompareRow {
@@ -55,6 +56,7 @@ extension Compare on Store {
       final quoted = d['quoted_on'] as String?;
       final until = d['valid_until'] as String?;
       final issues = [
+        if (d['price_basis'] != null) QuoteIssue.informal,
         if (r['supplier_deleted'] == 1) QuoteIssue.supplierDeleted,
         if (d['tax_mode'] == 'unknown') QuoteIssue.taxUnknown,
         if (quoted == null) QuoteIssue.undated,

@@ -43,6 +43,20 @@ String companyKey(String name) {
   return key;
 }
 
+/// Same category and the same non-empty key attributes (normalized).
+bool _sameAttributes(Map<String, Object?> a, Map<String, Object?> b) {
+  Map<String, String> norm(Object? m) => {
+    if (m is Map)
+      for (final e in m.entries)
+        normalizeKey(e.key as String): normalizeKey(e.value as String?),
+  };
+  final x = norm(a['attributes']), y = norm(b['attributes']);
+  if (x.isEmpty || x.length != y.length) return false;
+  return normalizeKey(a['category'] as String?) ==
+          normalizeKey(b['category'] as String?) &&
+      x.entries.every((e) => y[e.key] == e.value);
+}
+
 bool _contains(String a, String b) =>
     a.length >= 2 && b.length >= 2 && (a.contains(b) || b.contains(a));
 
@@ -112,7 +126,8 @@ extension Duplicates on Store {
           hisModel.isEmpty &&
           name == normalizeKey(data['name'] as String?) &&
           brand == hisBrand &&
-          spec == normalizeKey(data['specification'] as String?)) {
+          (spec == normalizeKey(data['specification'] as String?) ||
+              _sameAttributes(p, data))) {
         level = Similarity.same;
       } else if (!brandsClash &&
           _contains(name, normalizeKey(data['name'] as String?))) {

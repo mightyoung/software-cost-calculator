@@ -34,6 +34,7 @@ Map<String, Object?> product(String name, {String unit = '件'}) => {
   'category': null,
   'notes': null,
   'merged_into': null,
+  'attributes': null,
 };
 
 Map<String, Object?> project(
@@ -99,6 +100,7 @@ Map<String, Object?> quotation(
   'award_note': null,
   'inquiry_id': null,
   'attachment_ids': null,
+  'price_basis': null,
 };
 
 Map<String, Object?> item(

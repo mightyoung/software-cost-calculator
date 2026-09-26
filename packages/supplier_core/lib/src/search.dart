@@ -12,6 +12,7 @@ const _productFields = {
   'brand': 2,
   'specification': 1,
   'category': 1,
+  'attributes': 1,
 };
 
 String _key(String s) => unicode.nfkc(s).toLowerCase().trim();
@@ -32,10 +33,13 @@ extension Search on Store {
   // ponytail: LIKE scan over all products (~10 ms at 20k); add FTS5 trigram
   // index if the catalogue grows past ~200k products.
   List<Hit> searchProducts(List<String> keywords, {int limit = 8}) {
+    // NFKC turns "m³" into "m3", so the plain lower-case form is searched too.
     final terms = {
-      for (final k in keywords)
+      for (final k in keywords) ...[
         if (_key(k).isNotEmpty) _key(k),
-    }.take(10);
+        if (k.trim().isNotEmpty) k.trim().toLowerCase(),
+      ],
+    }.take(20);
     final scores = <String, int>{};
     final data = <String, Map<String, Object?>>{};
     for (final term in terms) {
@@ -126,4 +130,42 @@ extension Search on Store {
         1,
       ),
   ];
+
+  /// Categories in use, most common first.
+  List<String> productCategories() => [
+    for (final r in db.select(
+      "SELECT json_extract(data,'\$.category') AS c, count(*) AS n "
+      "FROM product WHERE deleted = 0 AND c IS NOT NULL "
+      'GROUP BY c ORDER BY n DESC, c',
+    ))
+      r['c'] as String,
+  ];
+
+  /// Attribute names used by materials of [category], most common first:
+  /// the suggested key attributes for that category.
+  List<String> categoryAttributes(String category) {
+    final counts = <String, int>{};
+    for (final r in db.select(
+      "SELECT json_extract(data,'\$.attributes') AS a FROM product "
+      "WHERE deleted = 0 AND json_extract(data,'\$.category') = ? "
+      'ORDER BY rowid',
+      [category],
+    )) {
+      if (r['a'] == null) continue;
+      for (final k in (jsonDecode(r['a'] as String) as Map).keys) {
+        counts[k as String] = (counts[k] ?? 0) + 1;
+      }
+    }
+    final names = counts.keys.toList();
+    // Stable: equal counts keep first-seen order.
+    return [
+      for (final (_, n)
+          in [for (var i = 0; i < names.length; i++) (i, names[i])]
+            ..sort((a, b) {
+              final c = counts[b.$2]!.compareTo(counts[a.$2]!);
+              return c != 0 ? c : a.$1.compareTo(b.$1);
+            }))
+        n,
+    ];
+  }
 }

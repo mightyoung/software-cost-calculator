@@ -295,6 +295,23 @@ class _QuoteFormState extends State<_QuoteForm> {
               ),
               _text('tax_rate', '税率 %', number: true),
             ),
+            DropdownButtonFormField<String?>(
+              initialValue: data['price_basis'] as String?,
+              decoration: const InputDecoration(labelText: '价格性质'),
+              items: const [
+                DropdownMenuItem(value: null, child: Text('正式报价（书面报价单等）')),
+                DropdownMenuItem(
+                  value: 'verbal',
+                  child: Text('口头询价（仅参考，不用于预算）'),
+                ),
+                DropdownMenuItem(
+                  value: 'reference',
+                  child: Text('网上或第三方参考价（不用于预算）'),
+                ),
+              ],
+              onChanged: (v) => setState(() => data['price_basis'] = v),
+            ),
+            const SizedBox(height: 12),
             _pair(
               _text('min_qty', '起订量', number: true),
               _text('lead_time_days', '交期（天）', number: true),

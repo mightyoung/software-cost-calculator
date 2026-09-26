@@ -9,7 +9,8 @@ import 'values.dart';
 
 /// 1: initial. 2: suppliers and products gain `merged_into`.
 /// 3: quotation scope/award/provenance fields, inquiries, attachments.
-const schemaVersion = 3;
+/// 4: quotation price_basis, product attributes.
+const schemaVersion = 4;
 const fileFormat = 'supplier-inquiry';
 
 /// Merge order matters only for the reference check at the end of an import;

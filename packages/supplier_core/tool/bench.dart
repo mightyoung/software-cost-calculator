@@ -32,6 +32,7 @@ void main() {
           'category': '类别${i % 20}',
           'notes': null,
           'merged_into': null,
+          'attributes': null,
         }),
     ];
     pros = [

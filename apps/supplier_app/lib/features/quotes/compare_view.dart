@@ -16,6 +16,7 @@ const _issueText = {
   QuoteIssue.stale: '超过 90 天且未写有效期',
   QuoteIssue.taxUnknown: '含税口径未知',
   QuoteIssue.supplierDeleted: '供应商已删除',
+  QuoteIssue.informal: '口头或参考价',
 };
 
 /// All quotations of one material, grouped by comparable basis.

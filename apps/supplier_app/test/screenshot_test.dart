@@ -589,4 +589,28 @@ void main() {
     (t) => shoot(t, const Size(1280, 800), 'desktop_inquiry'),
     skip: !hasFont,
   );
+  testWidgets(
+    'desktop material form with key attributes',
+    (t) => shoot(t, const Size(1280, 860), 'desktop_product_form', () async {
+      final shell = find.byType(Shell);
+      final state = t.widget<Shell>(shell).state;
+      final store = state.store;
+      final pump = store.searchProducts(['离心泵']).first;
+      store.save('product', {
+        ...pump.data,
+        'category': '水泵',
+        'attributes': {'流量': '50m³/h', '扬程': '32m', '材质': '304 不锈钢'},
+      }, id: pump.id);
+      store.save('product', {
+        for (final f in Product.fields) f: null,
+        'name': '管道泵',
+        'unit': '台',
+        'category': '水泵',
+        'attributes': {'流量': '25m³/h', '功率': '4kW'},
+      });
+      showCatalogForm(t.element(shell), state, 'product', id: pump.id);
+      await t.pumpAndSettle();
+    }),
+    skip: !hasFont,
+  );
 }

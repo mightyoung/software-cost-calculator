@@ -29,6 +29,9 @@ List<String> payloadFields(String entityType) => switch (entityType) {
   _ => invalid('entity_type', 'unknown entity type'),
 };
 
+/// Prices that are shown but never used for budgets (null = formal quote).
+const priceBases = ['verbal', 'reference'];
+
 String? _optionalDecimal(Object? value, String field) {
   if (value == null) return null;
   if (value is! String) invalid(field, 'decimal text required');
@@ -76,6 +79,11 @@ Map<String, Object?> _scopeAndAward(Map<String, Object?> value) {
         ? null
         : requireUuid(value['inquiry_id'], 'inquiry_id'),
     'attachment_ids': attachments.isEmpty ? null : attachments,
+    'price_basis': value['price_basis'] == null
+        ? null
+        : priceBases.contains(value['price_basis'])
+        ? value['price_basis']
+        : invalid('price_basis', 'unknown value'),
   };
 }
 
@@ -116,6 +124,8 @@ final class Quotation extends EntityPayload {
     'award_note',
     'inquiry_id',
     'attachment_ids',
+    // Schema 4: null = formal written quote.
+    'price_basis',
   ];
   factory Quotation.fromJson(Map<String, Object?> value) {
     exactKeys(value, fields);

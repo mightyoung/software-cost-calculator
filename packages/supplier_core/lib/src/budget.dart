@@ -49,7 +49,11 @@ class QuoteOption {
   /// The needed quantity reaches the quote's minimum order (true when the
   /// quantity is unknown).
   final bool meetsMinQty;
-  bool get valid => dateValid && meetsMinQty;
+
+  /// A formal written quote; verbal and reference prices never price a
+  /// budget line.
+  bool get formal => data['price_basis'] == null;
+  bool get valid => dateValid && meetsMinQty && formal;
 
   /// Unit price to budget with: the agreed price once awarded.
   String get price => priceOf(data);

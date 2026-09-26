@@ -311,7 +311,9 @@ class _ItemEditorState extends State<_ItemEditor> {
           );
   }
 
-  String _optionState(QuoteOption o) => !o.dateValid
+  String _optionState(QuoteOption o) => !o.formal
+      ? '口头或参考价，不用于预算'
+      : !o.dateValid
       ? '已失效'
       : !o.meetsMinQty
       ? '起订 ${o.data['min_qty']}，数量不足'
