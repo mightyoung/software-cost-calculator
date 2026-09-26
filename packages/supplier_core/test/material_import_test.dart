@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:supplier_core/supplier_core.dart';
@@ -158,5 +159,42 @@ void main() {
     expect(s.offerError(offer({})), isNull);
     expect(s.offerError(offer({'supplier': null})), '缺少供应商名称');
     expect(s.offerError({...offer({}), 'price': '1234567890123'}), '单价有误');
+  });
+
+  test('values missing from the source are flagged; source is attached', () {
+    final s = device('A');
+    final pro = s.save('project', project('P1'));
+    const source = '甲泵业 张经理 138-0000-0000\n格兰富 CR10-5 含税 1.2万/台\n乙阀门 闸阀 3,200元';
+    final ok = cleanOffer({
+      'supplier': '甲泵业',
+      'phone': '13800000000',
+      'name': '泵',
+      'brand': '格兰富',
+      'model': 'CR10-5',
+      'unit': '台',
+      'price': '1.2万',
+    });
+    expect(s.planOffer(ok, source: source).unverified, isEmpty);
+    final bad = cleanOffer({
+      'supplier': '乙阀门',
+      'name': '闸阀',
+      'model': 'Z41H',
+      'unit': '个',
+      'price': '3300',
+    });
+    expect(s.planOffer(bad, source: source).unverified, {'price', 'model'});
+    expect(s.planOffer(bad).unverified, isEmpty, reason: 'no source, no check');
+
+    final plan = s.planOffer(ok, source: source);
+    s.applyOffers(
+      [(offer: plan.offer, supplierId: null, productId: null)],
+      projectId: pro,
+      inquirer: '王五',
+      source: (name: '微信聊天.txt', bytes: utf8.encode(source)),
+    );
+    final q = s.listQuotations(projectId: pro).single.data;
+    final att = s.attachmentsOf(q['attachment_ids'] as List).single;
+    expect(att.name, '微信聊天.txt');
+    expect(utf8.decode(s.attachment(att.id)!.bytes!), source);
   });
 }

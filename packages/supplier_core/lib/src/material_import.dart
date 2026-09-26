@@ -1,3 +1,4 @@
+import 'attachments.dart';
 import 'budget.dart';
 import 'duplicates.dart';
 import 'entities.dart';
@@ -65,8 +66,13 @@ class OfferPlan {
     this.supplierCandidates = const [],
     this.productCandidates = const [],
     this.error,
+    this.unverified = const {},
   });
   final Offer offer;
+
+  /// Fields whose value does not appear in the pasted source text: the
+  /// model may have misread or invented them, so the user checks these.
+  final Set<String> unverified;
 
   /// Existing records the offer matched exactly; null means "create new".
   final String? supplierId, productId;
@@ -112,7 +118,7 @@ extension MaterialImport on Store {
 
   /// Uses the same duplicate rules as manual entry: a single "same" match
   /// is chosen; everything similar is offered as a candidate.
-  OfferPlan planOffer(Offer offer) {
+  OfferPlan planOffer(Offer offer, {String? source}) {
     final suppliers = offer['supplier'] == null
         ? const <Duplicate>[]
         : similarSuppliers(offer['supplier']!);
@@ -144,6 +150,7 @@ extension MaterialImport on Store {
       supplierCandidates: [for (final d in suppliers.take(8)) d.hit],
       productCandidates: productCandidates.values.take(8).toList(),
       error: offerError(offer),
+      unverified: source == null ? const {} : unverifiedFields(offer, source),
     );
   }
 
@@ -156,8 +163,13 @@ extension MaterialImport on Store {
     required String inquirer,
     bool addToBudget = false,
     DateTime? asOf,
+    ({String name, List<int> bytes})? source,
   }) => transaction(() {
-    final today = (asOf ?? clock()).toIso8601String().substring(0, 10);
+    final today = localDay(asOf ?? clock());
+    // The pasted text (or file) is kept as evidence on every new quotation.
+    final evidence = source == null
+        ? null
+        : [addAttachment(source.name, source.bytes)];
     final project = get('project', projectId);
     if (project == null || project.deleted) invalid('project_id', '项目不存在');
     final newSuppliers = <String, String>{};
@@ -208,7 +220,7 @@ extension MaterialImport on Store {
         if (quoteId != null) {
           duplicates++;
         } else {
-          quoteId = save('quotation', payload);
+          quoteId = save('quotation', {...payload, 'attachment_ids': evidence});
           quotations++;
         }
       }
@@ -366,6 +378,33 @@ extension MaterialImport on Store {
       return '${offerFields[e.message.split(':').first]?.$1 ?? e.message.split(':').first}有误';
     }
   }
+}
+
+const _checkedFields = ['price', 'model', 'brand', 'phone', 'wechat', 'email'];
+
+/// Fields of [o] whose value cannot be found in [source], compared on
+/// normalized keys ("3,200元" contains 3200; "1.2万" matches 12000).
+Set<String> unverifiedFields(Offer o, String source) {
+  final hay = normalizeKey(source);
+  bool found(String value) => hay.contains(normalizeKey(value));
+  bool ok(String k, String v) {
+    if (found(v)) return true;
+    final wan = k == 'price' ? _wan(v) : null;
+    return wan != null && found(wan);
+  }
+
+  return {
+    for (final k in _checkedFields)
+      if (o[k] != null && !ok(k, o[k]!)) k,
+  };
+}
+
+/// 12000 -> "1.2万"; null when not a whole number of ten-thousandths.
+String? _wan(String price) {
+  final m = micros(price);
+  final unit = BigInt.from(10000);
+  if (m < unit * BigInt.from(1000000) || m % unit != BigInt.zero) return null;
+  return '${fromMicros(m ~/ unit)}万';
 }
 
 /// Trims, clips and normalizes whatever the model returned. Values that
