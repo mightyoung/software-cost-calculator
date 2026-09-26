@@ -15,6 +15,7 @@ import 'package:supplier_app/app/theme.dart';
 import 'package:supplier_app/features/ai/list_review.dart';
 import 'package:supplier_app/features/ai/material_import_page.dart';
 import 'package:supplier_app/features/ai/material_review.dart';
+import 'package:supplier_app/features/catalog/catalog_page.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 const _font = '/System/Library/Fonts/Supplemental/Arial Unicode.ttf';
@@ -440,6 +441,22 @@ void main() {
   testWidgets(
     'phone smart import review',
     (t) => shoot(t, const Size(390, 844), 'phone_import_review'),
+    skip: !hasFont,
+  );
+  testWidgets(
+    'desktop duplicate supplier hint',
+    (t) => shoot(t, const Size(1280, 800), 'desktop_duplicate', () async {
+      final shell = find.byType(Shell);
+      final state = t.widget<Shell>(shell).state;
+      final dup = state.store.save('supplier', {
+        for (final f in Supplier.fields) f: null,
+        'name': '永泰阀门有限公司',
+        'aliases': <String>[],
+        'categories': <String>[],
+      });
+      showCatalogForm(t.element(shell), state, 'supplier', id: dup);
+      await t.pumpAndSettle();
+    }),
     skip: !hasFont,
   );
 }

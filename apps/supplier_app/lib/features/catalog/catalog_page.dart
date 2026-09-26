@@ -4,7 +4,9 @@ import 'package:supplier_core/supplier_core.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../widgets/ledger.dart';
+import '../../platform/files.dart';
 import 'contacts.dart';
+import 'duplicate_hints.dart';
 
 typedef _Field = (String key, String label, String? hint);
 
@@ -28,6 +30,12 @@ const _fields = <String, List<_Field>>{
 };
 
 const _lists = {'aliases', 'categories'};
+
+/// Fields whose edits re-run the duplicate check.
+const _identity = {
+  'supplier': {'name'},
+  'product': {'name', 'brand', 'model', 'specification'},
+};
 
 /// Suppliers and materials: searchable list plus a create/edit dialog.
 class CatalogPage extends StatefulWidget {
@@ -174,6 +182,91 @@ class _CatalogForm extends StatefulWidget {
 class _CatalogFormState extends State<_CatalogForm> {
   final c = <String, TextEditingController>{};
   String? error;
+  List<Duplicate> dups = const [];
+
+  String get noun => widget.type == 'product' ? '物料' : '供应商';
+
+  List<Duplicate> _similar() {
+    final store = widget.state.store;
+    final v = {
+      for (final e in c.entries)
+        e.key: e.value.text.trim().isEmpty ? null : e.value.text.trim(),
+    };
+    if (widget.type == 'product') {
+      return store.similarProducts(v, excludeId: widget.id);
+    }
+    return v['name'] == null
+        ? const []
+        : store.similarSuppliers(v['name']!, excludeId: widget.id);
+  }
+
+  void _open(Duplicate d) {
+    final nav = Navigator.of(context);
+    nav.pop();
+    showCatalogForm(nav.context, widget.state, widget.type, id: d.hit.id);
+  }
+
+  Future<void> _merge(Duplicate d) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('合并到「${duplicateLabel(d.hit.data)}」？'),
+        content: Text(
+          '当前$noun的报价、联系人和预算行会改为指向它，当前$noun不再单独出现在列表中。'
+          '其他设备交换数据后也会同样合并。合并后不能在软件内撤销。',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('合并'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    final err = widget.state.write(
+      (s) => s.mergeInto(widget.type, widget.id!, d.hit.id),
+    );
+    if (err != null) return setState(() => error = err);
+    toast(context, '已合并');
+    Navigator.pop(context, d.hit.id);
+  }
+
+  /// Creating a record that matches an existing one exactly needs a second
+  /// thought: returns false when the user opened the existing one instead.
+  Future<bool> _confirmNew() async {
+    final same = [
+      for (final d in dups)
+        if (d.level == Similarity.same) d,
+    ];
+    if (widget.id != null || same.isEmpty) return true;
+    final create = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('已有相同的$noun'),
+        content: Text(
+          '「${duplicateLabel(same.first.hit.data)}」与正在新建的$noun相同。'
+          '重复建档会让比价和最低价失真。',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('仍然新建'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('打开已有的'),
+          ),
+        ],
+      ),
+    );
+    if (create == false && mounted) _open(same.first);
+    return create == true;
+  }
 
   @override
   void initState() {
@@ -187,6 +280,7 @@ class _CatalogFormState extends State<_CatalogForm> {
         text: v is List ? v.join(', ') : v as String? ?? '',
       );
     }
+    dups = _similar();
   }
 
   @override
@@ -197,7 +291,8 @@ class _CatalogFormState extends State<_CatalogForm> {
     super.dispose();
   }
 
-  void _save() {
+  Future<void> _save() async {
+    if (!await _confirmNew() || !mounted) return;
     final existing = widget.id == null
         ? null
         : widget.state.store.get(widget.type, widget.id!)?.data;
@@ -228,7 +323,6 @@ class _CatalogFormState extends State<_CatalogForm> {
 
   @override
   Widget build(BuildContext context) {
-    final noun = widget.type == 'product' ? '物料' : '供应商';
     return AlertDialog(
       title: Text(widget.id == null ? '新建$noun' : '编辑$noun'),
       content: SizedBox(
@@ -242,7 +336,18 @@ class _CatalogFormState extends State<_CatalogForm> {
                   controller: c[key],
                   autofocus: key == 'name',
                   decoration: InputDecoration(labelText: label, hintText: hint),
+                  onChanged: _identity[widget.type]!.contains(key)
+                      ? (_) => setState(() => dups = _similar())
+                      : null,
                   onSubmitted: (_) => _save(),
+                ),
+                const SizedBox(height: 12),
+              ],
+              if (dups.isNotEmpty) ...[
+                DuplicateHints(
+                  duplicates: dups,
+                  onMerge: widget.id == null ? null : _merge,
+                  onOpen: widget.id == null ? _open : null,
                 ),
                 const SizedBox(height: 12),
               ],
