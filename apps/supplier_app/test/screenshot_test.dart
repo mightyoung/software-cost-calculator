@@ -613,4 +613,22 @@ void main() {
     }),
     skip: !hasFont,
   );
+  testWidgets(
+    'desktop exchange with shared folder and update notice',
+    (t) => shoot(t, const Size(1280, 860), 'desktop_exchange', () async {
+      final state = t.widget<Shell>(find.byType(Shell)).state;
+      final shared = Directory('${Directory.systemTemp.path}/siq-shot-shared');
+      if (shared.existsSync()) shared.deleteSync(recursive: true);
+      shared.createSync();
+      File('${shared.path}/版本.json').writeAsStringSync(
+        '{"version": "1.0.99", "notes": "新增询价单和定标", "file": "询价台账-1.0.99-windows.zip"}',
+      );
+      state.saveSetting('sync_dir', shared.path);
+      state.saveSetting('device_id', '12345678-aaaa-4bbb-8ccc-1234567890ab');
+      state.syncNow();
+      await t.tap(find.text('数据交换'));
+      await t.pumpAndSettle();
+    }),
+    skip: !hasFont,
+  );
 }

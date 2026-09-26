@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
+import '../../app/version.dart';
 import '../../platform/files.dart';
 import 'ai_settings.dart';
 
@@ -76,6 +77,7 @@ class _SettingsPageState extends State<SettingsPage> {
             style: TextStyle(fontWeight: FontWeight.w600),
           ),
           children: [
+            _kv('版本', appVersion),
             _kv('数据位置', widget.state.dataDir.path),
             _kv('自动备份', _backups()),
             for (final (type, label) in [

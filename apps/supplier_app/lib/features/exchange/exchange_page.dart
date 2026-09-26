@@ -7,6 +7,7 @@ import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
 import 'conflicts_page.dart';
+import 'folder_sync_panel.dart';
 
 const _typeLabels = {
   'supplier': '供应商',
@@ -128,64 +129,65 @@ class _ExchangePageState extends State<ExchangePage> {
         ),
       ),
     ];
-    return Padding(
+    return ListView(
       padding: const EdgeInsets.fromLTRB(24, 18, 24, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text('数据交换', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 16),
-          if (wide)
-            IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [panels[0], const SizedBox(width: 16), panels[1]],
-              ),
-            )
-          else ...[
-            Row(children: [panels[0]]),
-            const SizedBox(height: 12),
-            Row(children: [panels[1]]),
-          ],
-          if (busy) ...[
-            const SizedBox(height: 16),
-            const LinearProgressIndicator(),
-          ],
-          ListenableBuilder(
-            listenable: state,
-            builder: (context, _) {
-              final n = state.store.openConflicts().length;
-              if (n == 0) return const SizedBox();
-              return Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Container(
-                  padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
-                  decoration: BoxDecoration(
-                    color: Tokens.amberBg,
-                    borderRadius: BorderRadius.circular(Tokens.radius),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.call_split, color: Tokens.amber),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          '有 $n 处修改冲突需要确认',
-                          style: const TextStyle(color: Tokens.amber),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () => showConflicts(context, state),
-                        child: const Text('去确认'),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
+      children: [
+        Text('数据交换', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 16),
+        if (wide)
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [panels[0], const SizedBox(width: 16), panels[1]],
+            ),
+          )
+        else ...[
+          Row(children: [panels[0]]),
+          const SizedBox(height: 12),
+          Row(children: [panels[1]]),
         ],
-      ),
+        if (busy) ...[
+          const SizedBox(height: 16),
+          const LinearProgressIndicator(),
+        ],
+        if (folderSyncSupported) ...[
+          const SizedBox(height: 16),
+          FolderSyncPanel(state: state),
+        ],
+        ListenableBuilder(
+          listenable: state,
+          builder: (context, _) {
+            final n = state.store.openConflicts().length;
+            if (n == 0) return const SizedBox();
+            return Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
+                decoration: BoxDecoration(
+                  color: Tokens.amberBg,
+                  borderRadius: BorderRadius.circular(Tokens.radius),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.call_split, color: Tokens.amber),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        '有 $n 处修改冲突需要确认',
+                        style: const TextStyle(color: Tokens.amber),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => showConflicts(context, state),
+                      child: const Text('去确认'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 }

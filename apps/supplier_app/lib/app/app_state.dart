@@ -40,6 +40,7 @@ class AppState extends ChangeNotifier {
       settings,
     );
     state._backup();
+    state.syncNow();
     return state;
   }
 
@@ -65,6 +66,49 @@ class AppState extends ChangeNotifier {
   }
 
   String get deviceName => _settings['device_name']! as String;
+
+  /// Stable per installation; names this device's file in a shared folder
+  /// (device names may repeat).
+  String get deviceId {
+    final id = setting('device_id');
+    if (id != null) return id;
+    final created = newUuid();
+    saveSetting('device_id', created);
+    return created;
+  }
+
+  // --- Shared folder sync (desktop) ---------------------------------------
+  String? get syncDir => setting('sync_dir');
+
+  String get syncFileName =>
+      '询价台账-${deviceName.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_')}-'
+      '${deviceId.substring(0, 8)}.siq';
+
+  /// Result of the last sync in this session, for the exchange page.
+  FolderSync? lastSync;
+  String? lastSyncError;
+
+  /// Imports other devices' files from the shared folder and writes ours.
+  void syncNow() {
+    final dir = syncDir;
+    if (dir == null) return;
+    try {
+      final seen = setting('sync_seen');
+      final r = store.syncWithFolder(
+        dir,
+        ownName: syncFileName,
+        seen: seen == null
+            ? {}
+            : (jsonDecode(seen) as Map).cast<String, String>(),
+      );
+      lastSync = r;
+      lastSyncError = null;
+      saveSetting('sync_seen', jsonEncode(r.seen));
+    } catch (e) {
+      lastSyncError = '$e';
+      notifyListeners();
+    }
+  }
 
   String? setting(String key) => _settings[key] as String?;
 
