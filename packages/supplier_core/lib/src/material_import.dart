@@ -312,6 +312,8 @@ extension MaterialImport on Store {
     'inquired_at': null,
     'inquiry_utc_offset_minutes': null,
     'capture_mode': 'standard',
+    for (final f in Quotation.fields.skip(Quotation.fields.indexOf('includes')))
+      f: null,
   };
 
   /// Same supplier, product, project, price and quote date already stored.

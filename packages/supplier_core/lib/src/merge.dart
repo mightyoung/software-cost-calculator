@@ -95,6 +95,27 @@ extension Merge on Store {
         changed++;
       }
     }
+    for (final MapEntry(key: type, value: fields) in listReferences.entries) {
+      for (final MapEntry(key: field, value: target) in fields.entries) {
+        if (!mergeableTypes.contains(target)) continue;
+        for (final r in db.select(
+          "SELECT o.id, o.data FROM $type o WHERE o.deleted = 0 AND EXISTS ("
+          "SELECT 1 FROM json_each(o.data,'\$.$field') j JOIN $target t "
+          "ON t.id = j.value WHERE json_extract(t.data,'\$.merged_into') "
+          'IS NOT NULL)',
+        )) {
+          final data = Map.of(
+            jsonDecode(r['data'] as String) as Map<String, Object?>,
+          );
+          data[field] = [
+            for (final id in data[field]! as List)
+              mergeRoot(target, id as String),
+          ];
+          save(type, data, id: r['id'] as String);
+          changed++;
+        }
+      }
+    }
     return changed;
   });
 

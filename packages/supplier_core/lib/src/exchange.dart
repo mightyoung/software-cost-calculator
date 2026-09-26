@@ -72,6 +72,7 @@ extension Exchange on Store {
     return transaction(() {
       final summary = _summary();
       final diverged = {for (final type in entityTypes) type: _diverged(type)};
+      _importAttachments();
       for (final type in entityTypes) {
         _validateIncoming(type);
         db.execute(
@@ -104,6 +105,22 @@ extension Exchange on Store {
 
   /// Throws when any stored reference points at a missing record.
   void checkAllReferences() {
+    for (final MapEntry(key: type, value: fields) in listReferences.entries) {
+      for (final MapEntry(key: field, value: target) in fields.entries) {
+        final bad = db.select(
+          "SELECT t.id FROM main.$type t, json_each(t.data,'\$.$field') j "
+          "WHERE j.type = 'text' AND j.value NOT IN (SELECT id FROM main.$target) LIMIT 1",
+        );
+        if (bad.isNotEmpty) invalid('$type.$field', 'missing $target record');
+      }
+    }
+    final orphan = db.select(
+      "SELECT q.id FROM main.quotation q, json_each(q.data,'\$.attachment_ids') j "
+      "WHERE j.type = 'text' AND j.value NOT IN (SELECT id FROM main.attachment) LIMIT 1",
+    );
+    if (orphan.isNotEmpty) {
+      invalid('quotation.attachment_ids', 'missing attachment');
+    }
     for (final MapEntry(key: type, value: fields) in references.entries) {
       for (final MapEntry(key: field, value: target) in fields.entries) {
         final bad = db.select(
@@ -219,6 +236,29 @@ extension Exchange on Store {
         ),
       ),
   };
+
+  /// Attachments never change under an id, so new ones are simply added.
+  void _importAttachments() {
+    for (final r in db.select(
+      'SELECT id, name, mime, size, length(data) AS len, added_at, added_by '
+      'FROM src.attachment WHERE id NOT IN (SELECT id FROM main.attachment)',
+    )) {
+      requireUuid(r['id'], 'attachment.id');
+      normalizeText(r['name'], 'attachment.name', 200, required: true);
+      normalizeText(r['mime'], 'attachment.mime', 100);
+      normalizeText(r['added_by'], 'attachment.added_by', 100, required: true);
+      if (r['size'] != r['len'] || (r['len'] as int) > maxAttachmentBytes) {
+        invalid('attachment.size', 'does not match its content');
+      }
+      if (DateTime.tryParse(r['added_at'] as String? ?? '') == null) {
+        invalid('attachment.added_at', 'expected timestamp');
+      }
+    }
+    db.execute(
+      'INSERT OR IGNORE INTO main.attachment SELECT id, name, mime, size, '
+      'data, added_at, added_by FROM src.attachment',
+    );
+  }
 
   /// Records both sides hold with different content, and whether either
   /// side deleted it. Read before the row-level merge overwrites one side.

@@ -1,10 +1,12 @@
 export 'src/assistant.dart';
+export 'src/attachments.dart';
 export 'src/budget.dart';
 export 'src/compare.dart';
 export 'src/conflicts.dart';
 export 'src/duplicates.dart';
 export 'src/entities.dart';
 export 'src/exchange.dart';
+export 'src/inquiry.dart';
 export 'src/list_import.dart';
 export 'src/llm.dart';
 export 'src/material_import.dart';

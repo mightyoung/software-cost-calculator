@@ -8,7 +8,8 @@ import 'quotation.dart';
 import 'values.dart';
 
 /// 1: initial. 2: suppliers and products gain `merged_into`.
-const schemaVersion = 2;
+/// 3: quotation scope/award/provenance fields, inquiries, attachments.
+const schemaVersion = 3;
 const fileFormat = 'supplier-inquiry';
 
 /// Merge order matters only for the reference check at the end of an import;
@@ -20,6 +21,7 @@ const entityTypes = [
   'project',
   'quotation',
   'project_item',
+  'inquiry',
 ];
 
 /// Reference columns checked after every write and every import.
@@ -32,7 +34,9 @@ const references = {
     'product_id': 'product',
     'contact_id': 'contact',
     'project_id': 'project',
+    'inquiry_id': 'inquiry',
   },
+  'inquiry': {'project_id': 'project'},
   'project_item': {
     'project_id': 'project',
     'product_id': 'product',
@@ -40,13 +44,22 @@ const references = {
   },
 };
 
+/// Reference lists (JSON arrays of ids), checked like [references].
+const listReferences = {
+  'inquiry': {'item_ids': 'project_item', 'supplier_ids': 'supplier'},
+};
+
+/// Largest attachment accepted, in bytes.
+const maxAttachmentBytes = 20 * 1024 * 1024;
+
 const _indexes = [
-  "CREATE INDEX contact_supplier ON contact(json_extract(data,'\$.supplier_id'))",
-  "CREATE INDEX quotation_product ON quotation(json_extract(data,'\$.product_id'))",
-  "CREATE INDEX quotation_supplier ON quotation(json_extract(data,'\$.supplier_id'))",
-  "CREATE INDEX quotation_project ON quotation(json_extract(data,'\$.project_id'))",
-  "CREATE INDEX item_project ON project_item(json_extract(data,'\$.project_id'))",
-  'CREATE INDEX change_entity ON change_log(entity_id, at)',
+  "CREATE INDEX IF NOT EXISTS contact_supplier ON contact(json_extract(data,'\$.supplier_id'))",
+  "CREATE INDEX IF NOT EXISTS quotation_product ON quotation(json_extract(data,'\$.product_id'))",
+  "CREATE INDEX IF NOT EXISTS quotation_supplier ON quotation(json_extract(data,'\$.supplier_id'))",
+  "CREATE INDEX IF NOT EXISTS quotation_project ON quotation(json_extract(data,'\$.project_id'))",
+  "CREATE INDEX IF NOT EXISTS quotation_inquiry ON quotation(json_extract(data,'\$.inquiry_id'))",
+  "CREATE INDEX IF NOT EXISTS item_project ON project_item(json_extract(data,'\$.project_id'))",
+  'CREATE INDEX IF NOT EXISTS change_entity ON change_log(entity_id, at)',
 ];
 
 String newUuid() {
@@ -59,21 +72,37 @@ String newUuid() {
       '${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}';
 }
 
-void createSchema(Database db) {
-  db.execute('CREATE TABLE meta(key TEXT PRIMARY KEY, value TEXT NOT NULL)');
+/// Creates whatever tables and indexes are missing; safe to repeat, so
+/// migrations reuse it to add tables introduced by later versions.
+/// Attachments are immutable and content never changes under an id, so
+/// they merge by id alone and carry no version.
+void ensureTables(Database db) {
+  db.execute(
+    'CREATE TABLE IF NOT EXISTS meta(key TEXT PRIMARY KEY, value TEXT NOT NULL)',
+  );
   for (final type in entityTypes) {
     db.execute(
-      'CREATE TABLE $type(id TEXT PRIMARY KEY, version INTEGER NOT NULL, '
-      'updated_at TEXT NOT NULL, updated_by TEXT NOT NULL, '
-      'deleted INTEGER NOT NULL DEFAULT 0, data TEXT NOT NULL)',
+      'CREATE TABLE IF NOT EXISTS $type(id TEXT PRIMARY KEY, '
+      'version INTEGER NOT NULL, updated_at TEXT NOT NULL, '
+      'updated_by TEXT NOT NULL, deleted INTEGER NOT NULL DEFAULT 0, '
+      'data TEXT NOT NULL)',
     );
   }
   db.execute(
-    'CREATE TABLE change_log(id TEXT PRIMARY KEY, entity TEXT NOT NULL, '
-    'entity_id TEXT NOT NULL, field TEXT NOT NULL, old TEXT, new TEXT, '
-    'device TEXT NOT NULL, at TEXT NOT NULL)',
+    'CREATE TABLE IF NOT EXISTS change_log(id TEXT PRIMARY KEY, '
+    'entity TEXT NOT NULL, entity_id TEXT NOT NULL, field TEXT NOT NULL, '
+    'old TEXT, new TEXT, device TEXT NOT NULL, at TEXT NOT NULL)',
+  );
+  db.execute(
+    'CREATE TABLE IF NOT EXISTS attachment(id TEXT PRIMARY KEY, '
+    'name TEXT NOT NULL, mime TEXT, size INTEGER NOT NULL, '
+    'data BLOB NOT NULL, added_at TEXT NOT NULL, added_by TEXT NOT NULL)',
   );
   _indexes.forEach(db.execute);
+}
+
+void createSchema(Database db) {
+  ensureTables(db);
   db.execute('INSERT INTO meta VALUES (?,?),(?,?)', [
     'format',
     fileFormat,
@@ -100,6 +129,7 @@ void migrate(Database db) {
   }
   db.execute('BEGIN IMMEDIATE');
   try {
+    ensureTables(db);
     for (final type in entityTypes) {
       final fields = payloadFields(type);
       for (final r in db.select('SELECT id, data FROM $type')) {
@@ -383,6 +413,23 @@ class Store {
       final kept = previous?.data[field] == id;
       if (row == null || (row.deleted && !kept)) {
         invalid(field, 'unknown $target');
+      }
+    }
+    for (final MapEntry(key: field, value: target)
+        in (listReferences[type] ?? const <String, String>{}).entries) {
+      final before = {...?(previous?.data[field] as List?)};
+      for (final id in data[field]! as List) {
+        final row = get(target, id as String);
+        if (row == null || (row.deleted && !before.contains(id))) {
+          invalid(field, 'unknown $target');
+        }
+      }
+    }
+    if (type == 'quotation') {
+      for (final id in (data['attachment_ids'] as List?) ?? const []) {
+        if (db.select('SELECT 1 FROM attachment WHERE id=?', [id]).isEmpty) {
+          invalid('attachment_ids', 'unknown attachment');
+        }
       }
     }
   }

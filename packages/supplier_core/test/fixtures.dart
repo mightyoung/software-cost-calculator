@@ -91,6 +91,14 @@ Map<String, Object?> quotation(
   'inquired_at': null,
   'inquiry_utc_offset_minutes': null,
   'capture_mode': 'standard',
+  'includes': null,
+  'warranty_months': null,
+  'extra_cost': null,
+  'deal_price': null,
+  'awarded_on': null,
+  'award_note': null,
+  'inquiry_id': null,
+  'attachment_ids': null,
 };
 
 Map<String, Object?> item(

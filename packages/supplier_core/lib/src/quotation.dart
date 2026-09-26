@@ -1,4 +1,5 @@
 import 'entities.dart';
+import 'inquiry.dart';
 import 'project.dart';
 import 'values.dart';
 
@@ -12,6 +13,7 @@ Map<String, Object?> validatePayload(
   'quotation' => Quotation.fromJson(value).toJson(),
   'project' => Project.fromJson(value).toJson(),
   'project_item' => ProjectItem.fromJson(value).toJson(),
+  'inquiry' => Inquiry.fromJson(value).toJson(),
   _ => invalid('entity_type', 'unknown entity type'),
 };
 
@@ -23,8 +25,59 @@ List<String> payloadFields(String entityType) => switch (entityType) {
   'quotation' => Quotation.fields,
   'project' => Project.fields,
   'project_item' => ProjectItem.fields,
+  'inquiry' => Inquiry.fields,
   _ => invalid('entity_type', 'unknown entity type'),
 };
+
+String? _optionalDecimal(Object? value, String field) {
+  if (value == null) return null;
+  if (value is! String) invalid(field, 'decimal text required');
+  return ExactDecimal.parse(value).canonical;
+}
+
+/// includes: null means "not stated"; [] means "none of them".
+/// An award (awarded_on) always carries the agreed unit price (deal_price).
+Map<String, Object?> _scopeAndAward(Map<String, Object?> value) {
+  final includes = value['includes'];
+  List<String>? scope;
+  if (includes != null) {
+    if (includes is! List) invalid('includes', 'expected array');
+    for (final i in includes) {
+      if (!quoteIncludes.contains(i)) invalid('includes', 'unknown value');
+    }
+    scope = List.unmodifiable([
+      for (final i in quoteIncludes)
+        if (includes.contains(i)) i,
+    ]);
+  }
+  final deal = _optionalDecimal(value['deal_price'], 'deal_price');
+  final awarded = value['awarded_on'] == null
+      ? null
+      : requireDate(value['awarded_on'], 'awarded_on');
+  if (awarded != null && deal == null) invalid('deal_price', 'required');
+  final attachments = value['attachment_ids'] == null
+      ? const <String>[]
+      : uuidList(value['attachment_ids'], 'attachment_ids', 20);
+  return {
+    'includes': scope,
+    'warranty_months': value['warranty_months'] == null
+        ? null
+        : requireSafeInteger(
+            value['warranty_months'],
+            'warranty_months',
+            min: 0,
+            max: 600,
+          ),
+    'extra_cost': _optionalDecimal(value['extra_cost'], 'extra_cost'),
+    'deal_price': deal,
+    'awarded_on': awarded,
+    'award_note': normalizeText(value['award_note'], 'award_note', 500),
+    'inquiry_id': value['inquiry_id'] == null
+        ? null
+        : requireUuid(value['inquiry_id'], 'inquiry_id'),
+    'attachment_ids': attachments.isEmpty ? null : attachments,
+  };
+}
 
 Map<String, Object?> normalizeQuotation(Map<String, Object?> value) =>
     Quotation.fromJson(value).toJson();
@@ -54,6 +107,15 @@ final class Quotation extends EntityPayload {
     'inquired_at',
     'inquiry_utc_offset_minutes',
     'capture_mode',
+    // Schema 3: scope, extra cost, award and provenance.
+    'includes',
+    'warranty_months',
+    'extra_cost',
+    'deal_price',
+    'awarded_on',
+    'award_note',
+    'inquiry_id',
+    'attachment_ids',
   ];
   factory Quotation.fromJson(Map<String, Object?> value) {
     exactKeys(value, fields);
@@ -153,6 +215,7 @@ final class Quotation extends EntityPayload {
       ),
       ...InquiryTime.fromJson(value, historical: mode == 'historical').toJson(),
       'capture_mode': mode,
+      ..._scopeAndAward(value),
     });
     if (mode == 'standard' && result.missingContext.isNotEmpty) {
       invalid(result.missingContext.first, 'required for standard capture');
