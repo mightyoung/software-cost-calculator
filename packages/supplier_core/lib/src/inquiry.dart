@@ -6,13 +6,12 @@ const inquiryStatuses = ['open', 'closed'];
 /// What a quotation's price covers besides the goods themselves.
 const quoteIncludes = ['freight', 'installation', 'commissioning', 'training'];
 
-/// Sorted, de-duplicated UUID list of at most [max] entries.
+/// De-duplicated UUID list of at most [max] entries, in the given order
+/// (the order of an inquiry's lines and suppliers is the user's).
 List<String> uuidList(Object? value, String field, int max) {
   if (value is! List) invalid(field, 'expected array');
   if (value.length > max) invalid(field, 'too many items');
-  return List.unmodifiable(
-    {for (final v in value) requireUuid(v, field)}.toList()..sort(),
-  );
+  return List.unmodifiable({for (final v in value) requireUuid(v, field)});
 }
 
 /// A request for quotations: some budget lines of one project, sent to some

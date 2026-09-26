@@ -43,9 +43,7 @@ extension Exchange on Store {
   /// Writes today's snapshot into [dir] unless one exists, and keeps only
   /// the newest [keep]. Returns the new file, or null when today's exists.
   String? dailyBackup(String dir, {int keep = 7, DateTime? now}) {
-    final t = (now ?? clock()).toLocal();
-    String two(int n) => n.toString().padLeft(2, '0');
-    final day = '${t.year}-${two(t.month)}-${two(t.day)}';
+    final day = localDay(now ?? clock());
     final folder = Directory(dir)..createSync(recursive: true);
     final path = '${folder.path}/自动备份-$day.siq';
     if (File(path).existsSync()) return null;

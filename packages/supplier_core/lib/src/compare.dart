@@ -20,7 +20,10 @@ class CompareRow {
   final List<QuoteIssue> issues;
   final bool lowest;
   bool get valid => issues.isEmpty;
-  String get price => data['price']! as String;
+
+  /// The agreed price once awarded, else the quoted price.
+  String get price => priceOf(data);
+  bool get awarded => data['awarded_on'] != null;
 }
 
 /// Quotes are only comparable within the same currency, tax mode and unit.
@@ -93,5 +96,66 @@ extension Compare on Store {
       return b.rows.length.compareTo(a.rows.length);
     });
     return result;
+  }
+}
+
+/// Price summary of one product in one comparable basis (currency, tax
+/// mode, unit). Awarded quotations count at their deal price.
+class PriceHistory {
+  PriceHistory(this.count, this.min, this.max, this.average, this.lastDeal);
+  final int count;
+  final String min, max, average;
+  final String? lastDeal;
+
+  /// How far [price] is from [average], in whole percent (half away from
+  /// zero).
+  int deviationPercent(String price) {
+    final avg = micros(average);
+    if (avg == BigInt.zero) return 0;
+    final diff = (micros(price) - avg) * BigInt.from(200);
+    final q = (diff.abs() + avg) ~/ (avg * BigInt.two);
+    return (diff.isNegative ? -q : q).toInt();
+  }
+}
+
+/// Deviation from the average at which a price is called out.
+const historyWarnPercent = 20;
+
+extension History on Store {
+  PriceHistory? priceHistory(
+    String productId, {
+    required String currency,
+    required String taxMode,
+    required String unit,
+  }) {
+    final prices = <BigInt>[];
+    String? lastDeal, lastDealOn;
+    for (final r in db.select(
+      "SELECT data FROM quotation WHERE deleted = 0 "
+      "AND json_extract(data,'\$.product_id') = ? "
+      "AND json_extract(data,'\$.currency') = ? "
+      "AND json_extract(data,'\$.tax_mode') = ? "
+      "AND json_extract(data,'\$.unit_snapshot') = ?",
+      [productId, currency, taxMode, unit],
+    )) {
+      final d = jsonDecode(r['data'] as String) as Map<String, Object?>;
+      prices.add(micros(priceOf(d)));
+      final on = d['awarded_on'] as String?;
+      if (on != null && (lastDealOn == null || on.compareTo(lastDealOn) > 0)) {
+        lastDealOn = on;
+        lastDeal = d['deal_price'] as String?;
+      }
+    }
+    if (prices.isEmpty) return null;
+    prices.sort();
+    final n = BigInt.from(prices.length);
+    final sum = prices.fold(BigInt.zero, (a, b) => a + b);
+    return PriceHistory(
+      prices.length,
+      fromMicros(prices.first),
+      fromMicros(prices.last),
+      fromMicros((sum * BigInt.two + n) ~/ (n * BigInt.two)),
+      lastDeal,
+    );
   }
 }

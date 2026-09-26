@@ -295,3 +295,10 @@ String? tryDecimal(String? s, {bool positive = false}) {
     return null;
   }
 }
+
+/// Local calendar day as YYYY-MM-DD.
+String localDay(DateTime t) {
+  final l = t.toLocal();
+  String two(int n) => n.toString().padLeft(2, '0');
+  return '${l.year.toString().padLeft(4, '0')}-${two(l.month)}-${two(l.day)}';
+}

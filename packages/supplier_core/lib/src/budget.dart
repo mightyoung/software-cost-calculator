@@ -37,7 +37,8 @@ class QuoteOption {
     this.dateValid,
     this.validityPending, {
     this.meetsMinQty = true,
-  });
+    String? effectivePrice,
+  }) : effectivePrice = effectivePrice ?? priceOf(data);
   final String id;
   final Map<String, Object?> data;
 
@@ -49,7 +50,28 @@ class QuoteOption {
   /// quantity is unknown).
   final bool meetsMinQty;
   bool get valid => dateValid && meetsMinQty;
-  String get price => data['price']! as String;
+
+  /// Unit price to budget with: the agreed price once awarded.
+  String get price => priceOf(data);
+
+  /// [price] plus the quote's extra cost spread over the needed quantity
+  /// (equal to [price] when there is no extra cost or no quantity).
+  final String effectivePrice;
+  bool get awarded => data['awarded_on'] != null;
+}
+
+/// A quotation's unit price: the agreed deal price once awarded.
+String priceOf(Map<String, Object?> q) =>
+    (q['deal_price'] ?? q['price'])! as String;
+
+/// [priceOf] plus extra_cost / [qty], rounded half-up to millionths.
+String effectivePriceOf(Map<String, Object?> q, String? qty) {
+  final extra = q['extra_cost'] as String?;
+  if (extra == null || qty == null) return priceOf(q);
+  final n = micros(qty);
+  if (n == BigInt.zero) return priceOf(q);
+  final share = (micros(extra) * _micro * BigInt.two + n) ~/ (n * BigInt.two);
+  return fromMicros(micros(priceOf(q)) + share);
 }
 
 class BudgetLine {
@@ -101,11 +123,13 @@ extension Budgets on Store {
       taxMode: project.data['tax_mode']! as String,
       asOf: asOf,
       qty: qty,
+      projectId: projectId,
     );
   }
 
   /// Quotations usable for a budget line: same product and unit, in the
-  /// given currency and tax mode. Valid ones first, then by price. With
+  /// given currency and tax mode. Valid ones first: an award for
+  /// [projectId], then awards elsewhere, then by effective price. With
   /// [qty], a quote whose minimum order exceeds it is not valid.
   List<QuoteOption> quoteOptionsFor(
     String productId, {
@@ -113,6 +137,7 @@ extension Budgets on Store {
     required String taxMode,
     DateTime? asOf,
     String? qty,
+    String? projectId,
   }) {
     final product = get('product', productId);
     if (product == null) invalid('product_id', 'unknown product');
@@ -139,9 +164,17 @@ extension Budgets on Store {
           qty == null ? null : micros(qty),
         ),
     ];
+    int rank(QuoteOption o) => !o.valid
+        ? 3
+        : !o.awarded
+        ? 2
+        : o.data['project_id'] == projectId
+        ? 0
+        : 1;
     options.sort((a, b) {
-      if (a.valid != b.valid) return a.valid ? -1 : 1;
-      return micros(a.price).compareTo(micros(b.price));
+      final r = rank(a).compareTo(rank(b));
+      if (r != 0) return r;
+      return micros(a.effectivePrice).compareTo(micros(b.effectivePrice));
     });
     return options;
   }
@@ -166,6 +199,10 @@ extension Budgets on Store {
       valid,
       until == null,
       meetsMinQty: qty == null || micros(data['min_qty']! as String) <= qty,
+      effectivePrice: effectivePriceOf(
+        data,
+        qty == null ? null : fromMicros(qty),
+      ),
     );
   }
 
@@ -257,10 +294,13 @@ extension Budgets on Store {
     );
     final chosen = item['quotation_id'] as String?;
     final picked = options.where((o) => o.id == chosen).firstOrNull;
+    final cheapest = options
+        .where((o) => o.valid)
+        .map((o) => micros(o.effectivePrice))
+        .fold<BigInt?>(null, (m, p) => m == null || p < m ? p : m);
     return [
-      if (options.isNotEmpty &&
-          options.first.valid &&
-          micros(options.first.price) * BigInt.from(100) <
+      if (cheapest != null &&
+          cheapest * BigInt.from(100) <
               unitCost * BigInt.from(100 - cheaperWarnPercent))
         'cheaper_available',
       if (chosen != null && !(picked?.dateValid ?? false)) 'quote_not_valid',

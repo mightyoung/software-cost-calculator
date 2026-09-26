@@ -6,6 +6,7 @@ export 'src/conflicts.dart';
 export 'src/duplicates.dart';
 export 'src/entities.dart';
 export 'src/exchange.dart';
+export 'src/inquiries.dart';
 export 'src/inquiry.dart';
 export 'src/list_import.dart';
 export 'src/llm.dart';
