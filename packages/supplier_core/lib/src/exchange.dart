@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:sqlite3/sqlite3.dart';
+
 import 'quotation.dart';
 import 'store.dart';
 import 'values.dart';
@@ -75,14 +77,54 @@ extension Exchange on Store {
     }
   }
 
+  /// Attaches [path] as `src`. A file from an older version is migrated in
+  /// a temporary copy first, so the user's file is never modified.
   T _attached<T>(String path, T Function() action) {
     if (!File(path).existsSync()) invalid('file', 'not found');
-    db.execute('ATTACH DATABASE ? AS src', [path]);
+    final version = _fileVersion(path);
+    if (version > schemaVersion) {
+      invalid('file', 'made by a newer version; upgrade this device first');
+    }
+    Directory? temp;
+    var attach = path;
+    if (version < schemaVersion) {
+      temp = Directory.systemTemp.createTempSync('siq-migrate');
+      attach = '${temp.path}/exchange.siq';
+      File(path).copySync(attach);
+      final copy = sqlite3.open(attach);
+      try {
+        migrate(copy);
+      } on StateError {
+        invalid('file', 'not a supported exchange file');
+      } finally {
+        copy.close();
+      }
+    }
+    db.execute('ATTACH DATABASE ? AS src', [attach]);
     try {
       _checkFormat();
       return action();
     } finally {
       db.execute('DETACH DATABASE src');
+      temp?.deleteSync(recursive: true);
+    }
+  }
+
+  int _fileVersion(String path) {
+    try {
+      final file = sqlite3.open(path, mode: OpenMode.readOnly);
+      try {
+        final rows = file.select(
+          "SELECT value FROM meta WHERE key='schema_version'",
+        );
+        return rows.isEmpty
+            ? 0
+            : int.tryParse(rows.first['value'] as String) ?? 0;
+      } finally {
+        file.close();
+      }
+    } on SqliteException {
+      invalid('file', 'not a supported exchange file');
     }
   }
 

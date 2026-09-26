@@ -18,6 +18,7 @@ void main() {
           'address': '某市某区某路$i号',
           'categories': ['电气'],
           'notes': null,
+          'merged_into': null,
         }),
     ];
     prods = [
@@ -30,6 +31,7 @@ void main() {
           'specification': '规格说明$i',
           'category': '类别${i % 20}',
           'notes': null,
+          'merged_into': null,
         }),
     ];
     pros = [

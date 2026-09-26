@@ -14,6 +14,18 @@ Map<String, Object?> validatePayload(
   'project_item' => ProjectItem.fromJson(value).toJson(),
   _ => invalid('entity_type', 'unknown entity type'),
 };
+
+/// Field names of each entity type, in canonical order.
+List<String> payloadFields(String entityType) => switch (entityType) {
+  'supplier' => Supplier.fields,
+  'contact' => Contact.fields,
+  'product' => Product.fields,
+  'quotation' => Quotation.fields,
+  'project' => Project.fields,
+  'project_item' => ProjectItem.fields,
+  _ => invalid('entity_type', 'unknown entity type'),
+};
+
 Map<String, Object?> normalizeQuotation(Map<String, Object?> value) =>
     Quotation.fromJson(value).toJson();
 

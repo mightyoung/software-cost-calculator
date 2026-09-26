@@ -56,8 +56,13 @@ class _ExchangePageState extends State<ExchangePage> {
       final Map<String, TableImport> preview;
       try {
         preview = state.store.previewImport(path);
-      } on FormatException {
-        return toast(context, '这不是有效的交换文件，或文件已损坏');
+      } on FormatException catch (e) {
+        return toast(
+          context,
+          e.message.contains('newer version')
+              ? '这个文件来自更新版本的程序，请先升级本机再导入'
+              : '这不是有效的交换文件，或文件已损坏',
+        );
       }
       final confirmed = await showDialog<bool>(
         context: context,

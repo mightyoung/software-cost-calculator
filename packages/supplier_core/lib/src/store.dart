@@ -7,7 +7,8 @@ import 'entities.dart';
 import 'quotation.dart';
 import 'values.dart';
 
-const schemaVersion = 1;
+/// 1: initial. 2: suppliers and products gain `merged_into`.
+const schemaVersion = 2;
 const fileFormat = 'supplier-inquiry';
 
 /// Merge order matters only for the reference check at the end of an import;
@@ -23,6 +24,8 @@ const entityTypes = [
 
 /// Reference columns checked after every write and every import.
 const references = {
+  'supplier': {'merged_into': 'supplier'},
+  'product': {'merged_into': 'product'},
   'contact': {'supplier_id': 'supplier'},
   'quotation': {
     'supplier_id': 'supplier',
@@ -79,6 +82,45 @@ void createSchema(Database db) {
   ]);
 }
 
+int _schemaOf(Database db) {
+  final rows = db.select("SELECT value FROM meta WHERE key='schema_version'");
+  return rows.isEmpty ? 0 : int.tryParse(rows.first['value'] as String) ?? 0;
+}
+
+/// Upgrades an older database in place. Every schema change so far only
+/// added optional fields, so filling them with null and re-canonicalizing
+/// each payload is the whole migration. Versions and timestamps are kept:
+/// migrating is not an edit, and two devices migrating the same row end up
+/// with identical rows. Throws [StateError] for a newer or unknown schema.
+void migrate(Database db) {
+  final from = _schemaOf(db);
+  if (from == schemaVersion) return;
+  if (from < 1 || from > schemaVersion) {
+    throw StateError('Unsupported database schema $from');
+  }
+  db.execute('BEGIN IMMEDIATE');
+  try {
+    for (final type in entityTypes) {
+      final fields = payloadFields(type);
+      for (final r in db.select('SELECT id, data FROM $type')) {
+        final data = jsonDecode(r['data'] as String) as Map<String, Object?>;
+        final full = {for (final f in fields) f: data[f]};
+        db.execute('UPDATE $type SET data=? WHERE id=?', [
+          jsonEncode(validatePayload(type, full)),
+          r['id'],
+        ]);
+      }
+    }
+    db.execute("UPDATE meta SET value=? WHERE key='schema_version'", [
+      '$schemaVersion',
+    ]);
+    db.execute('COMMIT');
+  } catch (_) {
+    db.execute('ROLLBACK');
+    rethrow;
+  }
+}
+
 class Record {
   Record(this.type, this.id, this.version, this.deleted, this.data);
   final String type, id;
@@ -106,12 +148,11 @@ class Store {
       createSchema(db);
       db.execute('COMMIT');
     }
-    final version = db.select(
-      "SELECT value FROM meta WHERE key='schema_version'",
-    );
-    if (version.isEmpty || version.first['value'] != '$schemaVersion') {
+    try {
+      migrate(db);
+    } catch (_) {
       db.close();
-      throw StateError('Unsupported database schema');
+      rethrow;
     }
     return Store(db, device: device, clock: clock);
   }

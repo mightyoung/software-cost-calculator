@@ -22,6 +22,7 @@ Map<String, Object?> supplier(String name) => {
   'address': null,
   'categories': <String>[],
   'notes': null,
+  'merged_into': null,
 };
 
 Map<String, Object?> product(String name, {String unit = '件'}) => {
@@ -32,6 +33,7 @@ Map<String, Object?> product(String name, {String unit = '件'}) => {
   'specification': null,
   'category': null,
   'notes': null,
+  'merged_into': null,
 };
 
 Map<String, Object?> project(

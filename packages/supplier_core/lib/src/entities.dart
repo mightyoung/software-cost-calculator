@@ -9,7 +9,14 @@ abstract base class EntityPayload {
 
 final class Supplier extends EntityPayload {
   Supplier._(super.payload);
-  static const fields = ['name', 'aliases', 'address', 'categories', 'notes'];
+  static const fields = [
+    'name',
+    'aliases',
+    'address',
+    'categories',
+    'notes',
+    'merged_into',
+  ];
   factory Supplier.fromJson(Map<String, Object?> value) {
     exactKeys(value, fields);
     return Supplier._({
@@ -23,9 +30,16 @@ final class Supplier extends EntityPayload {
         100,
       ),
       'notes': normalizeText(value['notes'], 'notes', 2000),
+      'merged_into': _mergedInto(value),
     });
   }
 }
+
+/// A duplicate that was merged keeps its row and points at the record it
+/// was merged into, so references arriving from other devices can follow.
+String? _mergedInto(Map<String, Object?> value) => value['merged_into'] == null
+    ? null
+    : requireUuid(value['merged_into'], 'merged_into');
 
 Map<String, Object?> normalizeContactSnapshot(Map<String, Object?> value) {
   exactKeys(value, ['name', 'phone', 'wechat', 'email']);
@@ -79,6 +93,7 @@ final class Product extends EntityPayload {
     'specification',
     'category',
     'notes',
+    'merged_into',
   ];
   factory Product.fromJson(Map<String, Object?> value) {
     exactKeys(value, fields);
@@ -94,6 +109,7 @@ final class Product extends EntityPayload {
       ),
       'category': normalizeText(value['category'], 'category', 100),
       'notes': normalizeText(value['notes'], 'notes', 2000),
+      'merged_into': _mergedInto(value),
     });
   }
 }

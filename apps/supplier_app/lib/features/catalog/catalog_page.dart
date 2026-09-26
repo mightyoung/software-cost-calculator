@@ -198,7 +198,12 @@ class _CatalogFormState extends State<_CatalogForm> {
   }
 
   void _save() {
+    final existing = widget.id == null
+        ? null
+        : widget.state.store.get(widget.type, widget.id!)?.data;
     final payload = <String, Object?>{
+      // Fields the form does not show (e.g. merged_into) keep their value.
+      for (final f in payloadFields(widget.type)) f: existing?[f],
       for (final e in c.entries)
         e.key: _lists.contains(e.key)
             ? e.value.text

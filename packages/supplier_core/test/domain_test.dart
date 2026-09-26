@@ -99,6 +99,7 @@ void main() {
       'address': null,
       'categories': <String>[],
       'notes': null,
+      'merged_into': null,
     };
     final s = Supplier.fromJson(d);
     expect(
@@ -204,6 +205,7 @@ void main() {
               'address': null,
               'categories': <String>[],
               'notes': null,
+              'merged_into': null,
             },
             {'name': 200, 'address': 500, 'notes': 2000},
             (v) => Supplier.fromJson(v).toJson(),
@@ -235,6 +237,7 @@ void main() {
               'specification': null,
               'category': null,
               'notes': null,
+              'merged_into': null,
             },
             {
               'name': 200,
