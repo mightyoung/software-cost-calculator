@@ -215,7 +215,7 @@ extension MaterialImport on Store {
           'qty': qty,
           'unit': product['unit'],
           'quotation_id': linked ? quoteId : null,
-          'unit_cost': linked ? quote!['price'] : '0',
+          'unit_cost': linked ? quote['price'] : '0',
           'unit_price': null,
           'notes': notes.isEmpty ? null : notes,
         });
