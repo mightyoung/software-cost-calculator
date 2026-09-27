@@ -5,7 +5,7 @@ A supplier inquiry and project cost tool. Each device runs on its own and stores
 - **Projects and cost budgets:** budgets are grouped into five cost categories (materials, outsourcing, labour, manufacturing overhead, other). The lowest valid quotation is filled in automatically, markup and margin are calculated, and the app warns when cost reaches the contract amount or a cheaper quotation appears.
 - **Quotations:** record quotations one by one or import them from an Excel template. Comparison converts tax mode when a rate is known and converts units using each product's configured factors; the original quotation remains unchanged. It explains when a quotation cannot be compared. The quotation page highlights offers expiring within 30 days and materials without a new quotation for over 90 days.
 - **Excel:** exports a project quote sheet (for the customer), a cost budget sheet (internal) and an inquiry list (for suppliers). Amounts stay exact to 6 decimal places.
-- **Exchange between devices:** exporting produces an exchange file (`.siq`); importing it merges data on another device. Changes are merged field by field, and conflicting edits are shown for review. Re-importing the same file changes nothing. The same file also works as a backup.
+- **Exchange between devices:** exporting produces an exchange file (`.siq`); importing it merges data on another device. Changes are merged field by field, and conflicting edits are shown for review. Re-importing the same file changes nothing. For a full rollback, the separate restore action replaces the local library after two confirmations and saves a recovery copy first.
 - **Upgrades:** an older local database gets a checked `.pre-vN-migration.siq` snapshot beside the database before its schema is changed.
 - **AI (DeepSeek or any OpenAI-compatible service):**
   - **Build a project from a list:** matches the list against the local material catalogue; nothing is written until the user confirms.
@@ -21,6 +21,8 @@ A supplier inquiry and project cost tool. Each device runs on its own and stores
 | `apps/supplier_app` | Flutter app |
 | `docs/reviews/` | Critical review and improvement plan (decision history) |
 | `docs/design/` | UI spec and HTML prototype; design context in `.impeccable.md` |
+
+The [device validation checklist](docs/reviews/v2-device-validation-checklist.md) covers installation, Excel/WPS, exchange, restart and full restore.
 
 ## Development
 

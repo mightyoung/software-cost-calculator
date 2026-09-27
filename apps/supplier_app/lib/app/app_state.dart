@@ -111,11 +111,24 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void>? _syncing;
+  final _pendingBackgroundWrites = <Future<void>>{};
 
   /// Imports other devices' files from the shared folder and writes ours,
   /// in the background. A second call while one runs joins it.
   Future<void> syncNow() =>
       _syncing ??= _sync().whenComplete(() => _syncing = null);
+
+  /// Stop folder sync before replacing the library. A sync already in flight
+  /// must finish first, or it could merge newer records into the restored DB.
+  Future<void> suspendSyncForRestore() async {
+    saveSetting('sync_dir', null);
+    await _syncing;
+    await Future.wait(_pendingBackgroundWrites.toList());
+    saveSetting('sync_seen', null);
+    lastSync = null;
+    lastSyncError = null;
+    notifyListeners();
+  }
 
   Future<void> _sync() async {
     final dir = syncDir;
@@ -284,12 +297,17 @@ class AppState extends ChangeNotifier {
   Future<String?> writeInBackground(
     FutureOr<void> Function(Store store) action,
   ) async {
+    final pending = Completer<void>();
+    _pendingBackgroundWrites.add(pending.future);
     try {
       await store.inBackground(action);
       notifyListeners();
       return null;
     } on FormatException catch (e) {
       return friendlyError(e.message);
+    } finally {
+      _pendingBackgroundWrites.remove(pending.future);
+      pending.complete();
     }
   }
 }

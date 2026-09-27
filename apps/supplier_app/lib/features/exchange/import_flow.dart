@@ -25,6 +25,12 @@ Map<String, TableImport> Function(Store) _previewJob(String path) =>
 void Function(Store) _importJob(String path) =>
     (s) => s.importFrom(path);
 
+Map<String, int> Function(Store) _countsJob(String path) =>
+    (s) => s.snapshotCounts(path);
+
+void Function(Store) _restoreJob(String path, String backupPath) =>
+    (s) => s.replaceFrom(path, safetyBackupPath: backupPath);
+
 /// Decrypts an encrypted file with the stored passphrase, asking when
 /// there is none or it does not fit. Returns null when the user gives up.
 Future<String?> _plain(
@@ -94,6 +100,144 @@ Future<({bool done, String? message})> reviewAndImport(
       final err = await state.writeInBackground(_importJob(plain));
       return (done: true, message: err ?? '已合并');
     } finally {
+      onBusy?.call(false);
+    }
+  } finally {
+    if (plain != path) File(plain).deleteSync();
+  }
+}
+
+/// Restore an entire snapshot. This intentionally does not use merge-import:
+/// records made after the snapshot, including deletions and history, disappear.
+Future<({bool done, String? message})> reviewAndRestore(
+  BuildContext context,
+  AppState state,
+  String path, {
+  void Function(bool busy)? onBusy,
+}) async {
+  final temp = Directory('${state.dataDir.path}/tmp');
+  final plain = await _plain(context, state, path, temp);
+  if (plain == null || !context.mounted) return (done: false, message: null);
+  try {
+    final Map<String, int> counts;
+    try {
+      onBusy?.call(true);
+      counts = await state.store.inBackground(_countsJob(plain));
+    } on FormatException catch (e) {
+      return (
+        done: true,
+        message: e.message.contains('newer version')
+            ? '这份备份来自更新版本的程序，请先升级本机再恢复'
+            : '这不是有效的备份，或文件已损坏',
+      );
+    } finally {
+      onBusy?.call(false);
+    }
+    if (!context.mounted) return (done: false, message: null);
+    final previewed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('整库恢复预览'),
+        content: SizedBox(
+          width: 440,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('备份中的有效记录：'),
+              const SizedBox(height: 10),
+              for (final entry in counts.entries)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Text(
+                    '${_typeLabels[entry.key] ?? entry.key}：${entry.value}',
+                  ),
+                ),
+              const SizedBox(height: 12),
+              const Text('继续后，本机当前资料库将被这份备份完整替换。'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('继续'),
+          ),
+        ],
+      ),
+    );
+    if (previewed != true || !context.mounted) {
+      return (done: false, message: null);
+    }
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('确认替换整个资料库？'),
+        content: const SizedBox(
+          width: 440,
+          child: Text(
+            '备份之后新增或修改的本机数据会从当前资料库消失。恢复前会自动保存一份本机完整备份。'
+            '共享文件夹同步将暂停，避免其他设备的数据立即重新合并；检查无误后可手动重新启用。',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('确认整库恢复'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) {
+      return (done: false, message: null);
+    }
+    onBusy?.call(true);
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final progressRoute = RawDialogRoute<void>(
+      barrierDismissible: false,
+      barrierColor: Colors.black54,
+      barrierLabel: '整库恢复进行中',
+      pageBuilder: (_, _, _) => const PopScope(
+        canPop: false,
+        child: AlertDialog(
+          title: Text('正在恢复资料库'),
+          content: SizedBox(
+            width: 360,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                LinearProgressIndicator(),
+                SizedBox(height: 16),
+                Text('请稍候，恢复完成前不要关闭应用。'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    final progress = navigator.push(progressRoute);
+    final backupPath =
+        '${state.backupDir}/恢复前备份-'
+        '${DateTime.now().microsecondsSinceEpoch}-${newUuid()}.siq';
+    try {
+      await state.suspendSyncForRestore();
+      final err = await state.writeInBackground(_restoreJob(plain, backupPath));
+      if (err != null) return (done: true, message: '恢复失败：$err');
+      state.store.clockSeen();
+      return (done: true, message: '整库恢复完成；恢复前备份保存在 $backupPath。共享文件夹同步已暂停');
+    } on Object catch (e) {
+      return (done: true, message: '恢复失败：$e');
+    } finally {
+      if (progressRoute.isActive) navigator.removeRoute(progressRoute);
+      await progress;
       onBusy?.call(false);
     }
   } finally {

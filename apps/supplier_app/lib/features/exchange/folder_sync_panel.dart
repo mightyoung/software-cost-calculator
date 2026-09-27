@@ -45,7 +45,9 @@ class _FolderSyncPanelState extends State<FolderSyncPanel> {
       context,
       state.lastSyncError != null
           ? '同步失败：${state.lastSyncError}'
-          : r!.imported.isEmpty
+          : r == null
+          ? '共享文件夹同步已暂停'
+          : r.imported.isEmpty
           ? '已同步，其他设备没有新数据'
           : '已合并 ${r.imported.length} 台设备的数据',
     );

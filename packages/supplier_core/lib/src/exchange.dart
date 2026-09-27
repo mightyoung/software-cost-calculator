@@ -72,6 +72,92 @@ extension Exchange on Store {
   Map<String, TableImport> previewImport(String path) =>
       _attached(path, () => _summary());
 
+  /// Counts the live records in a snapshot without changing either library.
+  Map<String, int> snapshotCounts(String path) => _attached(
+    path,
+    () => {
+      for (final type in entityTypes)
+        type: _count('SELECT count(*) FROM src.$type WHERE deleted=0'),
+    },
+  );
+
+  /// Replaces this library, preserving the connection and local device identity.
+  /// The caller supplies a fresh backup filename; existing backups are never
+  /// overwritten. A concurrent write since the backup aborts the replacement.
+  void replaceFrom(String path, {required String safetyBackupPath}) {
+    if (!db.autocommit) {
+      invalid('restore', 'cannot restore inside another transaction');
+    }
+    final livePath =
+        db
+                .select('PRAGMA database_list')
+                .firstWhere((row) => row['name'] == 'main')['file']
+            as String;
+    if (livePath.isNotEmpty &&
+        File(path).existsSync() &&
+        FileSystemEntity.identicalSync(livePath, path)) {
+      invalid('file', 'choose a snapshot, not the active library');
+    }
+    final backup = File(safetyBackupPath);
+    if (backup.existsSync() || File('$safetyBackupPath.part').existsSync()) {
+      invalid('backup', 'choose a new safety backup path');
+    }
+    _attached(path, () {
+      backup.parent.createSync(recursive: true);
+      exportTo(safetyBackupPath);
+      db.execute('ATTACH DATABASE ? AS restore_backup', [safetyBackupPath]);
+      try {
+        final check = db.select('PRAGMA restore_backup.quick_check');
+        if (check.length != 1 || check.first.values.first != 'ok') {
+          invalid('backup', 'safety backup verification failed');
+        }
+        transaction(() {
+          // Verify the complete backup against the locked current library,
+          // including blobs and history, before deleting any live rows.
+          for (final table in [...entityTypes, 'change_log', 'attachment']) {
+            for (final pair in [
+              ['main', 'restore_backup'],
+              ['restore_backup', 'main'],
+            ]) {
+              if (db
+                  .select(
+                    'SELECT * FROM ${pair[0]}.$table EXCEPT '
+                    'SELECT * FROM ${pair[1]}.$table LIMIT 1',
+                  )
+                  .isNotEmpty) {
+                invalid('backup', 'library changed since safety backup');
+              }
+            }
+          }
+          for (final table in [...entityTypes, 'change_log', 'attachment']) {
+            db.execute('DELETE FROM main.$table');
+          }
+          _importAttachments();
+          for (final type in entityTypes) {
+            // Local tables are empty, so every incoming row is validated.
+            _validateIncoming(type);
+            db.execute(
+              'INSERT INTO main.$type '
+              'SELECT id, version, updated_at, updated_by, deleted, data '
+              'FROM src.$type',
+            );
+          }
+          _validateIncomingLog();
+          db.execute(
+            'INSERT INTO main.change_log '
+            'SELECT id, entity, entity_id, field, old, new, device, at '
+            'FROM src.change_log',
+          );
+          checkAllReferences();
+          // Existing search triggers maintain indexes inside this transaction.
+        });
+        clockSeen();
+      } finally {
+        db.execute('DETACH DATABASE restore_backup');
+      }
+    });
+  }
+
   /// Merges another device's file in one transaction. Any invalid row or
   /// dangling reference rolls the whole import back.
   Map<String, TableImport> importFrom(String path) => _attached(path, () {

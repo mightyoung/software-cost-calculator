@@ -94,8 +94,7 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  /// Daily snapshots, newest seven kept. Restoring = importing one on the
-  /// exchange page.
+  /// Daily snapshots, newest seven kept. Full restore is separate from merge.
   String _backups() {
     final error = widget.state.backupError;
     if (error != null) return '今天的自动备份失败：$error';
@@ -110,8 +109,8 @@ class _SettingsPageState extends State<SettingsPage> {
             ..sort())
         : <String>[];
     if (files.isEmpty) return '还没有';
-    return '最近：${files.last}（共 ${files.length} 份，保留最近 7 天）\n'
-        '位置：${dir.path}\n需要恢复时，在"数据交换"中导入其中一份即可。';
+    return '文件：共 ${files.length} 份（每日自动备份保留最近 7 份；恢复前备份另外保存）\n'
+        '位置：${dir.path}\n需要回到备份时，在“数据交换”选择“从备份恢复整个资料库”。';
   }
 
   Widget _kv(String k, String v) => Padding(

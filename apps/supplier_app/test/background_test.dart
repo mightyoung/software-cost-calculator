@@ -4,6 +4,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:supplier_app/app/app_state.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+Future<void> _delayedWrite(Store store) async {
+  await Future<void>.delayed(const Duration(milliseconds: 80));
+  store.save('supplier', {
+    for (final f in Supplier.fields) f: null,
+    'name': '在途导入',
+    'aliases': <String>[],
+    'categories': <String>[],
+  });
+}
+
 // Real async (not testWidgets): the work runs in another isolate.
 void main() {
   test('incompatible exchange edits give a recoverable message', () {
@@ -12,6 +22,23 @@ void main() {
         'quotation q1 has incompatible concurrent field edits: invalid dates',
       ),
       contains('导入已撤销'),
+    );
+  });
+
+  test('restore waits for an already running background write', () async {
+    final dir = Directory.systemTemp.createTempSync('restore_pending_write');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final state = AppState.test(
+      Store.open('${dir.path}/current.db', device: '甲'),
+      dir,
+    );
+    addTearDown(state.store.close);
+    final pending = state.writeInBackground(_delayedWrite);
+    await state.suspendSyncForRestore();
+    expect(await pending, isNull);
+    expect(
+      state.store.db.select('SELECT count(*) AS n FROM supplier').first['n'],
+      1,
     );
   });
 
@@ -38,6 +65,24 @@ void main() {
     expect(state.lastSync!.imported, ['乙.siq']);
     expect(state.store.get('supplier', id), isNotNull);
     expect(File('${shared.path}/${state.syncFileName}').existsSync(), isTrue);
+
+    await state.suspendSyncForRestore();
+    expect(state.syncDir, isNull);
+    expect(state.setting('sync_seen'), isNull);
+    final changed = Store.open('${dir.path}/other.db', device: '乙');
+    changed.save('supplier', {
+      for (final f in Supplier.fields) f: null,
+      'name': '暂停后新增',
+      'aliases': <String>[],
+      'categories': <String>[],
+    });
+    changed.exportTo('${shared.path}/updated.siq');
+    changed.close();
+    await state.syncNow();
+    expect(
+      state.store.db.select('SELECT count(*) AS n FROM supplier').first['n'],
+      1,
+    );
 
     File('${dir.path}/bad.siq').writeAsBytesSync([1, 2, 3]);
     final path = '${dir.path}/bad.siq';
