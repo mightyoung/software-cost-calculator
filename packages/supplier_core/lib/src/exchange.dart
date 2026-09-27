@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:sqlite3/sqlite3.dart';
 
 import 'merge.dart';
-import 'quotation.dart';
 import 'search_index.dart';
+import 'storage_codec.dart';
 import 'store.dart';
 import 'values.dart';
 
@@ -72,12 +72,106 @@ extension Exchange on Store {
   Map<String, TableImport> previewImport(String path) =>
       _attached(path, () => _summary());
 
+  /// Counts the live records in a snapshot without changing either library.
+  Map<String, int> snapshotCounts(String path) => _attached(
+    path,
+    () => {
+      for (final type in entityTypes)
+        type: _count('SELECT count(*) FROM src.$type WHERE deleted=0'),
+    },
+  );
+
+  /// Replaces this library, preserving the connection and local device identity.
+  /// The caller supplies a fresh backup filename; existing backups are never
+  /// overwritten. A concurrent write since the backup aborts the replacement.
+  void replaceFrom(String path, {required String safetyBackupPath}) {
+    if (!db.autocommit) {
+      invalid('restore', 'cannot restore inside another transaction');
+    }
+    final livePath =
+        db
+                .select('PRAGMA database_list')
+                .firstWhere((row) => row['name'] == 'main')['file']
+            as String;
+    if (livePath.isNotEmpty &&
+        File(path).existsSync() &&
+        FileSystemEntity.identicalSync(livePath, path)) {
+      invalid('file', 'choose a snapshot, not the active library');
+    }
+    final backup = File(safetyBackupPath);
+    if (backup.existsSync() || File('$safetyBackupPath.part').existsSync()) {
+      invalid('backup', 'choose a new safety backup path');
+    }
+    _attached(path, () {
+      backup.parent.createSync(recursive: true);
+      exportTo(safetyBackupPath);
+      db.execute('ATTACH DATABASE ? AS restore_backup', [safetyBackupPath]);
+      try {
+        final check = db.select('PRAGMA restore_backup.quick_check');
+        if (check.length != 1 || check.first.values.first != 'ok') {
+          invalid('backup', 'safety backup verification failed');
+        }
+        transaction(() {
+          // Verify the complete backup against the locked current library,
+          // including blobs and history, before deleting any live rows.
+          for (final table in [...entityTypes, 'change_log', 'attachment']) {
+            for (final pair in [
+              ['main', 'restore_backup'],
+              ['restore_backup', 'main'],
+            ]) {
+              if (db
+                  .select(
+                    'SELECT * FROM ${pair[0]}.$table EXCEPT '
+                    'SELECT * FROM ${pair[1]}.$table LIMIT 1',
+                  )
+                  .isNotEmpty) {
+                invalid('backup', 'library changed since safety backup');
+              }
+            }
+          }
+          for (final table in [...entityTypes, 'change_log', 'attachment']) {
+            db.execute('DELETE FROM main.$table');
+          }
+          _importAttachments();
+          for (final type in entityTypes) {
+            // Local tables are empty, so every incoming row is validated.
+            _validateIncoming(type);
+            db.execute(
+              'INSERT INTO main.$type '
+              'SELECT id, version, updated_at, updated_by, deleted, data '
+              'FROM src.$type',
+            );
+          }
+          _validateIncomingLog();
+          db.execute(
+            'INSERT INTO main.change_log '
+            'SELECT id, entity, entity_id, field, old, new, device, at '
+            'FROM src.change_log',
+          );
+          checkAllReferences();
+          // Existing search triggers maintain indexes inside this transaction.
+        });
+        clockSeen();
+      } finally {
+        db.execute('DETACH DATABASE restore_backup');
+      }
+    });
+  }
+
   /// Merges another device's file in one transaction. Any invalid row or
   /// dangling reference rolls the whole import back.
   Map<String, TableImport> importFrom(String path) => _attached(path, () {
     return transaction(() {
       final summary = _summary();
       final diverged = {for (final type in entityTypes) type: _diverged(type)};
+      final basisBefore = {
+        for (final type in ['product', 'project', 'quotation', 'project_item'])
+          type: _localBasis(type),
+      };
+      final projectItemsBefore = {
+        for (final id in basisBefore['project']!.keys)
+          id: _itemBasesForProject('main', id),
+      };
       _importAttachments();
       for (final type in entityTypes) {
         _validateIncoming(type);
@@ -99,9 +193,11 @@ extension Exchange on Store {
       );
       for (final type in entityTypes) {
         diverged[type]!.forEach(
-          (id, deleted) => _mergeFields(type, id, deleted),
+          (id, deleted) =>
+              _mergeFields(type, id, deleted, original: basisBefore[type]?[id]),
         );
       }
+      _checkProjectBasisImports(basisBefore['project']!, projectItemsBefore);
       clockSeen();
       redirectMerged();
       checkAllReferences();
@@ -149,27 +245,32 @@ extension Exchange on Store {
     }
     Directory? temp;
     var attach = path;
-    if (version < schemaVersion) {
-      temp = Directory.systemTemp.createTempSync('siq-migrate');
-      attach = '${temp.path}/exchange.siq';
-      File(path).copySync(attach);
-      final copy = sqlite3.open(attach);
-      registerFunctions(copy);
-      try {
-        migrate(copy);
-      } on StateError {
-        invalid('file', 'not a supported exchange file');
-      } finally {
-        copy.close();
-      }
-    }
-    db.execute('ATTACH DATABASE ? AS src', [attach]);
+    var attached = false;
     try {
+      if (version < schemaVersion) {
+        temp = Directory.systemTemp.createTempSync('siq-migrate');
+        attach = '${temp.path}/exchange.siq';
+        File(path).copySync(attach);
+        final copy = sqlite3.open(attach);
+        try {
+          registerFunctions(copy);
+          migrate(copy);
+        } on StateError {
+          invalid('file', 'not a supported exchange file');
+        } finally {
+          copy.close();
+        }
+      }
+      db.execute('ATTACH DATABASE ? AS src', [attach]);
+      attached = true;
       _checkFormat();
       return action();
     } finally {
-      db.execute('DETACH DATABASE src');
-      temp?.deleteSync(recursive: true);
+      try {
+        if (attached) db.execute('DETACH DATABASE src');
+      } finally {
+        temp?.deleteSync(recursive: true);
+      }
     }
   }
 
@@ -278,16 +379,148 @@ extension Exchange on Store {
       r['id'] as String: r['deleted'] == 1,
   };
 
+  // Prices and their quoted unit/tax/reference, budget amounts and their
+  // unit/reference, or a product's base unit and factors form one basis.
+  // Field replay must not splice a basis that neither device held.
+  /// Fields that must come from one device together. A budget line's
+  /// quantity joins them only when the two sides use different units (1 米
+  /// and 0.001 千米 are the same amount).
+  List<String> _basisFields(
+    String type, [
+    Map<String, Object?>? local,
+    Map<String, Object?>? incoming,
+  ]) {
+    final fields = switch (type) {
+      'product' => const ['unit', 'unit_conversions'],
+      'project' => const ['currency', 'tax_mode', 'contract_amount'],
+      'quotation' => const [
+        'product_id',
+        'currency',
+        'tax_mode',
+        'tax_rate',
+        'unit_snapshot',
+        'price',
+        'deal_price',
+        'min_qty',
+        'extra_cost',
+      ],
+      // Quantity is not part of the price: a refreshed price and a changed
+      // quantity from two devices combine into a valid line.
+      _ => [
+        'project_id',
+        'product_id',
+        'quotation_id',
+        'unit',
+        'unit_cost',
+        'unit_price',
+        if (type == 'project_item' &&
+            local != null &&
+            incoming != null &&
+            local['unit'] != incoming['unit'])
+          'qty',
+      ],
+    };
+    return fields;
+  }
+
+  String _basis(
+    String type,
+    Map<String, Object?> data, [
+    List<String>? fields,
+  ]) => jsonEncode([for (final f in fields ?? _basisFields(type)) data[f]]);
+
+  String _basisKey(String type, Map<String, Object?> data) {
+    final fields = switch (type) {
+      'product' => const ['unit'],
+      'project' => const ['currency', 'tax_mode'],
+      'quotation' => const [
+        'product_id',
+        'currency',
+        'tax_mode',
+        'tax_rate',
+        'unit_snapshot',
+      ],
+      _ => const ['project_id', 'product_id', 'quotation_id', 'unit'],
+    };
+    return jsonEncode([for (final field in fields) data[field]]);
+  }
+
+  /// Local rows about to meet an incoming row with another price basis.
+  Map<String, Map<String, Object?>> _localBasis(String type) {
+    final result = <String, Map<String, Object?>>{};
+    for (final row in db.select(
+      'SELECT m.id, m.data AS local_data, s.data AS incoming_data '
+      'FROM main.$type m JOIN src.$type s ON s.id=m.id '
+      'WHERE m.data <> s.data',
+    )) {
+      final local = decodeStoredPayload(type, row['local_data'] as String);
+      final incoming = decodeStoredPayload(
+        type,
+        row['incoming_data'] as String,
+      );
+      if (_basisKey(type, local) != _basisKey(type, incoming)) {
+        result[row['id'] as String] = local;
+      }
+    }
+    return result;
+  }
+
+  Map<String, String> _itemBasesForProject(String schema, String projectId) => {
+    for (final row in db.select(
+      'SELECT id, data FROM $schema.project_item WHERE deleted=0 '
+      "AND json_extract(data,'\$.project_id')=?",
+      [projectId],
+    ))
+      row['id'] as String: _basis(
+        'project_item',
+        decodeStoredPayload('project_item', row['data'] as String),
+      ),
+  };
+
+  void _checkProjectBasisImports(
+    Map<String, Map<String, Object?>> localBasis,
+    Map<String, Map<String, String>> localItems,
+  ) {
+    for (final id in localBasis.keys) {
+      final merged = get('project', id);
+      if (merged == null || merged.deleted) continue;
+      final choseLocal =
+          _basis('project', merged.data) == _basis('project', localBasis[id]!);
+      final chosenItems = choseLocal
+          ? localItems[id]!
+          : _itemBasesForProject('src', id);
+      final finalItems = _itemBasesForProject('main', id);
+      for (final entry in finalItems.entries) {
+        if (chosenItems[entry.key] != entry.value) {
+          // Line amounts cannot be told apart once the project's currency or
+          // tax mode changed on another device: stop and let people decide.
+          throw FormatException(
+            '项目「${merged.data['name']}」的币种或含税口径在另一台设备上改过，'
+            '同时两边都改了它的预算行。请两台设备先统一这个项目的币种和含税口径，再交换',
+          );
+        }
+      }
+    }
+  }
+
   /// Field-level merge on top of the row-level winner: each field takes the
   /// value of its latest change in the combined change log, so edits to
   /// different fields on different devices are all kept. Deletion wins over
   /// edits. The result depends only on the combined log, so every device
-  /// computes the same row. If the merged fields break a cross-field rule,
-  /// the winning row is kept as it is.
-  void _mergeFields(String type, String id, bool deleted) {
+  /// computes the same row. Exchange never stops on a merge: a price basis
+  /// that neither device held (say one changed the unit, the other the
+  /// price) is taken whole from the row-level winner, and merged fields that
+  /// break a cross-field rule leave the whole winning row. The overridden
+  /// edits stay in the change log.
+  void _mergeFields(
+    String type,
+    String id,
+    bool deleted, {
+    Map<String, Object?>? original,
+  }) {
     final row = db.select('SELECT data FROM main.$type WHERE id=?', [id]);
     final current = row.first['data'] as String;
-    final data = Map.of(jsonDecode(current) as Map<String, Object?>);
+    final data = decodeStoredPayload(type, current);
     for (final r in db.select(
       "SELECT field, new FROM main.change_log WHERE entity=? AND entity_id=? "
       "AND field NOT LIKE '(%' ORDER BY at, device, id",
@@ -296,11 +529,27 @@ extension Exchange on Store {
       final field = r['field'] as String;
       if (data.containsKey(field)) data[field] = jsonDecode(r['new'] as String);
     }
-    var merged = current;
+    if (!deleted && original != null) {
+      final incoming = decodeStoredPayload(
+        type,
+        db.select('SELECT data FROM src.$type WHERE id=?', [id]).single['data']
+            as String,
+      );
+      final fields = _basisFields(type, original, incoming);
+      final mergedBasis = _basis(type, data, fields);
+      if (mergedBasis != _basis(type, original, fields) &&
+          mergedBasis != _basis(type, incoming, fields)) {
+        final winner = decodeStoredPayload(type, current);
+        for (final field in fields) {
+          data[field] = winner[field];
+        }
+      }
+    }
+    String merged;
     try {
-      merged = jsonEncode(validatePayload(type, data));
+      merged = encodeStoredPayload(type, data);
     } on FormatException {
-      // keep the row-level winner
+      merged = current; // keep the row-level winner
     }
     db.execute('UPDATE main.$type SET data=?, deleted=? WHERE id=?', [
       merged,
@@ -328,10 +577,8 @@ extension Exchange on Store {
       if (at is! String || DateTime.tryParse(at) == null) {
         invalid('$type.updated_at', 'expected timestamp');
       }
-      final data = jsonDecode(r['data'] as String);
-      if (data is! Map<String, Object?>)
-        invalid('$type.data', 'expected object');
-      if (jsonEncode(validatePayload(type, data)) != r['data']) {
+      final data = decodeStoredPayload(type, r['data'] as String);
+      if (encodeStoredPayload(type, data) != r['data']) {
         invalid('$type.data', 'not in canonical form');
       }
     }

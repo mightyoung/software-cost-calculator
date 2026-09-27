@@ -248,6 +248,7 @@ void main() {
               'notes': null,
               'merged_into': null,
               'attributes': null,
+              'unit_conversions': null,
             },
             {
               'name': 200,

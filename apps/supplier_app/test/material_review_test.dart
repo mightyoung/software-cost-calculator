@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -8,6 +9,197 @@ import 'package:supplier_app/features/ai/material_review.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 void main() {
+  for (final sample in [
+    (source: '单价31800元', value: '3180', highlight: null),
+    (source: '单价3,200元', value: '3200', highlight: '3,200'),
+    (source: '单价3,200.00元', value: '3200', highlight: '3,200.00'),
+    (source: '原价31800元，现价3180元', value: '3180', highlight: '3180'),
+    (source: '单价3201元', value: '3200', highlight: null),
+    (source: '单价3180.5元', value: '3180', highlight: null),
+    (source: '单价3,20元', value: '320', highlight: null),
+    (source: '型号IS3200，单价32000元', value: '3200', highlight: null),
+  ]) {
+    testWidgets('numeric source lookup: ${sample.source}', (tester) async {
+      final dir = Directory.systemTemp.createTempSync('material_numeric');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final store = Store.open('${dir.path}/m.db', device: '测试机');
+      addTearDown(store.close);
+      tester.view.physicalSize = const Size(1280, 1000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildTheme(),
+          home: Scaffold(
+            body: MaterialReview(
+              state: AppState.test(store, dir),
+              plans: [
+                store.planOffer(
+                  cleanOffer({
+                    'supplier': '甲泵业',
+                    'name': '泵',
+                    'unit': '台',
+                    'price': sample.value,
+                  }),
+                ),
+              ],
+              onBack: () {},
+              source: (name: '报价.txt', bytes: utf8.encode(sample.source)),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('核对字段原文'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('查看单价的原文'));
+      await tester.pumpAndSettle();
+      final rendered = tester.widget<SelectableText>(
+        find.byType(SelectableText),
+      );
+      if (sample.highlight == null) {
+        expect(find.textContaining('未找到完全相同的原文'), findsOneWidget);
+        expect(rendered.data, sample.source);
+      } else {
+        expect(
+          rendered.textSpan!.toPlainText(),
+          sample.source,
+          reason:
+              'numeric normalization must preserve original characters and offsets',
+        );
+        expect(
+          rendered.textSpan!.children!
+              .whereType<TextSpan>()
+              .singleWhere(
+                (span) => span.style?.backgroundColor == Tokens.amberBg,
+              )
+              .text,
+          sample.highlight,
+        );
+      }
+      expect(tester.takeException(), isNull);
+    });
+  }
+  for (final readable in [true, false]) {
+    testWidgets('source attachment preview: readable=$readable', (
+      tester,
+    ) async {
+      final dir = Directory.systemTemp.createTempSync('material_attachment');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final store = Store.open('${dir.path}/m.db', device: '测试机');
+      addTearDown(store.close);
+      tester.view.physicalSize = const Size(1280, 1000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildTheme(),
+          home: Scaffold(
+            body: MaterialReview(
+              state: AppState.test(store, dir),
+              plans: [
+                store.planOffer(
+                  cleanOffer({'supplier': '甲泵业', 'name': '离心泵', 'unit': '台'}),
+                ),
+              ],
+              onBack: () {},
+              source: (
+                name: '报价.xlsx',
+                bytes: readable
+                    ? writeXlsx([
+                        SheetData('报价', [
+                          ['甲泵业', '离心泵', '台'],
+                        ]),
+                      ])
+                    : [0, 1, 2],
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('核对字段原文'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('查看产品名称的原文'));
+      await tester.pumpAndSettle();
+      if (readable) {
+        final rendered = tester.widget<SelectableText>(
+          find.byType(SelectableText),
+        );
+        expect(rendered.textSpan!.toPlainText(), contains('甲泵业 | 离心泵 | 台'));
+        expect(
+          rendered.textSpan!.children!
+              .whereType<TextSpan>()
+              .singleWhere(
+                (span) => span.style?.backgroundColor == Tokens.amberBg,
+              )
+              .text,
+          '离心泵',
+        );
+      } else {
+        expect(find.textContaining('无法显示这份附件的原文'), findsOneWidget);
+      }
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets(
+    'field source lookup highlights exact text and explains missing matches',
+    (tester) async {
+      final dir = Directory.systemTemp.createTempSync('material_source');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final store = Store.open('${dir.path}/m.db', device: '测试机');
+      addTearDown(store.close);
+      const original = '甲泵业：离心泵，单位台，含税价 3,200 元。';
+      final offer = cleanOffer({
+        'supplier': '甲泵业',
+        'name': '离心泵',
+        'unit': '台',
+        'price': '3201',
+        'tax_mode': 'included',
+      });
+      tester.view.physicalSize = const Size(1280, 1000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildTheme(),
+          home: Scaffold(
+            body: MaterialReview(
+              state: AppState.test(store, dir),
+              plans: [store.planOffer(offer, source: original)],
+              onBack: () {},
+              source: (name: '报价.txt', bytes: utf8.encode(original)),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('核对字段原文'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('查看产品名称的原文'));
+      await tester.pumpAndSettle();
+      final rendered = tester.widget<SelectableText>(
+        find.byType(SelectableText),
+      );
+      expect(rendered.textSpan!.toPlainText(), original);
+      final highlight = rendered.textSpan!.children!
+          .whereType<TextSpan>()
+          .singleWhere((span) => span.style?.backgroundColor == Tokens.amberBg);
+      expect(highlight.text, '离心泵');
+      expect(find.text('报价.txt'), findsOneWidget);
+      await tester.tap(find.text('关闭'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('查看单价的原文'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('未找到完全相同的原文'), findsOneWidget);
+      expect(find.text(original), findsOneWidget);
+      expect(
+        store.listQuotations(),
+        isEmpty,
+        reason: 'source inspection never imports',
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('smart import review: blocked rows, inquirer, import', (
     tester,
   ) async {

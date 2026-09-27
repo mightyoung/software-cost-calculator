@@ -111,11 +111,24 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void>? _syncing;
+  final _pendingBackgroundWrites = <Future<void>>{};
 
   /// Imports other devices' files from the shared folder and writes ours,
   /// in the background. A second call while one runs joins it.
   Future<void> syncNow() =>
       _syncing ??= _sync().whenComplete(() => _syncing = null);
+
+  /// Stop folder sync before replacing the library. A sync already in flight
+  /// must finish first, or it could merge newer records into the restored DB.
+  Future<void> suspendSyncForRestore() async {
+    saveSetting('sync_dir', null);
+    await _syncing;
+    await Future.wait(_pendingBackgroundWrites.toList());
+    saveSetting('sync_seen', null);
+    lastSync = null;
+    lastSyncError = null;
+    notifyListeners();
+  }
 
   Future<void> _sync() async {
     final dir = syncDir;
@@ -130,6 +143,9 @@ class AppState extends ChangeNotifier {
       lastSync = r;
       lastSyncError = null;
       saveSetting('sync_seen', jsonEncode(r.seen)); // also refreshes pages
+    } on FormatException catch (e) {
+      lastSyncError = friendlyError(e.message);
+      notifyListeners();
     } catch (e) {
       lastSyncError = '$e';
       notifyListeners();
@@ -281,12 +297,17 @@ class AppState extends ChangeNotifier {
   Future<String?> writeInBackground(
     FutureOr<void> Function(Store store) action,
   ) async {
+    final pending = Completer<void>();
+    _pendingBackgroundWrites.add(pending.future);
     try {
       await store.inBackground(action);
       notifyListeners();
       return null;
     } on FormatException catch (e) {
       return friendlyError(e.message);
+    } finally {
+      _pendingBackgroundWrites.remove(pending.future);
+      pending.complete();
     }
   }
 }
@@ -320,6 +341,14 @@ String friendlyError(String message) {
     'expected unsigned decimal text': '应为不带符号的数字',
     'must be positive': '必须大于 0',
     'currency or tax mode differs from project': '币种或含税口径与项目不一致',
+    'currency, tax mode or unit cannot be converted': '币种、含税口径或单位无法换算到项目预算口径',
+    'clear budget and contract amount before changing project price basis':
+        '已有预算行或合同金额。请先处理这些金额，再修改项目币种或含税口径',
+    'must use the project price basis': '采用报价时，成本单价须使用项目税口径和预算行单位的折算价',
+    'clear or reconfigure conversions when changing the base unit':
+        '修改基准单位前请清空旧换算，或按新基准单位重新设置',
+    'expected at most 50 conversions': '最多设置 50 条单位换算',
+    'duplicate or base unit, or invalid factor': '来源单位不能重复或等于基准单位，换算数量须为正数',
     'record does not exist': '记录已被删除',
     'clearing existing information requires explicit confirmation':
         '不能直接清空已有内容',

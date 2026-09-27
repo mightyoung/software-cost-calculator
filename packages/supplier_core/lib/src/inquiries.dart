@@ -6,6 +6,7 @@ import 'compare.dart';
 import 'entities.dart';
 import 'inquiry.dart';
 import 'quotation.dart';
+import 'storage_codec.dart';
 import 'store.dart';
 import 'values.dart';
 import 'xlsx.dart';
@@ -191,7 +192,7 @@ extension Inquiries on Store {
     if (rows.isEmpty) return null;
     return {
       'id': rows.first['id'],
-      ...jsonDecode(rows.first['data'] as String) as Map<String, Object?>,
+      ...decodeStoredPayload('quotation', rows.first['data'] as String),
     };
   }
 
@@ -223,7 +224,7 @@ extension Inquiries on Store {
     }
     final project = get('project', inquiry['project_id']! as String)!.data;
     final productId = _productFor(itemId);
-    final unit = get('product', productId)!.data['unit'];
+    final unit = get('project_item', itemId)!.data['unit'];
     final today = localDay(context.asOf ?? clock());
     final previous = _cellQuote(inquiryId, supplierId, productId);
     final fields = {
@@ -242,7 +243,7 @@ extension Inquiries on Store {
       final id = previous.remove('id')! as String;
       return save(
         'quotation',
-        {...previous, ...fields, 'quoted_on': today},
+        {...previous, ...fields, 'unit_snapshot': unit, 'quoted_on': today},
         id: id,
         allowClear: true,
       );
@@ -285,6 +286,7 @@ extension Inquiries on Store {
               taxMode: project['tax_mode']! as String,
               asOf: asOf,
               qty: qty,
+              unit: item.data['unit']! as String,
               projectId: inquiry['project_id'] as String,
             );
       final history = productId == null
@@ -293,7 +295,7 @@ extension Inquiries on Store {
               productId,
               currency: project['currency']! as String,
               taxMode: project['tax_mode']! as String,
-              unit: get('product', productId)!.data['unit']! as String,
+              unit: item.data['unit']! as String,
             );
       final cells = <InquiryCell?>[
         for (final supplierId in suppliers)
@@ -310,8 +312,9 @@ extension Inquiries on Store {
                 option?.effectivePrice ?? effectivePriceOf(q, qty),
                 valid: option?.valid ?? false,
                 comparable: option != null,
-                deviation: history != null && history.count >= 3
-                    ? history.deviationPercent(priceOf(q))
+                deviation:
+                    history != null && history.count >= 3 && option != null
+                    ? history.deviationPercent(option.price)
                     : null,
               );
             }()
@@ -358,12 +361,22 @@ extension Inquiries on Store {
     if (itemId == null) return;
     final item = get('project_item', itemId);
     if (item == null || item.deleted) invalid('id', 'record does not exist');
+    final project = get('project', item.data['project_id']! as String)!;
+    final unitCost = priceInUnit(
+      get('quotation', quotationId)!.data,
+      product: get('product', quote.data['product_id']! as String)!.data,
+      unit: item.data['unit']! as String,
+      currency: project.data['currency']! as String,
+      taxMode: project.data['tax_mode']! as String,
+    );
+    if (unitCost == null)
+      invalid('quotation_id', 'currency or tax mode differs from project');
     save('project_item', {
       ...item.data,
       'product_id': quote.data['product_id'],
       'name': null,
       'quotation_id': quotationId,
-      'unit_cost': get('quotation', quotationId)!.data['deal_price'],
+      'unit_cost': unitCost,
     }, id: itemId);
   });
 

@@ -165,6 +165,12 @@ final _types = <ObjectType>[
       Kind.object,
       '参数名 → 参数值，如 {"流量": "50m³/h"}，最多 12 项，顺序有意义',
     ),
+    const FieldSpec(
+      'unit_conversions',
+      '报价单位换算',
+      Kind.object,
+      '报价单位 → 每 1 个报价单位包含的本物料基准单位数量，例如 {"千米": "1000"} 表示 1 千米 = 1000 米',
+    ),
   ]),
   ObjectType('project', '项目', '一次成本测算或采购任务，含预算行、报价和询价单', [
     const FieldSpec(
@@ -485,7 +491,7 @@ final List<LinkType> links = [
 /// Business rules an agent needs to read the data correctly.
 const rules = [
   Rule('decimal', '金额、数量、比率都是精确十进制文本（如 "12500.5"），原样引用，不要四舍五入；工具已完成的计算直接使用。'),
-  Rule('comparable', '只有币种、含税口径、单位都相同的报价才能比较价格。'),
+  Rule('comparable', '同币种报价可按税率换算含税口径，并按物料中的单位换算规则折算到基准单位；缺少税率或单位规则时不可跨口径比较。'),
   Rule('deal_price', '已定标（awarded_on 不为空）的报价按成交单价 deal_price 计，否则按报价单价 price。'),
   Rule('effective_price', '有效单价 = 单价 + 附加费用 extra_cost ÷ 需求数量；比较和选价都用有效单价。'),
   Rule(

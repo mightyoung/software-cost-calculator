@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'budget.dart';
+import 'storage_codec.dart';
 import 'store.dart';
 
 /// Why a quotation does not count toward "lowest valid price".
@@ -15,7 +16,14 @@ enum QuoteIssue {
 }
 
 class CompareRow {
-  CompareRow(this.id, this.data, this.issues, {this.lowest = false});
+  CompareRow(
+    this.id,
+    this.data,
+    this.issues, {
+    this.lowest = false,
+    String? comparisonPrice,
+    this.converted = false,
+  }) : comparisonPrice = comparisonPrice ?? priceOf(data);
   final String id;
   final Map<String, Object?> data;
   final List<QuoteIssue> issues;
@@ -24,10 +32,13 @@ class CompareRow {
 
   /// The agreed price once awarded, else the quoted price.
   String get price => priceOf(data);
+  final String comparisonPrice;
+  final bool converted;
   bool get awarded => data['awarded_on'] != null;
 }
 
-/// Quotes are only comparable within the same currency, tax mode and unit.
+/// Quotes share a currency and unit. Known rates normalize excluded prices
+/// to included; excluded prices without a rate remain in a separate group.
 class CompareGroup {
   CompareGroup(this.currency, this.taxMode, this.unit, this.rows);
   final String currency, taxMode, unit;
@@ -38,6 +49,7 @@ extension Compare on Store {
   /// Every quotation of a product, grouped by comparable basis. Within a
   /// group valid quotes come first by price and the cheapest is marked.
   List<CompareGroup> compareQuotes(String productId, {DateTime? asOf}) {
+    final product = get('product', productId)?.data;
     final now = asOf ?? clock();
     final today = now.toIso8601String().substring(0, 10);
     final staleBefore = now
@@ -52,7 +64,7 @@ extension Compare on Store {
       "WHERE q.deleted = 0 AND json_extract(q.data,'\$.product_id') = ?",
       [productId],
     )) {
-      final d = jsonDecode(r['data'] as String) as Map<String, Object?>;
+      final d = decodeStoredPayload('quotation', r['data'] as String);
       final quoted = d['quoted_on'] as String?;
       final until = d['valid_until'] as String?;
       final issues = [
@@ -67,12 +79,47 @@ extension Compare on Store {
             quoted.compareTo(staleBefore) < 0)
           QuoteIssue.stale,
       ];
-      final key = '${d['currency']}|${d['tax_mode']}|${d['unit_snapshot']}';
-      (groups[key] ??= []).add(CompareRow(r['id'] as String, d, issues));
+      final targetUnit =
+          product != null &&
+              unitFactor(product, d['unit_snapshot']! as String) != null
+          ? product['unit']! as String
+          : d['unit_snapshot']! as String;
+      final taxPrice = priceInTaxMode(
+        d,
+        currency: d['currency']! as String,
+        taxMode: 'included',
+      );
+      final targetBasis = taxPrice == null
+          ? d['tax_mode']! as String
+          : 'included';
+      final normalized = priceInUnit(
+        d,
+        product: product ?? {},
+        unit: targetUnit,
+        currency: d['currency']! as String,
+        taxMode: targetBasis,
+      );
+      // A rejected conversion must retain the source price's own labels.
+      final unit = normalized == null
+          ? d['unit_snapshot']! as String
+          : targetUnit;
+      final basis = normalized == null ? d['tax_mode']! as String : targetBasis;
+      final key = '${d['currency']}|$basis|$unit';
+      (groups[key] ??= []).add(
+        CompareRow(
+          r['id'] as String,
+          d,
+          issues,
+          comparisonPrice: normalized,
+          converted:
+              normalized != null &&
+              (basis != d['tax_mode'] || unit != d['unit_snapshot']),
+        ),
+      );
     }
     int byPrice(CompareRow a, CompareRow b) {
       if (a.valid != b.valid) return a.valid ? -1 : 1;
-      return micros(a.price).compareTo(micros(b.price));
+      return micros(a.comparisonPrice).compareTo(micros(b.comparisonPrice));
     }
 
     final result = [
@@ -87,6 +134,8 @@ extension Compare on Store {
                 rows[i].data,
                 rows[i].issues,
                 lowest: i == 0 && rows[i].valid,
+                comparisonPrice: rows[i].comparisonPrice,
+                converted: rows[i].converted,
               ),
           ]);
         }(),
@@ -129,23 +178,42 @@ extension History on Store {
     required String currency,
     required String taxMode,
     required String unit,
+    bool forCompareGroup = false,
   }) {
+    final product = get('product', productId)?.data ?? <String, Object?>{};
     final prices = <BigInt>[];
     String? lastDeal, lastDealOn;
     for (final r in db.select(
       "SELECT data FROM quotation WHERE deleted = 0 "
       "AND json_extract(data,'\$.product_id') = ? "
-      "AND json_extract(data,'\$.currency') = ? "
-      "AND json_extract(data,'\$.tax_mode') = ? "
-      "AND json_extract(data,'\$.unit_snapshot') = ?",
-      [productId, currency, taxMode, unit],
+      "AND json_extract(data,'\$.currency') = ?",
+      [productId, currency],
     )) {
       final d = jsonDecode(r['data'] as String) as Map<String, Object?>;
-      prices.add(micros(priceOf(d)));
+      // Comparison groups normalize to included whenever possible; a separate
+      // excluded group contains only quotations lacking a conversion rate.
+      if (forCompareGroup) {
+        final included = priceInTaxMode(
+          d,
+          currency: currency,
+          taxMode: 'included',
+        );
+        final groupMode = included == null ? d['tax_mode'] : 'included';
+        if (groupMode != taxMode) continue;
+      }
+      final normalized = priceInUnit(
+        d,
+        product: product,
+        unit: unit,
+        currency: currency,
+        taxMode: taxMode,
+      );
+      if (normalized == null) continue;
+      prices.add(micros(normalized));
       final on = d['awarded_on'] as String?;
       if (on != null && (lastDealOn == null || on.compareTo(lastDealOn) > 0)) {
         lastDealOn = on;
-        lastDeal = d['deal_price'] as String?;
+        lastDeal = normalized;
       }
     }
     if (prices.isEmpty) return null;
@@ -156,7 +224,7 @@ extension History on Store {
       prices.length,
       fromMicros(prices.first),
       fromMicros(prices.last),
-      fromMicros((sum * BigInt.two + n) ~/ (n * BigInt.two)),
+      fromMicros(roundedDivide(sum, n)),
       lastDeal,
     );
   }

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:supplier_core/supplier_core.dart';
 
 void main() {
+  final failures = <String>[];
   final dir = Directory('/tmp/sq-bench/run')..createSync(recursive: true);
   for (final f in dir.listSync()) {
     f.deleteSync();
@@ -33,6 +34,7 @@ void main() {
           'notes': null,
           'merged_into': null,
           'attributes': null,
+          'unit_conversions': null,
         }),
     ];
     pros = [
@@ -94,29 +96,34 @@ void main() {
   });
   print('generate ${sw.elapsedMilliseconds} ms');
   s.db.execute('PRAGMA wal_checkpoint(TRUNCATE)');
-  print('db ${File('${dir.path}/a.db').lengthSync() ~/ 1048576} MiB');
+  final dbBytes = File('${dir.path}/a.db').lengthSync();
+  print('db $dbBytes bytes (${dbBytes ~/ 1048576} MiB; limit 150000000)');
+  if (dbBytes > 150000000) failures.add('database size');
   sw.reset();
   s.exportTo('${dir.path}/x.siq');
+  final exportMs = sw.elapsedMilliseconds;
   print(
-    'export ${sw.elapsedMilliseconds} ms, file ${File('${dir.path}/x.siq').lengthSync() ~/ 1048576} MiB',
+    'export $exportMs ms, file ${File('${dir.path}/x.siq').lengthSync() ~/ 1048576} MiB',
   );
+  if (exportMs > 60000) failures.add('exchange export');
   final b = Store.open('${dir.path}/b.db', device: 'WH02');
   sw.reset();
   b.importFrom('${dir.path}/x.siq');
-  print('import into empty ${sw.elapsedMilliseconds} ms');
+  final importMs = sw.elapsedMilliseconds;
+  print('import into empty $importMs ms');
+  if (importMs > 60000) failures.add('exchange import');
   sw.reset();
   b.importFrom('${dir.path}/x.siq');
   print('re-import (no changes) ${sw.elapsedMilliseconds} ms');
   // Interactive queries: fail when one is several times slower than today
   // (limits allow for JIT and slow CI runners), e.g. the search index
   // stopped being used.
-  final slow = <String>[];
   void timed(String label, int limitMs, Object? Function() run) {
     sw.reset();
     run();
     final ms = sw.elapsedMilliseconds;
     print('$label $ms ms (limit $limitMs)');
-    if (ms > limitMs) slow.add(label);
+    if (ms > limitMs) failures.add(label);
   }
 
   timed(
@@ -131,8 +138,8 @@ void main() {
   });
   timed('pinyin search', 300, () => b.searchByName('supplier', 'gys'));
   print('rss ${ProcessInfo.maxRss ~/ 1048576} MiB');
-  if (slow.isNotEmpty) {
-    print('TOO SLOW: ${slow.join(', ')}');
+  if (failures.isNotEmpty) {
+    print('BENCHMARK FAILED: ${failures.join(', ')}');
     exitCode = 1;
   }
 }

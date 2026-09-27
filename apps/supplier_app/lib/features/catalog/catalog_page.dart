@@ -35,7 +35,7 @@ const _lists = {'aliases', 'categories'};
 /// Fields whose edits re-run the duplicate check.
 const _identity = {
   'supplier': {'name'},
-  'product': {'name', 'brand', 'model', 'specification', 'category'},
+  'product': {'name', 'unit', 'brand', 'model', 'specification', 'category'},
 };
 
 /// Suppliers and materials: searchable list plus a create/edit dialog.
@@ -183,6 +183,7 @@ class _CatalogForm extends StatefulWidget {
 class _CatalogFormState extends State<_CatalogForm> {
   final c = <String, TextEditingController>{};
   final attrs = <AttributeRow>[];
+  final unitConversions = <AttributeRow>[];
   String? error;
   List<Duplicate> dups = const [];
 
@@ -306,6 +307,15 @@ class _CatalogFormState extends State<_CatalogForm> {
         ));
       }
     }
+    final conversions = data?['unit_conversions'];
+    if (conversions is Map) {
+      for (final e in conversions.entries) {
+        unitConversions.add((
+          TextEditingController(text: e.key as String),
+          TextEditingController(text: e.value as String),
+        ));
+      }
+    }
     dups = _similar();
   }
 
@@ -314,6 +324,7 @@ class _CatalogFormState extends State<_CatalogForm> {
     for (final x in [
       ...c.values,
       for (final (k, v) in attrs) ...[k, v],
+      for (final (k, v) in unitConversions) ...[k, v],
     ]) {
       x.dispose();
     }
@@ -346,6 +357,19 @@ class _CatalogFormState extends State<_CatalogForm> {
         return setState(() => error = '关键属性「${missing.first}」还没有填写值');
       }
       payload['attributes'] = _attrMap().isEmpty ? null : _attrMap();
+      final units = <String, String>{};
+      for (final (source, factor) in unitConversions) {
+        final name = source.text.trim();
+        final value = factor.text.trim();
+        if (name.isEmpty || value.isEmpty) {
+          return setState(() => error = '单位换算的来源单位和数量都要填写');
+        }
+        if (units.containsKey(name)) {
+          return setState(() => error = '来源单位「$name」重复');
+        }
+        units[name] = value;
+      }
+      payload['unit_conversions'] = units.isEmpty ? null : units;
     }
     late String id;
     final err = widget.state.write(
@@ -431,6 +455,73 @@ class _CatalogFormState extends State<_CatalogForm> {
                   }),
                   onChanged: () => setState(() => dups = _similar()),
                 ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        '报价单位换算',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: () => setState(
+                        () => unitConversions.add((
+                          TextEditingController(),
+                          TextEditingController(),
+                        )),
+                      ),
+                      icon: const Icon(Icons.add, size: 16),
+                      label: const Text('添加单位'),
+                    ),
+                  ],
+                ),
+                Text(
+                  '填写 1 个报价单位等于多少「${c['unit']!.text.trim().isEmpty ? '基准单位' : c['unit']!.text.trim()}」，例如 1 千米 = 1000 米。修改基准单位前请先清空旧换算。',
+                  style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+                ),
+                for (var i = 0; i < unitConversions.length; i++)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: unitConversions[i].$1,
+                            decoration: const InputDecoration(
+                              labelText: '报价单位',
+                              hintText: '千米',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            controller: unitConversions[i].$2,
+                            decoration: InputDecoration(
+                              labelText:
+                                  '等于多少${c['unit']!.text.trim().isEmpty ? '基准单位' : c['unit']!.text.trim()}',
+                              hintText: '1000',
+                            ),
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: '删除单位换算',
+                          icon: const Icon(Icons.close, size: 16),
+                          onPressed: () => setState(() {
+                            final (source, factor) = unitConversions.removeAt(
+                              i,
+                            );
+                            source.dispose();
+                            factor.dispose();
+                          }),
+                        ),
+                      ],
+                    ),
+                  ),
                 const SizedBox(height: 12),
               ],
               if (dups.isNotEmpty) ...[

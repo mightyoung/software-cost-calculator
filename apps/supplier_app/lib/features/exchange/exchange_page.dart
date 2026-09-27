@@ -75,6 +75,25 @@ class _ExchangePageState extends State<ExchangePage> {
     }
   }
 
+  Future<void> _restore() async {
+    final picked = await pickToTemp(['siq'], temp);
+    if (picked == null || !mounted) return;
+    try {
+      final r = await reviewAndRestore(
+        context,
+        state,
+        picked,
+        onBusy: (b) {
+          if (mounted) setState(() => busy = b);
+        },
+      );
+      if (r.message != null && mounted) toast(context, r.message!);
+    } finally {
+      File(picked).deleteSync();
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget panel(IconData icon, String title, String body, Widget action) =>
@@ -108,7 +127,7 @@ class _ExchangePageState extends State<ExchangePage> {
       panel(
         Icons.upload_file_outlined,
         '导出交换文件',
-        '生成本机全部数据的快照（.siq），发给其他设备导入即可同步。这个文件同时就是备份：新设备导入它即可恢复。',
+        '生成本机全部数据的快照（.siq），发给其他设备导入即可合并。也可留作备份，之后通过整库恢复回到这个时间点。',
         FilledButton(
           onPressed: busy ? null : _export,
           child: const Text('导出交换文件'),
@@ -121,6 +140,15 @@ class _ExchangePageState extends State<ExchangePage> {
         OutlinedButton(
           onPressed: busy ? null : _import,
           child: const Text('选择交换文件'),
+        ),
+      ),
+      panel(
+        Icons.settings_backup_restore_outlined,
+        '从备份恢复整个资料库',
+        '将本机资料库完整替换为所选备份。适合回到旧状态；恢复前会自动另存本机资料库，并经过两次确认。',
+        OutlinedButton(
+          onPressed: busy ? null : _restore,
+          child: const Text('选择备份并恢复'),
         ),
       ),
     ];
@@ -141,6 +169,8 @@ class _ExchangePageState extends State<ExchangePage> {
           const SizedBox(height: 12),
           Row(children: [panels[1]]),
         ],
+        const SizedBox(height: 12),
+        Row(children: [panels[2]]),
         if (busy) ...[
           const SizedBox(height: 16),
           const LinearProgressIndicator(),

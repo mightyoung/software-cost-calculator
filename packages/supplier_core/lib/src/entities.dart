@@ -113,6 +113,7 @@ final class Product extends EntityPayload {
     'notes',
     'merged_into',
     'attributes',
+    'unit_conversions',
   ];
   factory Product.fromJson(Map<String, Object?> value) {
     exactKeys(value, fields);
@@ -130,6 +131,36 @@ final class Product extends EntityPayload {
       'notes': normalizeText(value['notes'], 'notes', 2000),
       'merged_into': _mergedInto(value),
       'attributes': _attributes(value['attributes']),
+      'unit_conversions': _unitConversions(
+        value['unit_conversions'],
+        normalizeText(value['unit'], 'unit', 50, required: true),
+      ),
     });
   }
+}
+
+Map<String, String>? _unitConversions(Object? value, Object? base) {
+  if (value == null) return null;
+  if (value is! Map || value.length > 50)
+    invalid('unit_conversions', 'expected at most 50 conversions');
+  final result = <String, String>{};
+  for (final entry in value.entries) {
+    final unit = normalizeText(
+      entry.key,
+      'unit_conversions.unit',
+      50,
+      required: true,
+    )!;
+    if (unit == base || result.containsKey(unit) || entry.value is! String) {
+      invalid('unit_conversions', 'duplicate or base unit, or invalid factor');
+    }
+    result[unit] = ExactDecimal.parse(
+      entry.value as String,
+      positive: true,
+    ).canonical;
+  }
+  final units = result.keys.toList()..sort(compareCodepoints);
+  return result.isEmpty
+      ? null
+      : {for (final unit in units) unit: result[unit]!};
 }

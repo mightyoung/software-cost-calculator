@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
@@ -9,6 +11,9 @@ import '../../widgets/ledger.dart';
 import '../ai/material_import_page.dart';
 import 'compare_view.dart';
 import 'quote_form.dart';
+
+QuoteAttention _loadQuoteAttention(Store store) =>
+    store.quoteAttention(limit: 50);
 
 class QuotesPage extends StatefulWidget {
   const QuotesPage({super.key, required this.state});
@@ -22,6 +27,62 @@ class _QuotesPageState extends State<QuotesPage> {
   String query = '';
   String? comparing;
   Store get store => widget.state.store;
+  QuoteAttention? attention;
+  bool attentionFailed = false;
+  Timer? _attentionTimer;
+  int _attentionRun = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.state.addListener(_refreshAttention);
+    _loadAttention();
+  }
+
+  @override
+  void didUpdateWidget(covariant QuotesPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.state == widget.state) return;
+    oldWidget.state.removeListener(_refreshAttention);
+    _attentionTimer?.cancel();
+    attention = null;
+    attentionFailed = false;
+    widget.state.addListener(_refreshAttention);
+    _loadAttention();
+  }
+
+  @override
+  void dispose() {
+    _attentionTimer?.cancel();
+    _attentionRun++;
+    widget.state.removeListener(_refreshAttention);
+    super.dispose();
+  }
+
+  void _refreshAttention() {
+    _attentionTimer?.cancel();
+    _attentionTimer = Timer(const Duration(milliseconds: 150), _loadAttention);
+  }
+
+  Future<void> _loadAttention() async {
+    final run = ++_attentionRun;
+    try {
+      final result = await store.inBackground(_loadQuoteAttention);
+      if (mounted && run == _attentionRun) {
+        setState(() {
+          attention = result;
+          attentionFailed = false;
+        });
+      }
+    } catch (_) {
+      if (mounted && run == _attentionRun) {
+        setState(() {
+          attention = null;
+          attentionFailed = true;
+        });
+      }
+    }
+  }
 
   List<String> get _words =>
       query.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
@@ -64,6 +125,69 @@ class _QuotesPageState extends State<QuotesPage> {
     if (msg != null && mounted) toast(context, msg);
   }
 
+  Future<void> _showAttention() async {
+    final details = attention;
+    if (details == null) return;
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('报价时效提醒'),
+        content: SizedBox(
+          width: MediaQuery.sizeOf(dialogContext).width < 640 ? null : 560,
+          height: MediaQuery.sizeOf(dialogContext).height * .6,
+          child: ListView(
+            children: [
+              Text('未来 30 天到期 · ${details.expiringCount} 条'),
+              if (details.expiring.isEmpty)
+                const ListTile(title: Text('暂无即将到期的报价')),
+              for (final h in details.expiring)
+                ListTile(
+                  leading: const Icon(Icons.event_outlined),
+                  title: Text(
+                    '${store.get('product', h.data['product_id'] as String)?.data['name'] ?? '物料已删除'}',
+                  ),
+                  subtitle: Text(
+                    '${store.get('supplier', h.data['supplier_id'] as String)?.data['name'] ?? '供应商已删除'}'
+                    ' · 有效至 ${h.data['expires_on']}',
+                  ),
+                  onTap: () {
+                    Navigator.pop(dialogContext);
+                    showQuoteForm(context, widget.state, id: h.id);
+                  },
+                ),
+              const Divider(),
+              Text('超过 90 天无新报价的物料 · ${details.staleProductCount} 种'),
+              if (details.staleProducts.isEmpty)
+                const ListTile(title: Text('暂无长期未更新的物料')),
+              for (final h in details.staleProducts)
+                ListTile(
+                  leading: const Icon(Icons.history_outlined),
+                  title: Text('${h.data['name']}'),
+                  subtitle: Text('最近报价 ${h.data['last_quoted_on']}'),
+                  onTap: () {
+                    Navigator.pop(dialogContext);
+                    setState(() => comparing = h.id);
+                  },
+                ),
+              if (details.expiringCount > details.expiring.length ||
+                  details.staleProductCount > details.staleProducts.length)
+                const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Text('每类仅显示最早的 50 条。'),
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('关闭'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _export({bool blank = false}) async {
     final bytes = blank
         ? writeXlsx([
@@ -96,6 +220,7 @@ class _QuotesPageState extends State<QuotesPage> {
       final matches = _words.isEmpty
           ? const <Hit>[]
           : store.searchProducts(_words, limit: 6);
+      final activeAttention = attention;
       return Padding(
         padding: const EdgeInsets.fromLTRB(24, 18, 24, 16),
         child: Column(
@@ -134,6 +259,41 @@ class _QuotesPageState extends State<QuotesPage> {
               ),
               onChanged: (v) => setState(() => query = v.trim()),
             ),
+            if (attentionFailed)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: _loadAttention,
+                  icon: const Icon(Icons.refresh, size: 18),
+                  label: const Text('时效提醒暂不可用，点击重试'),
+                ),
+              ),
+            if (activeAttention != null &&
+                activeAttention.expiringCount +
+                        activeAttention.staleProductCount >
+                    0) ...[
+              const SizedBox(height: 8),
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 10,
+                runSpacing: 4,
+                children: [
+                  const Icon(
+                    Icons.notifications_active_outlined,
+                    size: 18,
+                    color: Tokens.accent,
+                  ),
+                  Text(
+                    '30 天内到期 ${activeAttention.expiringCount} 条 · '
+                    '90 天无新报价 ${activeAttention.staleProductCount} 种',
+                  ),
+                  TextButton(
+                    onPressed: _showAttention,
+                    child: const Text('查看提醒'),
+                  ),
+                ],
+              ),
+            ],
             if (matches.isNotEmpty) ...[
               const SizedBox(height: 8),
               Wrap(

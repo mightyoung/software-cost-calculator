@@ -64,6 +64,34 @@ void main() {
     expect(() => s.mergeInto('project', pro, pro), throwsFormatException);
   });
 
+  test('merge roots converge through chains and cycles longer than 64', () {
+    final s = device('A');
+    addTearDown(s.close);
+    final ids = [
+      for (var i = 0; i < 70; i++) s.save('supplier', supplier('供应商$i')),
+    ];
+    for (var i = 0; i < ids.length - 1; i++) {
+      s.save('supplier', {
+        ...s.get('supplier', ids[i])!.data,
+        'merged_into': ids[i + 1],
+      }, id: ids[i]);
+    }
+    expect(s.mergeRoot('supplier', ids.first), ids.last);
+    s.save('supplier', {
+      ...s.get('supplier', ids.last)!.data,
+      'merged_into': ids.first,
+    }, id: ids.last);
+    final root = (ids.toList()..sort()).first;
+    for (final id in ids) {
+      expect(s.mergeRoot('supplier', id), root);
+    }
+    s.redirectMerged();
+    for (final id in ids) {
+      expect(s.mergeRoot('supplier', id), root);
+    }
+    expect(s.redirectMerged(), 0);
+  });
+
   test('references made elsewhere follow a merge; devices converge', () {
     final a = device('A');
     final keep = a.save('supplier', supplier('甲泵业'));

@@ -5,6 +5,7 @@ const fieldLabels = {
   'name': '名称',
   'code': '编号',
   'unit': '单位',
+  'unit_conversions': '单位换算',
   'qty': '数量',
   'unit_cost': '成本单价',
   'unit_price': '对外单价',

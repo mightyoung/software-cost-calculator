@@ -1,12 +1,9 @@
-import 'dart:convert';
-
+import 'storage_codec.dart';
 import 'store.dart';
 import 'values.dart';
 
 /// Entity types whose duplicates can be merged.
 const mergeableTypes = {'supplier', 'product'};
-
-const _maxHops = 64;
 
 /// Merging never deletes: the duplicate keeps its row with `merged_into`
 /// pointing at the record it was merged into. References that arrive later
@@ -17,19 +14,18 @@ extension Merge on Store {
   /// merge cycle, which two devices can create by merging in opposite
   /// directions, the smallest id in the cycle is the root.
   String mergeRoot(String type, String id) {
-    final seen = <String>[];
+    final seen = <String, int>{};
     var current = id;
-    while (seen.length < _maxHops) {
-      final at = seen.indexOf(current);
-      if (at >= 0) {
-        return (seen.sublist(at)..sort()).first;
+    while (true) {
+      final at = seen[current];
+      if (at != null) {
+        return (seen.keys.skip(at).toList()..sort()).first;
       }
-      seen.add(current);
+      seen[current] = seen.length;
       final next = get(type, current)?.data['merged_into'] as String?;
       if (next == null) return current;
       current = next;
     }
-    return current;
   }
 
   /// Merges duplicate [fromId] into [intoId] and redirects every live
@@ -84,9 +80,7 @@ extension Merge on Store {
       for (final r in db.select(
         'SELECT id, data FROM $type WHERE deleted = 0 AND ($where)',
       )) {
-        final data = Map.of(
-          jsonDecode(r['data'] as String) as Map<String, Object?>,
-        );
+        final data = decodeStoredPayload(type, r['data'] as String);
         for (final MapEntry(key: field, value: target) in mergeable.entries) {
           final id = data[field] as String?;
           if (id != null) data[field] = mergeRoot(target, id);
@@ -104,9 +98,7 @@ extension Merge on Store {
           "ON t.id = j.value WHERE json_extract(t.data,'\$.merged_into') "
           'IS NOT NULL)',
         )) {
-          final data = Map.of(
-            jsonDecode(r['data'] as String) as Map<String, Object?>,
-          );
+          final data = decodeStoredPayload(type, r['data'] as String);
           data[field] = [
             for (final id in data[field]! as List)
               mergeRoot(target, id as String),
@@ -128,7 +120,7 @@ extension Merge on Store {
       "AND json_extract(data,'\$.merged_into') IS NOT NULL",
     )) {
       final id = r['id'] as String;
-      final data = jsonDecode(r['data'] as String) as Map<String, Object?>;
+      final data = decodeStoredPayload(type, r['data'] as String);
       final target = get(type, data['merged_into']! as String);
       final dangling = target == null || target.deleted;
       if (!dangling && mergeRoot(type, id) != id) continue;

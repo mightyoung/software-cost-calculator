@@ -27,7 +27,7 @@ jobs:
           dart pub get
           dart analyze
           dart test
-      - name: Core benchmark (fails on slow searches)
+      - name: Core benchmark (size, exchange time and search gates)
         working-directory: packages/supplier_core
         # dart run, not compile exe: it bundles the SQLite build hook's library.
         run: |
