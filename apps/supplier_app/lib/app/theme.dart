@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 /// Colour tokens from .impeccable.md ("precision console").
@@ -22,6 +24,11 @@ abstract final class Tokens {
   static const amberBg = Color(0xFFFFF2DF);
   static const red = Color(0xFFB8302A);
   static const redBg = Color(0xFFFDE8E6);
+
+  /// Good outcomes only: lowest valid price, awarded. Blue stays for what
+  /// can be clicked or is selected.
+  static const green = Color(0xFF17693F);
+  static const greenBg = Color(0xFFE6F4EC);
   static const radius = 8.0;
 }
 
@@ -32,6 +39,16 @@ const fontFallback = [
   'PingFang SC',
   'Noto Sans SC',
   'Noto Sans CJK SC',
+];
+
+/// Model numbers and codes: each platform's own monospace face.
+const monoFamily = 'Consolas';
+const monoFallback = [
+  'Menlo',
+  'SF Mono',
+  'Cascadia Mono',
+  'monospace',
+  ...fontFallback,
 ];
 
 const tabular = [FontFeature.tabularFigures()];
@@ -77,7 +94,11 @@ ThemeData buildTheme() {
     useMaterial3: true,
     colorScheme: scheme,
     scaffoldBackgroundColor: Tokens.canvas,
-    fontFamilyFallback: fontFallback,
+    // Windows 11's Segoe UI Variable reads better than Segoe UI at small
+    // sizes; Windows 10 falls back to Segoe UI. Other platforms keep their
+    // system face.
+    fontFamily: Platform.isWindows ? 'Segoe UI Variable Text' : null,
+    fontFamilyFallback: [if (Platform.isWindows) 'Segoe UI', ...fontFallback],
     textTheme: text,
     visualDensity: VisualDensity.compact,
     splashFactory: NoSplash.splashFactory,

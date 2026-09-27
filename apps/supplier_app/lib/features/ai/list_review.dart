@@ -275,7 +275,7 @@ class _ListReviewState extends State<ListReview> {
                         child: Text(
                           '${i + 1}',
                           style: const TextStyle(
-                            fontSize: 11,
+                            fontSize: 12,
                             color: Tokens.ink3,
                           ),
                         ),

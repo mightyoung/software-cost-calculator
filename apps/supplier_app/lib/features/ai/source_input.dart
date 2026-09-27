@@ -150,7 +150,7 @@ class StepsBar extends StatelessWidget {
                 : Text(
                     '${i + 1}',
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 12,
                       color: on ? Tokens.ink : Tokens.ink3,
                     ),
                   ),

@@ -113,7 +113,7 @@ class CompareView extends StatelessWidget {
       onTap: () => showQuoteForm(context, state, id: r.id),
       child: Container(
         decoration: BoxDecoration(
-          color: r.lowest ? Tokens.accentTint : Tokens.surface,
+          color: r.lowest ? Tokens.greenBg : Tokens.surface,
           border: const Border(
             left: BorderSide(color: Tokens.rule),
             right: BorderSide(color: Tokens.rule),
@@ -175,7 +175,7 @@ class CompareView extends StatelessWidget {
                   '最低有效价',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Tokens.accentDeep,
+                    color: Tokens.green,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

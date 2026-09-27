@@ -360,7 +360,11 @@ class _ValueTag extends StatelessWidget {
         children: [
           TextSpan(
             text: '$value ',
-            style: const TextStyle(fontFamily: 'monospace', color: Tokens.ink),
+            style: const TextStyle(
+              fontFamily: monoFamily,
+              fontFamilyFallback: monoFallback,
+              color: Tokens.ink,
+            ),
           ),
           TextSpan(text: meaning),
         ],
@@ -616,8 +620,8 @@ class _McpCard extends StatelessWidget {
               child: SelectableText(
                 config,
                 style: const TextStyle(
-                  fontFamily: 'monospace',
-                  fontFamilyFallback: fontFallback,
+                  fontFamily: monoFamily,
+                  fontFamilyFallback: monoFallback,
                   fontSize: 12,
                 ),
               ),

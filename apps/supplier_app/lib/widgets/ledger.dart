@@ -103,7 +103,7 @@ class LedgerCell extends StatelessWidget {
   );
 }
 
-enum HintTone { warning, error, info }
+enum HintTone { warning, error, info, success }
 
 /// Icon plus words, never colour alone.
 class HintTag extends StatelessWidget {
@@ -123,6 +123,7 @@ class HintTag extends StatelessWidget {
       HintTone.error => (Tokens.red, Tokens.redBg),
       HintTone.warning => (Tokens.amber, Tokens.amberBg),
       HintTone.info => (Tokens.accentDeep, Tokens.surface),
+      HintTone.success => (Tokens.green, Tokens.greenBg),
     };
     return Semantics(
       label: text,
@@ -219,8 +220,8 @@ class MonoText extends StatelessWidget {
     style: const TextStyle(
       fontSize: 12,
       color: Tokens.ink2,
-      fontFamily: 'monospace',
-      fontFamilyFallback: fontFallback,
+      fontFamily: monoFamily,
+      fontFamilyFallback: monoFallback,
     ),
     overflow: TextOverflow.ellipsis,
   );
