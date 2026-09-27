@@ -15,6 +15,7 @@ import 'values.dart';
 /// 3: quotation scope/award/provenance fields, inquiries, attachments.
 /// 4: quotation price_basis, product attributes.
 /// 5: quotation storage omits top-level null fields.
+/// 6: products gain `unit_conversions` (quote unit → base units).
 const schemaVersion = 6;
 const fileFormat = 'supplier-inquiry';
 

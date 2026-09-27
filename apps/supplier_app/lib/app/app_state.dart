@@ -335,22 +335,6 @@ Future<void> Function(Store) _shareJob(
 
 /// Maps core validation messages ("field: reason") to short Chinese text.
 String friendlyError(String message) {
-  if (message.contains('incompatible concurrent field edits')) {
-    final match = RegExp(
-      r'^(quotation|product|project_item|project) (\S+) has incompatible',
-    ).firstMatch(message);
-    final type = switch (match?.group(1)) {
-      'quotation' => '报价',
-      'product' => '物料',
-      'project_item' => '预算行',
-      'project' => '项目',
-      _ => '记录',
-    };
-    final id = match?.group(2);
-    return '两台设备对同一$type的修改互相矛盾，导入已撤销。'
-        '请核对价格口径、单位、日期或有效期后再交换。'
-        '${id == null ? '' : '记录：$id'}';
-  }
   const reasons = {
     'required': '必填',
     'precision exceeded': '位数超出（最多 12 位整数、6 位小数）',

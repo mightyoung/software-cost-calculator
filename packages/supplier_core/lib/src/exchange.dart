@@ -193,12 +193,8 @@ extension Exchange on Store {
       );
       for (final type in entityTypes) {
         diverged[type]!.forEach(
-          (id, deleted) => _mergeFields(
-            type,
-            id,
-            deleted,
-            originalBasis: basisBefore[type]?[id],
-          ),
+          (id, deleted) =>
+              _mergeFields(type, id, deleted, original: basisBefore[type]?[id]),
         );
       }
       _checkProjectBasisImports(basisBefore['project']!, projectItemsBefore);
@@ -386,7 +382,14 @@ extension Exchange on Store {
   // Prices and their quoted unit/tax/reference, budget amounts and their
   // unit/reference, or a product's base unit and factors form one basis.
   // Field replay must not splice a basis that neither device held.
-  String _basis(String type, Map<String, Object?> data) {
+  /// Fields that must come from one device together. A budget line's
+  /// quantity joins them only when the two sides use different units (1 米
+  /// and 0.001 千米 are the same amount).
+  List<String> _basisFields(
+    String type, [
+    Map<String, Object?>? local,
+    Map<String, Object?>? incoming,
+  ]) {
     final fields = switch (type) {
       'product' => const ['unit', 'unit_conversions'],
       'project' => const ['currency', 'tax_mode', 'contract_amount'],
@@ -401,18 +404,30 @@ extension Exchange on Store {
         'min_qty',
         'extra_cost',
       ],
-      _ => const [
+      // Quantity is not part of the price: a refreshed price and a changed
+      // quantity from two devices combine into a valid line.
+      _ => [
         'project_id',
         'product_id',
         'quotation_id',
         'unit',
-        'qty',
         'unit_cost',
         'unit_price',
+        if (type == 'project_item' &&
+            local != null &&
+            incoming != null &&
+            local['unit'] != incoming['unit'])
+          'qty',
       ],
     };
-    return jsonEncode([for (final field in fields) data[field]]);
+    return fields;
   }
+
+  String _basis(
+    String type,
+    Map<String, Object?> data, [
+    List<String>? fields,
+  ]) => jsonEncode([for (final f in fields ?? _basisFields(type)) data[f]]);
 
   String _basisKey(String type, Map<String, Object?> data) {
     final fields = switch (type) {
@@ -430,8 +445,9 @@ extension Exchange on Store {
     return jsonEncode([for (final field in fields) data[field]]);
   }
 
-  Map<String, String> _localBasis(String type) {
-    final result = <String, String>{};
+  /// Local rows about to meet an incoming row with another price basis.
+  Map<String, Map<String, Object?>> _localBasis(String type) {
+    final result = <String, Map<String, Object?>>{};
     for (final row in db.select(
       'SELECT m.id, m.data AS local_data, s.data AS incoming_data '
       'FROM main.$type m JOIN src.$type s ON s.id=m.id '
@@ -443,7 +459,7 @@ extension Exchange on Store {
         row['incoming_data'] as String,
       );
       if (_basisKey(type, local) != _basisKey(type, incoming)) {
-        result[row['id'] as String] = _basis(type, local);
+        result[row['id'] as String] = local;
       }
     }
     return result;
@@ -462,22 +478,25 @@ extension Exchange on Store {
   };
 
   void _checkProjectBasisImports(
-    Map<String, String> localBasis,
+    Map<String, Map<String, Object?>> localBasis,
     Map<String, Map<String, String>> localItems,
   ) {
     for (final id in localBasis.keys) {
       final merged = get('project', id);
       if (merged == null || merged.deleted) continue;
-      final choseLocal = _basis('project', merged.data) == localBasis[id];
+      final choseLocal =
+          _basis('project', merged.data) == _basis('project', localBasis[id]!);
       final chosenItems = choseLocal
           ? localItems[id]!
           : _itemBasesForProject('src', id);
       final finalItems = _itemBasesForProject('main', id);
       for (final entry in finalItems.entries) {
         if (chosenItems[entry.key] != entry.value) {
+          // Line amounts cannot be told apart once the project's currency or
+          // tax mode changed on another device: stop and let people decide.
           throw FormatException(
-            'project $id has incompatible concurrent field edits: '
-            'budget lines belong to another project price basis',
+            '项目「${merged.data['name']}」的币种或含税口径在另一台设备上改过，'
+            '同时两边都改了它的预算行。请两台设备先统一这个项目的币种和含税口径，再交换',
           );
         }
       }
@@ -488,13 +507,16 @@ extension Exchange on Store {
   /// value of its latest change in the combined change log, so edits to
   /// different fields on different devices are all kept. Deletion wins over
   /// edits. The result depends only on the combined log, so every device
-  /// computes the same row. If the merged fields break a cross-field rule,
-  /// the import fails atomically so neither device silently loses an edit.
+  /// computes the same row. Exchange never stops on a merge: a price basis
+  /// that neither device held (say one changed the unit, the other the
+  /// price) is taken whole from the row-level winner, and merged fields that
+  /// break a cross-field rule leave the whole winning row. The overridden
+  /// edits stay in the change log.
   void _mergeFields(
     String type,
     String id,
     bool deleted, {
-    String? originalBasis,
+    Map<String, Object?>? original,
   }) {
     final row = db.select('SELECT data FROM main.$type WHERE id=?', [id]);
     final current = row.first['data'] as String;
@@ -507,28 +529,27 @@ extension Exchange on Store {
       final field = r['field'] as String;
       if (data.containsKey(field)) data[field] = jsonDecode(r['new'] as String);
     }
-    if (!deleted && originalBasis != null) {
-      final mergedBasis = _basis(type, data);
-      final incoming = db.select('SELECT data FROM src.$type WHERE id=?', [id]);
-      final incomingBasis = _basis(
+    if (!deleted && original != null) {
+      final incoming = decodeStoredPayload(
         type,
-        decodeStoredPayload(type, incoming.single['data'] as String),
+        db.select('SELECT data FROM src.$type WHERE id=?', [id]).single['data']
+            as String,
       );
-      if (mergedBasis != originalBasis && mergedBasis != incomingBasis) {
-        throw FormatException(
-          '$type $id has incompatible concurrent field edits: '
-          'price basis fields must be resolved together',
-        );
+      final fields = _basisFields(type, original, incoming);
+      final mergedBasis = _basis(type, data, fields);
+      if (mergedBasis != _basis(type, original, fields) &&
+          mergedBasis != _basis(type, incoming, fields)) {
+        final winner = decodeStoredPayload(type, current);
+        for (final field in fields) {
+          data[field] = winner[field];
+        }
       }
     }
     String merged;
     try {
       merged = encodeStoredPayload(type, data);
-    } on FormatException catch (error) {
-      throw FormatException(
-        '$type $id has incompatible concurrent field edits: '
-        '${error.message}',
-      );
+    } on FormatException {
+      merged = current; // keep the row-level winner
     }
     db.execute('UPDATE main.$type SET data=?, deleted=? WHERE id=?', [
       merged,

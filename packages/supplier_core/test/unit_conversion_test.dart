@@ -197,7 +197,7 @@ void main() {
     expect(group.rows.single.comparisonPrice, '1000');
     expect(group.rows.single.converted, isFalse);
   });
-  test('cross-device unit and factor edits cannot splice a false basis', () {
+  test('cross-device unit and factor edits never splice a false basis', () {
     final a = device('A');
     final p = a.save('product', {
       ...product('线', unit: '米'),
@@ -216,13 +216,22 @@ void main() {
       ...b.get('product', p)!.data,
       'unit_conversions': {'千米': '1000', '卷': '50'},
     }, id: p);
-    expect(() => a.importFrom(exported(b)), throwsFormatException);
-    expect(a.get('product', p)!.data['unit'], '厘米');
-    expect(a.get('product', p)!.data['unit_conversions'], isNull);
-    expect(() => b.importFrom(exported(a)), throwsFormatException);
-    expect(b.get('product', p)!.data['unit'], '米');
+    a.importFrom(exported(b));
+    b.importFrom(exported(a));
+    expect(content(a), content(b));
+    final merged = a.get('product', p)!.data;
+    expect(
+      [merged['unit'], merged['unit_conversions']],
+      anyOf([
+        ['厘米', null],
+        [
+          '米',
+          {'千米': '1000', '卷': '50'},
+        ],
+      ]),
+    );
   });
-  test('cross-device unit and cost edits cannot splice a budget line', () {
+  test('cross-device unit and cost edits never splice a budget line', () {
     final a = device('A');
     final p = a.save('product', {
       ...product('线', unit: '米'),
@@ -253,15 +262,26 @@ void main() {
       ...b.get('project_item', line)!.data,
       'unit_cost': '2',
     }, id: line);
-    expect(() => a.importFrom(exported(b)), throwsFormatException);
-    expect(a.get('project_item', line)!.data['unit_cost'], '1000');
-    expect(() => b.importFrom(exported(a)), throwsFormatException);
-    expect(b.get('project_item', line)!.data['unit'], '米');
+    a.importFrom(exported(b));
+    b.importFrom(exported(a));
+    expect(content(a), content(b));
+    final merged = a.get('project_item', line)!.data;
+    // Unit, quantity and cost come from one device together.
+    expect(
+      [merged['unit'], merged['qty'], merged['unit_cost']],
+      anyOf([
+        ['千米', '0.001', '1000'],
+        ['米', '1', '2'],
+      ]),
+    );
   });
   test('same-unit quantity and cost edits still merge independently', () {
     final a = device('A');
     final pro = a.save('project', project('P'));
-    final line = a.save('project_item', item(pro, 'labor', name: '安装', cost: '1'));
+    final line = a.save(
+      'project_item',
+      item(pro, 'labor', name: '安装', cost: '1'),
+    );
     final b = device('B', start: DateTime.utc(2026, 9, 2));
     addTearDown(a.close);
     addTearDown(b.close);

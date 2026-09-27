@@ -16,15 +16,6 @@ Future<void> _delayedWrite(Store store) async {
 
 // Real async (not testWidgets): the work runs in another isolate.
 void main() {
-  test('incompatible exchange edits give a recoverable message', () {
-    expect(
-      friendlyError(
-        'quotation q1 has incompatible concurrent field edits: invalid dates',
-      ),
-      contains('导入已撤销'),
-    );
-  });
-
   test('restore waits for an already running background write', () async {
     final dir = Directory.systemTemp.createTempSync('restore_pending_write');
     addTearDown(() => dir.deleteSync(recursive: true));
