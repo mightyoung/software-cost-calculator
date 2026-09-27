@@ -29,9 +29,10 @@ jobs:
           dart test
       - name: Core benchmark (fails on slow searches)
         working-directory: packages/supplier_core
+        # dart run, not compile exe: it bundles the SQLite build hook's library.
         run: |
-          dart compile exe tool/bench.dart -o bench
-          ./bench | tee -a "$GITHUB_STEP_SUMMARY"
+          set -o pipefail
+          dart run tool/bench.dart | tee -a "$GITHUB_STEP_SUMMARY"
       - name: App analyze and widget tests
         working-directory: apps/supplier_app
         run: |

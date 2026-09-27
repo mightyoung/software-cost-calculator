@@ -107,8 +107,9 @@ void main() {
   sw.reset();
   b.importFrom('${dir.path}/x.siq');
   print('re-import (no changes) ${sw.elapsedMilliseconds} ms');
-  // Interactive queries: fail when one is several times slower than today,
-  // e.g. the search index stopped being used.
+  // Interactive queries: fail when one is several times slower than today
+  // (limits allow for JIT and slow CI runners), e.g. the search index
+  // stopped being used.
   final slow = <String>[];
   void timed(String label, int limitMs, Object? Function() run) {
     sw.reset();
@@ -120,15 +121,15 @@ void main() {
 
   timed(
     'quoteOptions',
-    50,
+    100,
     () => b.quoteOptions(pros[0], prods[0], asOf: DateTime.utc(2026, 9, 10)),
   );
-  timed('compareQuotes', 50, () => b.compareQuotes(prods[0]));
-  timed('searchProducts', 150, () => b.searchProducts(['物料1999', '品牌7']));
-  timed('searchProducts, 2-char term hitting all 20k', 150, () {
+  timed('compareQuotes', 100, () => b.compareQuotes(prods[0]));
+  timed('searchProducts', 300, () => b.searchProducts(['物料1999', '品牌7']));
+  timed('searchProducts, 2-char term hitting all 20k', 300, () {
     return b.searchProducts(['物料']);
   });
-  timed('pinyin search', 150, () => b.searchByName('supplier', 'gys'));
+  timed('pinyin search', 300, () => b.searchByName('supplier', 'gys'));
   print('rss ${ProcessInfo.maxRss ~/ 1048576} MiB');
   if (slow.isNotEmpty) {
     print('TOO SLOW: ${slow.join(', ')}');
