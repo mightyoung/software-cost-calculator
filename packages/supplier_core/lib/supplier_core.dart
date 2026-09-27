@@ -5,6 +5,7 @@ export 'src/background.dart';
 export 'src/budget.dart';
 export 'src/compare.dart';
 export 'src/crypto_file.dart';
+export 'src/data_quality.dart';
 export 'src/conflicts.dart';
 export 'src/duplicates.dart';
 export 'src/entities.dart';

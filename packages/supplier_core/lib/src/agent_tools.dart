@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'budget.dart';
 import 'compare.dart';
+import 'data_quality.dart';
 import 'inquiries.dart';
 import 'ontology.dart';
 import 'record_query.dart';
@@ -119,6 +120,7 @@ final agentTools = [
     {'project_id': _str},
     ['project_id'],
   ),
+  _tool('data_quality', '数据质量体检：各类记录数，以及冲突、重复、口径未知、待询价等需要处理的问题数量和处理位置', {}),
   _tool(
     'inquiry_matrix',
     '询价单的比价矩阵：每个预算行 × 每家供应商的报价（有效单价、是否可用、是否最低、偏离历史均价百分比），及各供应商已回复行数',
@@ -161,6 +163,13 @@ extension AgentTools on Store {
         ),
         'project_budget' => _budget(_s(a, 'project_id')),
         'inquiry_matrix' => _matrix(_s(a, 'inquiry_id')),
+        'data_quality' => {
+          'record_counts': recordCounts(),
+          'issues': [
+            for (final c in dataQuality())
+              if (c.count > 0) c.toJson(),
+          ],
+        },
         _ => throw FormatException('未知工具 $name'),
       };
       return jsonEncode(result);
@@ -386,4 +395,26 @@ String _s(Map<String, Object?> a, String key) {
   final value = a[key];
   if (value is! String || value.isEmpty) throw FormatException('缺少参数 $key');
   return value;
+}
+
+/// Everything an outside agent needs to work with this data, as Markdown:
+/// the ontology card and the tools with their parameters.
+String agentGuide() {
+  final b = StringBuffer(
+    '# 询价台账数据说明\n\n'
+    '供应商询价与项目成本数据，按设备本地保存。以下是数据模型和可用的只读工具。\n\n',
+  )..write(ontologyCard());
+  b.writeln('\n## 关系');
+  for (final l in links) {
+    b.writeln('- ${l.name} → ${l.to}${l.many ? '（多个）' : ''}');
+  }
+  b.writeln('\n## 工具（只读）');
+  for (final t in agentTools) {
+    final f = t['function']! as Map<String, Object?>;
+    final params = ((f['parameters']! as Map)['properties']! as Map).keys.join(
+      ', ',
+    );
+    b.writeln('- ${f['name']}($params)：${f['description']}');
+  }
+  return b.toString();
 }
