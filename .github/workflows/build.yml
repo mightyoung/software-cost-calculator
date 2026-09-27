@@ -115,7 +115,9 @@ jobs:
           codesign --verify --deep --strict --verbose=2 "$app"
           codesign -d --entitlements - "$app" 2>&1 | grep -q app-sandbox
           "$app/Contents/Resources/siq-mcp/bin/siq_mcp" --version
-          ditto -c -k --keepParent apps/supplier_app/build/macos/Build/Products/Release/supplier_app.app supplier-app-macos.zip
+          # Finder shows the bundle's file name: ship it as 询价台账.app.
+          mv "$app" "$(dirname "$app")/询价台账.app"
+          ditto -c -k --keepParent "$(dirname "$app")/询价台账.app" supplier-app-macos.zip
       - uses: actions/upload-artifact@v4
         with:
           name: supplier-app-macos

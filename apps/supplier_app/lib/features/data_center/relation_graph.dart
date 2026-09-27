@@ -99,7 +99,7 @@ class _Node extends StatelessWidget {
           Text(
             '$count 条',
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 12,
               fontFeatures: tabular,
               color: on ? Colors.white70 : Tokens.ink3,
             ),

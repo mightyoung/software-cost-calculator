@@ -25,6 +25,7 @@ class QuotesPage extends StatefulWidget {
 
 class _QuotesPageState extends State<QuotesPage> {
   String query = '';
+  var limit = pageSize;
   String? comparing;
   Store get store => widget.state.store;
   QuoteAttention? attention;
@@ -92,11 +93,11 @@ class _QuotesPageState extends State<QuotesPage> {
         .split(RegExp(r'\s+'))
         .where((w) => w.isNotEmpty)
         .toList();
-    if (words.isEmpty) return store.listQuotations(limit: 300);
+    if (words.isEmpty) return store.listQuotations(limit: limit);
     return [
-      for (final p in store.searchProducts(words, limit: 20))
-        ...store.listQuotations(productId: p.id, limit: 50),
-    ];
+      for (final p in store.searchProducts(words, limit: 50))
+        ...store.listQuotations(productId: p.id, limit: limit),
+    ].take(limit).toList();
   }
 
   Future<void> _import() async {
@@ -106,7 +107,7 @@ class _QuotesPageState extends State<QuotesPage> {
     try {
       plans = store.planQuotationImport(file.bytes);
     } on FormatException catch (e) {
-      return toast(context, '无法读取 ${file.name}：${e.message}');
+      return toast(context, '无法读取 ${file.name}：${friendlyError(e.message)}');
     }
     final confirmed = await showDialog<bool>(
       context: context,
@@ -217,6 +218,7 @@ class _QuotesPageState extends State<QuotesPage> {
         );
       }
       final quotes = _quotes();
+      final more = quotes.length >= limit;
       final matches = _words.isEmpty
           ? const <Hit>[]
           : store.searchProducts(_words, limit: 6);
@@ -232,6 +234,13 @@ class _QuotesPageState extends State<QuotesPage> {
               runSpacing: 8,
               children: [
                 Text('报价查询', style: Theme.of(context).textTheme.titleLarge),
+                const SizedBox(width: 10),
+                Text(
+                  query.isEmpty
+                      ? '共 ${store.recordCounts()['quotation']} 条'
+                      : '找到 ${quotes.length}${more ? '+' : ''} 条',
+                  style: const TextStyle(color: Tokens.ink3),
+                ),
                 const SizedBox(width: 16),
                 OutlinedButton.icon(
                   onPressed: _smartImport,
@@ -257,7 +266,10 @@ class _QuotesPageState extends State<QuotesPage> {
                 prefixIcon: Icon(Icons.search, size: 18),
                 hintText: '按物料型号、名称、品牌或规格查找',
               ),
-              onChanged: (v) => setState(() => query = v.trim()),
+              onChanged: (v) => setState(() {
+                query = v.trim();
+                limit = pageSize;
+              }),
             ),
             if (attentionFailed)
               Align(
@@ -331,9 +343,14 @@ class _QuotesPageState extends State<QuotesPage> {
                         borderRadius: BorderRadius.circular(Tokens.radius),
                       ),
                       child: ListView.separated(
-                        itemCount: quotes.length,
+                        itemCount: quotes.length + (more ? 1 : 0),
                         separatorBuilder: (_, _) => const Divider(),
-                        itemBuilder: (context, i) => _row(quotes[i]),
+                        itemBuilder: (context, i) => i == quotes.length
+                            ? MoreRow(
+                                shown: quotes.length,
+                                onMore: () => setState(() => limit += pageSize),
+                              )
+                            : _row(quotes[i]),
                       ),
                     ),
             ),
@@ -377,6 +394,7 @@ class _QuotesPageState extends State<QuotesPage> {
           Text(
             '${money(q['price'] as String?, prefix: q['currency'] == 'CNY' ? '¥' : '${q['currency']} ')} / ${q['unit_snapshot']}',
             style: const TextStyle(
+              fontSize: 15,
               fontFeatures: tabular,
               fontWeight: FontWeight.w600,
             ),

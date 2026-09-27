@@ -103,7 +103,7 @@ class LedgerCell extends StatelessWidget {
   );
 }
 
-enum HintTone { warning, error, info }
+enum HintTone { warning, error, info, success }
 
 /// Icon plus words, never colour alone.
 class HintTag extends StatelessWidget {
@@ -123,6 +123,7 @@ class HintTag extends StatelessWidget {
       HintTone.error => (Tokens.red, Tokens.redBg),
       HintTone.warning => (Tokens.amber, Tokens.amberBg),
       HintTone.info => (Tokens.accentDeep, Tokens.surface),
+      HintTone.success => (Tokens.green, Tokens.greenBg),
     };
     return Semantics(
       label: text,
@@ -219,9 +220,32 @@ class MonoText extends StatelessWidget {
     style: const TextStyle(
       fontSize: 12,
       color: Tokens.ink2,
-      fontFamily: 'monospace',
-      fontFamilyFallback: fontFallback,
+      fontFamily: monoFamily,
+      fontFamilyFallback: monoFallback,
     ),
     overflow: TextOverflow.ellipsis,
+  );
+}
+
+/// Rows a long list shows at first, and adds per "再显示".
+const pageSize = 200;
+
+/// Last row of a list cut at [shown] items: says so and loads more.
+class MoreRow extends StatelessWidget {
+  const MoreRow({super.key, required this.shown, required this.onMore});
+  final int shown;
+  final VoidCallback onMore;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text('已显示 $shown 条', style: const TextStyle(color: Tokens.ink3)),
+        const SizedBox(width: 8),
+        TextButton(onPressed: onMore, child: const Text('再显示 200 条')),
+      ],
+    ),
   );
 }

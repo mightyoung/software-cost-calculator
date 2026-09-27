@@ -101,4 +101,97 @@ void main() {
     final product = state.store.searchByName('product', '动力电缆').single;
     expect(product.data['unit_conversions'], {'千米': '1000'});
   });
+
+  testWidgets('deleting asks, can be undone, and waits in the bin', (
+    tester,
+  ) async {
+    final pump = state.store.save('product', {
+      for (final f in Product.fields) f: null,
+      'name': '离心泵',
+      'unit': '台',
+    });
+    final pro = state.store.save('project', {
+      for (final f in Project.fields) f: null,
+      'code': 'P1',
+      'name': '泵房',
+      'status': 'active',
+      'currency': 'CNY',
+      'tax_mode': 'included',
+      'markup_rate': '0',
+    });
+    state.store.save('quotation', {
+      for (final f in Quotation.fields) f: null,
+      'supplier_id': existing,
+      'product_id': pump,
+      'price': '10',
+      'currency': 'CNY',
+      'tax_mode': 'included',
+      'unit_snapshot': '台',
+      'min_qty': '1',
+      'quoted_on': '2026-09-01',
+      'project_id': pro,
+      'inquirer_name': '王工',
+      'inquiry_precision': 'date',
+      'inquiry_date': '2026-09-01',
+      'capture_mode': 'standard',
+    });
+    await open(tester, id: existing);
+    await tester.tap(find.text('删除供应商'));
+    await tester.pumpAndSettle();
+    expect(find.text('删除供应商「永泰阀门」？'), findsOneWidget);
+    expect(find.textContaining('还有 1 条报价引用了它'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, '删除供应商'));
+    await tester.pumpAndSettle();
+    expect(state.store.get('supplier', existing)!.deleted, isTrue);
+    expect(find.text('已删除供应商「永泰阀门」'), findsOneWidget);
+
+    await tester.tap(find.text('撤销'));
+    await tester.pumpAndSettle();
+    expect(state.store.get('supplier', existing)!.deleted, isFalse);
+
+    state.store.delete('supplier', existing);
+    expect(state.store.deletedRecords().single.id, existing);
+  });
+
+  testWidgets('long lists say how many there are and load more', (
+    tester,
+  ) async {
+    state.store.transaction(() {
+      for (var i = 0; i < 204; i++) {
+        state.store.save('supplier', {
+          for (final f in Supplier.fields) f: null,
+          'name': '供应商$i',
+          'aliases': <String>[],
+          'categories': <String>[],
+        });
+      }
+    });
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildTheme(),
+        home: Scaffold(
+          body: CatalogPage(state: state, type: 'supplier'),
+        ),
+      ),
+    );
+    expect(find.text('共 205 条'), findsOneWidget);
+    final list = find.descendant(
+      of: find.byType(ListView),
+      matching: find.byType(Scrollable),
+    );
+    await tester.scrollUntilVisible(
+      find.text('再显示 200 条'),
+      500,
+      scrollable: list,
+    );
+    expect(find.text('已显示 200 条'), findsOneWidget);
+    await tester.tap(find.text('再显示 200 条'));
+    await tester.pumpAndSettle();
+    expect(find.text('再显示 200 条'), findsNothing);
+    await tester.scrollUntilVisible(find.text('永泰阀门'), 500, scrollable: list);
+    expect(find.text('永泰阀门'), findsOneWidget, reason: 'the oldest one');
+  });
 }

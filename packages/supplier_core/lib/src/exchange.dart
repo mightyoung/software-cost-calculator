@@ -506,7 +506,8 @@ extension Exchange on Store {
   /// Field-level merge on top of the row-level winner: each field takes the
   /// value of its latest change in the combined change log, so edits to
   /// different fields on different devices are all kept. Deletion wins over
-  /// edits. The result depends only on the combined log, so every device
+  /// edits; only an explicit restore, if it is the latest, brings a record
+  /// back. The result depends only on the combined log, so every device
   /// computes the same row. Exchange never stops on a merge: a price basis
   /// that neither device held (say one changed the unit, the other the
   /// price) is taken whole from the row-level winner, and merged fields that
@@ -515,9 +516,19 @@ extension Exchange on Store {
   void _mergeFields(
     String type,
     String id,
-    bool deleted, {
+    bool wasDeleted, {
     Map<String, Object?>? original,
   }) {
+    var deleted = wasDeleted;
+    // A record comes back only through an explicit restore: the latest
+    // delete or restore in the combined log decides, edits never do.
+    final marker = db.select(
+      "SELECT field FROM main.change_log WHERE entity=? AND entity_id=? "
+      "AND field IN ('(deleted)', '(restored)') "
+      'ORDER BY at DESC, device DESC, id DESC LIMIT 1',
+      [type, id],
+    );
+    if (marker.isNotEmpty) deleted = marker.single['field'] == '(deleted)';
     final row = db.select('SELECT data FROM main.$type WHERE id=?', [id]);
     final current = row.first['data'] as String;
     final data = decodeStoredPayload(type, current);

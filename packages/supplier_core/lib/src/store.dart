@@ -390,6 +390,18 @@ class Store {
     _logRow(type, id, '(deleted)', null, null);
   });
 
+  /// Brings a deleted record back as it was. The restore travels to other
+  /// devices like an edit; the latest delete or restore wins there.
+  void restore(String type, String id) => transaction(() {
+    final previous = get(type, id);
+    if (previous == null || !previous.deleted) {
+      invalid('id', 'record is not deleted');
+    }
+    _checkReferences(type, previous.data, previous);
+    _write(type, id, previous.version + 1, false, previous.data);
+    _logRow(type, id, '(restored)', null, null);
+  });
+
   void _write(
     String type,
     String id,

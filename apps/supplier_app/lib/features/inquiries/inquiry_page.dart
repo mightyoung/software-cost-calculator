@@ -49,7 +49,7 @@ class InquiryPage extends StatelessWidget {
     try {
       plans = store.planInquirySheet(file.bytes, id, sid);
     } on FormatException catch (e) {
-      return toast(context, '无法读取 ${file.name}：${e.message}');
+      return toast(context, '无法读取 ${file.name}：${friendlyError(e.message)}');
     }
     final good = plans.where((p) => p.error == null).length;
     final errors = [
@@ -398,9 +398,13 @@ class _Cell extends StatelessWidget {
     final scope = scopeText(d['includes']);
     final tags = <Widget>[
       if (c.awarded)
-        const HintTag('已定标', icon: Icons.verified_outlined, tone: HintTone.info)
+        const HintTag(
+          '已定标',
+          icon: Icons.verified_outlined,
+          tone: HintTone.success,
+        )
       else if (c.lowest)
-        const HintTag('最低', icon: Icons.south, tone: HintTone.info),
+        const HintTag('最低', icon: Icons.south, tone: HintTone.success),
       if (!c.comparable)
         const HintTag('口径不同', icon: Icons.block)
       else if (!c.valid)
@@ -414,7 +418,8 @@ class _Cell extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        color: c.awarded || c.lowest ? Tokens.accentTint : null,
+        // Only the decision gets a wash; the lowest price carries a tag.
+        color: c.awarded ? Tokens.greenBg : null,
         padding: const EdgeInsets.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -435,7 +440,7 @@ class _Cell extends StatelessWidget {
                 if (d['lead_time_days'] != null) '${d['lead_time_days']} 天',
                 scope ?? '范围未说明',
               ].whereType<String>().join(' · '),
-              style: const TextStyle(fontSize: 11, color: Tokens.ink3),
+              style: const TextStyle(fontSize: 12, color: Tokens.ink3),
             ),
             if (tags.isNotEmpty) ...[
               const SizedBox(height: 4),

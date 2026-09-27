@@ -409,6 +409,19 @@ void main() {
         ..addFont(Future.value(ByteData.sublistView(bytes)));
       await loader.load();
     }
+    // Codes use the platform monospace (Consolas on Windows, Menlo on
+    // macOS); the shots stand in Andale Mono (no CJK, like Consolas) under the first name of that stack.
+    const mono = '/System/Library/Fonts/Supplemental/Andale Mono.ttf';
+    if (File(mono).existsSync()) {
+      // Every name of the stack, so none falls to the test font's boxes.
+      for (final family in [monoFamily, ...monoFallback.take(3)]) {
+        final loader = FontLoader(family)
+          ..addFont(
+            Future.value(ByteData.sublistView(File(mono).readAsBytesSync())),
+          );
+        await loader.load();
+      }
+    }
     final icons = File(
       '${Platform.environment['FLUTTER_ROOT']}/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf',
     );
