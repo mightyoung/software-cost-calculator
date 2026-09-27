@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../features/ai/ask_page.dart';
 import '../features/catalog/catalog_page.dart';
+import '../features/data_center/data_center_page.dart';
 import '../features/exchange/exchange_page.dart';
 import '../features/projects/projects_page.dart';
 import '../features/quotes/quote_form.dart';
@@ -18,6 +19,7 @@ enum Section {
   suppliers('供应商', Icons.factory_outlined),
   products('物料', Icons.inventory_2_outlined),
   exchange('数据交换', Icons.sync_alt),
+  data('数据中心', Icons.hub_outlined),
   settings('设置', Icons.settings_outlined);
 
   const Section(this.label, this.icon);
@@ -45,6 +47,7 @@ class _ShellState extends State<Shell> {
     Section.suppliers => CatalogPage(state: widget.state, type: 'supplier'),
     Section.products => CatalogPage(state: widget.state, type: 'product'),
     Section.exchange => ExchangePage(state: widget.state),
+    Section.data => DataCenterPage(state: widget.state),
     Section.settings => SettingsPage(state: widget.state),
   };
 
@@ -183,7 +186,7 @@ class _Sidebar extends StatelessWidget {
               ],
             ),
           ),
-          for (final s in Section.values.take(6)) item(s),
+          for (final s in Section.values.take(7)) item(s),
           const Spacer(),
           const Divider(color: Tokens.navHover),
           const SizedBox(height: 8),
@@ -229,6 +232,7 @@ class _BottomNav extends StatelessWidget {
                   Section.ask,
                   Section.suppliers,
                   Section.exchange,
+                  Section.data,
                   Section.settings,
                 ])
                   ListTile(

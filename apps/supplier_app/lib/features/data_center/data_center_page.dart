@@ -1,0 +1,546 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:supplier_core/supplier_core.dart';
+
+import '../../app/app_state.dart';
+import '../../app/theme.dart';
+import '../../platform/files.dart';
+import '../../widgets/ledger.dart';
+import 'relation_graph.dart';
+
+/// The data model, data quality and what AI agents get, in one place.
+class DataCenterPage extends StatefulWidget {
+  const DataCenterPage({super.key, required this.state});
+  final AppState state;
+
+  @override
+  State<DataCenterPage> createState() => _DataCenterPageState();
+}
+
+class _DataCenterPageState extends State<DataCenterPage> {
+  var selected = 'quotation';
+
+  @override
+  Widget build(BuildContext context) => DefaultTabController(
+    length: 3,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 18, 24, 0),
+          child: Text('数据中心', style: Theme.of(context).textTheme.titleLarge),
+        ),
+        const Padding(
+          padding: EdgeInsets.fromLTRB(24, 4, 24, 0),
+          child: Text(
+            '软件里有哪些数据、它们怎样关联、质量如何，以及 AI 能读到什么。',
+            style: TextStyle(color: Tokens.ink2),
+          ),
+        ),
+        const TabBar(
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
+          padding: EdgeInsets.symmetric(horizontal: 12),
+          tabs: [
+            Tab(text: '数据模型'),
+            Tab(text: '数据质量'),
+            Tab(text: 'AI 接入'),
+          ],
+        ),
+        Expanded(
+          child: ListenableBuilder(
+            listenable: widget.state,
+            builder: (context, _) => TabBarView(
+              children: [
+                _ModelTab(
+                  counts: widget.state.store.recordCounts(),
+                  selected: selected,
+                  onSelect: (t) => setState(() => selected = t),
+                ),
+                _QualityTab(store: widget.state.store),
+                const _AiTab(),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _card({required Widget child, EdgeInsets? padding}) => Container(
+  padding: padding ?? const EdgeInsets.all(16),
+  decoration: BoxDecoration(
+    color: Tokens.surface,
+    border: Border.all(color: Tokens.rule),
+    borderRadius: BorderRadius.circular(Tokens.radius),
+  ),
+  child: child,
+);
+
+const _pagePadding = EdgeInsets.fromLTRB(24, 16, 24, 24);
+
+class _ModelTab extends StatelessWidget {
+  const _ModelTab({
+    required this.counts,
+    required this.selected,
+    required this.onSelect,
+  });
+  final Map<String, int> counts;
+  final String selected;
+  final ValueChanged<String> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final type = ontology[selected]!;
+    final wide = MediaQuery.sizeOf(context).width >= 900;
+    return ListView(
+      padding: _pagePadding,
+      children: [
+        if (wide)
+          _card(
+            child: RelationGraph(
+              counts: counts,
+              selected: selected,
+              onSelect: onSelect,
+            ),
+          )
+        else
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final t in ontology.values)
+                ChoiceChip(
+                  label: Text('${t.label} ${counts[t.name]}'),
+                  selected: t.name == selected,
+                  onSelected: (_) => onSelect(t.name),
+                ),
+            ],
+          ),
+        const SizedBox(height: 16),
+        _card(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    type.label,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(width: 8),
+                  MonoText(type.name),
+                  const Spacer(),
+                  Text(
+                    '${counts[selected]} 条记录',
+                    style: const TextStyle(color: Tokens.ink3),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                type.description,
+                style: const TextStyle(color: Tokens.ink2),
+              ),
+              const SizedBox(height: 12),
+              _Links(type: selected, onSelect: onSelect),
+              const SizedBox(height: 12),
+              _Fields(type: type, onSelect: onSelect),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Links extends StatelessWidget {
+  const _Links({required this.type, required this.onSelect});
+  final String type;
+  final ValueChanged<String> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget row(String title, List<(String, String)> items) => items.isEmpty
+        ? const SizedBox()
+        : Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                SizedBox(
+                  width: 64,
+                  child: Text(
+                    title,
+                    style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+                  ),
+                ),
+                for (final (target, text) in items)
+                  ActionChip(
+                    visualDensity: VisualDensity.compact,
+                    label: Text(text, style: const TextStyle(fontSize: 12)),
+                    onPressed: () => onSelect(target),
+                  ),
+              ],
+            ),
+          );
+    String field(LinkType l) => ontology[l.from]!.field(l.field)!.label;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        row('引用了', [
+          for (final l in links)
+            if (l.from == type && l.to != type)
+              (
+                l.to,
+                field(l) == ontology[l.to]!.label
+                    ? field(l)
+                    : '${field(l)} → ${ontology[l.to]!.label}',
+              ),
+        ]),
+        row('被引用于', [
+          for (final l in links)
+            if (l.to == type && l.from != type)
+              (l.from, '${ontology[l.from]!.label}.${field(l)}'),
+        ]),
+      ],
+    );
+  }
+}
+
+class _Fields extends StatelessWidget {
+  const _Fields({required this.type, required this.onSelect});
+  final ObjectType type;
+  final ValueChanged<String> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    const head = TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w600,
+      color: Tokens.ink2,
+    );
+    Widget cell(Widget child) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 6),
+      child: child,
+    );
+    Widget kind(FieldSpec f) => f.target == null
+        ? Text(f.kind.label, style: const TextStyle(fontSize: 13))
+        : InkWell(
+            onTap: () => onSelect(f.target!),
+            child: Text(
+              '${f.kind.label} → ${ontology[f.target]!.label}',
+              style: const TextStyle(fontSize: 13, color: Tokens.accentDeep),
+            ),
+          );
+    Widget about(FieldSpec f) => Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (f.description.isNotEmpty)
+          Text(
+            f.description,
+            style: const TextStyle(fontSize: 13, height: 1.5),
+          ),
+        if (f.values != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Wrap(
+              spacing: 4,
+              runSpacing: 4,
+              children: [
+                for (final e in f.values!.entries) _ValueTag(e.key, e.value),
+              ],
+            ),
+          ),
+      ],
+    );
+    // Phones: one stacked block per field instead of four columns.
+    if (MediaQuery.sizeOf(context).width < 600) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final f in type.fields)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              decoration: const BoxDecoration(
+                border: Border(top: BorderSide(color: Tokens.rule)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    spacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(
+                        f.label,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      MonoText(f.name),
+                      kind(f),
+                      if (f.required)
+                        const Text(
+                          '必填',
+                          style: TextStyle(fontSize: 12, color: Tokens.ink3),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  about(f),
+                ],
+              ),
+            ),
+        ],
+      );
+    }
+    return Table(
+      columnWidths: const {
+        0: FlexColumnWidth(2.2),
+        1: FlexColumnWidth(1.6),
+        2: FixedColumnWidth(44),
+        3: FlexColumnWidth(5),
+      },
+      defaultVerticalAlignment: TableCellVerticalAlignment.top,
+      children: [
+        TableRow(
+          decoration: const BoxDecoration(color: Tokens.sunken),
+          children: [
+            for (final h in ['字段', '类型', '必填', '说明'])
+              cell(Text(h, style: head)),
+          ],
+        ),
+        for (final f in type.fields)
+          TableRow(
+            decoration: const BoxDecoration(
+              border: Border(bottom: BorderSide(color: Tokens.rule)),
+            ),
+            children: [
+              cell(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [Text(f.label), MonoText(f.name)],
+                ),
+              ),
+              cell(kind(f)),
+              cell(
+                f.required
+                    ? const Icon(Icons.check, size: 16, color: Tokens.ink2)
+                    : const SizedBox(),
+              ),
+              cell(about(f)),
+            ],
+          ),
+      ],
+    );
+  }
+}
+
+/// An enum value and its meaning.
+class _ValueTag extends StatelessWidget {
+  const _ValueTag(this.value, this.meaning);
+  final String value, meaning;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+    decoration: BoxDecoration(
+      color: Tokens.sunken,
+      borderRadius: BorderRadius.circular(4),
+    ),
+    child: Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(
+            text: '$value ',
+            style: const TextStyle(fontFamily: 'monospace', color: Tokens.ink),
+          ),
+          TextSpan(text: meaning),
+        ],
+      ),
+      style: const TextStyle(fontSize: 12, color: Tokens.ink2),
+    ),
+  );
+}
+
+class _QualityTab extends StatelessWidget {
+  const _QualityTab({required this.store});
+  final Store store;
+
+  @override
+  Widget build(BuildContext context) {
+    final checks = store.dataQuality();
+    final open = checks.where((c) => c.count > 0).length;
+    return ListView(
+      padding: _pagePadding,
+      children: [
+        Text(
+          open == 0 ? '没有发现需要处理的问题。' : '$open 项需要处理，处理后比价和预算会更可靠。',
+          style: const TextStyle(color: Tokens.ink2),
+        ),
+        const SizedBox(height: 12),
+        _card(
+          padding: EdgeInsets.zero,
+          child: Column(
+            children: [
+              for (final (i, c) in checks.indexed)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    border: i == 0
+                        ? null
+                        : const Border(top: BorderSide(color: Tokens.rule)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        c.count == 0
+                            ? Icons.check_circle_outline
+                            : Icons.error_outline,
+                        size: 20,
+                        color: c.count == 0 ? Tokens.ink3 : Tokens.amber,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(c.label),
+                            Text(
+                              c.hint,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Tokens.ink3,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        '${c.count}',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          fontFeatures: tabular,
+                          color: c.count == 0 ? Tokens.ink3 : Tokens.amber,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _AiTab extends StatelessWidget {
+  const _AiTab();
+
+  @override
+  Widget build(BuildContext context) {
+    final guide = agentGuide();
+    return ListView(
+      padding: _pagePadding,
+      children: [
+        _card(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                '"问数据"里的 AI 助手读取的就是这里的数据模型和规则，并且只能用下列只读工具查询，不能修改数据。'
+                '也可以把完整的数据说明复制给其他 AI 工具，让它理解这些数据。',
+                style: TextStyle(color: Tokens.ink2, height: 1.6),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 12,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  FilledButton.icon(
+                    onPressed: () async {
+                      await Clipboard.setData(ClipboardData(text: guide));
+                      if (context.mounted) toast(context, '已复制数据说明');
+                    },
+                    icon: const Icon(Icons.copy, size: 18),
+                    label: const Text('复制数据说明'),
+                  ),
+                  Text(
+                    '约 ${guide.length} 字，只含结构和规则，不含任何业务数据',
+                    style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text('只读工具', style: Theme.of(context).textTheme.titleSmall),
+        const SizedBox(height: 8),
+        _card(
+          padding: EdgeInsets.zero,
+          child: Column(
+            children: [
+              for (final (i, t) in agentTools.indexed)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    border: i == 0
+                        ? null
+                        : const Border(top: BorderSide(color: Tokens.rule)),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 150,
+                        child: MonoText(
+                          (t['function']! as Map)['name'] as String,
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          (t['function']! as Map)['description'] as String,
+                          style: const TextStyle(fontSize: 13, height: 1.5),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text('AI 需要遵守的规则', style: Theme.of(context).textTheme.titleSmall),
+        const SizedBox(height: 8),
+        _card(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final r in rules)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Text(
+                    '· ${r.text}',
+                    style: const TextStyle(fontSize: 13, height: 1.5),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}

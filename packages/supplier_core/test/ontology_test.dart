@@ -149,6 +149,7 @@ void main() {
         'quote_options': {'project_id': pro, 'product_id': pump, 'qty': '2'},
         'project_budget': {'project_id': pro},
         'inquiry_matrix': {'inquiry_id': inq},
+        'data_quality': {},
       };
       expect({
         for (final t in agentTools) (t['function']! as Map)['name'],

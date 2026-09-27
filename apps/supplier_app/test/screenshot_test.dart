@@ -649,4 +649,30 @@ void main() {
     }),
     skip: !hasFont,
   );
+  for (final (tab, name) in [
+    ('数据模型', 'desktop_data_model'),
+    ('数据质量', 'desktop_data_quality'),
+    ('AI 接入', 'desktop_data_ai'),
+  ]) {
+    testWidgets(
+      'desktop data centre: $tab',
+      (t) => shoot(t, const Size(1280, 1000), name, () async {
+        await t.tap(find.text('数据中心'));
+        await t.pumpAndSettle();
+        await t.tap(find.text(tab));
+        await t.pumpAndSettle();
+      }),
+      skip: !hasFont,
+    );
+  }
+  testWidgets(
+    'phone data centre',
+    (t) => shoot(t, const Size(390, 844), 'phone_data_model', () async {
+      await t.tap(find.text('更多'));
+      await t.pumpAndSettle();
+      await t.tap(find.text('数据中心'));
+      await t.pumpAndSettle();
+    }),
+    skip: !hasFont,
+  );
 }

@@ -1,0 +1,77 @@
+import 'dart:io';
+
+import 'package:supplier_core/supplier_core.dart';
+import 'package:test/test.dart';
+
+import 'fixtures.dart';
+
+void main() {
+  setUp(() => tmp = Directory.systemTemp.createTempSync('supplier_quality'));
+  tearDown(() => tmp.deleteSync(recursive: true));
+
+  test('counts records and the gaps that need attention', () {
+    final s = device('A');
+    Map<String, int> issues() => {
+      for (final c in s.dataQuality()) c.key: c.count,
+    };
+    expect(issues().values, everyElement(0), reason: 'empty database');
+
+    final jia = s.save('supplier', supplier('上海甲泵业有限公司'));
+    s.save('supplier', {
+      ...supplier('甲泵业'),
+      'aliases': ['上海甲泵业'],
+    });
+    final yi = s.save('supplier', supplier('乙机电'));
+    s.save('contact', {
+      'supplier_id': yi,
+      'name': '李',
+      'phone': '1',
+      'wechat': null,
+      'email': null,
+      'notes': null,
+    });
+    final pump = s.save('product', {...product('泵'), 'model': 'CR10-5'});
+    final twin = s.save('product', {...product('立式泵'), 'model': 'cr 10－5'});
+    s.save('product', {
+      ...product('泵'),
+      'model': 'CR10-5',
+      'brand': '别家',
+    }); // other brand: not the same material
+    final pro = s.save('project', project('P1'));
+    s.save('project_item', item(pro, 'material', name: '变频柜'));
+    s.save('quotation', {
+      ...quotation(jia, pump, pro, '1'),
+      'tax_mode': 'unknown',
+    });
+    // Undated quotes only arrive as imported historical records.
+    final old = s.save('quotation', quotation(yi, pump, pro, '2'));
+    s.db.execute(
+      "UPDATE quotation SET data = json_set(data, '\$.quoted_on', NULL) "
+      'WHERE id = ?',
+      [old],
+    );
+
+    expect(issues(), {
+      'open_conflicts': 0,
+      'duplicate_suppliers': 1,
+      'duplicate_products': 1,
+      'unknown_tax_mode': 1,
+      'undated_quotes': 1,
+      'needs_inquiry': 1,
+      'products_never_quoted': 2,
+      'suppliers_without_contact': 2,
+    });
+    s.mergeInto('product', twin, pump);
+    expect(issues()['duplicate_products'], 0);
+    expect(s.recordCounts(), {
+      'supplier': 3,
+      'contact': 1,
+      'product': 2,
+      'project': 1,
+      'quotation': 2,
+      'project_item': 1,
+      'inquiry': 0,
+    });
+    expect(agentGuide(), contains('data_quality('));
+  });
+}
