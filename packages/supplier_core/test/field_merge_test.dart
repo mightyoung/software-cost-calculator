@@ -143,4 +143,34 @@ void main() {
     expect(b.get('supplier', id)!.deleted, isTrue);
     expect(content(a), content(b));
   });
+
+  test('quotation unit and price changes never splice across devices', () {
+    final a = device('A');
+    final sup = a.save('supplier', supplier('甲'));
+    final prod = a.save('product', {
+      ...product('线', unit: '米'),
+      'unit_conversions': {'千米': '1000'},
+    });
+    final pro = a.save('project', project('P'));
+    final q = a.save('quotation', {
+      ...quotation(sup, prod, pro, '1'),
+      'unit_snapshot': '米',
+    });
+    final b = device('B', start: DateTime.utc(2026, 9, 2));
+    addTearDown(a.close);
+    addTearDown(b.close);
+    b.importFrom(exported(a));
+    a.save('quotation', {
+      ...a.get('quotation', q)!.data,
+      'unit_snapshot': '千米',
+      'price': '1000',
+    }, id: q);
+    b.save('quotation', {...b.get('quotation', q)!.data, 'price': '2'}, id: q);
+    final beforeA = content(a);
+    final beforeB = content(b);
+    expect(() => a.importFrom(exported(b)), throwsFormatException);
+    expect(() => b.importFrom(exported(a)), throwsFormatException);
+    expect(content(a), beforeA);
+    expect(content(b), beforeB);
+  });
 }

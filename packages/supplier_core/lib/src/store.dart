@@ -329,6 +329,22 @@ class Store {
     if (type == 'project_item' && snapshotSourceItemId == null) {
       _checkItem(data, previous);
     }
+    if (type == 'project' &&
+        previous != null &&
+        (previous.data['currency'] != data['currency'] ||
+            previous.data['tax_mode'] != data['tax_mode'])) {
+      final hasLine = db.select(
+        "SELECT 1 FROM project_item WHERE deleted=0 "
+        "AND json_extract(data,'\$.project_id')=? LIMIT 1",
+        [id],
+      ).isNotEmpty;
+      if (hasLine || previous.data['contract_amount'] != null) {
+        invalid(
+          'currency',
+          'clear budget and contract amount before changing project price basis',
+        );
+      }
+    }
     if (type == 'product' &&
         previous != null &&
         previous.data['unit'] != data['unit'] &&

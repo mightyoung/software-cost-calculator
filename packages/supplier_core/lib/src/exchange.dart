@@ -79,7 +79,12 @@ extension Exchange on Store {
       final summary = _summary();
       final diverged = {for (final type in entityTypes) type: _diverged(type)};
       final basisBefore = {
-        for (final type in ['product', 'project_item']) type: _localBasis(type),
+        for (final type in ['product', 'project', 'quotation', 'project_item'])
+          type: _localBasis(type),
+      };
+      final projectItemsBefore = {
+        for (final id in basisBefore['project']!.keys)
+          id: _itemBasesForProject('main', id),
       };
       _importAttachments();
       for (final type in entityTypes) {
@@ -110,6 +115,7 @@ extension Exchange on Store {
           ),
         );
       }
+      _checkProjectBasisImports(basisBefore['project']!, projectItemsBefore);
       clockSeen();
       redirectMerged();
       checkAllReferences();
@@ -157,27 +163,32 @@ extension Exchange on Store {
     }
     Directory? temp;
     var attach = path;
-    if (version < schemaVersion) {
-      temp = Directory.systemTemp.createTempSync('siq-migrate');
-      attach = '${temp.path}/exchange.siq';
-      File(path).copySync(attach);
-      final copy = sqlite3.open(attach);
-      registerFunctions(copy);
-      try {
-        migrate(copy);
-      } on StateError {
-        invalid('file', 'not a supported exchange file');
-      } finally {
-        copy.close();
-      }
-    }
-    db.execute('ATTACH DATABASE ? AS src', [attach]);
+    var attached = false;
     try {
+      if (version < schemaVersion) {
+        temp = Directory.systemTemp.createTempSync('siq-migrate');
+        attach = '${temp.path}/exchange.siq';
+        File(path).copySync(attach);
+        final copy = sqlite3.open(attach);
+        try {
+          registerFunctions(copy);
+          migrate(copy);
+        } on StateError {
+          invalid('file', 'not a supported exchange file');
+        } finally {
+          copy.close();
+        }
+      }
+      db.execute('ATTACH DATABASE ? AS src', [attach]);
+      attached = true;
       _checkFormat();
       return action();
     } finally {
-      db.execute('DETACH DATABASE src');
-      temp?.deleteSync(recursive: true);
+      try {
+        if (attached) db.execute('DETACH DATABASE src');
+      } finally {
+        temp?.deleteSync(recursive: true);
+      }
     }
   }
 
@@ -286,28 +297,50 @@ extension Exchange on Store {
       r['id'] as String: r['deleted'] == 1,
   };
 
-  // A price and its unit/reference, or a product's base unit and factors,
-  // form one basis. Field replay must not splice a basis that neither device
-  // held, even when each individual field is valid.
+  // Prices and their quoted unit/tax/reference, budget amounts and their
+  // unit/reference, or a product's base unit and factors form one basis.
+  // Field replay must not splice a basis that neither device held.
   String _basis(String type, Map<String, Object?> data) {
-    final fields = type == 'product'
-        ? const ['unit', 'unit_conversions']
-        : const [
-            'project_id',
-            'product_id',
-            'quotation_id',
-            'unit',
-            'qty',
-            'unit_cost',
-            'unit_price',
-          ];
+    final fields = switch (type) {
+      'product' => const ['unit', 'unit_conversions'],
+      'project' => const ['currency', 'tax_mode', 'contract_amount'],
+      'quotation' => const [
+        'product_id',
+        'currency',
+        'tax_mode',
+        'tax_rate',
+        'unit_snapshot',
+        'price',
+        'deal_price',
+        'min_qty',
+        'extra_cost',
+      ],
+      _ => const [
+        'project_id',
+        'product_id',
+        'quotation_id',
+        'unit',
+        'qty',
+        'unit_cost',
+        'unit_price',
+      ],
+    };
     return jsonEncode([for (final field in fields) data[field]]);
   }
 
   String _basisKey(String type, Map<String, Object?> data) {
-    final fields = type == 'product'
-        ? const ['unit']
-        : const ['project_id', 'product_id', 'quotation_id', 'unit'];
+    final fields = switch (type) {
+      'product' => const ['unit'],
+      'project' => const ['currency', 'tax_mode'],
+      'quotation' => const [
+        'product_id',
+        'currency',
+        'tax_mode',
+        'tax_rate',
+        'unit_snapshot',
+      ],
+      _ => const ['project_id', 'product_id', 'quotation_id', 'unit'],
+    };
     return jsonEncode([for (final field in fields) data[field]]);
   }
 
@@ -328,6 +361,41 @@ extension Exchange on Store {
       }
     }
     return result;
+  }
+
+  Map<String, String> _itemBasesForProject(String schema, String projectId) => {
+    for (final row in db.select(
+      'SELECT id, data FROM $schema.project_item WHERE deleted=0 '
+      "AND json_extract(data,'\$.project_id')=?",
+      [projectId],
+    ))
+      row['id'] as String: _basis(
+        'project_item',
+        decodeStoredPayload('project_item', row['data'] as String),
+      ),
+  };
+
+  void _checkProjectBasisImports(
+    Map<String, String> localBasis,
+    Map<String, Map<String, String>> localItems,
+  ) {
+    for (final id in localBasis.keys) {
+      final merged = get('project', id);
+      if (merged == null || merged.deleted) continue;
+      final choseLocal = _basis('project', merged.data) == localBasis[id];
+      final chosenItems = choseLocal
+          ? localItems[id]!
+          : _itemBasesForProject('src', id);
+      final finalItems = _itemBasesForProject('main', id);
+      for (final entry in finalItems.entries) {
+        if (chosenItems[entry.key] != entry.value) {
+          throw FormatException(
+            'project $id has incompatible concurrent field edits: '
+            'budget lines belong to another project price basis',
+          );
+        }
+      }
+    }
   }
 
   /// Field-level merge on top of the row-level winner: each field takes the
@@ -363,7 +431,7 @@ extension Exchange on Store {
       if (mergedBasis != originalBasis && mergedBasis != incomingBasis) {
         throw FormatException(
           '$type $id has incompatible concurrent field edits: '
-          'unit and price basis must be resolved together',
+          'price basis fields must be resolved together',
         );
       }
     }

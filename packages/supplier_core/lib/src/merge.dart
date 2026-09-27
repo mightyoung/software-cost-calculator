@@ -5,8 +5,6 @@ import 'values.dart';
 /// Entity types whose duplicates can be merged.
 const mergeableTypes = {'supplier', 'product'};
 
-const _maxHops = 64;
-
 /// Merging never deletes: the duplicate keeps its row with `merged_into`
 /// pointing at the record it was merged into. References that arrive later
 /// from other devices can then still be followed and redirected, instead of
@@ -16,19 +14,18 @@ extension Merge on Store {
   /// merge cycle, which two devices can create by merging in opposite
   /// directions, the smallest id in the cycle is the root.
   String mergeRoot(String type, String id) {
-    final seen = <String>[];
+    final seen = <String, int>{};
     var current = id;
-    while (seen.length < _maxHops) {
-      final at = seen.indexOf(current);
-      if (at >= 0) {
-        return (seen.sublist(at)..sort()).first;
+    while (true) {
+      final at = seen[current];
+      if (at != null) {
+        return (seen.keys.skip(at).toList()..sort()).first;
       }
-      seen.add(current);
+      seen[current] = seen.length;
       final next = get(type, current)?.data['merged_into'] as String?;
       if (next == null) return current;
       current = next;
     }
-    return current;
   }
 
   /// Merges duplicate [fromId] into [intoId] and redirects every live

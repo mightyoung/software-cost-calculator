@@ -76,6 +76,24 @@ void main() {
     expect(content(b), content(c));
   });
 
+  test('failed old-file migration cleans its temporary copy', () {
+    final a = seeded();
+    final old = downgradeToV1(exported(a));
+    final file = sqlite3.open(old);
+    file.execute(
+      "UPDATE product SET data=json_set(data, '\$.unknown_field', 1)",
+    );
+    file.close();
+    final originalBytes = File(old).readAsBytesSync();
+    final scratch = Directory('${tmp.path}/migration-temp')..createSync();
+    final b = device('B');
+    IOOverrides.runZoned(() {
+      expect(() => b.importFrom(old), throwsFormatException);
+      expect(scratch.listSync(), isEmpty);
+    }, getSystemTempDirectory: () => scratch);
+    expect(File(old).readAsBytesSync(), originalBytes);
+  });
+
   test('a failed pre-migration snapshot leaves the old database unchanged', () {
     final a = seeded();
     final old = downgradeToV1(exported(a));

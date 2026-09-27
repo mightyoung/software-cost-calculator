@@ -318,11 +318,19 @@ Future<void> Function(Store) _shareJob(
 /// Maps core validation messages ("field: reason") to short Chinese text.
 String friendlyError(String message) {
   if (message.contains('incompatible concurrent field edits')) {
-    final id = RegExp(
-      r'^quotation (\S+) has incompatible',
-    ).firstMatch(message)?.group(1);
-    return '两台设备对同一条报价的修改互相矛盾，导入已撤销。'
-        '请先修正报价日期或有效期，再重新交换。'
+    final match = RegExp(
+      r'^(quotation|product|project_item|project) (\S+) has incompatible',
+    ).firstMatch(message);
+    final type = switch (match?.group(1)) {
+      'quotation' => '报价',
+      'product' => '物料',
+      'project_item' => '预算行',
+      'project' => '项目',
+      _ => '记录',
+    };
+    final id = match?.group(2);
+    return '两台设备对同一$type的修改互相矛盾，导入已撤销。'
+        '请核对价格口径、单位、日期或有效期后再交换。'
         '${id == null ? '' : '记录：$id'}';
   }
   const reasons = {
@@ -332,6 +340,8 @@ String friendlyError(String message) {
     'must be positive': '必须大于 0',
     'currency or tax mode differs from project': '币种或含税口径与项目不一致',
     'currency, tax mode or unit cannot be converted': '币种、含税口径或单位无法换算到项目预算口径',
+    'clear budget and contract amount before changing project price basis':
+        '已有预算行或合同金额。请先处理这些金额，再修改项目币种或含税口径',
     'must use the project price basis': '采用报价时，成本单价须使用项目税口径和预算行单位的折算价',
     'clear or reconfigure conversions when changing the base unit':
         '修改基准单位前请清空旧换算，或按新基准单位重新设置',
