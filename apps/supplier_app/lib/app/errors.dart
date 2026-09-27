@@ -23,6 +23,7 @@ const _reasons = {
   'expected at most 50 conversions': '最多设置 50 条单位换算',
   'duplicate or base unit, or invalid factor': '来源单位不能重复或等于基准单位，换算数量须为正数',
   'record does not exist': '记录已被删除',
+  'record is not deleted': '记录没有被删除',
   'clearing existing information requires explicit confirmation': '不能直接清空已有内容',
   'standard cannot be downgraded': '标准记录不能改为历史资料',
   'already merged': '已经合并过',

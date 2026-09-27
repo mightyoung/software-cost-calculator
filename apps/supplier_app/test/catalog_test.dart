@@ -101,4 +101,55 @@ void main() {
     final product = state.store.searchByName('product', '动力电缆').single;
     expect(product.data['unit_conversions'], {'千米': '1000'});
   });
+
+  testWidgets('deleting asks, can be undone, and waits in the bin', (
+    tester,
+  ) async {
+    final pump = state.store.save('product', {
+      for (final f in Product.fields) f: null,
+      'name': '离心泵',
+      'unit': '台',
+    });
+    final pro = state.store.save('project', {
+      for (final f in Project.fields) f: null,
+      'code': 'P1',
+      'name': '泵房',
+      'status': 'active',
+      'currency': 'CNY',
+      'tax_mode': 'included',
+      'markup_rate': '0',
+    });
+    state.store.save('quotation', {
+      for (final f in Quotation.fields) f: null,
+      'supplier_id': existing,
+      'product_id': pump,
+      'price': '10',
+      'currency': 'CNY',
+      'tax_mode': 'included',
+      'unit_snapshot': '台',
+      'min_qty': '1',
+      'quoted_on': '2026-09-01',
+      'project_id': pro,
+      'inquirer_name': '王工',
+      'inquiry_precision': 'date',
+      'inquiry_date': '2026-09-01',
+      'capture_mode': 'standard',
+    });
+    await open(tester, id: existing);
+    await tester.tap(find.text('删除供应商'));
+    await tester.pumpAndSettle();
+    expect(find.text('删除供应商「永泰阀门」？'), findsOneWidget);
+    expect(find.textContaining('还有 1 条报价引用了它'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, '删除供应商'));
+    await tester.pumpAndSettle();
+    expect(state.store.get('supplier', existing)!.deleted, isTrue);
+    expect(find.text('已删除供应商「永泰阀门」'), findsOneWidget);
+
+    await tester.tap(find.text('撤销'));
+    await tester.pumpAndSettle();
+    expect(state.store.get('supplier', existing)!.deleted, isFalse);
+
+    state.store.delete('supplier', existing);
+    expect(state.store.deletedRecords().single.id, existing);
+  });
 }

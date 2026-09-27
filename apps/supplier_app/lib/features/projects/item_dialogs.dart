@@ -5,6 +5,8 @@ import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
 import '../../widgets/ledger.dart';
+import '../../widgets/deletion.dart';
+import '../trash/trash_page.dart';
 
 /// Search the catalogue and pick a material; each hit shows its lowest valid
 /// quote in the project's currency and tax mode.
@@ -340,8 +342,21 @@ class _ItemEditorState extends State<_ItemEditor> {
   }
 
   void _delete() {
-    widget.state.write((s) => s.delete('project_item', widget.itemId!));
-    Navigator.pop(context);
+    final id = widget.itemId!;
+    final name = recordTitle(
+      store,
+      'project_item',
+      store.get('project_item', id)!.data,
+    );
+    if (deleteWithUndo(
+      context,
+      widget.state,
+      type: 'project_item',
+      id: id,
+      name: name,
+    )) {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -480,19 +495,18 @@ class _ItemEditorState extends State<_ItemEditor> {
           ),
         ),
       ),
-      actions: [
-        if (widget.itemId != null)
+      actionsAlignment: MainAxisAlignment.spaceBetween,
+      actions: dialogActions(
+        onDelete: widget.itemId == null ? null : _delete,
+        deleteLabel: '删除这一行',
+        actions: [
           TextButton(
-            onPressed: _delete,
-            style: TextButton.styleFrom(foregroundColor: Tokens.red),
-            child: const Text('删除这一行'),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
           ),
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
-        ),
-        FilledButton(onPressed: _save, child: const Text('保存')),
-      ],
+          FilledButton(onPressed: _save, child: const Text('保存')),
+        ],
+      ),
     );
   }
 }

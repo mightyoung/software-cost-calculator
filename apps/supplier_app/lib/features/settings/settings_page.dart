@@ -1,12 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:supplier_core/supplier_core.dart';
 
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../app/version.dart';
 import '../../platform/files.dart';
 import 'ai_settings.dart';
+import '../trash/trash_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key, required this.state});
@@ -69,6 +71,22 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         const SizedBox(height: 28),
         AiSettings(state: widget.state),
+        const SizedBox(height: 28),
+        const Text('已删除的记录', style: TextStyle(fontWeight: FontWeight.w600)),
+        const SizedBox(height: 4),
+        const Text(
+          '删除的供应商、物料、项目、报价等保留在这里，可以恢复。',
+          style: TextStyle(color: Tokens.ink2),
+        ),
+        const SizedBox(height: 10),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: OutlinedButton.icon(
+            onPressed: () => showTrash(context, widget.state),
+            icon: const Icon(Icons.restore_from_trash_outlined, size: 18),
+            label: Text('查看（${store.deletedRecords().length} 条）'),
+          ),
+        ),
         const SizedBox(height: 28),
         ExpansionTile(
           tilePadding: EdgeInsets.zero,

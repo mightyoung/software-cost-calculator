@@ -8,6 +8,7 @@ import '../../platform/files.dart';
 import 'attributes_editor.dart';
 import 'contacts.dart';
 import 'duplicate_hints.dart';
+import '../../widgets/deletion.dart';
 
 typedef _Field = (String key, String label, String? hint);
 
@@ -412,9 +413,21 @@ class _CatalogFormState extends State<_CatalogForm> {
     );
   }
 
-  void _delete() {
-    widget.state.write((s) => s.delete(widget.type, widget.id!));
-    Navigator.pop(context);
+  Future<void> _delete() async {
+    final state = widget.state, id = widget.id!;
+    final name =
+        state.store.get(widget.type, id)?.data['name'] as String? ?? '';
+    final ok = await confirmDelete(
+      context,
+      state,
+      type: widget.type,
+      id: id,
+      name: name,
+    );
+    if (!ok || !mounted) return;
+    if (deleteWithUndo(context, state, type: widget.type, id: id, name: name)) {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -551,19 +564,18 @@ class _CatalogFormState extends State<_CatalogForm> {
           ),
         ),
       ),
-      actions: [
-        if (widget.id != null)
+      actionsAlignment: MainAxisAlignment.spaceBetween,
+      actions: dialogActions(
+        onDelete: widget.id == null ? null : _delete,
+        deleteLabel: '删除$noun',
+        actions: [
           TextButton(
-            onPressed: _delete,
-            style: TextButton.styleFrom(foregroundColor: Tokens.red),
-            child: Text('删除$noun'),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
           ),
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
-        ),
-        FilledButton(onPressed: _save, child: const Text('保存')),
-      ],
+          FilledButton(onPressed: _save, child: const Text('保存')),
+        ],
+      ),
     );
   }
 }

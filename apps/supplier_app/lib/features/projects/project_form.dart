@@ -4,6 +4,7 @@ import 'package:supplier_core/supplier_core.dart';
 import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
+import '../../widgets/deletion.dart';
 
 /// Suggests "2026-PC01-007": year, device code, next sequence. Codes are only
 /// a label; identity is the record id, so collisions across devices are fine.
@@ -115,7 +116,8 @@ class _ProjectFormState extends State<_ProjectForm> {
         title: const Text('删除这个项目？'),
         content: const Text(
           '项目和它的成本预算行会从列表中移除，报价记录保留。'
-          '变更记录会保留删除操作；交换文件导入到其他设备后，那里也会删除。',
+          '删除后可以立即撤销，也可以在 设置 › 已删除的记录 中恢复；'
+          '交换文件导入到其他设备后，那里也会删除。',
         ),
         actions: [
           TextButton(
@@ -131,8 +133,18 @@ class _ProjectFormState extends State<_ProjectForm> {
       ),
     );
     if (sure != true || !mounted) return;
-    widget.state.write((s) => s.delete('project', widget.id!));
-    Navigator.pop(context);
+    final id = widget.id!;
+    final name =
+        widget.state.store.get('project', id)?.data['name'] as String? ?? '';
+    if (deleteWithUndo(
+      context,
+      widget.state,
+      type: 'project',
+      id: id,
+      name: name,
+    )) {
+      Navigator.pop(context);
+    }
   }
 
   Widget _dropdown(String key, String label, Map<String?, String> options) =>
@@ -261,19 +273,18 @@ class _ProjectFormState extends State<_ProjectForm> {
           ),
         ),
       ),
-      actions: [
-        if (!creating)
+      actionsAlignment: MainAxisAlignment.spaceBetween,
+      actions: dialogActions(
+        onDelete: creating ? null : _delete,
+        deleteLabel: '删除项目',
+        actions: [
           TextButton(
-            onPressed: _delete,
-            style: TextButton.styleFrom(foregroundColor: Tokens.red),
-            child: const Text('删除项目'),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
           ),
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
-        ),
-        FilledButton(onPressed: _save, child: Text(creating ? '创建项目' : '保存')),
-      ],
+          FilledButton(onPressed: _save, child: Text(creating ? '创建项目' : '保存')),
+        ],
+      ),
     );
   }
 }

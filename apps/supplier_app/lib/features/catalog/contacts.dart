@@ -5,6 +5,7 @@ import 'package:supplier_core/supplier_core.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
+import '../../widgets/deletion.dart';
 
 /// Contact list shown inside the supplier editor.
 class SupplierContacts extends StatelessWidget {
@@ -164,21 +165,34 @@ class _ContactFormState extends State<_ContactForm> {
         ],
       ),
     ),
-    actions: [
-      if (widget.id != null)
+    actionsAlignment: MainAxisAlignment.spaceBetween,
+    actions: dialogActions(
+      onDelete: widget.id == null
+          ? null
+          : () {
+              final id = widget.id!;
+              final name =
+                  widget.state.store.get('contact', id)?.data['name']
+                      as String? ??
+                  '';
+              if (deleteWithUndo(
+                context,
+                widget.state,
+                type: 'contact',
+                id: id,
+                name: name,
+              )) {
+                Navigator.pop(context);
+              }
+            },
+      deleteLabel: '删除联系人',
+      actions: [
         TextButton(
-          onPressed: () {
-            widget.state.write((s) => s.delete('contact', widget.id!));
-            Navigator.pop(context);
-          },
-          style: TextButton.styleFrom(foregroundColor: Tokens.red),
-          child: const Text('删除联系人'),
+          onPressed: () => Navigator.pop(context),
+          child: const Text('取消'),
         ),
-      TextButton(
-        onPressed: () => Navigator.pop(context),
-        child: const Text('取消'),
-      ),
-      FilledButton(onPressed: _save, child: const Text('保存')),
-    ],
+        FilledButton(onPressed: _save, child: const Text('保存')),
+      ],
+    ),
   );
 }
