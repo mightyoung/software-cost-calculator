@@ -51,6 +51,7 @@ class CatalogPage extends StatefulWidget {
 
 class _CatalogPageState extends State<CatalogPage> {
   String query = '';
+  var limit = pageSize;
 
   bool get isProduct => widget.type == 'product';
   String get noun => isProduct ? '物料' : '供应商';
@@ -61,9 +62,9 @@ class _CatalogPageState extends State<CatalogPage> {
         .where((w) => w.isNotEmpty)
         .toList();
     if (isProduct && words.isNotEmpty) {
-      return store.searchProducts(words, limit: 200);
+      return store.searchProducts(words, limit: limit);
     }
-    return store.searchByName(widget.type, query, limit: 200);
+    return store.searchByName(widget.type, query, limit: limit);
   }
 
   @override
@@ -71,6 +72,8 @@ class _CatalogPageState extends State<CatalogPage> {
     listenable: widget.state,
     builder: (context, _) {
       final hits = _hits(widget.state.store);
+      final more = hits.length >= limit;
+      final total = widget.state.store.recordCounts()[widget.type]!;
       return Padding(
         padding: const EdgeInsets.fromLTRB(24, 18, 24, 16),
         child: Column(
@@ -79,6 +82,13 @@ class _CatalogPageState extends State<CatalogPage> {
             Row(
               children: [
                 Text(noun, style: Theme.of(context).textTheme.titleLarge),
+                const SizedBox(width: 10),
+                Text(
+                  query.isEmpty
+                      ? '共 $total 条'
+                      : '找到 ${hits.length}${more ? '+' : ''} 条',
+                  style: const TextStyle(color: Tokens.ink3),
+                ),
                 const Spacer(),
                 FilledButton.icon(
                   onPressed: () =>
@@ -94,7 +104,10 @@ class _CatalogPageState extends State<CatalogPage> {
                 prefixIcon: const Icon(Icons.search, size: 18),
                 hintText: isProduct ? '型号、名称、品牌或规格' : '名称或别名',
               ),
-              onChanged: (v) => setState(() => query = v.trim()),
+              onChanged: (v) => setState(() {
+                query = v.trim();
+                limit = pageSize;
+              }),
             ),
             const SizedBox(height: 12),
             Expanded(
@@ -113,9 +126,15 @@ class _CatalogPageState extends State<CatalogPage> {
                         borderRadius: BorderRadius.circular(Tokens.radius),
                       ),
                       child: ListView.separated(
-                        itemCount: hits.length,
+                        itemCount: hits.length + (more ? 1 : 0),
                         separatorBuilder: (_, _) => const Divider(),
                         itemBuilder: (context, i) {
+                          if (i == hits.length) {
+                            return MoreRow(
+                              shown: hits.length,
+                              onMore: () => setState(() => limit += pageSize),
+                            );
+                          }
                           final h = hits[i];
                           final sub = isProduct
                               ? [

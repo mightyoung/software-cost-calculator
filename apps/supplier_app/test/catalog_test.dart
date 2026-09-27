@@ -152,4 +152,46 @@ void main() {
     state.store.delete('supplier', existing);
     expect(state.store.deletedRecords().single.id, existing);
   });
+
+  testWidgets('long lists say how many there are and load more', (
+    tester,
+  ) async {
+    state.store.transaction(() {
+      for (var i = 0; i < 204; i++) {
+        state.store.save('supplier', {
+          for (final f in Supplier.fields) f: null,
+          'name': '供应商$i',
+          'aliases': <String>[],
+          'categories': <String>[],
+        });
+      }
+    });
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildTheme(),
+        home: Scaffold(
+          body: CatalogPage(state: state, type: 'supplier'),
+        ),
+      ),
+    );
+    expect(find.text('共 205 条'), findsOneWidget);
+    final list = find.descendant(
+      of: find.byType(ListView),
+      matching: find.byType(Scrollable),
+    );
+    await tester.scrollUntilVisible(
+      find.text('再显示 200 条'),
+      500,
+      scrollable: list,
+    );
+    expect(find.text('已显示 200 条'), findsOneWidget);
+    await tester.tap(find.text('再显示 200 条'));
+    await tester.pumpAndSettle();
+    expect(find.text('再显示 200 条'), findsNothing);
+    await tester.scrollUntilVisible(find.text('永泰阀门'), 500, scrollable: list);
+    expect(find.text('永泰阀门'), findsOneWidget, reason: 'the oldest one');
+  });
 }

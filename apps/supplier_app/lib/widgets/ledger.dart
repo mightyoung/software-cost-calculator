@@ -225,3 +225,26 @@ class MonoText extends StatelessWidget {
     overflow: TextOverflow.ellipsis,
   );
 }
+
+/// Rows a long list shows at first, and adds per "再显示".
+const pageSize = 200;
+
+/// Last row of a list cut at [shown] items: says so and loads more.
+class MoreRow extends StatelessWidget {
+  const MoreRow({super.key, required this.shown, required this.onMore});
+  final int shown;
+  final VoidCallback onMore;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text('已显示 $shown 条', style: const TextStyle(color: Tokens.ink3)),
+        const SizedBox(width: 8),
+        TextButton(onPressed: onMore, child: const Text('再显示 200 条')),
+      ],
+    ),
+  );
+}
