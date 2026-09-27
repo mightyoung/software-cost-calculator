@@ -3,9 +3,10 @@
 A supplier inquiry and project cost tool. Each device runs on its own and stores its data locally; there is no server. It targets Windows (primary), Android and macOS.
 
 - **Projects and cost budgets:** budgets are grouped into five cost categories (materials, outsourcing, labour, manufacturing overhead, other). The lowest valid quotation is filled in automatically, markup and margin are calculated, and the app warns when cost reaches the contract amount or a cheaper quotation appears.
-- **Quotations:** record quotations one by one or import them from an Excel template. Quotations are compared by currency, tax mode and unit, and the reason is shown whenever a quotation doesn't count.
+- **Quotations:** record quotations one by one or import them from an Excel template. Comparison converts tax mode when a rate is known and converts units using each product's configured factors; the original quotation remains unchanged. It explains when a quotation cannot be compared. The quotation page highlights offers expiring within 30 days and materials without a new quotation for over 90 days.
 - **Excel:** exports a project quote sheet (for the customer), a cost budget sheet (internal) and an inquiry list (for suppliers). Amounts stay exact to 6 decimal places.
 - **Exchange between devices:** exporting produces an exchange file (`.siq`); importing it merges data on another device. Changes are merged field by field, and conflicting edits are shown for review. Re-importing the same file changes nothing. The same file also works as a backup.
+- **Upgrades:** an older local database gets a checked `.pre-vN-migration.siq` snapshot beside the database before its schema is changed.
 - **AI (DeepSeek or any OpenAI-compatible service):**
   - **Build a project from a list:** matches the list against the local material catalogue; nothing is written until the user confirms.
   - **Smart quote import:** paste supplier information (chat, email, a quote sheet or an Excel file) and the app pulls out suppliers, contacts, products (brand, model, technical specs) and prices. It matches them to existing suppliers and materials, then after review writes them into an existing or new project in one go, optionally adding them to the budget. Only the pasted text is sent to the AI.

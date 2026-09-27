@@ -264,6 +264,7 @@ extension AgentTools on Store {
               currency: g.currency,
               taxMode: g.taxMode,
               unit: g.unit,
+              forCompareGroup: true,
             )
             case final h?)
           'history': {
@@ -278,7 +279,12 @@ extension AgentTools on Store {
             {
               'id': r.id,
               'supplier': _name('supplier', r.data['supplier_id']),
-              'price': r.price,
+              'price': r.comparisonPrice,
+              if (r.converted) ...{
+                'original_price': r.price,
+                'original_unit': r.data['unit_snapshot'],
+                'original_tax_mode': r.data['tax_mode'],
+              },
               'usable': r.valid,
               if (r.issues.isNotEmpty)
                 'not_usable_because': [for (final i in r.issues) i.name],

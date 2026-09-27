@@ -307,6 +307,7 @@ class _ItemEditorState extends State<_ItemEditor> {
         : store.quoteOptions(
             widget.projectId,
             pid,
+            unit: data['unit'] as String?,
             qty: tryDecimal(qty?.replaceAll(',', ''), positive: true),
           );
   }
@@ -413,12 +414,23 @@ class _ItemEditorState extends State<_ItemEditor> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Expanded(child: field('unit', '单位')),
+                  Expanded(
+                    child: field(
+                      'unit',
+                      '单位',
+                      onChanged: (v) => setState(() {
+                        data['unit'] = v.trim();
+                        data['quotation_id'] = null;
+                        options = _options(c['qty']?.text);
+                      }),
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
               if (options.isNotEmpty) ...[
                 DropdownButtonFormField<String?>(
+                  key: ValueKey(data['unit']),
                   initialValue: data['quotation_id'] as String?,
                   isExpanded: true,
                   decoration: const InputDecoration(labelText: '采用报价'),
@@ -431,7 +443,7 @@ class _ItemEditorState extends State<_ItemEditor> {
                       DropdownMenuItem(
                         value: o.id,
                         child: Text(
-                          '${money(o.price, prefix: '¥')} · ${store.get('supplier', o.data['supplier_id']! as String)?.data['name']} · ${_optionState(o)}',
+                          '${money(o.price, prefix: '¥')}${o.converted ? '（按项目口径折算）' : ''} · ${store.get('supplier', o.data['supplier_id']! as String)?.data['name']} · ${_optionState(o)}',
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),

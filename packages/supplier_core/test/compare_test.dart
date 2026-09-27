@@ -9,6 +9,43 @@ void main() {
   setUp(() => tmp = Directory.systemTemp.createTempSync('compare'));
   tearDown(() => tmp.deleteSync(recursive: true));
 
+  test('tax-inclusive normalized price controls group order and lowest', () {
+    final s = device('A');
+    final sup = s.save('supplier', supplier('甲'));
+    final prod = s.save('product', product('泵'));
+    final pro = s.save('project', project('P'));
+    final included = s.save('quotation', quotation(sup, prod, pro, '110'));
+    final excluded = s.save('quotation', {
+      ...quotation(sup, prod, pro, '100'),
+      'tax_mode': 'excluded',
+    });
+    final noRate = s.save('quotation', {
+      ...quotation(sup, prod, pro, '99'),
+      'tax_mode': 'excluded',
+      'tax_rate': null,
+    });
+    final groups = s.compareQuotes(prod, asOf: DateTime.utc(2026, 9, 10));
+    final rows = groups.firstWhere((g) => g.taxMode == 'included').rows;
+    expect(rows.map((r) => r.id), [included, excluded]);
+    expect(rows.first.lowest, isTrue);
+    expect(rows.last.price, '100');
+    expect(rows.last.comparisonPrice, '113');
+    expect(rows.last.converted, isTrue);
+    final groupHistory = s.priceHistory(
+      prod,
+      currency: 'CNY',
+      taxMode: 'excluded',
+      unit: '件',
+      forCompareGroup: true,
+    )!;
+    expect(groupHistory.count, 1);
+    expect(groupHistory.average, '99');
+    expect(
+      groups.firstWhere((g) => g.taxMode == 'excluded').rows.single.id,
+      noRate,
+    );
+  });
+
   test('groups by basis, marks lowest valid, explains exclusions', () {
     final s = device('A');
     final a = s.save('supplier', supplier('甲'));

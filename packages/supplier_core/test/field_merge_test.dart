@@ -81,31 +81,57 @@ void main() {
     expect(c.openConflicts(), isEmpty);
   });
 
-  test('a merge that breaks a rule keeps the whole winning record', () {
+  test('incompatible concurrent fields reject import without losing edits', () {
     final a = device('A');
     final sup = a.save('supplier', supplier('甲'));
     final prod = a.save('product', product('泵'));
     final pro = a.save('project', project('P1'));
     final q = a.save(
       'quotation',
-      quotation(sup, prod, pro, '1', validUntil: '2026-12-31'),
+      quotation(sup, prod, pro, '1', validUntil: '2026-09-30'),
     );
     final b = device('B', start: DateTime.utc(2026, 9, 2));
     b.importFrom(exported(a));
     final base = a.get('quotation', q)!.data;
-    a.save('quotation', {...base, 'quoted_on': '2026-11-01'}, id: q);
-    b.save('quotation', {...base, 'valid_until': '2026-10-01'}, id: q);
-    sync(a, b);
-    a.importFrom(exported(b));
-    expect(content(a), content(b));
-    final merged = a.get('quotation', q)!.data;
+    a.save('quotation', {...base, 'quoted_on': '2026-09-20'}, id: q);
+    b.save('quotation', {...base, 'valid_until': '2026-09-10'}, id: q);
+    final beforeA = content(a);
+    final beforeB = content(b);
     expect(
-      (merged['valid_until']! as String).compareTo(
-            merged['quoted_on']! as String,
-          ) >=
-          0,
-      isTrue,
+      () => a.importFrom(exported(b)),
+      throwsA(
+        isA<FormatException>().having(
+          (e) => e.message,
+          'message',
+          contains('incompatible concurrent field edits'),
+        ),
+      ),
     );
+    expect(content(a), beforeA);
+    expect(content(b), beforeB);
+    expect(
+      () => b.importFrom(exported(a)),
+      throwsA(
+        isA<FormatException>().having(
+          (e) => e.message,
+          'message',
+          contains('incompatible concurrent field edits'),
+        ),
+      ),
+    );
+    expect(content(a), beforeA);
+    expect(content(b), beforeB);
+
+    // Either device can correct its own edit and then retry the exchange.
+    b.save('quotation', {
+      ...b.get('quotation', q)!.data,
+      'valid_until': '2026-09-25',
+    }, id: q);
+    sync(a, b);
+    expect(content(a), content(b));
+    final resolved = a.get('quotation', q)!.data;
+    expect(resolved['quoted_on'], '2026-09-20');
+    expect(resolved['valid_until'], '2026-09-25');
   });
 
   test('a delete wins over a concurrent edit', () {

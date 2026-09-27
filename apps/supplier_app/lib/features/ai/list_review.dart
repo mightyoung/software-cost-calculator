@@ -369,7 +369,9 @@ class _ListReviewState extends State<ListReview> {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
-          best == null ? '—' : money(best.price),
+          best == null
+              ? '—'
+              : '${money(best.price)}${best.converted ? '（口径折算）' : ''}',
           style: const TextStyle(fontFeatures: tabular),
         ),
         if (best != null)

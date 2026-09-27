@@ -29,7 +29,11 @@ void main() {
     dir.deleteSync(recursive: true);
   });
 
-  Future<void> open(WidgetTester tester, {String? id}) async {
+  Future<void> open(
+    WidgetTester tester, {
+    String type = 'supplier',
+    String? id,
+  }) async {
     tester.view.physicalSize = const Size(1280, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -39,8 +43,7 @@ void main() {
         home: Builder(
           builder: (context) => Scaffold(
             body: TextButton(
-              onPressed: () =>
-                  showCatalogForm(context, state, 'supplier', id: id),
+              onPressed: () => showCatalogForm(context, state, type, id: id),
               child: const Text('打开'),
             ),
           ),
@@ -80,5 +83,22 @@ void main() {
     await tester.pumpAndSettle();
     expect(state.store.get('supplier', dup)!.data['merged_into'], existing);
     expect(state.store.searchByName('supplier', '永泰').single.id, existing);
+  });
+
+  testWidgets('product form saves a configurable quote unit', (tester) async {
+    await open(tester, type: 'product');
+    await tester.enterText(find.widgetWithText(TextField, '物料名称'), '动力电缆');
+    await tester.enterText(find.widgetWithText(TextField, '单位'), '米');
+    await tester.ensureVisible(find.text('添加单位'));
+    await tester.tap(find.text('添加单位'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.widgetWithText(TextField, '报价单位'));
+    await tester.enterText(find.widgetWithText(TextField, '报价单位'), '千米');
+    await tester.enterText(find.widgetWithText(TextField, '等于多少米'), '1000');
+    await tester.tap(find.text('保存'));
+    await tester.pumpAndSettle();
+
+    final product = state.store.searchByName('product', '动力电缆').single;
+    expect(product.data['unit_conversions'], {'千米': '1000'});
   });
 }

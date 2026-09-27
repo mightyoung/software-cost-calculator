@@ -130,6 +130,9 @@ class AppState extends ChangeNotifier {
       lastSync = r;
       lastSyncError = null;
       saveSetting('sync_seen', jsonEncode(r.seen)); // also refreshes pages
+    } on FormatException catch (e) {
+      lastSyncError = friendlyError(e.message);
+      notifyListeners();
     } catch (e) {
       lastSyncError = '$e';
       notifyListeners();
@@ -314,12 +317,26 @@ Future<void> Function(Store) _shareJob(
 
 /// Maps core validation messages ("field: reason") to short Chinese text.
 String friendlyError(String message) {
+  if (message.contains('incompatible concurrent field edits')) {
+    final id = RegExp(
+      r'^quotation (\S+) has incompatible',
+    ).firstMatch(message)?.group(1);
+    return '两台设备对同一条报价的修改互相矛盾，导入已撤销。'
+        '请先修正报价日期或有效期，再重新交换。'
+        '${id == null ? '' : '记录：$id'}';
+  }
   const reasons = {
     'required': '必填',
     'precision exceeded': '位数超出（最多 12 位整数、6 位小数）',
     'expected unsigned decimal text': '应为不带符号的数字',
     'must be positive': '必须大于 0',
     'currency or tax mode differs from project': '币种或含税口径与项目不一致',
+    'currency, tax mode or unit cannot be converted': '币种、含税口径或单位无法换算到项目预算口径',
+    'must use the project price basis': '采用报价时，成本单价须使用项目税口径和预算行单位的折算价',
+    'clear or reconfigure conversions when changing the base unit':
+        '修改基准单位前请清空旧换算，或按新基准单位重新设置',
+    'expected at most 50 conversions': '最多设置 50 条单位换算',
+    'duplicate or base unit, or invalid factor': '来源单位不能重复或等于基准单位，换算数量须为正数',
     'record does not exist': '记录已被删除',
     'clearing existing information requires explicit confirmation':
         '不能直接清空已有内容',

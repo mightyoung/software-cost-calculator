@@ -59,7 +59,7 @@ class CompareView extends StatelessWidget {
         const Padding(
           padding: EdgeInsets.fromLTRB(0, 4, 0, 10),
           child: Text(
-            '只有币种、含税口径和单位都相同的报价才放在一起比较。灰色的报价不参与"最低有效价"，右侧写明了原因。',
+            '同币种报价按含税价及物料基准单位比较；跨税口径需税率，跨单位需在物料中配置换算。无法换算的报价单列。',
             style: TextStyle(color: Tokens.ink2),
           ),
         ),
@@ -76,6 +76,7 @@ class CompareView extends StatelessWidget {
                           currency: g.currency,
                           taxMode: g.taxMode,
                           unit: g.unit,
+                          forCompareGroup: true,
                         ),
                       ),
                       for (final r in g.rows) _row(context, r, g),
@@ -94,9 +95,10 @@ class CompareView extends StatelessWidget {
       currency: g.currency,
       taxMode: g.taxMode,
       unit: g.unit,
+      forCompareGroup: true,
     );
     final deviation = history != null && history.count >= 3
-        ? history.deviationPercent(r.price)
+        ? history.deviationPercent(r.comparisonPrice)
         : null;
     final store = state.store;
     final supplier =
@@ -145,6 +147,8 @@ class CompareView extends StatelessWidget {
                   Text(
                     [
                       scopeText(r.data['includes']) ?? '范围未说明',
+                      if (r.converted)
+                        '统一口径 ${money(r.comparisonPrice)} / ${g.unit}（原报价 ${money(r.price)} / ${r.data['unit_snapshot']} · ${taxModeLabels[r.data['tax_mode']] ?? r.data['tax_mode']}）',
                       if (r.data['extra_cost'] != null)
                         '另有附加费用 ${money(r.data['extra_cost'] as String?)}',
                       if (r.awarded)
@@ -196,7 +200,7 @@ class CompareView extends StatelessWidget {
             SizedBox(
               width: 120,
               child: Text(
-                money(r.price),
+                money(r.comparisonPrice),
                 textAlign: TextAlign.right,
                 style: TextStyle(
                   fontFeatures: tabular,
@@ -253,7 +257,7 @@ class _GroupHeader extends StatelessWidget {
     ),
     child: Text(
       [
-        '${group.currency} · ${taxModeLabels[group.taxMode] ?? group.taxMode} · 单位 ${group.unit} · ${group.rows.length} 条报价',
+        '${group.currency} · ${taxModeLabels[group.taxMode] ?? group.taxMode}${group.rows.any((r) => r.converted) ? '（含换算）' : ''} · 单位 ${group.unit} · ${group.rows.length} 条报价',
         if (history case final h?)
           '历史 最低 ${money(h.min)} · 平均 ${money(h.average)} · 最高 ${money(h.max)}'
               '${h.lastDeal == null ? '' : ' · 最近成交 ${money(h.lastDeal)}'}',

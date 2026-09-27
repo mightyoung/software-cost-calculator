@@ -34,6 +34,103 @@ void main() {
     expect(s.quoteOptions(pro, prod, asOf: asOf, qty: '10').first.id, lump);
   });
 
+  test('tax conversion rounds exact decimals and refuses unknown bases', () {
+    final q = {
+      ...quotation(sup, prod, pro, '0.000001'),
+      'tax_mode': 'excluded',
+      'tax_rate': '50',
+    };
+    expect(priceInTaxMode(q, currency: 'CNY', taxMode: 'included'), '0.000002');
+    expect(
+      priceInTaxMode(
+        {...q, 'price': '1', 'tax_mode': 'included', 'tax_rate': '13'},
+        currency: 'CNY',
+        taxMode: 'excluded',
+      ),
+      '0.884956',
+    );
+    expect(
+      priceInTaxMode(
+        {...q, 'tax_rate': '0'},
+        currency: 'CNY',
+        taxMode: 'included',
+      ),
+      '0.000001',
+    );
+    expect(
+      priceInTaxMode(
+        {...q, 'tax_rate': null},
+        currency: 'CNY',
+        taxMode: 'included',
+      ),
+      isNull,
+    );
+    expect(
+      priceInTaxMode(
+        {...q, 'tax_mode': 'unknown'},
+        currency: 'CNY',
+        taxMode: 'included',
+      ),
+      isNull,
+    );
+    expect(priceInTaxMode(q, currency: 'USD', taxMode: 'included'), isNull);
+  });
+
+  test('project options, awards and history share normalized unit prices', () {
+    final q = s.save('quotation', {
+      ...quotation(sup, prod, pro, '100'),
+      'tax_mode': 'excluded',
+      'extra_cost': '20',
+    });
+    s.save('quotation', {
+      ...quotation(sup, prod, pro, '1'),
+      'tax_mode': 'excluded',
+      'tax_rate': null,
+    });
+    s.save('quotation', {
+      ...quotation(sup, prod, pro, '1'),
+      'tax_mode': 'unknown',
+    });
+    s.save('quotation', quotation(sup, prod, pro, '1', currency: 'USD'));
+    final option = s.quoteOptions(pro, prod, asOf: asOf, qty: '2').single;
+    expect(option.id, q);
+    expect(option.price, '113');
+    expect(option.sourcePrice, '100');
+    expect(option.converted, isTrue);
+    expect(
+      option.effectivePrice,
+      '124.3',
+    ); // Tax-normalized extra remains comparison-only.
+    final line = s.save('project_item', item(pro, 'material', productId: prod));
+    expect(
+      () => s.save(
+        'project_item',
+        item(pro, 'material', productId: prod, quotationId: q, cost: '100'),
+      ),
+      throwsA(isA<FormatException>()),
+    );
+    s.award(q, itemId: line, dealPrice: '90');
+    expect(s.get('quotation', q)!.data['deal_price'], '90');
+    expect(s.get('quotation', q)!.data['price'], '100');
+    expect(s.get('project_item', line)!.data['unit_cost'], '101.7');
+    final h = s.priceHistory(
+      prod,
+      currency: 'CNY',
+      taxMode: 'included',
+      unit: '件',
+    )!;
+    expect(h.count, 1);
+    expect(h.average, '101.7');
+    expect(h.lastDeal, '101.7');
+    final reverse = s.quoteOptionsFor(
+      prod,
+      currency: 'CNY',
+      taxMode: 'excluded',
+      asOf: asOf,
+    );
+    expect(reverse.firstWhere((o) => o.id == q).price, '90');
+  });
+
   test('an award for this project comes first and prices at the deal', () {
     final cheap = s.save('quotation', quotation(sup, prod, pro, '80'));
     final elsewhere = s.save('quotation', {
@@ -59,6 +156,38 @@ void main() {
     expect(s.budget(pro, asOf: asOf).lines.single.warnings, [
       'cheaper_available',
     ]);
+  });
+
+  test('excluded project awards use net basis and keep existing snapshots', () {
+    s.save('project', {
+      ...s.get('project', pro)!.data,
+      'tax_mode': 'excluded',
+    }, id: pro);
+    final q = s.save('quotation', quotation(sup, prod, pro, '113'));
+    final line = s.save('project_item', item(pro, 'material', productId: prod));
+    expect(s.quoteOptions(pro, prod, asOf: asOf).single.price, '100');
+    s.award(q, itemId: line);
+    expect(s.get('project_item', line)!.data['unit_cost'], '100');
+    s.save('quotation', {
+      ...s.get('quotation', q)!.data,
+      'deal_price': '226',
+    }, id: q);
+    s.save('project_item', {
+      ...s.get('project_item', line)!.data,
+      'qty': '2',
+    }, id: line);
+    expect(s.get('project_item', line)!.data['unit_cost'], '100');
+    expect(s.refreshPlan(pro, asOf: asOf).single.newCost, '200');
+    final missing = s.save('quotation', {
+      ...quotation(sup, prod, pro, '1'),
+      'tax_rate': null,
+    });
+    expect(
+      () => s.award(missing, itemId: line),
+      throwsA(isA<FormatException>()),
+    );
+    expect(s.get('quotation', missing)!.data['deal_price'], isNull);
+    expect(s.get('project_item', line)!.data['unit_cost'], '100');
   });
 
   test('history summarizes comparable prices and flags outliers', () {

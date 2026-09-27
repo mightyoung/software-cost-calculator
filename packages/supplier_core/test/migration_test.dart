@@ -52,6 +52,16 @@ void main() {
     final upgraded = Store.open(old, device: 'A');
     expect(metaVersion(old), '$schemaVersion');
     expect(content(upgraded), current, reason: 'same data, same versions');
+    final backup = File('$old.pre-v1-migration.siq');
+    expect(backup.existsSync(), isTrue);
+    expect(metaVersion(backup.path), '1');
+    final restored = device('C');
+    restored.importFrom(backup.path);
+    expect(
+      content(restored),
+      current,
+      reason: 'backup restores pre-upgrade data',
+    );
     upgraded.close();
   });
 
@@ -64,6 +74,30 @@ void main() {
     final c = device('C');
     c.importFrom(exported(a));
     expect(content(b), content(c));
+  });
+
+  test('a failed pre-migration snapshot leaves the old database unchanged', () {
+    final a = seeded();
+    final old = downgradeToV1(exported(a));
+    final beforeDb = sqlite3.open(old, mode: OpenMode.readOnly);
+    final before = [
+      for (final type in entityTypes)
+        for (final row in beforeDb.select('SELECT * FROM $type ORDER BY id'))
+          [type, ...row.values],
+    ];
+    beforeDb.close();
+    Directory('$old.pre-v1-migration.siq').createSync();
+
+    expect(() => Store.open(old, device: 'B'), throwsException);
+    expect(metaVersion(old), '1');
+    final afterDb = sqlite3.open(old, mode: OpenMode.readOnly);
+    final after = [
+      for (final type in entityTypes)
+        for (final row in afterDb.select('SELECT * FROM $type ORDER BY id'))
+          [type, ...row.values],
+    ];
+    afterDb.close();
+    expect(after, before);
   });
 
   test('files and databases from a newer version are refused', () {

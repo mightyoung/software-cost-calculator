@@ -133,6 +133,58 @@ void main() {
     },
   );
 
+  testWidgets('quote page shows upcoming expiry and stale products', (
+    tester,
+  ) async {
+    final store = state.store;
+    final base = store
+        .get(
+          'quotation',
+          store.get('project_item', pumpLine)!.data['quotation_id']! as String,
+        )!
+        .data;
+    final soon = DateTime.now()
+        .add(const Duration(days: 5))
+        .toIso8601String()
+        .substring(0, 10);
+    final old = DateTime.now()
+        .subtract(const Duration(days: 120))
+        .toIso8601String()
+        .substring(0, 10);
+    store.save('quotation', {...base, 'valid_until': soon});
+    final oldProduct = store.save(
+      'product',
+      _blank(Product.fields, {'name': '旧款阀门', 'unit': '台'}),
+    );
+    store.save('quotation', {
+      ...base,
+      'product_id': oldProduct,
+      'quoted_on': old,
+      'inquiry_date': old,
+    });
+
+    await pumpApp(tester);
+    await tester.tap(find.text('报价查询'));
+    await tester.pumpAndSettle();
+    for (
+      var i = 0;
+      i < 50 && find.textContaining('30 天内到期 1 条').evaluate().isEmpty;
+      i++
+    ) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 100)),
+      );
+      await tester.pump();
+    }
+    expect(find.textContaining('30 天内到期 1 条'), findsOneWidget);
+    expect(find.textContaining('90 天无新报价 1 种'), findsOneWidget);
+    await tester.tap(find.text('查看提醒'));
+    await tester.pumpAndSettle();
+    expect(find.text('报价时效提醒'), findsOneWidget);
+    expect(find.text('旧款阀门'), findsWidgets);
+    expect(find.textContaining('有效至 $soon'), findsWidgets);
+  });
+
   testWidgets('editing a line quantity updates totals', (tester) async {
     await pumpApp(tester);
     await tester.tap(find.text('离心水泵').last);
@@ -219,6 +271,16 @@ void main() {
   );
 
   testWidgets('quote comparison marks the lowest valid price', (tester) async {
+    final quoteId =
+        state.store.db.select('SELECT id FROM quotation LIMIT 1').single['id']
+            as String;
+    final source = state.store.get('quotation', quoteId)!.data;
+    state.store.save('quotation', {
+      ...source,
+      'price': '28000',
+      'tax_mode': 'excluded',
+      'tax_rate': '13',
+    });
     await pumpApp(tester);
     await tester.tap(find.text('报价查询'));
     await tester.pumpAndSettle();
@@ -227,7 +289,8 @@ void main() {
     await tester.tap(find.byType(ActionChip).first);
     await tester.pumpAndSettle();
     expect(find.text('最低有效价'), findsOneWidget);
-    expect(find.textContaining('CNY · 含税 · 单位 台'), findsOneWidget);
+    expect(find.textContaining('CNY · 含税（含换算） · 单位 台'), findsOneWidget);
+    expect(find.textContaining('统一口径 31,640.00'), findsOneWidget);
   });
 
   reviewTests();

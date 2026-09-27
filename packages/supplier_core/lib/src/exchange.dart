@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:sqlite3/sqlite3.dart';
 
 import 'merge.dart';
-import 'quotation.dart';
 import 'search_index.dart';
+import 'storage_codec.dart';
 import 'store.dart';
 import 'values.dart';
 
@@ -78,6 +78,9 @@ extension Exchange on Store {
     return transaction(() {
       final summary = _summary();
       final diverged = {for (final type in entityTypes) type: _diverged(type)};
+      final basisBefore = {
+        for (final type in ['product', 'project_item']) type: _localBasis(type),
+      };
       _importAttachments();
       for (final type in entityTypes) {
         _validateIncoming(type);
@@ -99,7 +102,12 @@ extension Exchange on Store {
       );
       for (final type in entityTypes) {
         diverged[type]!.forEach(
-          (id, deleted) => _mergeFields(type, id, deleted),
+          (id, deleted) => _mergeFields(
+            type,
+            id,
+            deleted,
+            originalBasis: basisBefore[type]?[id],
+          ),
         );
       }
       clockSeen();
@@ -278,16 +286,65 @@ extension Exchange on Store {
       r['id'] as String: r['deleted'] == 1,
   };
 
+  // A price and its unit/reference, or a product's base unit and factors,
+  // form one basis. Field replay must not splice a basis that neither device
+  // held, even when each individual field is valid.
+  String _basis(String type, Map<String, Object?> data) {
+    final fields = type == 'product'
+        ? const ['unit', 'unit_conversions']
+        : const [
+            'project_id',
+            'product_id',
+            'quotation_id',
+            'unit',
+            'qty',
+            'unit_cost',
+            'unit_price',
+          ];
+    return jsonEncode([for (final field in fields) data[field]]);
+  }
+
+  String _basisKey(String type, Map<String, Object?> data) {
+    final fields = type == 'product'
+        ? const ['unit']
+        : const ['project_id', 'product_id', 'quotation_id', 'unit'];
+    return jsonEncode([for (final field in fields) data[field]]);
+  }
+
+  Map<String, String> _localBasis(String type) {
+    final result = <String, String>{};
+    for (final row in db.select(
+      'SELECT m.id, m.data AS local_data, s.data AS incoming_data '
+      'FROM main.$type m JOIN src.$type s ON s.id=m.id '
+      'WHERE m.data <> s.data',
+    )) {
+      final local = decodeStoredPayload(type, row['local_data'] as String);
+      final incoming = decodeStoredPayload(
+        type,
+        row['incoming_data'] as String,
+      );
+      if (_basisKey(type, local) != _basisKey(type, incoming)) {
+        result[row['id'] as String] = _basis(type, local);
+      }
+    }
+    return result;
+  }
+
   /// Field-level merge on top of the row-level winner: each field takes the
   /// value of its latest change in the combined change log, so edits to
   /// different fields on different devices are all kept. Deletion wins over
   /// edits. The result depends only on the combined log, so every device
   /// computes the same row. If the merged fields break a cross-field rule,
-  /// the winning row is kept as it is.
-  void _mergeFields(String type, String id, bool deleted) {
+  /// the import fails atomically so neither device silently loses an edit.
+  void _mergeFields(
+    String type,
+    String id,
+    bool deleted, {
+    String? originalBasis,
+  }) {
     final row = db.select('SELECT data FROM main.$type WHERE id=?', [id]);
     final current = row.first['data'] as String;
-    final data = Map.of(jsonDecode(current) as Map<String, Object?>);
+    final data = decodeStoredPayload(type, current);
     for (final r in db.select(
       "SELECT field, new FROM main.change_log WHERE entity=? AND entity_id=? "
       "AND field NOT LIKE '(%' ORDER BY at, device, id",
@@ -296,11 +353,28 @@ extension Exchange on Store {
       final field = r['field'] as String;
       if (data.containsKey(field)) data[field] = jsonDecode(r['new'] as String);
     }
-    var merged = current;
+    if (!deleted && originalBasis != null) {
+      final mergedBasis = _basis(type, data);
+      final incoming = db.select('SELECT data FROM src.$type WHERE id=?', [id]);
+      final incomingBasis = _basis(
+        type,
+        decodeStoredPayload(type, incoming.single['data'] as String),
+      );
+      if (mergedBasis != originalBasis && mergedBasis != incomingBasis) {
+        throw FormatException(
+          '$type $id has incompatible concurrent field edits: '
+          'unit and price basis must be resolved together',
+        );
+      }
+    }
+    String merged;
     try {
-      merged = jsonEncode(validatePayload(type, data));
-    } on FormatException {
-      // keep the row-level winner
+      merged = encodeStoredPayload(type, data);
+    } on FormatException catch (error) {
+      throw FormatException(
+        '$type $id has incompatible concurrent field edits: '
+        '${error.message}',
+      );
     }
     db.execute('UPDATE main.$type SET data=?, deleted=? WHERE id=?', [
       merged,
@@ -328,10 +402,8 @@ extension Exchange on Store {
       if (at is! String || DateTime.tryParse(at) == null) {
         invalid('$type.updated_at', 'expected timestamp');
       }
-      final data = jsonDecode(r['data'] as String);
-      if (data is! Map<String, Object?>)
-        invalid('$type.data', 'expected object');
-      if (jsonEncode(validatePayload(type, data)) != r['data']) {
+      final data = decodeStoredPayload(type, r['data'] as String);
+      if (encodeStoredPayload(type, data) != r['data']) {
         invalid('$type.data', 'not in canonical form');
       }
     }

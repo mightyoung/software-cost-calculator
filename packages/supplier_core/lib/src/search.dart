@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:unorm_dart/unorm_dart.dart' as unicode;
 
+import 'budget.dart';
 import 'search_index.dart';
+import 'storage_codec.dart';
 import 'store.dart';
 
 export 'search_index.dart' show pinyinInitials;
@@ -35,7 +37,89 @@ class Hit {
   final int score;
 }
 
+/// Time-sensitive quotations and products whose last quotation needs review.
+/// Each list is capped for display; the counts cover the whole database.
+class QuoteAttention {
+  QuoteAttention(
+    this.expiringCount,
+    this.expiring,
+    this.staleProductCount,
+    this.staleProducts,
+  );
+  final int expiringCount, staleProductCount;
+  final List<Hit> expiring, staleProducts;
+}
+
 extension Search on Store {
+  QuoteAttention quoteAttention({DateTime? asOf, int limit = 20}) {
+    final now = asOf ?? clock();
+    final calendarDay = DateTime.utc(now.year, now.month, now.day);
+    final day = calendarDay.toIso8601String().substring(0, 10);
+    final soon = calendarDay
+        .add(const Duration(days: 30))
+        .toIso8601String()
+        .substring(0, 10);
+    final staleBefore = calendarDay
+        .subtract(const Duration(days: undatedValidityDays))
+        .toIso8601String()
+        .substring(0, 10);
+    final cap = limit.clamp(1, 100);
+    const due =
+        "coalesce(json_extract(q.data,'\$.valid_until'), "
+        "date(json_extract(q.data,'\$.quoted_on'), '+$undatedValidityDays days'))";
+    const activeQuote =
+        "q.deleted = 0 AND json_extract(q.data,'\$.quoted_on') IS NOT NULL "
+        "AND json_extract(q.data,'\$.price_basis') IS NULL "
+        "AND json_extract(q.data,'\$.tax_mode') != 'unknown'";
+    const activeSupplier =
+        "EXISTS (SELECT 1 FROM supplier s WHERE s.id = "
+        "json_extract(q.data,'\$.supplier_id') AND s.deleted = 0)";
+    final expiringFrom =
+        'FROM quotation q WHERE $activeQuote '
+        "AND json_extract(q.data,'\$.quoted_on') <= ? "
+        'AND $due BETWEEN ? AND ? AND $activeSupplier';
+    final expiringArgs = [day, day, soon];
+    final expiringRows = db.select(
+      'SELECT q.id, q.data, $due AS due, count(*) OVER () AS total '
+      '$expiringFrom ORDER BY due, q.id LIMIT ?',
+      [...expiringArgs, cap],
+    );
+    final expiringCount = expiringRows.isEmpty
+        ? 0
+        : expiringRows.first['total'] as int;
+    final expiring = [
+      for (final r in expiringRows)
+        Hit(r['id'] as String, {
+          ...decodeStoredPayload('quotation', r['data'] as String),
+          'expires_on': r['due'] as String,
+        }, 1),
+    ];
+
+    // A product enters this list only after it has been quoted at least once.
+    const staleFrom =
+        "FROM product p JOIN quotation q ON "
+        "json_extract(q.data,'\$.product_id') = p.id "
+        "WHERE p.deleted = 0 AND json_extract(p.data,'\$.merged_into') IS NULL "
+        "AND $activeQuote AND json_extract(q.data,'\$.quoted_on') <= ? "
+        'GROUP BY p.id '
+        "HAVING max(json_extract(q.data,'\$.quoted_on')) < ?";
+    final staleRows = db.select(
+      "SELECT p.id, p.data, max(json_extract(q.data,'\$.quoted_on')) AS last_quoted_on, "
+      'count(*) OVER () AS total '
+      '$staleFrom ORDER BY last_quoted_on, p.id LIMIT ?',
+      [day, staleBefore, cap],
+    );
+    final staleCount = staleRows.isEmpty ? 0 : staleRows.first['total'] as int;
+    final staleProducts = [
+      for (final r in staleRows)
+        Hit(r['id'] as String, {
+          ...jsonDecode(r['data'] as String) as Map<String, Object?>,
+          'last_quoted_on': r['last_quoted_on'] as String,
+        }, 1),
+    ];
+    return QuoteAttention(expiringCount, expiring, staleCount, staleProducts);
+  }
+
   /// Ids of [type] whose index columns (the keys of [weights]) contain
   /// [term] (plain substring, ASCII case-insensitive), newest first, with
   /// the weights of the matching columns summed. Data is loaded later, only
@@ -147,7 +231,7 @@ extension Search on Store {
       ))
         Hit(
           r['id'] as String,
-          jsonDecode(r['data'] as String) as Map<String, Object?>,
+          decodeStoredPayload('quotation', r['data'] as String),
           1,
         ),
     ];

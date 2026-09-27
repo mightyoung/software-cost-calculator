@@ -1,5 +1,4 @@
-import 'dart:convert';
-
+import 'storage_codec.dart';
 import 'store.dart';
 import 'values.dart';
 
@@ -84,9 +83,7 @@ extension Merge on Store {
       for (final r in db.select(
         'SELECT id, data FROM $type WHERE deleted = 0 AND ($where)',
       )) {
-        final data = Map.of(
-          jsonDecode(r['data'] as String) as Map<String, Object?>,
-        );
+        final data = decodeStoredPayload(type, r['data'] as String);
         for (final MapEntry(key: field, value: target) in mergeable.entries) {
           final id = data[field] as String?;
           if (id != null) data[field] = mergeRoot(target, id);
@@ -104,9 +101,7 @@ extension Merge on Store {
           "ON t.id = j.value WHERE json_extract(t.data,'\$.merged_into') "
           'IS NOT NULL)',
         )) {
-          final data = Map.of(
-            jsonDecode(r['data'] as String) as Map<String, Object?>,
-          );
+          final data = decodeStoredPayload(type, r['data'] as String);
           data[field] = [
             for (final id in data[field]! as List)
               mergeRoot(target, id as String),
@@ -128,7 +123,7 @@ extension Merge on Store {
       "AND json_extract(data,'\$.merged_into') IS NOT NULL",
     )) {
       final id = r['id'] as String;
-      final data = jsonDecode(r['data'] as String) as Map<String, Object?>;
+      final data = decodeStoredPayload(type, r['data'] as String);
       final target = get(type, data['merged_into']! as String);
       final dangling = target == null || target.deleted;
       if (!dangling && mergeRoot(type, id) != id) continue;

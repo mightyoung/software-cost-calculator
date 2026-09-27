@@ -1,17 +1,21 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:sqlite3/sqlite3.dart';
 
 import 'entities.dart';
 import 'quotation.dart';
+import 'pricing.dart';
 import 'search_index.dart';
+import 'storage_codec.dart';
 import 'values.dart';
 
 /// 1: initial. 2: suppliers and products gain `merged_into`.
 /// 3: quotation scope/award/provenance fields, inquiries, attachments.
 /// 4: quotation price_basis, product attributes.
-const schemaVersion = 4;
+/// 5: quotation storage omits top-level null fields.
+const schemaVersion = 6;
 const fileFormat = 'supplier-inquiry';
 
 /// Merge order matters only for the reference check at the end of an import;
@@ -118,9 +122,41 @@ int _schemaOf(Database db) {
   return rows.isEmpty ? 0 : int.tryParse(rows.first['value'] as String) ?? 0;
 }
 
-/// Upgrades an older database in place. Every schema change so far only
-/// added optional fields, so filling them with null and re-canonicalizing
-/// each payload is the whole migration. Versions and timestamps are kept:
+/// Preserve a consistent, standalone copy before changing an older database.
+/// A failed snapshot must stop the migration, leaving the original untouched.
+void _backupBeforeMigration(Database db, String path, int from) {
+  if (!File(path).existsSync()) return; // in-memory databases have no file
+  final base = '$path.pre-v$from-migration';
+  var backup = '$base.siq';
+  for (var suffix = 1; File(backup).existsSync(); suffix++) {
+    backup = '$base-$suffix.siq';
+  }
+  try {
+    db.execute('VACUUM INTO ?', [backup]);
+    final copy = sqlite3.open(backup, mode: OpenMode.readOnly);
+    try {
+      if (_schemaOf(copy) != from ||
+          copy.select('PRAGMA quick_check').single.values.single != 'ok') {
+        throw StateError('Migration backup failed integrity check');
+      }
+    } finally {
+      copy.close();
+    }
+    final file = File(backup).openSync(mode: FileMode.append);
+    try {
+      file.flushSync();
+    } finally {
+      file.closeSync();
+    }
+  } catch (_) {
+    final partial = File(backup);
+    if (partial.existsSync()) partial.deleteSync();
+    rethrow;
+  }
+}
+
+/// Upgrades an older database in place, filling newly added optional fields
+/// and canonicalizing storage. Versions and timestamps are kept:
 /// migrating is not an edit, and two devices migrating the same row end up
 /// with identical rows. Throws [StateError] for a newer or unknown schema.
 void migrate(Database db) {
@@ -136,9 +172,12 @@ void migrate(Database db) {
       final fields = payloadFields(type);
       for (final r in db.select('SELECT id, data FROM $type')) {
         final data = jsonDecode(r['data'] as String) as Map<String, Object?>;
+        if (data.keys.any((key) => !fields.contains(key))) {
+          invalid('$type.data', 'unknown field');
+        }
         final full = {for (final f in fields) f: data[f]};
         db.execute('UPDATE $type SET data=? WHERE id=?', [
-          jsonEncode(validatePayload(type, full)),
+          encodeStoredPayload(type, full),
           r['id'],
         ]);
       }
@@ -194,6 +233,10 @@ class Store {
       db.execute('COMMIT');
     }
     try {
+      final from = _schemaOf(db);
+      if (from >= 1 && from < schemaVersion) {
+        _backupBeforeMigration(db, path, from);
+      }
       migrate(db);
       ensureSearchIndex(db);
     } catch (_) {
@@ -256,7 +299,7 @@ class Store {
       id,
       r['version'] as int,
       r['deleted'] == 1,
-      Map.unmodifiable(jsonDecode(r['data'] as String) as Map<String, Object?>),
+      Map.unmodifiable(decodeStoredPayload(type, r['data'] as String)),
     );
   }
 
@@ -267,6 +310,7 @@ class Store {
     Map<String, Object?> payload, {
     String? id,
     bool allowClear = false,
+    String? snapshotSourceItemId,
   }) => transaction(() {
     final data = validatePayload(type, payload);
     final previous = id == null ? null : get(type, id);
@@ -276,13 +320,49 @@ class Store {
     if (type == 'quotation') {
       _checkQuotation(data, previous, allowClear);
     }
-    if (type == 'project_item') _checkItem(data);
+    if (snapshotSourceItemId != null &&
+        (type != 'project_item' ||
+            previous != null ||
+            !_sameItemSnapshot(data, snapshotSourceItemId))) {
+      invalid('snapshotSourceItemId', 'not a matching budget snapshot');
+    }
+    if (type == 'project_item' && snapshotSourceItemId == null) {
+      _checkItem(data, previous);
+    }
+    if (type == 'product' &&
+        previous != null &&
+        previous.data['unit'] != data['unit'] &&
+        (previous.data['unit_conversions'] as Map?)?.isNotEmpty == true &&
+        jsonEncode(previous.data['unit_conversions']) ==
+            jsonEncode(data['unit_conversions'])) {
+      invalid(
+        'unit_conversions',
+        'clear or reconfigure conversions when changing the base unit',
+      );
+    }
     _checkReferences(type, data, previous);
     final key = id ?? newUuid();
     _write(type, key, (previous?.version ?? 0) + 1, false, data);
     _log(type, key, previous?.data, data);
     return key;
   });
+
+  /// A copied budget line retains its historical cost even if its source
+  /// quotation has since changed. The entire line must match an existing
+  /// snapshot and both projects must use the same monetary basis.
+  bool _sameItemSnapshot(Map<String, Object?> data, String sourceId) {
+    final source = get('project_item', sourceId);
+    if (source == null || source.deleted) return false;
+    final from = get('project', source.data['project_id']! as String);
+    final to = get('project', data['project_id']! as String);
+    if (from == null || to == null || from.deleted || to.deleted) return false;
+    if (from.data['currency'] != to.data['currency'] ||
+        from.data['tax_mode'] != to.data['tax_mode'])
+      return false;
+    final sourceData = {...source.data}..remove('project_id');
+    final copiedData = {...data}..remove('project_id');
+    return jsonEncode(sourceData) == jsonEncode(copiedData);
+  }
 
   void delete(String type, String id) => transaction(() {
     final previous = get(type, id);
@@ -304,7 +384,14 @@ class Store {
     'version=excluded.version, updated_at=excluded.updated_at, '
     'updated_by=excluded.updated_by, deleted=excluded.deleted, '
     'data=excluded.data',
-    [id, version, _now(), device, deleted ? 1 : 0, jsonEncode(data)],
+    [
+      id,
+      version,
+      _now(),
+      device,
+      deleted ? 1 : 0,
+      encodeStoredPayload(type, data),
+    ],
   );
 
   void _log(
@@ -388,8 +475,9 @@ class Store {
   }
 
   /// A material line's price must come from a quotation for the same product
-  /// in the project's currency and tax mode; there is no FX conversion.
-  void _checkItem(Map<String, Object?> data) {
+  /// in the project's currency, converted to its tax mode when needed.
+  /// Existing cost snapshots survive subsequent quotation price changes.
+  void _checkItem(Map<String, Object?> data, Record? previous) {
     final quotationId = data['quotation_id'] as String?;
     if (quotationId == null) return;
     final project = get('project', data['project_id']! as String);
@@ -398,9 +486,33 @@ class Store {
     if (quotation.data['product_id'] != data['product_id']) {
       invalid('quotation_id', 'quotation is for another product');
     }
-    if (quotation.data['currency'] != project.data['currency'] ||
-        quotation.data['tax_mode'] != project.data['tax_mode']) {
-      invalid('quotation_id', 'currency or tax mode differs from project');
+    if (previous?.data['quotation_id'] == quotationId &&
+        previous?.data['project_id'] == data['project_id'] &&
+        previous?.data['product_id'] == data['product_id'] &&
+        previous?.data['unit'] == data['unit'] &&
+        previous?.data['unit_cost'] == data['unit_cost'])
+      return;
+    final product = get('product', data['product_id']! as String);
+    if (product == null) return;
+    final normalized = priceInUnit(
+      quotation.data,
+      product: product.data,
+      unit: data['unit']! as String,
+      currency: project.data['currency']! as String,
+      taxMode: project.data['tax_mode']! as String,
+    );
+    if (normalized == null) {
+      invalid('quotation_id', 'currency, tax mode or unit cannot be converted');
+    }
+    if ((quotation.data['tax_mode'] != project.data['tax_mode'] ||
+            quotation.data['unit_snapshot'] != data['unit']) &&
+        micros(data['unit_cost']! as String) != micros(normalized) &&
+        !(previous?.data['quotation_id'] == quotationId &&
+            previous?.data['project_id'] == data['project_id'] &&
+            previous?.data['product_id'] == data['product_id'] &&
+            previous?.data['unit'] == data['unit'] &&
+            previous?.data['unit_cost'] == data['unit_cost'])) {
+      invalid('unit_cost', 'must use the project price basis');
     }
   }
 

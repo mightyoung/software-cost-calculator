@@ -86,6 +86,68 @@ void main() {
     );
   });
 
+  test('matrix normalizes base and extra cost before ranking and history', () {
+    final inq = s.createInquiry(
+      pro,
+      '税价比选',
+      itemIds: [pumpLine],
+      supplierIds: [jia, yi],
+    );
+    final ctx = (inquirer: '王工', asOf: asOf);
+    s.quoteForInquiry(
+      inq,
+      pumpLine,
+      jia,
+      price: '100',
+      taxMode: 'excluded',
+      taxRate: '13',
+      extraCost: '20',
+      context: ctx,
+    );
+    s.quoteForInquiry(inq, pumpLine, yi, price: '124', context: ctx);
+    s.save('quotation', {
+      ...quotation(jia, pump, pro, '102'),
+      'unit_snapshot': '台',
+    });
+    final cells = s.inquiryMatrix(inq, asOf: asOf).rows.single.cells;
+    expect(cells[0]!.effectivePrice, '124.3');
+    expect(cells[0]!.comparable, isTrue);
+    expect(cells[1]!.lowest, isTrue);
+    // History average (113 + 124 + 102) / 3 = 113; compare normalized 113.
+    expect(cells[0]!.deviation, 0);
+  });
+
+  test('requote snapshots the current inquiry line unit', () {
+    final inq = s.createInquiry(
+      pro,
+      '单位变更询价',
+      itemIds: [pumpLine],
+      supplierIds: [jia],
+    );
+    final ctx = (inquirer: '王工', asOf: asOf);
+    final quoteId = s.quoteForInquiry(
+      inq,
+      pumpLine,
+      jia,
+      price: '100',
+      context: ctx,
+    );
+    expect(s.get('quotation', quoteId)!.data['unit_snapshot'], '台');
+    s.save('project_item', {
+      ...s.get('project_item', pumpLine)!.data,
+      'unit': '套',
+    }, id: pumpLine);
+    final requoted = s.quoteForInquiry(
+      inq,
+      pumpLine,
+      jia,
+      price: '110',
+      context: ctx,
+    );
+    expect(requoted, quoteId);
+    expect(s.get('quotation', quoteId)!.data['unit_snapshot'], '套');
+  });
+
   test('inquiry sheet round trip for one supplier', () {
     final inq = s.createInquiry(
       pro,

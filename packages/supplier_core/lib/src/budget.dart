@@ -1,7 +1,10 @@
 import 'dart:convert';
 
+import 'storage_codec.dart';
 import 'store.dart';
 import 'values.dart';
+import 'pricing.dart';
+export 'pricing.dart';
 
 /// Thresholds from the budget design (section six of the review).
 const contractWarnPercent = 90;
@@ -9,26 +12,6 @@ const cheaperWarnPercent = 10;
 const undatedValidityDays = 90;
 
 final _micro = BigInt.from(1000000);
-
-/// Decimal text (<= 6 fraction digits) to integer millionths.
-BigInt micros(String decimal) {
-  final parts = decimal.split('.');
-  final fraction = (parts.length > 1 ? parts[1] : '').padRight(6, '0');
-  return BigInt.parse(parts[0]) * _micro + BigInt.parse(fraction);
-}
-
-String fromMicros(BigInt value) {
-  final sign = value.isNegative ? '-' : '';
-  final abs = value.abs();
-  final fraction = (abs % _micro)
-      .toString()
-      .padLeft(6, '0')
-      .replaceFirst(RegExp(r'0+$'), '');
-  return '$sign${abs ~/ _micro}${fraction.isEmpty ? '' : '.$fraction'}';
-}
-
-/// Product of two non-negative millionth values, rounded half-up.
-BigInt multiply(BigInt a, BigInt b) => (a * b + _micro ~/ BigInt.two) ~/ _micro;
 
 class QuoteOption {
   QuoteOption(
@@ -38,7 +21,10 @@ class QuoteOption {
     this.validityPending, {
     this.meetsMinQty = true,
     String? effectivePrice,
-  }) : effectivePrice = effectivePrice ?? priceOf(data);
+    String? price,
+    this.converted = false,
+  }) : price = price ?? priceOf(data),
+       effectivePrice = effectivePrice ?? price ?? priceOf(data);
   final String id;
   final Map<String, Object?> data;
 
@@ -55,10 +41,12 @@ class QuoteOption {
   bool get formal => data['price_basis'] == null;
   bool get valid => dateValid && meetsMinQty && formal;
 
-  /// Unit price to budget with: the agreed price once awarded.
-  String get price => priceOf(data);
+  /// Unit price in the target tax basis; the agreed price once awarded.
+  final String price;
+  String get sourcePrice => priceOf(data);
+  final bool converted;
 
-  /// [price] plus the quote's extra cost spread over the needed quantity
+  /// [price] plus tax-normalized extra cost spread over the needed quantity
   /// (equal to [price] when there is no extra cost or no quantity).
   final String effectivePrice;
   bool get awarded => data['awarded_on'] != null;
@@ -69,13 +57,19 @@ String priceOf(Map<String, Object?> q) =>
     (q['deal_price'] ?? q['price'])! as String;
 
 /// [priceOf] plus extra_cost / [qty], rounded half-up to millionths.
-String effectivePriceOf(Map<String, Object?> q, String? qty) {
-  final extra = q['extra_cost'] as String?;
-  if (extra == null || qty == null) return priceOf(q);
+String effectivePriceOf(
+  Map<String, Object?> q,
+  String? qty, {
+  String? price,
+  String? extraCost,
+}) {
+  final unitPrice = price ?? priceOf(q);
+  final extra = extraCost ?? q['extra_cost'] as String?;
+  if (extra == null || qty == null) return unitPrice;
   final n = micros(qty);
-  if (n == BigInt.zero) return priceOf(q);
-  final share = (micros(extra) * _micro * BigInt.two + n) ~/ (n * BigInt.two);
-  return fromMicros(micros(priceOf(q)) + share);
+  if (n == BigInt.zero) return unitPrice;
+  final share = roundedDivide(micros(extra) * _micro, n);
+  return fromMicros(micros(unitPrice) + share);
 }
 
 class BudgetLine {
@@ -112,12 +106,13 @@ String _date(DateTime d) => d.toIso8601String().substring(0, 10);
 
 extension Budgets on Store {
   /// Quotations usable for a budget line: same product and unit, in the
-  /// project's currency and tax mode. Valid ones first, then by price.
+  /// project's currency, normalized to its tax mode. Valid ones first.
   List<QuoteOption> quoteOptions(
     String projectId,
     String productId, {
     DateTime? asOf,
     String? qty,
+    String? unit,
   }) {
     final project = get('project', projectId);
     if (project == null) invalid('project_id', 'unknown project');
@@ -127,6 +122,7 @@ extension Budgets on Store {
       taxMode: project.data['tax_mode']! as String,
       asOf: asOf,
       qty: qty,
+      unit: unit,
       projectId: projectId,
     );
   }
@@ -142,6 +138,7 @@ extension Budgets on Store {
     DateTime? asOf,
     String? qty,
     String? projectId,
+    String? unit,
   }) {
     final product = get('product', productId);
     if (product == null) invalid('product_id', 'unknown product');
@@ -155,18 +152,22 @@ extension Budgets on Store {
         "JOIN supplier s ON s.id = json_extract(q.data,'\$.supplier_id') "
         "WHERE q.deleted = 0 AND s.deleted = 0 "
         "AND json_extract(q.data,'\$.product_id') = ? "
-        "AND json_extract(q.data,'\$.currency') = ? "
-        "AND json_extract(q.data,'\$.tax_mode') = ? "
-        "AND json_extract(q.data,'\$.unit_snapshot') = ?",
-        [productId, currency, taxMode, product.data['unit']],
+        "AND json_extract(q.data,'\$.currency') = ?",
+        [productId, currency],
       ))
-        _option(
-          r['id'] as String,
-          r['data'] as String,
-          today,
-          undatedFrom,
-          qty == null ? null : micros(qty),
-        ),
+        if (_option(
+              r['id'] as String,
+              r['data'] as String,
+              today,
+              undatedFrom,
+              qty == null ? null : micros(qty),
+              currency,
+              taxMode,
+              product.data,
+              unit ?? product.data['unit']! as String,
+            )
+            case final option?)
+          option,
     ];
     int rank(QuoteOption o) => !o.valid
         ? 3
@@ -183,14 +184,26 @@ extension Budgets on Store {
     return options;
   }
 
-  QuoteOption _option(
+  QuoteOption? _option(
     String id,
     String raw,
     String today,
     String undatedFrom,
     BigInt? qty,
+    String currency,
+    String taxMode,
+    Map<String, Object?> product,
+    String unit,
   ) {
-    final data = jsonDecode(raw) as Map<String, Object?>;
+    final data = decodeStoredPayload('quotation', raw);
+    final price = priceInUnit(
+      data,
+      product: product,
+      unit: unit,
+      currency: currency,
+      taxMode: taxMode,
+    );
+    if (price == null) return null;
     final quoted = data['quoted_on'] as String?;
     final until = data['valid_until'] as String?;
     final current = quoted == null || quoted.compareTo(today) <= 0;
@@ -202,10 +215,21 @@ extension Budgets on Store {
       data,
       valid,
       until == null,
-      meetsMinQty: qty == null || micros(data['min_qty']! as String) <= qty,
+      price: price,
+      converted: data['tax_mode'] != taxMode || data['unit_snapshot'] != unit,
+      meetsMinQty:
+          qty == null || meetsMinimumQuantity(data, product, unit, qty),
       effectivePrice: effectivePriceOf(
         data,
         qty == null ? null : fromMicros(qty),
+        price: price,
+        extraCost: data['extra_cost'] == null
+            ? null
+            : priceInTaxMode(
+                {...data, 'price': data['extra_cost'], 'deal_price': null},
+                currency: currency,
+                taxMode: taxMode,
+              ),
       ),
     );
   }
@@ -267,13 +291,27 @@ extension Budgets on Store {
   String copyProject(String sourceId, Map<String, Object?> project) =>
       transaction(() {
         final id = save('project', project);
+        final source = get('project', sourceId);
+        final target = get('project', id)!;
+        if (source == null ||
+            source.deleted ||
+            source.data['currency'] != target.data['currency'] ||
+            source.data['tax_mode'] != target.data['tax_mode']) {
+          invalid(
+            'project',
+            'budget snapshot currency and tax mode must match',
+          );
+        }
         for (final r in db.select(
-          "SELECT data FROM project_item WHERE deleted = 0 "
+          "SELECT id, data FROM project_item WHERE deleted = 0 "
           "AND json_extract(data,'\$.project_id') = ? ORDER BY rowid",
           [sourceId],
         )) {
           final item = jsonDecode(r['data'] as String) as Map<String, Object?>;
-          save('project_item', {...item, 'project_id': id});
+          save('project_item', {
+            ...item,
+            'project_id': id,
+          }, snapshotSourceItemId: r['id'] as String);
         }
         return id;
       });
@@ -295,6 +333,7 @@ extension Budgets on Store {
       productId,
       asOf: asOf,
       qty: item['qty']! as String,
+      unit: item['unit']! as String,
     );
     final chosen = item['quotation_id'] as String?;
     final picked = options.where((o) => o.id == chosen).firstOrNull;
@@ -340,6 +379,7 @@ extension Refresh on Store {
               productId,
               asOf: asOf,
               qty: l.data['qty']! as String,
+              unit: l.data['unit']! as String,
             ).where((o) => o.valid).firstOrNull
             case final best?
             when best.id != l.data['quotation_id'] ||
