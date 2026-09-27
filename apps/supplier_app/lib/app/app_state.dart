@@ -41,6 +41,7 @@ class AppState extends ChangeNotifier {
       settings,
     );
     unawaited(state._backup().then((_) => state.syncNow()));
+    if (state.lanVisible) unawaited(state.setLanVisible(true));
     return state;
   }
 
@@ -125,15 +126,84 @@ class AppState extends ChangeNotifier {
           ? {}
           : (jsonDecode(stored) as Map).cast<String, String>();
       final passphrase = await exchangePassphrase();
-      final r = await store.inBackground(
-        _syncJob(dir, own, seen, passphrase),
-      );
+      final r = await store.inBackground(_syncJob(dir, own, seen, passphrase));
       lastSync = r;
       lastSyncError = null;
       saveSetting('sync_seen', jsonEncode(r.seen)); // also refreshes pages
     } catch (e) {
       lastSyncError = '$e';
       notifyListeners();
+    }
+  }
+
+  // --- Local network ------------------------------------------------------
+  LanNode? lan;
+  String? lanError;
+
+  /// Pushes received this session, newest first, waiting for the user.
+  final incoming = <LanPush>[];
+  static const _maxIncoming = 10;
+
+  bool get lanVisible => setting('lan_visible') == '1';
+  Directory get _inbox => Directory('${dataDir.path}/lan-inbox');
+
+  /// Starts or stops announcing this device and accepting pushes.
+  Future<void> setLanVisible(bool on) async {
+    await lan?.stop();
+    lan = null;
+    lanError = null;
+    incoming.clear();
+    if (_inbox.existsSync()) _inbox.deleteSync(recursive: true);
+    saveSetting('lan_visible', on ? '1' : null);
+    if (!on) return;
+    try {
+      lan = await LanNode.start(
+        id: deviceId,
+        name: deviceName,
+        inbox: _inbox,
+        onPush: _received,
+        onPeers: notifyListeners,
+      );
+    } catch (e) {
+      lanError = '无法在局域网中开启：$e';
+    }
+    notifyListeners();
+  }
+
+  void _received(LanPush push) {
+    incoming.insert(0, push);
+    // Unanswered pushes from a noisy sender must not fill the disk.
+    while (incoming.length > _maxIncoming) {
+      dismissPush(incoming.last, notify: false);
+    }
+    notifyListeners();
+  }
+
+  void dismissPush(LanPush push, {bool notify = true}) {
+    incoming.remove(push);
+    final f = File(push.path);
+    if (f.existsSync()) f.deleteSync();
+    if (notify) notifyListeners();
+  }
+
+  /// Packs the chosen records (with what they need) and sends them to [to],
+  /// encrypted when an exchange passphrase is set. Returns an error message.
+  Future<String?> pushTo(LanPeer to, Map<String, List<String>> chosen) async {
+    final node = lan;
+    if (node == null) return '请先打开"局域网可见"';
+    final temp = Directory('${dataDir.path}/tmp')..createSync(recursive: true);
+    final path =
+        '${temp.path}/push-${DateTime.now().microsecondsSinceEpoch}.siq';
+    try {
+      final passphrase = await exchangePassphrase();
+      await store.inBackground(_shareJob(path, chosen, passphrase));
+      await node.push(to, path);
+      return null;
+    } on LanException catch (e) {
+      return e.message;
+    } finally {
+      final f = File(path);
+      if (f.existsSync()) f.deleteSync();
     }
   }
 
@@ -223,15 +293,24 @@ class AppState extends ChangeNotifier {
 
 // Background jobs are built at top level so they capture only their
 // arguments, never AppState (which holds the window's database handle).
-void Function(Store) _backupJob(String dir) => (s) => s.dailyBackup(dir);
+void Function(Store) _backupJob(String dir) =>
+    (s) => s.dailyBackup(dir);
 
 Future<FolderSync> Function(Store) _syncJob(
   String dir,
   String own,
   Map<String, String> seen,
   String? passphrase,
-) => (s) =>
-    s.syncWithFolder(dir, ownName: own, seen: seen, passphrase: passphrase);
+) =>
+    (s) =>
+        s.syncWithFolder(dir, ownName: own, seen: seen, passphrase: passphrase);
+
+Future<void> Function(Store) _shareJob(
+  String path,
+  Map<String, List<String>> chosen,
+  String? passphrase,
+) =>
+    (s) => s.exportSelection(path, chosen, passphrase: passphrase);
 
 /// Maps core validation messages ("field: reason") to short Chinese text.
 String friendlyError(String message) {

@@ -9,6 +9,7 @@ import '../../widgets/ledger.dart';
 import '../ai/list_to_project.dart';
 import '../ai/material_import_page.dart';
 import '../inquiries/project_inquiries.dart';
+import '../exchange/lan_push_page.dart';
 import 'budget_table.dart';
 import 'item_dialogs.dart';
 import 'project_form.dart';
@@ -89,6 +90,13 @@ class _ProjectDetailState extends State<ProjectDetail> {
               onAdd: () => showAddItems(context, state, widget.projectId),
               onRefresh: () =>
                   showRefreshPrices(context, state, widget.projectId),
+              onPush: () => showLanPush(
+                context,
+                state,
+                chosen: {
+                  'project': {widget.projectId},
+                },
+              ),
             ),
           ),
           Expanded(
@@ -219,11 +227,12 @@ class _Toolbar extends StatelessWidget {
     required this.onFromList,
     required this.onImport,
     required this.onRefresh,
+    required this.onPush,
   });
   final _Tab tab;
   final bool compact;
   final ValueChanged<_Tab> onTab;
-  final VoidCallback onEdit, onAdd, onFromList, onImport, onRefresh;
+  final VoidCallback onEdit, onAdd, onFromList, onImport, onRefresh, onPush;
   final ValueChanged<String> onExport;
 
   static const _exports = [
@@ -276,6 +285,7 @@ class _Toolbar extends StatelessWidget {
               'list' => onFromList(),
               'import' => onImport(),
               'refresh' => onRefresh(),
+              'push' => onPush(),
               _ => onExport(v),
             },
             itemBuilder: (_) => [
@@ -283,6 +293,7 @@ class _Toolbar extends StatelessWidget {
               const PopupMenuItem(value: 'import', child: Text('导入报价信息')),
               const PopupMenuItem(value: 'refresh', child: Text('按最优价刷新')),
               const PopupMenuItem(value: 'list', child: Text('从清单生成新项目')),
+              const PopupMenuItem(value: 'push', child: Text('推送到局域网设备')),
               for (final (value, label) in _exports)
                 PopupMenuItem(value: value, child: Text(label)),
             ],
@@ -318,6 +329,11 @@ class _Toolbar extends StatelessWidget {
                     onPressed: onEdit,
                     leadingIcon: const Icon(Icons.edit_outlined, size: 18),
                     child: const Text('编辑项目'),
+                  ),
+                  MenuItemButton(
+                    onPressed: onPush,
+                    leadingIcon: const Icon(Icons.send_outlined, size: 18),
+                    child: const Text('推送到局域网设备'),
                   ),
                   const Divider(height: 8),
                   for (final (value, label) in _exports)

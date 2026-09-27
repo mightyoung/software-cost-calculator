@@ -17,6 +17,7 @@ import 'package:supplier_app/features/ai/material_import_page.dart';
 import 'package:supplier_app/features/ai/material_review.dart';
 import 'package:supplier_app/features/catalog/catalog_page.dart';
 import 'package:supplier_app/features/exchange/conflicts_page.dart';
+import 'package:supplier_app/features/exchange/lan_push_page.dart';
 import 'package:supplier_app/features/inquiries/inquiry_page.dart';
 import 'package:supplier_core/supplier_core.dart';
 
@@ -628,6 +629,22 @@ void main() {
       state.saveSetting('device_id', '12345678-aaaa-4bbb-8ccc-1234567890ab');
       state.syncNow();
       await t.tap(find.text('数据交换'));
+      await t.pumpAndSettle();
+    }),
+    skip: !hasFont,
+  );
+  testWidgets(
+    'desktop LAN push picker',
+    (t) => shoot(t, const Size(1280, 860), 'desktop_lan_push', () async {
+      final state = t.widget<Shell>(find.byType(Shell)).state;
+      final project = state.store.searchByName('project', '泵房改造工程').single.id;
+      showLanPush(
+        t.element(find.byType(Shell)),
+        state,
+        chosen: {
+          'project': {project},
+        },
+      );
       await t.pumpAndSettle();
     }),
     skip: !hasFont,

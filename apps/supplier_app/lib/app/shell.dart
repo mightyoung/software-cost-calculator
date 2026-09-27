@@ -51,7 +51,26 @@ class _ShellState extends State<Shell> {
   @override
   Widget build(BuildContext context) {
     final wide = MediaQuery.sizeOf(context).width >= _mobileBreakpoint;
-    final page = KeyedSubtree(key: ValueKey(section), child: _page());
+    final page = Column(
+      children: [
+        ListenableBuilder(
+          listenable: widget.state,
+          builder: (_, _) {
+            final n = widget.state.incoming.length;
+            if (n == 0 || section == Section.exchange) return const SizedBox();
+            return _IncomingBar(
+              text:
+                  '收到 ${widget.state.incoming.first.fromName}'
+                  '${n > 1 ? ' 等 $n 份' : '的'}局域网推送，确认后才会导入',
+              onOpen: () => setState(() => section = Section.exchange),
+            );
+          },
+        ),
+        Expanded(
+          child: KeyedSubtree(key: ValueKey(section), child: _page()),
+        ),
+      ],
+    );
     return CallbackShortcuts(
       bindings: {
         for (var i = 0; i < 6; i++)
@@ -238,4 +257,24 @@ class _BottomNav extends StatelessWidget {
       ],
     );
   }
+}
+
+class _IncomingBar extends StatelessWidget {
+  const _IncomingBar({required this.text, required this.onOpen});
+  final String text;
+  final VoidCallback onOpen;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    color: Tokens.accentTint,
+    padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
+    child: Row(
+      children: [
+        const Icon(Icons.move_to_inbox, color: Tokens.accentDeep, size: 20),
+        const SizedBox(width: 8),
+        Expanded(child: Text(text)),
+        TextButton(onPressed: onOpen, child: const Text('去查看')),
+      ],
+    ),
+  );
 }
