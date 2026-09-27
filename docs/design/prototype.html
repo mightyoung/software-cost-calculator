@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>询价台账 · 界面原型</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+:root{
+  --paper:#F3F5F8;--surface:#FFFFFF;--sunken:#EDF0F4;--rule:#DCE1E8;--rule-2:#C3CAD6;
+  --ink:#111827;--ink-2:#4B5565;--ink-3:#636C7E;
+  --acc:#285FF0;--acc-deep:#1B47C2;--acc-tint:#E8EFFF;
+  --amber:#9A5000;--amber-bg:#FFF2DF;--red:#B8302A;--red-bg:#FDE8E6;
+  --nav:#0E1729;--nav-2:#1A2640;--nav-ink:#C7D0E0;--nav-ink-3:#7C89A3;
+  --sans:"IBM Plex Sans","Microsoft YaHei UI","PingFang SC","Noto Sans SC",sans-serif;
+  --mono:"IBM Plex Mono","Microsoft YaHei UI","PingFang SC",monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#D3D9E2;font-family:var(--sans);color:var(--ink);font-size:14px;-webkit-font-smoothing:antialiased}
+.num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.mono{font-family:var(--mono);font-size:12px;color:var(--ink-2)}
+.proto-bar{display:flex;gap:8px;padding:14px 24px;align-items:center}
+.proto-bar b{font-weight:600;margin-right:12px}
+.proto-bar .jump{text-decoration:none;font:inherit;border:1px solid var(--rule-2);background:var(--surface);padding:6px 14px;border-radius:6px;cursor:pointer;color:var(--ink-2)}
+
+.screen{padding:0 24px 40px}
+.win{width:1280px;height:800px;background:var(--paper);border:1px solid #B7C0CD;border-radius:10px;overflow:hidden;display:flex}
+.side{width:176px;background:var(--nav);color:var(--nav-ink);display:flex;flex-direction:column;padding:16px 10px}
+.brand{display:flex;align-items:center;gap:8px;font-weight:600;padding:4px 10px 18px;font-size:15px}
+.brand{color:#fff}.brand i{color:#6F9BFF;font-size:20px}
+.nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--nav-ink);text-decoration:none;margin-bottom:2px}
+.nav a i{font-size:18px}
+.nav a.on{background:var(--acc);color:#fff;font-weight:600}
+.nav a:hover:not(.on){background:var(--nav-2)}
+.side .foot{margin-top:auto;border-top:1px solid var(--nav-2);padding:12px 10px 0;font-size:12px;color:var(--nav-ink-3);line-height:1.6}
+.list{width:240px;border-right:1px solid var(--rule);background:var(--paper);display:flex;flex-direction:column}
+.search{margin:14px;font-size:13px;display:flex;align-items:center;gap:8px;border:1px solid var(--rule-2);border-radius:6px;background:var(--surface);padding:7px 10px;color:var(--ink-3)}
+.search kbd{margin-left:auto;font-family:var(--mono);font-size:11px;border:1px solid var(--rule);border-radius:4px;padding:0 5px}
+.chips{display:flex;gap:6px;padding:0 14px 10px}
+.chip{font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--rule-2);color:var(--ink-2);background:var(--surface)}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.prow{padding:11px 14px;border-top:1px solid var(--rule);cursor:pointer}
+.prow.on{background:var(--surface);box-shadow:inset 3px 0 0 var(--acc)}
+.prow .t{display:flex;justify-content:space-between;align-items:baseline}
+.prow .n{font-weight:600;margin:3px 0 2px}
+.prow .m{font-size:12px;color:var(--ink-3);display:flex;justify-content:space-between}
+.warn-dot{color:var(--amber);font-size:12px}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.head{padding:18px 24px 0}
+.crumb{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink-3)}
+.status{font-size:12px;padding:1px 8px;border-radius:4px;background:var(--acc-tint);color:var(--acc-deep)}
+h1{font-size:20px;font-weight:600;margin:6px 0 4px}
+.meta{font-size:13px;color:var(--ink-2)}
+.ledger{display:flex;margin:16px 0 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.ledger div{flex:1;padding:10px 0 10px 16px;border-left:1px solid var(--rule)}
+.ledger div:first-child{border-left:0;padding-left:0}
+.ledger label{display:block;font-size:12px;color:var(--ink-3);margin-bottom:2px}
+.ledger b{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+.ledger small{font-size:12px;color:var(--ink-3);margin-left:4px}
+.ledger .alert{color:var(--amber);font-size:12px;display:block;margin-top:2px}
+.bar{display:flex;align-items:center;padding:12px 24px;gap:8px}
+.tabs{display:flex;gap:22px;margin-right:auto}
+.tabs a{padding:6px 0;color:var(--ink-2);text-decoration:none;border-bottom:2px solid transparent}
+.tabs a.on{color:var(--ink);font-weight:600;border-color:var(--ink)}
+.btn{font:inherit;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule-2);background:var(--surface);color:var(--ink);padding:6px 12px;border-radius:6px;cursor:pointer}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn.primary:hover{background:var(--acc-deep)}
+.btn i{font-size:16px}
+.tablewrap{flex:1;overflow:auto;margin:0 24px;background:var(--surface);border:1px solid var(--rule);border-radius:6px 6px 0 0}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{position:sticky;top:0;white-space:nowrap;background:var(--sunken);color:var(--ink-2);font-weight:600;font-size:12px;text-align:left;padding:8px 10px;border-bottom:1px solid var(--rule)}
+th.num{text-align:right}
+td{padding:8px 10px;border-bottom:1px solid var(--rule);vertical-align:top;white-space:nowrap}
+td:first-child{white-space:normal}
+tr.group td{background:#F6F8FB;font-weight:600;padding:7px 10px}
+tr.group .sub{font-weight:400;color:var(--ink-3);font-size:12px;margin-left:8px}
+tr:hover:not(.group) td{background:#F5F8FF}
+.item-n{font-weight:500}
+.hint{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--amber);background:var(--amber-bg);padding:1px 7px;border-radius:4px;white-space:nowrap}
+.hint.red{color:var(--red);background:var(--red-bg)}
+.pending{color:var(--ink-3)}
+.total{display:flex;gap:36px;justify-content:flex-end;margin:0 24px 18px;padding:10px 16px;background:var(--surface);border:1px solid var(--rule);border-top:2px solid var(--ink);border-radius:0 0 6px 6px;font-size:13px;color:var(--ink-2)}
+.total b{color:var(--ink);font-size:16px;margin-left:8px;font-variant-numeric:tabular-nums}
+.steps{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-3)}
+.steps span{display:inline-flex;align-items:center;gap:6px}
+.steps .dot{width:20px;height:20px;border-radius:50%;border:1px solid var(--rule-2);display:inline-flex;align-items:center;justify-content:center;font-size:11px}
+.steps .done .dot{background:var(--acc);border-color:var(--acc);color:#fff}
+.steps .cur{color:var(--ink);font-weight:600}.steps .cur .dot{border-color:var(--ink);color:var(--ink)}
+.steps hr{width:28px;margin:0;border:0;border-top:1px solid var(--rule-2)}
+.split{flex:1;display:flex;gap:16px;margin:12px 28px 0;min-height:0}
+.source{width:260px;flex:none;background:var(--surface);border:1px solid var(--rule);border-radius:6px;overflow:auto;font-size:13px}
+.source h3,.review h3{font-size:12px;font-weight:600;color:var(--ink-2);margin:0;padding:9px 12px;background:var(--sunken);border-bottom:1px solid var(--rule)}
+.src{display:flex;gap:10px;padding:5px 12px;line-height:1.55}
+.src em{font-style:normal;color:var(--ink-3);font-family:var(--mono);font-size:11px;width:16px;text-align:right;padding-top:2px}
+.src.hl{background:var(--acc-tint)}
+.review{flex:1;display:flex;flex-direction:column;min-width:0}
+.filters{display:flex;gap:6px;align-items:center;padding:10px 0}
+.filters .chip b{font-weight:600;margin-left:3px}
+.draft{background:var(--surface);border:1px dashed var(--acc);border-radius:6px;overflow:auto;flex:1}
+.draft table{table-layout:fixed}.draft td{white-space:normal}.draft td.num{white-space:nowrap}.draft td.num .why{white-space:normal}
+.pick{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px dashed var(--rule-2);border-radius:5px;padding:5px 8px;min-width:0}
+.pick .mono{display:block}
+.conf{font-size:12px;display:inline-flex;align-items:center;gap:4px}
+.conf.hi{color:var(--acc-deep)}.conf.mid{color:var(--amber)}.conf.lo{color:var(--red)}
+tr.attention td:first-child{box-shadow:inset 3px 0 0 var(--amber)}
+.why{font-size:12px;color:var(--ink-3);margin-top:3px}
+.foot-form{display:flex;gap:10px;align-items:center;margin:12px 28px 16px;padding:12px 14px;background:var(--surface);border:1px solid var(--rule);border-radius:6px}
+.field{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--ink-3)}
+.field input{font:inherit;font-size:13px;color:var(--ink);border:1px solid var(--rule-2);border-radius:5px;padding:6px 8px;width:140px;background:var(--surface)}
+.phone{width:380px;height:800px;background:var(--paper);border:10px solid #0E1729;border-radius:36px;overflow:hidden;display:flex;flex-direction:column}
+.appbar{display:flex;align-items:center;gap:12px;padding:14px 16px 10px;background:var(--paper)}
+.appbar i{font-size:22px;color:var(--ink-2)}
+.appbar .t{flex:1}.appbar .t b{display:block;font-size:17px}.appbar .t small{font-size:12px;color:var(--ink-3)}
+.mledger{display:grid;grid-template-columns:1fr 1fr;margin:0 16px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.mledger div{padding:9px 0}.mledger div:nth-child(2n){padding-left:12px;border-left:1px solid var(--rule)}
+.mledger div:nth-child(n+3){border-top:1px solid var(--rule)}
+.mledger label{display:block;font-size:12px;color:var(--ink-3)}.mledger b{font-size:17px;font-variant-numeric:tabular-nums}
+.mbody{flex:1;overflow:auto;padding:4px 0 12px}
+.msec{display:flex;justify-content:space-between;padding:14px 16px 6px;font-size:13px;font-weight:600;color:var(--ink-2)}
+.msec span{font-weight:400;font-variant-numeric:tabular-nums}
+.mrow{display:flex;gap:10px;padding:11px 16px;background:var(--surface);border-bottom:1px solid var(--rule);min-height:56px}
+.mrow:first-of-type{border-top:1px solid var(--rule)}
+.mrow .l{flex:1;min-width:0}.mrow .l b{font-weight:500;display:block}
+.mrow .r{text-align:right;font-variant-numeric:tabular-nums}.mrow .r b{display:block}
+.mrow small{font-size:12px;color:var(--ink-3)}
+.mtotal{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:var(--surface);border-top:2px solid var(--ink)}
+.mtotal b{font-size:17px;font-variant-numeric:tabular-nums}
+.fab{background:var(--acc);color:#fff;border:0;border-radius:14px;height:48px;padding:0 16px;display:flex;align-items:center;gap:6px;font:inherit;font-weight:600}
+.bnav{display:flex;border-top:1px solid var(--rule);background:var(--paper)}
+.bnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 10px;font-size:11px;color:var(--ink-3);text-decoration:none}
+.bnav a i{font-size:22px}.bnav a.on{color:var(--acc-deep);font-weight:600}
+.bnav a.on i{background:var(--acc-tint);border-radius:12px;padding:2px 16px}
+.notes{max-width:1280px;margin:14px 0 0;font-size:13px;color:#4A4F4C;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="proto-bar">
+  <b>询价台账 · 界面原型</b>
+  <a class="jump" href="#s1">① 项目成本预算（Windows）</a>
+  <a class="jump" href="#s2">② 按清单建项目 · 核对匹配</a>
+  <a class="jump" href="#s3">③ 项目预算（Android）</a>
+</div>
+
+<section class="screen on" id="s1">
+<div class="win">
+  <nav class="side">
+    <div class="brand"><i class="ti ti-notebook"></i>询价台账</div>
+    <div class="nav">
+      <a class="on" href="#"><i class="ti ti-folders"></i>项目</a>
+      <a href="#"><i class="ti ti-report-search"></i>报价查询</a>
+      <a href="#"><i class="ti ti-building-factory-2"></i>供应商</a>
+      <a href="#"><i class="ti ti-box"></i>物料</a>
+      <a href="#"><i class="ti ti-arrows-exchange"></i>数据交换</a>
+    </div>
+    <div class="foot"><a href="#" style="display:flex;gap:8px;align-items:center;color:var(--nav-ink);text-decoration:none;margin-bottom:10px"><i class="ti ti-settings"></i>设置</a>本机：采购部-01<br>上次交换：9月19日</div>
+  </nav>
+  <div class="list">
+    <div class="search"><i class="ti ti-search"></i>搜索项目、编号或客户<kbd>/</kbd></div>
+    <div class="chips"><span class="chip on">进行中 6</span><span class="chip">策划中 2</span><span class="chip">全部</span></div>
+    <div class="prow on"><div class="t"><span class="mono">2026-WH01-015</span><span class="warn-dot"><i class="ti ti-alert-triangle"></i> 2</span></div><div class="n">泵房改造工程</div><div class="m"><span>华东水务</span><span class="num">成本 ¥186,820</span></div></div>
+    <div class="prow"><div class="t"><span class="mono">2026-WH01-014</span></div><div class="n">二期配电柜更换</div><div class="m"><span>江南化工</span><span class="num">成本 ¥92,300</span></div></div>
+    <div class="prow"><div class="t"><span class="mono">2026-WH01-012</span><span class="warn-dot"><i class="ti ti-alert-triangle"></i> 1</span></div><div class="n">厂区消防管网</div><div class="m"><span>申通物流园</span><span class="num">成本 ¥318,050</span></div></div>
+    <div class="prow"><div class="t"><span class="mono">2026-WH01-011</span></div><div class="n">冷却塔维保</div><div class="m"><span>华东水务</span><span class="num">成本 ¥41,760</span></div></div>
+    <div class="prow"><div class="t"><span class="mono">2026-WH01-009</span></div><div class="n">污水提升站</div><div class="m"><span>临港新城</span><span class="num">成本 ¥256,900</span></div></div>
+  </div>
+  <main class="main">
+    <div class="head">
+      <div class="crumb"><span class="mono">2026-WH01-015</span><span class="status">进行中</span><span>A 级 · 市场订单</span></div>
+      <h1>泵房改造工程</h1>
+      <div class="meta">华东水务 · 负责人 王工 · 合同号 HD-2026-0412 · CNY 含税</div>
+      <div class="ledger">
+        <div><label>合同金额</label><b>¥205,000</b></div>
+        <div><label>成本合计</label><b>¥186,820</b><span class="alert"><i class="ti ti-alert-triangle"></i> 已达合同金额 91%</span></div>
+        <div><label>对外报价</label><b>¥214,843</b><small>加价 15%</small></div>
+        <div><label>毛利</label><b>¥28,023</b><small>13.0%</small></div>
+      </div>
+    </div>
+    <div class="bar">
+      <div class="tabs"><a class="on" href="#">成本预算</a><a href="#">报价记录 24</a><a href="#">变更记录</a></div>
+      <button class="btn"><i class="ti ti-list-search"></i>从清单生成</button>
+      <button class="btn"><i class="ti ti-download"></i>导出<i class="ti ti-chevron-down"></i></button>
+      <button class="btn primary"><i class="ti ti-plus"></i>添加物料</button>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>名称 / 型号</th><th style="width:88px">供应商</th><th class="num" style="width:52px">数量</th><th style="width:40px">单位</th><th class="num" style="width:92px">成本单价</th><th class="num" style="width:100px">成本金额</th><th class="num" style="width:100px">对外金额</th><th style="width:118px">提示</th></tr></thead>
+        <tbody>
+          <tr class="group"><td colspan="5">材料费<span class="sub">5 项</span></td><td class="num">¥158,920.00</td><td class="num">¥182,758.00</td><td></td></tr>
+          <tr><td><div class="item-n">不锈钢离心泵</div><span class="mono">IS80-65-160 · 304</span></td><td>甲泵业</td><td class="num">2</td><td>台</td><td class="num">32,500.00</td><td class="num">65,000.00</td><td class="num">74,750.00</td><td><span class="hint"><i class="ti ti-trending-down"></i>更低价 ¥29,800</span></td></tr>
+          <tr><td><div class="item-n">变频控制柜</div><span class="mono">15kW 一拖二</span></td><td>申江电气</td><td class="num">1</td><td>面</td><td class="num">48,600.00</td><td class="num">48,600.00</td><td class="num">55,890.00</td><td></td></tr>
+          <tr><td><div class="item-n">闸阀</div><span class="mono">Z41H-16C DN100</span></td><td>永泰阀门</td><td class="num">4</td><td>个</td><td class="num">1,205.00</td><td class="num">4,820.00</td><td class="num">5,543.00</td><td></td></tr>
+          <tr><td><div class="item-n">电磁流量计</div><span class="pending">参数：DN100，远传 4–20mA</span></td><td class="pending">—</td><td class="num">1</td><td>台</td><td class="num pending">—</td><td class="num pending">—</td><td class="num pending">—</td><td><span class="hint"><i class="ti ti-help-circle"></i>待询价</span></td></tr>
+          <tr><td><div class="item-n">动力电缆</div><span class="mono">YJV-4×25</span></td><td>宝胜电缆</td><td class="num">300</td><td>米</td><td class="num">135.00</td><td class="num">40,500.00</td><td class="num">46,575.00</td><td><span class="hint red"><i class="ti ti-clock-x"></i>报价已过期</span></td></tr>
+          <tr class="group"><td colspan="5">人工费<span class="sub">2 项</span></td><td class="num">¥21,900.00</td><td class="num">¥25,185.00</td><td></td></tr>
+          <tr><td><div class="item-n">设备安装调试</div></td><td class="pending">—</td><td class="num">1</td><td>项</td><td class="num">18,000.00</td><td class="num">18,000.00</td><td class="num">20,700.00</td><td></td></tr>
+          <tr><td><div class="item-n">电缆敷设</div></td><td class="pending">—</td><td class="num">300</td><td>米</td><td class="num">13.00</td><td class="num">3,900.00</td><td class="num">4,485.00</td><td></td></tr>
+          <tr class="group"><td colspan="5">其他<span class="sub">1 项</span></td><td class="num">¥6,000.00</td><td class="num">¥6,900.00</td><td></td></tr>
+          <tr><td><div class="item-n">运输及吊装</div></td><td class="pending">—</td><td class="num">1</td><td>项</td><td class="num">6,000.00</td><td class="num">6,000.00</td><td class="num">6,900.00</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="total"><span>成本合计<b>¥186,820.00</b></span><span>对外报价合计<b>¥214,843.00</b></span><span>毛利<b>¥28,023.00</b></span></div>
+  </main>
+</div>
+<p class="notes">要点：顶部一条"台账行"取代指标卡片；表格按五类费用分组并在组行给小计；数字等宽右对齐；提示同时用图标和文字（不只靠颜色）；待询价行用"—"而非 0，避免把未知当成零价；唯一的实心主按钮是"添加物料"。</p>
+</section>
+
+<section class="screen" id="s2">
+<div class="win">
+  <nav class="side">
+    <div class="brand"><i class="ti ti-notebook"></i>询价台账</div>
+    <div class="nav">
+      <a class="on" href="#"><i class="ti ti-folders"></i>项目</a>
+      <a href="#"><i class="ti ti-report-search"></i>报价查询</a>
+      <a href="#"><i class="ti ti-building-factory-2"></i>供应商</a>
+      <a href="#"><i class="ti ti-box"></i>物料</a>
+      <a href="#"><i class="ti ti-arrows-exchange"></i>数据交换</a>
+    </div>
+    <div class="foot"><a href="#" style="display:flex;gap:8px;align-items:center;color:var(--nav-ink);text-decoration:none;margin-bottom:10px"><i class="ti ti-settings"></i>设置</a>AI：DeepSeek · deepseek-flash</div>
+  </nav>
+  <main class="main">
+    <div class="head" style="padding-bottom:4px">
+      <div class="steps"><span class="done"><span class="dot"><i class="ti ti-check"></i></span>输入清单</span><hr><span class="cur"><span class="dot">2</span>核对匹配</span><hr><span><span class="dot">3</span>生成项目</span></div>
+      <h1 style="margin-top:12px">核对 AI 匹配结果</h1>
+      <div class="meta">虚线表示尚未确认的建议。确认前不会写入任何数据；匹配只发送物料名称与规格，不发送价格。</div>
+    </div>
+    <div class="split">
+      <div class="source">
+        <h3>清单原文 · 泵房改造询价清单.xlsx</h3>
+        <div class="src"><em>1</em>泵房改造询价清单</div>
+        <div class="src hl"><em>2</em>1. 不锈钢离心泵，Q=100m3/h，H=32m，2台（一用一备）</div>
+        <div class="src"><em>3</em>2. 闸阀 DN100 PN16 ×4</div>
+        <div class="src"><em>4</em>3. 动力电缆 YJV 4*25，约 300m</div>
+        <div class="src"><em>5</em>4. 变频控制柜 15kW 一拖二 1面</div>
+        <div class="src"><em>6</em>5. 电磁流量计 DN100 远传 1台</div>
+        <div class="src"><em>7</em>6. 压力表 0–1.6MPa 若干</div>
+        <div class="src"><em>8</em>合计：略</div>
+      </div>
+      <div class="review">
+        <div class="filters"><span class="chip on">全部<b>6</b></span><span class="chip">已匹配<b>3</b></span><span class="chip" style="border-color:var(--amber);color:var(--amber)">需确认<b>2</b></span><span class="chip">待询价<b>1</b></span><span style="margin-left:auto;font-size:12px;color:var(--ink-3)">跳过 2 行：标题、合计</span></div>
+        <div class="draft">
+          <table>
+            <thead><tr><th>清单项</th><th style="width:34%">匹配物料</th><th style="width:130px">把握</th><th class="num" style="width:120px">参考报价</th><th class="num" style="width:84px">数量</th></tr></thead>
+            <tbody>
+              <tr><td><div class="item-n">不锈钢离心泵</div><div class="why">Q=100m³/h，H=32m</div></td><td><div class="pick"><span><b style="font-weight:500">离心水泵</b><span class="mono">IS80-65-160 · 304</span></span><i class="ti ti-selector"></i></div></td><td><span class="conf hi"><i class="ti ti-circle-check"></i>高</span><div class="why">流量、扬程、材质一致</div></td><td class="num">29,800.00<div class="why">乙机电 · 至 10-31</div></td><td class="num">2 台</td></tr>
+              <tr><td><div class="item-n">闸阀 DN100 PN16</div></td><td><div class="pick"><span><b style="font-weight:500">闸阀</b><span class="mono">Z41H-16C DN100</span></span><i class="ti ti-selector"></i></div></td><td><span class="conf hi"><i class="ti ti-circle-check"></i>高</span></td><td class="num">1,205.00<div class="why">永泰阀门 · 待确认有效期</div></td><td class="num">4 个</td></tr>
+              <tr class="attention"><td><div class="item-n">动力电缆</div><div class="why">YJV 4*25，约 300m</div></td><td><div class="pick"><span><b style="font-weight:500">电缆</b><span class="mono">YJV-4×25</span></span><i class="ti ti-selector"></i></div></td><td><span class="conf mid"><i class="ti ti-alert-circle"></i>中</span><div class="why">规格一致，电压等级未写明</div></td><td class="num">135.00<div class="why">宝胜电缆</div></td><td class="num">300 米<div class="why" style="color:var(--amber)">原文"约 300m"</div></td></tr>
+              <tr><td><div class="item-n">变频控制柜</div><div class="why">15kW 一拖二</div></td><td><div class="pick"><span><b style="font-weight:500">变频控制柜</b><span class="mono">15kW 一拖二</span></span><i class="ti ti-selector"></i></div></td><td><span class="conf hi"><i class="ti ti-circle-check"></i>高</span></td><td class="num">48,600.00<div class="why">申江电气</div></td><td class="num">1 面</td></tr>
+              <tr class="attention"><td><div class="item-n">电磁流量计</div><div class="why">DN100 远传</div></td><td><div class="pick" style="color:var(--ink-3)"><span>未找到合适物料 · 作为待询价</span><i class="ti ti-selector"></i></div></td><td><span class="conf lo"><i class="ti ti-circle-x"></i>无</span><div class="why">库中只有 DN50 型号</div></td><td class="num pending">—</td><td class="num">1 台</td></tr>
+              <tr class="attention"><td><div class="item-n">压力表</div><div class="why">0–1.6MPa</div></td><td><div class="pick"><span><b style="font-weight:500">压力表</b><span class="mono">Y-100 0–1.6MPa</span></span><i class="ti ti-selector"></i></div></td><td><span class="conf hi"><i class="ti ti-circle-check"></i>高</span></td><td class="num">86.00<div class="why">华仪</div></td><td class="num"><span class="hint">数量待填</span><div class="why">原文"若干"</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="foot-form">
+      <label class="field">项目编号<input value="2026-WH01-016"></label>
+      <label class="field">项目名称<input value="泵房改造工程（二期）" style="width:180px"></label>
+      <label class="field">客户<input value="华东水务"></label>
+      <label class="field">加价率 %<input value="15" style="width:70px"></label>
+      <span style="margin-left:auto;font-size:12px;color:var(--amber);white-space:nowrap"><i class="ti ti-alert-triangle"></i> 2 项需确认</span>
+      <button class="btn">返回修改清单</button>
+      <button class="btn primary"><i class="ti ti-check"></i>生成项目（6 项）</button>
+    </div>
+  </main>
+</div>
+<p class="notes">要点：左侧原文与右侧建议逐行对应（点击行高亮原文）；整个建议区用虚线边框表示"未确认"；需要注意的行在左缘用琥珀色竖条 + 文字说明，并可一键筛出；把握度用"高/中/无"三档文字而非百分比，避免虚假精确；数量存疑（"约""若干"）直接标出原文；AI 推理理由以小字给出，便于判断。</p>
+</section>
+
+<section class="screen" id="s3">
+<div style="display:flex;gap:32px;align-items:flex-start">
+<div class="phone">
+  <div class="appbar"><i class="ti ti-arrow-left"></i><div class="t"><b>泵房改造工程</b><small class="mono">2026-WH01-015 · 华东水务</small></div><i class="ti ti-download"></i><i class="ti ti-dots-vertical"></i></div>
+  <div class="mledger">
+    <div><label>成本合计</label><b>¥186,820</b></div>
+    <div><label>对外报价</label><b>¥214,843</b></div>
+    <div><label>毛利</label><b>¥28,023</b> <small style="color:var(--ink-3)">13.0%</small></div>
+    <div><label>合同金额</label><b>¥205,000</b><div style="font-size:12px;color:var(--amber)"><i class="ti ti-alert-triangle"></i> 成本达 91%</div></div>
+  </div>
+  <div class="mbody">
+    <div class="msec">材料费 · 5 项<span>¥158,920.00</span></div>
+    <div class="mrow"><div class="l"><b>不锈钢离心泵</b><small class="mono">IS80-65-160</small><div><span class="hint" style="margin-top:4px"><i class="ti ti-trending-down"></i>有更低报价</span></div></div><div class="r"><b>¥65,000.00</b><small>2 台 × 32,500</small></div></div>
+    <div class="mrow"><div class="l"><b>变频控制柜</b><small class="mono">15kW 一拖二</small></div><div class="r"><b>¥48,600.00</b><small>1 面</small></div></div>
+    <div class="mrow"><div class="l"><b>闸阀</b><small class="mono">Z41H-16C DN100</small></div><div class="r"><b>¥4,820.00</b><small>4 个 × 1,205</small></div></div>
+    <div class="mrow"><div class="l"><b>电磁流量计</b><small>DN100，远传</small><div><span class="hint" style="margin-top:4px"><i class="ti ti-help-circle"></i>待询价</span></div></div><div class="r"><b class="pending">—</b><small>1 台</small></div></div>
+    <div class="msec">人工费 · 2 项<span>¥21,900.00</span></div>
+    <div class="mrow"><div class="l"><b>设备安装调试</b></div><div class="r"><b>¥18,000.00</b><small>1 项</small></div></div>
+  </div>
+  <div class="mtotal"><div><small style="color:var(--ink-3);font-size:12px">成本合计</small><br><b>¥186,820.00</b></div><button class="fab"><i class="ti ti-plus"></i>添加</button></div>
+  <div class="bnav"><a class="on" href="#"><i class="ti ti-folders"></i>项目</a><a href="#"><i class="ti ti-report-search"></i>报价</a><a href="#"><i class="ti ti-box"></i>物料</a><a href="#"><i class="ti ti-dots"></i>更多</a></div>
+</div>
+<p class="notes" style="max-width:420px">要点：同一台账语言在手机上改为两列汇总格；每行左侧名称与型号、右侧金额与"数量 × 单价"；合计固定在底部并与"添加"并排，拇指可达；底部导航 4 项（供应商与数据交换收进"更多"）；触控行高 ≥ 56dp。</p>
+</div>
+</section>
+
+</body>
+</html>
