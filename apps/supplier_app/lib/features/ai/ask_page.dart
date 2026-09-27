@@ -3,6 +3,7 @@ import 'package:supplier_core/supplier_core.dart';
 
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
+import '../records/open_record.dart';
 
 const _examples = [
   '离心水泵目前最低的有效报价是多少？来自哪个供应商？',
@@ -32,6 +33,9 @@ class _AskPageState extends State<AskPage> {
   final messages = <_Message>[];
   var busy = false;
 
+  /// What the assistant is doing right now (the tool it called last).
+  String? activity;
+
   @override
   void dispose() {
     input.dispose();
@@ -46,6 +50,7 @@ class _AskPageState extends State<AskPage> {
     setState(() {
       messages.add(_Message(true, question));
       busy = true;
+      activity = null;
     });
     _scrollDown();
     _Message reply;
@@ -58,7 +63,13 @@ class _AskPageState extends State<AskPage> {
           error: true,
         );
       } else {
-        final answer = await widget.state.store.ask(llm, question);
+        final answer = await widget.state.store.ask(
+          llm,
+          question,
+          onTool: (tool) {
+            if (mounted) setState(() => activity = toolActivity[tool]);
+          },
+        );
         reply = _Message(false, answer.isEmpty ? '没有得到回答，换个问法再试。' : answer);
       }
     } on LlmException catch (e) {
@@ -109,21 +120,21 @@ class _AskPageState extends State<AskPage> {
                     padding: const EdgeInsets.all(16),
                     itemCount: messages.length + (busy ? 1 : 0),
                     itemBuilder: (context, i) => i == messages.length
-                        ? const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8),
+                        ? Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
                             child: Row(
                               children: [
-                                SizedBox(
+                                const SizedBox(
                                   width: 14,
                                   height: 14,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                   ),
                                 ),
-                                SizedBox(width: 10),
+                                const SizedBox(width: 10),
                                 Text(
-                                  '正在查询本机数据…',
-                                  style: TextStyle(color: Tokens.ink3),
+                                  activity == null ? '正在理解问题…' : '正在$activity…',
+                                  style: const TextStyle(color: Tokens.ink3),
                                 ),
                               ],
                             ),
@@ -199,13 +210,105 @@ class _AskPageState extends State<AskPage> {
             : (m.error ? Tokens.redBg : Tokens.canvas),
         borderRadius: BorderRadius.circular(Tokens.radius),
       ),
-      child: SelectableText(
-        m.text,
+      child: Text.rich(
+        TextSpan(
+          children: m.fromUser || m.error
+              ? [TextSpan(text: m.text)]
+              : _answerSpans(m.text),
+        ),
         style: TextStyle(
           height: 1.6,
           color: m.error
               ? Tokens.red
               : (m.fromUser ? Tokens.accentDeep : Tokens.ink),
+        ),
+      ),
+    ),
+  );
+
+  /// Answer text with each `[[type:id|name]]` shown as a record chip that
+  /// opens the record; stray ids the model still wrote are dropped.
+  List<InlineSpan> _answerSpans(String text) {
+    final spans = <InlineSpan>[];
+    var at = 0;
+    final clean = tidyAnswer(text);
+    for (final m in recordRef.allMatches(clean)) {
+      spans.add(TextSpan(text: clean.substring(at, m.start)));
+      final (type, id, name) = (m[1]!, m[2]!, m[3]!);
+      spans.add(
+        WidgetSpan(
+          alignment: PlaceholderAlignment.middle,
+          child: _RecordChip(
+            name: name,
+            onTap: () => openRecord(context, widget.state, type, id),
+          ),
+        ),
+      );
+      at = m.end;
+    }
+    spans.add(TextSpan(text: clean.substring(at)));
+    return spans;
+  }
+}
+
+final _uuid = RegExp(
+  r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',
+);
+
+/// Drops ids written outside record marks: "（ID 1f…）", "id：`1f…`".
+String tidyAnswer(String text) {
+  final marks = <String>[];
+  final protected = text.replaceAllMapped(recordRef, (m) {
+    marks.add(m[0]!);
+    return '\u0000${marks.length - 1}\u0000';
+  });
+  final stripped = protected
+      .replaceAll(
+        RegExp(
+          r'\s*[（(][^（()）]*?(?:ID|id|编号)[：:\s]*`?'
+          '${_uuid.pattern}'
+          r'`?[^（()）]*?[）)]',
+        ),
+        '',
+      )
+      .replaceAll(
+        RegExp(
+          r'[，,;；]?\s*(?:ID|id)[：:\s]*`?'
+          '${_uuid.pattern}'
+          r'`?',
+        ),
+        '',
+      )
+      .replaceAll(RegExp('`?${_uuid.pattern}`?'), '');
+  return stripped.replaceAllMapped(
+    RegExp('\u0000(\\d+)\u0000'),
+    (m) => marks[int.parse(m[1]!)],
+  );
+}
+
+class _RecordChip extends StatelessWidget {
+  const _RecordChip({required this.name, required this.onTap});
+  final String name;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 2),
+    child: Material(
+      color: Tokens.accentTint,
+      borderRadius: BorderRadius.circular(4),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(4),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+          child: Text(
+            name,
+            style: const TextStyle(
+              color: Tokens.accentDeep,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
       ),
     ),
