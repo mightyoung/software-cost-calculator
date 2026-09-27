@@ -12,13 +12,14 @@ import '../features/settings/settings_page.dart';
 import 'app_state.dart';
 import 'theme.dart';
 
+/// Sidebar order: work, then AI, then system; Ctrl+1… follow it.
 enum Section {
   projects('项目', Icons.folder_copy_outlined),
-  quotes('报价查询', Icons.manage_search),
-  ask('问数据', Icons.forum_outlined),
+  quotes('报价', Icons.manage_search),
   suppliers('供应商', Icons.factory_outlined),
   products('物料', Icons.inventory_2_outlined),
-  exchange('数据交换', Icons.sync_alt),
+  ask('问数据', Icons.forum_outlined),
+  exchange('同步与交换', Icons.sync_alt),
   data('数据中心', Icons.hub_outlined),
   settings('设置', Icons.settings_outlined);
 
@@ -76,9 +77,11 @@ class _ShellState extends State<Shell> {
     );
     return CallbackShortcuts(
       bindings: {
-        for (var i = 0; i < 6; i++)
+        for (var i = 0; i < 7; i++)
           SingleActivator(LogicalKeyboardKey(0x31 + i), control: true): () =>
               setState(() => section = Section.values[i]),
+        const SingleActivator(LogicalKeyboardKey.comma, control: true): () =>
+            setState(() => section = Section.settings),
         const SingleActivator(LogicalKeyboardKey.keyN, control: true): () =>
             showQuoteForm(context, widget.state),
       },
@@ -126,20 +129,30 @@ class _Sidebar extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.only(bottom: 2),
         child: Material(
-          color: on ? Tokens.accent : Colors.transparent,
+          color: on ? Tokens.navHover : Colors.transparent,
           borderRadius: BorderRadius.circular(Tokens.radius),
+          clipBehavior: Clip.antiAlias,
           child: InkWell(
-            borderRadius: BorderRadius.circular(Tokens.radius),
             hoverColor: Tokens.navHover,
             onTap: () => onSelect(s),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+            child: Container(
+              // The selected entry is marked by a bar, not a block of colour,
+              // so it does not compete with primary buttons.
+              decoration: BoxDecoration(
+                border: Border(
+                  left: BorderSide(
+                    color: on ? Tokens.accent : Colors.transparent,
+                    width: 3,
+                  ),
+                ),
+              ),
+              padding: const EdgeInsets.fromLTRB(9, 9, 10, 9),
               child: Row(
                 children: [
                   Icon(
                     s.icon,
                     size: 18,
-                    color: on ? Colors.white : Tokens.navInk,
+                    color: on ? Colors.white : Tokens.navInk3,
                   ),
                   const SizedBox(width: 10),
                   Text(
@@ -158,6 +171,14 @@ class _Sidebar extends StatelessWidget {
       );
     }
 
+    Widget group(String label) => Padding(
+      padding: const EdgeInsets.fromLTRB(12, 14, 10, 6),
+      child: Text(
+        label,
+        style: const TextStyle(fontSize: 12, color: Tokens.navInk3),
+      ),
+    );
+
     return Container(
       width: 176,
       color: Tokens.nav,
@@ -166,14 +187,10 @@ class _Sidebar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Padding(
-            padding: EdgeInsets.fromLTRB(10, 0, 10, 20),
+            padding: EdgeInsets.fromLTRB(10, 0, 10, 6),
             child: Row(
               children: [
-                Icon(
-                  Icons.menu_book_outlined,
-                  color: Color(0xFF6F9BFF),
-                  size: 20,
-                ),
+                AppMark(size: 22),
                 SizedBox(width: 8),
                 Text(
                   '询价台账',
@@ -186,7 +203,19 @@ class _Sidebar extends StatelessWidget {
               ],
             ),
           ),
-          for (final s in Section.values.take(7)) item(s),
+          group('工作'),
+          for (final s in [
+            Section.projects,
+            Section.quotes,
+            Section.suppliers,
+            Section.products,
+          ])
+            item(s),
+          group('智能'),
+          item(Section.ask),
+          group('系统'),
+          item(Section.exchange),
+          item(Section.data),
           const Spacer(),
           const Divider(color: Tokens.navHover),
           const SizedBox(height: 8),
@@ -229,8 +258,8 @@ class _BottomNav extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 for (final s in [
-                  Section.ask,
                   Section.suppliers,
+                  Section.ask,
                   Section.exchange,
                   Section.data,
                   Section.settings,
@@ -281,4 +310,42 @@ class _IncomingBar extends StatelessWidget {
       ],
     ),
   );
+}
+
+/// The app icon's ledger mark: three rows, the chosen one in blue.
+class AppMark extends StatelessWidget {
+  const AppMark({super.key, required this.size});
+  final double size;
+
+  @override
+  Widget build(BuildContext context) =>
+      CustomPaint(size: Size.square(size), painter: _MarkPainter());
+}
+
+class _MarkPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    void bar(double top, double length, Color colour) => canvas.drawRRect(
+      RRect.fromLTRBR(
+        w * 0.08,
+        w * top,
+        w * (0.08 + length),
+        w * (top + 0.14),
+        Radius.circular(w * 0.07),
+      ),
+      Paint()..color = colour,
+    );
+    bar(0.16, 0.66, Tokens.navInk3);
+    bar(0.43, 0.58, Tokens.accent);
+    bar(0.70, 0.44, Tokens.navInk3);
+    canvas.drawCircle(
+      Offset(w * 0.82, w * 0.50),
+      w * 0.12,
+      Paint()..color = const Color(0xFF6F9BFF),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_MarkPainter old) => false;
 }

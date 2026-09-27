@@ -164,7 +164,7 @@ void main() {
     });
 
     await pumpApp(tester);
-    await tester.tap(find.text('报价查询'));
+    await tester.tap(find.text('报价').first);
     await tester.pumpAndSettle();
     for (
       var i = 0;
@@ -282,7 +282,7 @@ void main() {
       'tax_rate': '13',
     });
     await pumpApp(tester);
-    await tester.tap(find.text('报价查询'));
+    await tester.tap(find.text('报价').first);
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField).first, '水泵');
     await tester.pumpAndSettle();

@@ -233,7 +233,7 @@ class _QuotesPageState extends State<QuotesPage> {
               spacing: 8,
               runSpacing: 8,
               children: [
-                Text('报价查询', style: Theme.of(context).textTheme.titleLarge),
+                Text('报价', style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(width: 10),
                 Text(
                   query.isEmpty

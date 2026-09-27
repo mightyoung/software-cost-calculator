@@ -70,7 +70,7 @@ class ConflictsPage extends StatelessWidget {
               padding: EdgeInsets.only(bottom: 12),
               child: Text(
                 '下面每一处都被两台设备同时修改过。目前采用的是时间较晚的修改，请确认要保留哪一个；'
-                '确认结果会随数据交换同步到其他设备。',
+                '确认结果会随同步与交换传到其他设备。',
                 style: TextStyle(color: Tokens.ink2, height: 1.6),
               ),
             ),

@@ -155,7 +155,7 @@ class _ExchangePageState extends State<ExchangePage> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 18, 24, 16),
       children: [
-        Text('数据交换', style: Theme.of(context).textTheme.titleLarge),
+        Text('同步与交换', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 16),
         if (wide)
           IntrinsicHeight(

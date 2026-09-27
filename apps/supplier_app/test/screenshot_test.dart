@@ -551,7 +551,7 @@ void main() {
   testWidgets(
     'desktop quote comparison',
     (t) => shoot(t, const Size(1280, 800), 'desktop_compare', () async {
-      await t.tap(find.text('报价查询'));
+      await t.tap(find.text('报价').first);
       await t.pumpAndSettle();
       await t.enterText(find.byType(TextField).first, '离心泵');
       await t.pumpAndSettle();
@@ -641,7 +641,7 @@ void main() {
       state.saveSetting('sync_dir', shared.path);
       state.saveSetting('device_id', '12345678-aaaa-4bbb-8ccc-1234567890ab');
       state.syncNow();
-      await t.tap(find.text('数据交换'));
+      await t.tap(find.text('同步与交换'));
       await t.pumpAndSettle();
     }),
     skip: !hasFont,
