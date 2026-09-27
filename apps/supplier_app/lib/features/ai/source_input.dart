@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../app/errors.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
 import '../../widgets/ledger.dart';
@@ -40,7 +41,11 @@ class SourceInput extends StatelessWidget {
       text.text = workbookText(readXlsx(file.bytes));
       onFile(file.name, file.bytes, null);
     } on FormatException catch (e) {
-      onFile(file.name, file.bytes, '无法读取 ${file.name}：${e.message}');
+      onFile(
+        file.name,
+        file.bytes,
+        '无法读取 ${file.name}：${friendlyError(e.message)}',
+      );
     }
   }
 

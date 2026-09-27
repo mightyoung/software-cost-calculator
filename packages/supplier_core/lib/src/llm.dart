@@ -94,7 +94,14 @@ Transport _http(LlmConfig config) => (body) async {
         .timeout(config.timeout);
     if (response.statusCode != 200) {
       final brief = text.length > 300 ? '${text.substring(0, 300)}…' : text;
-      throw LlmException('HTTP ${response.statusCode}: $brief');
+      throw LlmException(switch (response.statusCode) {
+        401 || 403 => 'API Key 无效或没有权限（HTTP ${response.statusCode}）',
+        402 => '账户余额不足（HTTP 402）',
+        404 => '服务地址或模型名称不对（HTTP 404）',
+        429 => '请求太频繁或额度已用完，请稍后再试（HTTP 429）',
+        >= 500 => 'AI 服务暂时不可用，请稍后再试（HTTP ${response.statusCode}）',
+        _ => 'HTTP ${response.statusCode}: $brief',
+      });
     }
     final decoded = jsonDecode(text);
     if (decoded is! Map<String, Object?>) throw LlmException('响应不是 JSON 对象');

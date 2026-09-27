@@ -106,7 +106,7 @@ class _QuotesPageState extends State<QuotesPage> {
     try {
       plans = store.planQuotationImport(file.bytes);
     } on FormatException catch (e) {
-      return toast(context, '无法读取 ${file.name}：${e.message}');
+      return toast(context, '无法读取 ${file.name}：${friendlyError(e.message)}');
     }
     final confirmed = await showDialog<bool>(
       context: context,

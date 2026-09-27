@@ -49,7 +49,7 @@ class InquiryPage extends StatelessWidget {
     try {
       plans = store.planInquirySheet(file.bytes, id, sid);
     } on FormatException catch (e) {
-      return toast(context, '无法读取 ${file.name}：${e.message}');
+      return toast(context, '无法读取 ${file.name}：${friendlyError(e.message)}');
     }
     final good = plans.where((p) => p.error == null).length;
     final errors = [

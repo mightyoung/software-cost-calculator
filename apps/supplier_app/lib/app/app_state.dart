@@ -7,7 +7,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supplier_core/supplier_core.dart';
 
-import 'format.dart';
+import 'errors.dart';
+
+export 'errors.dart' show friendlyError;
 
 /// Holds the device's store. Pages read the store directly (SQLite is
 /// synchronous and local) and call [changed] after writing so every
@@ -332,32 +334,3 @@ Future<void> Function(Store) _shareJob(
   String? passphrase,
 ) =>
     (s) => s.exportSelection(path, chosen, passphrase: passphrase);
-
-/// Maps core validation messages ("field: reason") to short Chinese text.
-String friendlyError(String message) {
-  const reasons = {
-    'required': '必填',
-    'precision exceeded': '位数超出（最多 12 位整数、6 位小数）',
-    'expected unsigned decimal text': '应为不带符号的数字',
-    'must be positive': '必须大于 0',
-    'currency or tax mode differs from project': '币种或含税口径与项目不一致',
-    'currency, tax mode or unit cannot be converted': '币种、含税口径或单位无法换算到项目预算口径',
-    'clear budget and contract amount before changing project price basis':
-        '已有预算行或合同金额。请先处理这些金额，再修改项目币种或含税口径',
-    'must use the project price basis': '采用报价时，成本单价须使用项目税口径和预算行单位的折算价',
-    'clear or reconfigure conversions when changing the base unit':
-        '修改基准单位前请清空旧换算，或按新基准单位重新设置',
-    'expected at most 50 conversions': '最多设置 50 条单位换算',
-    'duplicate or base unit, or invalid factor': '来源单位不能重复或等于基准单位，换算数量须为正数',
-    'record does not exist': '记录已被删除',
-    'clearing existing information requires explicit confirmation':
-        '不能直接清空已有内容',
-    'standard cannot be downgraded': '标准记录不能改为历史资料',
-  };
-  final i = message.indexOf(': ');
-  if (i < 0) return message;
-  final field = message.substring(0, i);
-  final reason = message.substring(i + 2);
-  final label = fieldLabels[field.split('.').last] ?? field;
-  return '$label：${reasons[reason] ?? reason}';
-}
