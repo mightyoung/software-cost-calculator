@@ -284,7 +284,11 @@ void main() {
             jsonDecode(
                   s.runTool(
                     'quote_options',
-                    jsonEncode({'product_id': prod, 'qty': 2}),
+                    jsonEncode({
+                      'project_id': pro,
+                      'product_id': prod,
+                      'qty': 2,
+                    }),
                   ),
                 )
                 as List;
