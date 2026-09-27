@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supplier_core/supplier_core.dart';
@@ -58,7 +61,7 @@ class _DataCenterPageState extends State<DataCenterPage> {
                   onSelect: (t) => setState(() => selected = t),
                 ),
                 _QualityTab(store: widget.state.store),
-                const _AiTab(),
+                _AiTab(state: widget.state),
               ],
             ),
           ),
@@ -443,8 +446,20 @@ class _QualityTab extends StatelessWidget {
   }
 }
 
+/// The bundled read-only MCP server: next to the exe on Windows, inside
+/// the app bundle on macOS; null elsewhere.
+String? _mcpCommand() {
+  final exe = File(Platform.resolvedExecutable).parent;
+  if (Platform.isWindows) return '${exe.path}\\siq-mcp\\bin\\siq_mcp.exe';
+  if (Platform.isMacOS) {
+    return '${exe.parent.path}/Resources/siq-mcp/bin/siq_mcp';
+  }
+  return null;
+}
+
 class _AiTab extends StatelessWidget {
-  const _AiTab();
+  const _AiTab({required this.state});
+  final AppState state;
 
   @override
   Widget build(BuildContext context) {
@@ -483,6 +498,14 @@ class _AiTab extends StatelessWidget {
             ],
           ),
         ),
+        if (_mcpCommand() case final command?) ...[
+          const SizedBox(height: 16),
+          _McpCard(
+            command: command,
+            database:
+                '${state.dataDir.path}${Platform.pathSeparator}supplier.db',
+          ),
+        ],
         const SizedBox(height: 16),
         Text('只读工具', style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 8),
@@ -541,6 +564,83 @@ class _AiTab extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// How to connect Claude Desktop, Cursor and other MCP clients.
+class _McpCard extends StatelessWidget {
+  const _McpCard({required this.command, required this.database});
+  final String command, database;
+
+  @override
+  Widget build(BuildContext context) {
+    final config = const JsonEncoder.withIndent('  ').convert({
+      'mcpServers': {
+        'xunjia': {
+          'command': command,
+          'args': ['--db', database],
+        },
+      },
+    });
+    final bundled = File(command).existsSync();
+    return _card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '接入其他 AI 工具（MCP）',
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Claude Desktop、Cursor 等支持 MCP 的工具，可以通过随软件附带的 siq-mcp 直接查询本机数据：'
+            '把下面的配置加入该工具的 MCP 设置并重启它。siq-mcp 以只读方式打开数据库，'
+            '用的是上面同一组只读工具；查询到的数据会发送给该工具所用的 AI 服务。',
+            style: TextStyle(color: Tokens.ink2, height: 1.6),
+          ),
+          const SizedBox(height: 10),
+          if (!bundled)
+            const HintText(
+              '当前运行的是开发版本，没有附带 siq-mcp；正式安装包里有，届时这里会给出可直接复制的配置。',
+              icon: Icons.info_outline,
+            )
+          else ...[
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Tokens.sunken,
+                borderRadius: BorderRadius.circular(Tokens.radius),
+              ),
+              child: SelectableText(
+                config,
+                style: const TextStyle(
+                  fontFamily: 'monospace',
+                  fontFamilyFallback: fontFallback,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            OutlinedButton.icon(
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: config));
+                if (context.mounted) toast(context, '已复制 MCP 配置');
+              },
+              icon: const Icon(Icons.copy, size: 18),
+              label: const Text('复制配置'),
+            ),
+          ],
+          if (bundled && Platform.isMacOS) ...[
+            const SizedBox(height: 8),
+            const Text(
+              'macOS 首次运行时可能询问是否允许访问其他 App 的数据，请选择允许。',
+              style: TextStyle(fontSize: 12, color: Tokens.ink3),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
