@@ -52,9 +52,16 @@ jobs:
       - name: Build
         working-directory: apps/supplier_app
         run: flutter build windows --release --dart-define=APP_VERSION=1.0.${{ github.run_number }}
+      - name: Build MCP server (read-only access for AI tools)
+        working-directory: packages/supplier_core
+        run: |
+          dart pub get
+          dart build cli -t bin/siq_mcp.dart -o build/mcp
       - name: Package
         shell: pwsh
-        run: Compress-Archive -Path apps/supplier_app/build/windows/x64/runner/Release/* -DestinationPath supplier-app-windows.zip
+        run: |
+          Copy-Item -Recurse packages/supplier_core/build/mcp/bundle apps/supplier_app/build/windows/x64/runner/Release/siq-mcp
+          Compress-Archive -Path apps/supplier_app/build/windows/x64/runner/Release/* -DestinationPath supplier-app-windows.zip
       - uses: actions/upload-artifact@v4
         with:
           name: supplier-app-windows
@@ -93,8 +100,22 @@ jobs:
       - name: Build
         working-directory: apps/supplier_app
         run: flutter build macos --release --dart-define=APP_VERSION=1.0.${{ github.run_number }}
+      - name: Build MCP server (read-only access for AI tools)
+        working-directory: packages/supplier_core
+        run: |
+          dart pub get
+          dart build cli -t bin/siq_mcp.dart -o build/mcp
       - name: Package
-        run: ditto -c -k --keepParent apps/supplier_app/build/macos/Build/Products/Release/supplier_app.app supplier-app-macos.zip
+        run: |
+          app=apps/supplier_app/build/macos/Build/Products/Release/supplier_app.app
+          cp -R packages/supplier_core/build/mcp/bundle "$app/Contents/Resources/siq-mcp"
+          # Adding files breaks the seal: re-sign, keeping the sandbox
+          # entitlements, and fail the build if either is off.
+          codesign --force --sign - --preserve-metadata=entitlements,requirements,flags,runtime "$app"
+          codesign --verify --deep --strict --verbose=2 "$app"
+          codesign -d --entitlements - "$app" 2>&1 | grep -q app-sandbox
+          "$app/Contents/Resources/siq-mcp/bin/siq_mcp" --version
+          ditto -c -k --keepParent apps/supplier_app/build/macos/Build/Products/Release/supplier_app.app supplier-app-macos.zip
       - uses: actions/upload-artifact@v4
         with:
           name: supplier-app-macos

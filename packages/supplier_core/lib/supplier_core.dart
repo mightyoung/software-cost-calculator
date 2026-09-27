@@ -17,6 +17,7 @@ export 'src/lan.dart';
 export 'src/list_import.dart';
 export 'src/llm.dart';
 export 'src/material_import.dart';
+export 'src/mcp_server.dart';
 export 'src/merge.dart';
 export 'src/ontology.dart';
 export 'src/project.dart';
