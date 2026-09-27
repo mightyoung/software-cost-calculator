@@ -80,6 +80,15 @@ void main() {
         'inquired_at': null,
         'inquiry_utc_offset_minutes': null,
         'capture_mode': 'standard',
+        'includes': null,
+        'warranty_months': null,
+        'extra_cost': null,
+        'deal_price': null,
+        'awarded_on': null,
+        'award_note': null,
+        'inquiry_id': null,
+        'attachment_ids': null,
+        'price_basis': null,
       });
     }
   });
@@ -101,5 +110,17 @@ void main() {
   sw.reset();
   final q = b.quoteOptions(pros[0], prods[0], asOf: DateTime.utc(2026, 9, 10));
   print('quoteOptions ${sw.elapsedMilliseconds} ms (${q.length})');
+  sw.reset();
+  final hits = b.searchProducts(['物料1999', '品牌7']);
+  print('searchProducts ${sw.elapsedMilliseconds} ms (${hits.length})');
+  sw.reset();
+  b.searchByName('supplier', 'gys');
+  print('pinyin search, first (cold cache) ${sw.elapsedMilliseconds} ms');
+  sw.reset();
+  b.searchByName('supplier', 'gys');
+  print('pinyin search, warm ${sw.elapsedMilliseconds} ms');
+  sw.reset();
+  final g = b.compareQuotes(prods[0]);
+  print('compareQuotes ${sw.elapsedMilliseconds} ms (${g.length} groups)');
   print('rss ${ProcessInfo.maxRss ~/ 1048576} MiB');
 }
