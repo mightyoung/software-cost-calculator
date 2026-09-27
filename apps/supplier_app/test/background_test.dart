@@ -38,4 +38,55 @@ void main() {
       reason: 'errors come back as messages',
     );
   });
+
+  test('pushes a chosen project to a nearby device and receives one', () async {
+    final dir = Directory.systemTemp.createTempSync('lan_app_test');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final store = Store.open('${dir.path}/a.db', device: '甲');
+    final pro = store.save('project', {
+      for (final f in Project.fields) f: null,
+      'code': 'P-1',
+      'name': '泵房改造',
+      'status': 'active',
+      'type': 'market',
+      'level': 'A',
+      'currency': 'CNY',
+      'tax_mode': 'included',
+      'markup_rate': '0',
+    });
+    final state = AppState.test(store, dir);
+    await state.setLanVisible(true);
+    addTearDown(() => state.setLanVisible(false));
+    expect(state.lanError, isNull);
+
+    final got = <LanPush>[];
+    final other = await LanNode.start(
+      id: 'other',
+      name: '仓库平板',
+      inbox: Directory('${dir.path}/other'),
+      onPush: got.add,
+      discoveryPort: 0,
+      httpPort: 0,
+    );
+    addTearDown(other.stop);
+    final peer = await state.lan!.probe('127.0.0.1', port: other.httpPort);
+    expect(
+      await state.pushTo(peer, {
+        'project': [pro],
+      }),
+      isNull,
+    );
+    final b = Store.open('${dir.path}/b.db', device: '乙');
+    addTearDown(b.close);
+    b.importFrom(got.single.path);
+    expect(b.get('project', pro)!.data['name'], '泵房改造');
+
+    // The other way: a push lands in this device's inbox, nothing imported.
+    final me = await other.probe('127.0.0.1', port: state.lan!.httpPort);
+    await other.push(me, got.single.path);
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+    expect(state.incoming.single.fromName, '仓库平板');
+    state.dismissPush(state.incoming.single);
+    expect(state.incoming, isEmpty);
+  });
 }
