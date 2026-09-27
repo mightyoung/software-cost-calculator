@@ -1,3 +1,4 @@
+export 'src/agent_tools.dart';
 export 'src/assistant.dart';
 export 'src/attachments.dart';
 export 'src/background.dart';
@@ -16,10 +17,12 @@ export 'src/list_import.dart';
 export 'src/llm.dart';
 export 'src/material_import.dart';
 export 'src/merge.dart';
+export 'src/ontology.dart';
 export 'src/project.dart';
 export 'src/project_export.dart';
 export 'src/quotation.dart';
 export 'src/quote_excel.dart';
+export 'src/record_query.dart';
 export 'src/search.dart';
 export 'src/share.dart';
 export 'src/store.dart';

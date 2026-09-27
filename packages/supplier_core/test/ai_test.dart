@@ -109,7 +109,8 @@ void main() {
           'role': 'assistant',
           'content': null,
           'tool_calls': [
-            call('c1', 'search_products', {
+            call('c1', 'search', {
+              'type': 'product',
               'keywords': ['水泵'],
             }),
             call('c2', 'drop_tables', {}),
@@ -128,7 +129,7 @@ void main() {
       expect(toolMessages[0], contains('IS65-50-160'));
       expect(toolMessages[1], contains('未知工具'));
       expect(toolMessages[2], contains('error'));
-      expect(model.requests[0]['tools'], hasLength(assistantTools.length));
+      expect(model.requests[0]['tools'], hasLength(agentTools.length));
     },
   );
 
