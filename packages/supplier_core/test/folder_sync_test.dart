@@ -78,4 +78,22 @@ void main() {
     File('${dir.path}/版本.json').writeAsStringSync('not json');
     expect(readUpdate(dir.path, current: '1.0.5'), isNull);
   });
+
+  test('imports and syncs run in the background, errors come back', () async {
+    final a = device('A'), b = device('B');
+    final id = a.save('supplier', supplier('甲'));
+    a.exportTo('${tmp.path}/a.siq');
+    final file = '${tmp.path}/a.siq';
+    final r = await b.inBackground((s) => s.importFrom(file));
+    expect(r['supplier']!.added, 1);
+    expect(b.get('supplier', id), isNotNull, reason: 'window sees it at once');
+    expect(b.searchByName('supplier', '甲').single.id, id);
+    File('${tmp.path}/bad.siq').writeAsBytesSync([1, 2, 3]);
+    final bad = '${tmp.path}/bad.siq';
+    await expectLater(
+      b.inBackground((s) => s.importFrom(bad)),
+      throwsA(isA<FormatException>()),
+    );
+  });
 }
+

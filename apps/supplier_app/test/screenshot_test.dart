@@ -28,7 +28,7 @@ Map<String, Object?> _b(List<String> f, Map<String, Object?> v) => {
 };
 
 void _seed(Store s) {
-  final today = DateTime.now().toIso8601String().substring(0, 10);
+  final today = localDay(s.clock());
   String sup(String n) => s.save(
     'supplier',
     _b(Supplier.fields, {
@@ -428,7 +428,8 @@ void main() {
     final store = Store.open(
       '${dir.path}/s.db',
       device: '采购部-01',
-      clock: name == 'desktop_conflicts' ? _fixedClock() : null,
+      // Fixed so dates and validity in the shots never drift.
+      clock: _fixedClock(),
     );
     _seed(store);
     tester.view.physicalSize = size;

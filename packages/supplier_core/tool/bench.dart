@@ -107,20 +107,31 @@ void main() {
   sw.reset();
   b.importFrom('${dir.path}/x.siq');
   print('re-import (no changes) ${sw.elapsedMilliseconds} ms');
-  sw.reset();
-  final q = b.quoteOptions(pros[0], prods[0], asOf: DateTime.utc(2026, 9, 10));
-  print('quoteOptions ${sw.elapsedMilliseconds} ms (${q.length})');
-  sw.reset();
-  final hits = b.searchProducts(['物料1999', '品牌7']);
-  print('searchProducts ${sw.elapsedMilliseconds} ms (${hits.length})');
-  sw.reset();
-  b.searchByName('supplier', 'gys');
-  print('pinyin search, first (cold cache) ${sw.elapsedMilliseconds} ms');
-  sw.reset();
-  b.searchByName('supplier', 'gys');
-  print('pinyin search, warm ${sw.elapsedMilliseconds} ms');
-  sw.reset();
-  final g = b.compareQuotes(prods[0]);
-  print('compareQuotes ${sw.elapsedMilliseconds} ms (${g.length} groups)');
+  // Interactive queries: fail when one is several times slower than today,
+  // e.g. the search index stopped being used.
+  final slow = <String>[];
+  void timed(String label, int limitMs, Object? Function() run) {
+    sw.reset();
+    run();
+    final ms = sw.elapsedMilliseconds;
+    print('$label $ms ms (limit $limitMs)');
+    if (ms > limitMs) slow.add(label);
+  }
+
+  timed(
+    'quoteOptions',
+    50,
+    () => b.quoteOptions(pros[0], prods[0], asOf: DateTime.utc(2026, 9, 10)),
+  );
+  timed('compareQuotes', 50, () => b.compareQuotes(prods[0]));
+  timed('searchProducts', 150, () => b.searchProducts(['物料1999', '品牌7']));
+  timed('searchProducts, 2-char term hitting all 20k', 150, () {
+    return b.searchProducts(['物料']);
+  });
+  timed('pinyin search', 150, () => b.searchByName('supplier', 'gys'));
   print('rss ${ProcessInfo.maxRss ~/ 1048576} MiB');
+  if (slow.isNotEmpty) {
+    print('TOO SLOW: ${slow.join(', ')}');
+    exitCode = 1;
+  }
 }

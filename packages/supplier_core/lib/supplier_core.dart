@@ -1,5 +1,6 @@
 export 'src/assistant.dart';
 export 'src/attachments.dart';
+export 'src/background.dart';
 export 'src/budget.dart';
 export 'src/compare.dart';
 export 'src/crypto_file.dart';

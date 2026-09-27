@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:sqlite3/sqlite3.dart';
+import 'package:supplier_core/src/search_index.dart';
 import 'package:supplier_core/supplier_core.dart';
 import 'package:test/test.dart';
 
@@ -10,6 +11,7 @@ import 'fixtures.dart';
 /// suppliers and products without `merged_into`.
 String downgradeToV1(String path) {
   final db = sqlite3.open(path);
+  dropSearchIndex(db); // version 1 had none
   for (final type in ['supplier', 'product']) {
     db.execute("UPDATE $type SET data = json_remove(data, '\$.merged_into')");
   }

@@ -40,8 +40,7 @@ class AppState extends ChangeNotifier {
       dir,
       settings,
     );
-    state._backup();
-    unawaited(state.syncNow());
+    unawaited(state._backup().then((_) => state.syncNow()));
     return state;
   }
 
@@ -50,11 +49,12 @@ class AppState extends ChangeNotifier {
   /// Why today's automatic backup failed, shown in settings; null if fine.
   String? backupError;
 
-  // A failed backup must not stop the app from opening; it is reported in
-  // settings instead.
-  void _backup() {
+  // Runs in the background after the window opens. A failed backup must not
+  // stop the app; it is reported in settings instead.
+  Future<void> _backup() async {
+    final dir = backupDir;
     try {
-      store.dailyBackup(backupDir);
+      await store.inBackground(_backupJob(dir));
       backupError = null;
     } catch (e) {
       backupError = '$e';
@@ -109,23 +109,28 @@ class AppState extends ChangeNotifier {
     saveSetting('sync_seen', null);
   }
 
-  /// Imports other devices' files from the shared folder and writes ours.
-  Future<void> syncNow() async {
+  Future<void>? _syncing;
+
+  /// Imports other devices' files from the shared folder and writes ours,
+  /// in the background. A second call while one runs joins it.
+  Future<void> syncNow() =>
+      _syncing ??= _sync().whenComplete(() => _syncing = null);
+
+  Future<void> _sync() async {
     final dir = syncDir;
     if (dir == null) return;
     try {
-      final seen = setting('sync_seen');
-      final r = await store.syncWithFolder(
-        dir,
-        ownName: syncFileName,
-        seen: seen == null
-            ? {}
-            : (jsonDecode(seen) as Map).cast<String, String>(),
-        passphrase: await exchangePassphrase(),
+      final own = syncFileName, stored = setting('sync_seen');
+      final Map<String, String> seen = stored == null
+          ? {}
+          : (jsonDecode(stored) as Map).cast<String, String>();
+      final passphrase = await exchangePassphrase();
+      final r = await store.inBackground(
+        _syncJob(dir, own, seen, passphrase),
       );
       lastSync = r;
       lastSyncError = null;
-      saveSetting('sync_seen', jsonEncode(r.seen));
+      saveSetting('sync_seen', jsonEncode(r.seen)); // also refreshes pages
     } catch (e) {
       lastSyncError = '$e';
       notifyListeners();
@@ -200,7 +205,33 @@ class AppState extends ChangeNotifier {
       return friendlyError(e.message);
     }
   }
+
+  /// [write] for long work (imports) run by [Store.inBackground]; [action]
+  /// must not capture the store.
+  Future<String?> writeInBackground(
+    FutureOr<void> Function(Store store) action,
+  ) async {
+    try {
+      await store.inBackground(action);
+      notifyListeners();
+      return null;
+    } on FormatException catch (e) {
+      return friendlyError(e.message);
+    }
+  }
 }
+
+// Background jobs are built at top level so they capture only their
+// arguments, never AppState (which holds the window's database handle).
+void Function(Store) _backupJob(String dir) => (s) => s.dailyBackup(dir);
+
+Future<FolderSync> Function(Store) _syncJob(
+  String dir,
+  String own,
+  Map<String, String> seen,
+  String? passphrase,
+) => (s) =>
+    s.syncWithFolder(dir, ownName: own, seen: seen, passphrase: passphrase);
 
 /// Maps core validation messages ("field: reason") to short Chinese text.
 String friendlyError(String message) {

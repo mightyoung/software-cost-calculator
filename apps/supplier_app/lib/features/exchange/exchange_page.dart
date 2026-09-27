@@ -19,6 +19,18 @@ const _typeLabels = {
   'project_item': '预算行',
 };
 
+// Background jobs are built at top level so they capture only their
+// arguments, never the page (which cannot be sent to another isolate).
+Future<void> Function(Store) _exportJob(String out, String? passphrase) =>
+    (s) async => passphrase == null
+        ? s.exportTo(out)
+        : await s.exportEncryptedTo(out, passphrase);
+
+Map<String, TableImport> Function(Store) _previewJob(String path) =>
+    (s) => s.previewImport(path);
+
+void Function(Store) _importJob(String path) => (s) => s.importFrom(path);
+
 class ExchangePage extends StatefulWidget {
   const ExchangePage({super.key, required this.state});
   final AppState state;
@@ -39,9 +51,7 @@ class _ExchangePageState extends State<ExchangePage> {
       final file = File('${temp.path}/export.siq');
       if (file.existsSync()) file.deleteSync();
       final passphrase = await state.exchangePassphrase();
-      passphrase == null
-          ? state.store.exportTo(file.path)
-          : await state.store.exportEncryptedTo(file.path, passphrase);
+      await state.store.inBackground(_exportJob(file.path, passphrase));
       final bytes = await file.readAsBytes();
       file.deleteSync();
       final saved = await saveBytes(
@@ -94,8 +104,10 @@ class _ExchangePageState extends State<ExchangePage> {
     try {
       final Map<String, TableImport> preview;
       try {
-        preview = state.store.previewImport(path);
+        setState(() => busy = true);
+        preview = await state.store.inBackground(_previewJob(path));
       } on FormatException catch (e) {
+        if (!mounted) return;
         return toast(
           context,
           e.message.contains('newer version')
@@ -103,13 +115,15 @@ class _ExchangePageState extends State<ExchangePage> {
               : '这不是有效的交换文件，或文件已损坏',
         );
       }
+      if (mounted) setState(() => busy = false);
+      if (!mounted) return;
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (_) => _Preview(preview: preview),
       );
       if (confirmed != true || !mounted) return;
       setState(() => busy = true);
-      final err = state.write((s) => s.importFrom(path));
+      final err = await state.writeInBackground(_importJob(path));
       if (mounted) toast(context, err ?? '已合并交换文件');
     } finally {
       File(path).deleteSync();

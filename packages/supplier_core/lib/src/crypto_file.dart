@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -38,7 +39,12 @@ Future<SecretKey> _key(String passphrase, List<int> salt) => Pbkdf2(
   bits: 256,
 ).deriveKeyFromPassword(password: passphrase, nonce: salt);
 
-Future<void> encryptFile(String plain, String out, String passphrase) async {
+/// Key derivation and AES in pure Dart take a while; both directions run in
+/// a background isolate so the window stays responsive.
+Future<void> encryptFile(String plain, String out, String passphrase) =>
+    Isolate.run(() => _encrypt(plain, out, passphrase));
+
+Future<void> _encrypt(String plain, String out, String passphrase) async {
   final random = Random.secure();
   final salt = List<int>.generate(_saltLength, (_) => random.nextInt(256));
   final aes = AesGcm.with256bits();
@@ -63,6 +69,12 @@ Future<void> encryptFile(String plain, String out, String passphrase) async {
 
 /// Decrypts [path] into a new file under [tempDir] and returns its path.
 Future<String> decryptExchange(
+  String path,
+  String passphrase,
+  Directory tempDir,
+) => Isolate.run(() => _decrypt(path, passphrase, tempDir));
+
+Future<String> _decrypt(
   String path,
   String passphrase,
   Directory tempDir,

@@ -5,6 +5,7 @@ import 'package:sqlite3/sqlite3.dart';
 
 import 'merge.dart';
 import 'quotation.dart';
+import 'search_index.dart';
 import 'store.dart';
 import 'values.dart';
 
@@ -37,6 +38,13 @@ extension Exchange on Store {
     final partial = File(part);
     if (partial.existsSync()) partial.deleteSync();
     db.execute('VACUUM INTO ?', [part]);
+    final copy = sqlite3.open(part);
+    try {
+      dropSearchIndex(copy);
+      copy.execute('VACUUM');
+    } finally {
+      copy.close();
+    }
     partial.renameSync(path);
   }
 
@@ -146,6 +154,7 @@ extension Exchange on Store {
       attach = '${temp.path}/exchange.siq';
       File(path).copySync(attach);
       final copy = sqlite3.open(attach);
+      registerFunctions(copy);
       try {
         migrate(copy);
       } on StateError {

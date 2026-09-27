@@ -5,6 +5,7 @@ import 'package:sqlite3/sqlite3.dart';
 
 import 'entities.dart';
 import 'quotation.dart';
+import 'search_index.dart';
 import 'values.dart';
 
 /// 1: initial. 2: suppliers and products gain `merged_into`.
@@ -183,7 +184,10 @@ class Store {
     DateTime Function()? clock,
   }) {
     final db = sqlite3.open(path);
+    registerFunctions(db);
     db.execute('PRAGMA journal_mode=WAL');
+    // A background import holds the write lock for a moment; wait for it.
+    db.execute('PRAGMA busy_timeout=10000');
     if (db.select("SELECT 1 FROM sqlite_master WHERE name='meta'").isEmpty) {
       db.execute('BEGIN');
       createSchema(db);
@@ -191,6 +195,7 @@ class Store {
     }
     try {
       migrate(db);
+      ensureSearchIndex(db);
     } catch (_) {
       db.close();
       rethrow;

@@ -27,6 +27,11 @@ jobs:
           dart pub get
           dart analyze
           dart test
+      - name: Core benchmark (fails on slow searches)
+        working-directory: packages/supplier_core
+        run: |
+          dart compile exe tool/bench.dart -o bench
+          ./bench | tee -a "$GITHUB_STEP_SUMMARY"
       - name: App analyze and widget tests
         working-directory: apps/supplier_app
         run: |
