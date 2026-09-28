@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supplier_app/app/app_state.dart';
 import 'package:supplier_app/app/format.dart';
@@ -267,6 +268,32 @@ void main() {
         reason: 'manual estimate unlinks the quote',
       );
       expect(find.text('¥150,000.00'), findsWidgets);
+    },
+  );
+
+  testWidgets(
+    'budget cells: Enter saves and moves down, digits start editing',
+    (tester) async {
+      await pumpApp(tester);
+      await tester.tap(find.text('2').first);
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).last, '5');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(state.store.get('project_item', pumpLine)!.data['qty'], '5');
+      // Focus is now on the quantity of the line below: typing edits it.
+      await tester.sendKeyEvent(LogicalKeyboardKey.digit7);
+      await tester.pumpAndSettle();
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      final qtys = [
+        for (final r in state.store.db.select(
+          "SELECT json_extract(data,'\$.qty') AS q FROM project_item "
+          "WHERE deleted = 0 ORDER BY rowid",
+        ))
+          r['q'],
+      ];
+      expect(qtys, ['5', '7']);
     },
   );
 

@@ -290,7 +290,10 @@ class _Toolbar extends StatelessWidget {
             },
             itemBuilder: (_) => [
               const PopupMenuItem(value: 'edit', child: Text('编辑项目')),
-              const PopupMenuItem(value: 'import', child: Text('导入报价或粘贴 Excel')),
+              const PopupMenuItem(
+                value: 'import',
+                child: Text('导入报价或粘贴 Excel'),
+              ),
               const PopupMenuItem(value: 'refresh', child: Text('按最优价刷新')),
               const PopupMenuItem(value: 'list', child: Text('从清单生成新项目')),
               const PopupMenuItem(value: 'push', child: Text('推送到局域网设备')),

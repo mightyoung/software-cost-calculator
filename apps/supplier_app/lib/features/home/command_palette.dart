@@ -227,11 +227,13 @@ class _PaletteState extends State<_Palette> {
 }
 
 const shortcutList = [
-  ('Ctrl+K', '搜索与命令'),
+  ('Ctrl+K 或 Ctrl+F', '搜索与命令'),
   ('Ctrl+1 … Ctrl+8', '按侧栏顺序切换页面'),
   ('Ctrl+,', '设置'),
   ('Ctrl+N', '录报价'),
   ('Ctrl+Enter', '在表单里保存'),
+  ('Enter / 数字键', '预算表：开始编辑；Enter 保存并跳到下一行'),
+  ('↑ ↓ ← → / Tab', '在预算表单元格之间移动'),
   ('Esc', '关闭对话框'),
   ('Ctrl+/', '快捷键一览'),
 ];

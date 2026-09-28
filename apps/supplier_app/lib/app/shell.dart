@@ -112,6 +112,12 @@ class _ShellState extends State<Shell> {
           ): () =>
               showCommandPalette(context, widget.state, go),
           SingleActivator(
+            LogicalKeyboardKey.keyF,
+            control: !meta,
+            meta: meta,
+          ): () =>
+              showCommandPalette(context, widget.state, go),
+          SingleActivator(
             LogicalKeyboardKey.slash,
             control: !meta,
             meta: meta,
