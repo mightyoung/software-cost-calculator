@@ -290,7 +290,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('最低有效价'), findsOneWidget);
     expect(find.textContaining('CNY · 含税（含换算） · 单位 台'), findsOneWidget);
-    expect(find.textContaining('统一口径 31,640.00'), findsOneWidget);
+    // Converted to the group's basis, with the original price beneath.
+    expect(find.text('31,640.00'), findsOneWidget);
+    expect(find.text('原 28,000.00 / 台'), findsOneWidget);
   });
 
   reviewTests();
