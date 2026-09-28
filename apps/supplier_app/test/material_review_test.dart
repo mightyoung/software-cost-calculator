@@ -322,4 +322,30 @@ void main() {
     expect(store.searchByName('product', '工控机'), hasLength(1));
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('rows pasted from Excel go to review without an AI key', (
+    tester,
+  ) async {
+    final dir = Directory.systemTemp.createTempSync('material_paste');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final store = Store.open('${dir.path}/m.db', device: '测试机');
+    addTearDown(store.close);
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildTheme(),
+        home: MaterialImportPage(state: AppState.test(store, dir)),
+      ),
+    );
+    await tester.enterText(
+      find.byType(TextField),
+      '设备名称\t品牌\t型号\t单位\t单价\n网关\t巨控\tNET422-CS\t个\t3190\n',
+    );
+    await tester.tap(find.text('开始分析'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('新建供应商：巨控'), findsOneWidget);
+    expect(find.textContaining('还没有配置 AI 服务'), findsNothing);
+  });
 }

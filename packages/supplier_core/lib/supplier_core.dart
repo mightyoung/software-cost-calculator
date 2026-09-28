@@ -29,6 +29,7 @@ export 'src/search.dart';
 export 'src/share.dart';
 export 'src/sheet_offers.dart';
 export 'src/store.dart';
+export 'src/supplier_sheet.dart';
 export 'src/tables.dart';
 export 'src/trash.dart';
 export 'src/values.dart';

@@ -167,10 +167,11 @@ extension MaterialImport on Store {
   /// Creates suppliers, contacts, products and standard quotations for every
   /// choice in one transaction; optionally adds each material to the
   /// project's budget. Offers without a price or supplier create no
-  /// quotation.
+  /// quotation; without [projectId] (a master-data import) only suppliers,
+  /// contacts and materials are created.
   ImportSummary applyOffers(
     List<OfferChoice> choices, {
-    required String projectId,
+    required String? projectId,
     required String inquirer,
     bool addToBudget = false,
     DateTime? asOf,
@@ -181,8 +182,10 @@ extension MaterialImport on Store {
     final evidence = source == null
         ? null
         : [addAttachment(source.name, source.bytes)];
-    final project = get('project', projectId);
-    if (project == null || project.deleted) invalid('project_id', '项目不存在');
+    final project = projectId == null ? null : get('project', projectId);
+    if (projectId != null && (project == null || project.deleted)) {
+      invalid('project_id', '项目不存在');
+    }
     final newSuppliers = <String, String>{};
     final newProducts = <String, String>{};
     final newContacts = <String, String>{};
@@ -220,7 +223,7 @@ extension MaterialImport on Store {
           : _contact(o, supplierId, newContacts);
       final product = get('product', productId)!.data;
       String? quoteId;
-      if (o['price'] != null && supplierId != null) {
+      if (projectId != null && o['price'] != null && supplierId != null) {
         final payload = _quotation(
           o,
           supplierId: supplierId,
@@ -239,7 +242,7 @@ extension MaterialImport on Store {
           quotations++;
         }
       }
-      if (addToBudget) {
+      if (addToBudget && project != null) {
         final quote = quoteId == null ? null : get('quotation', quoteId)!.data;
         final linked =
             quote != null &&

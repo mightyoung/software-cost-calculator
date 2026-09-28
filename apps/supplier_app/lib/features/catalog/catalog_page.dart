@@ -6,6 +6,7 @@ import '../../app/theme.dart';
 import '../../widgets/ledger.dart';
 import '../../platform/files.dart';
 import 'attributes_editor.dart';
+import 'catalog_import.dart';
 import 'contacts.dart';
 import 'detail_panel.dart';
 import 'duplicate_hints.dart';
@@ -157,6 +158,13 @@ class _CatalogPageState extends State<CatalogPage> {
               style: const TextStyle(color: Tokens.ink3),
             ),
             const Spacer(),
+            OutlinedButton.icon(
+              onPressed: () =>
+                  importCatalogList(context, widget.state, widget.type),
+              icon: const Icon(Icons.file_upload_outlined, size: 18),
+              label: const Text('导入'),
+            ),
+            const SizedBox(width: 8),
             OutlinedButton.icon(
               onPressed: rows.isEmpty ? null : () => _export(columns, rows),
               icon: const Icon(Icons.file_download_outlined, size: 18),

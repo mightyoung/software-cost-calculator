@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supplier_app/app/app_state.dart';
 import 'package:supplier_app/app/theme.dart';
@@ -95,5 +96,23 @@ void main() {
     );
     expect(find.text('撤销定标'), findsOneWidget);
     expect(find.text('已定标'), findsOneWidget);
+
+    // A ready-to-send message for one supplier goes to the clipboard.
+    String? copied;
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async {
+        if (call.method == 'Clipboard.setData') {
+          copied = (call.arguments as Map)['text'] as String;
+        }
+        return null;
+      },
+    );
+    await tester.tap(find.byTooltip('询价表').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('复制询价消息（发微信或邮件）'));
+    await tester.pumpAndSettle();
+    expect(copied, startsWith('甲泵业 您好'));
+    expect(copied, contains('1. 离心泵 IS80，2 台'));
   });
 }

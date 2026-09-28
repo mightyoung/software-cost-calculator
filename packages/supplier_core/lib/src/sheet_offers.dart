@@ -125,3 +125,55 @@ List<Offer> _offers(
   }
   return [for (final r in raws) cleanOffer(r)];
 }
+
+/// Cells copied from Excel arrive as tab-separated lines; a cell holding
+/// line breaks or tabs is quoted with doubled inner quotes. Returns null
+/// for text without tabs.
+XWorkbook? tableFromText(String text) {
+  if (!text.contains('\t')) return null;
+  final rows = <List<XCell>>[];
+  var row = <XCell>[];
+  final cell = StringBuffer();
+  var quoted = false;
+  void endCell() {
+    final v = cell.toString();
+    row.add(
+      XCell(
+        'R${rows.length + 1}C${row.length + 1}',
+        v.trim().isEmpty ? CellKind.blank : CellKind.text,
+        v,
+      ),
+    );
+    cell.clear();
+  }
+
+  for (var i = 0; i < text.length; i++) {
+    final ch = text[i];
+    if (quoted) {
+      if (ch == '"' && i + 1 < text.length && text[i + 1] == '"') {
+        cell.write('"');
+        i++;
+      } else if (ch == '"') {
+        quoted = false;
+      } else {
+        cell.write(ch);
+      }
+    } else if (ch == '"' && cell.isEmpty) {
+      quoted = true;
+    } else if (ch == '\t') {
+      endCell();
+    } else if (ch == '\n' || ch == '\r') {
+      if (ch == '\r' && i + 1 < text.length && text[i + 1] == '\n') i++;
+      endCell();
+      rows.add(row);
+      row = <XCell>[];
+    } else {
+      cell.write(ch);
+    }
+  }
+  if (cell.isNotEmpty || row.isNotEmpty) {
+    endCell();
+    rows.add(row);
+  }
+  return XWorkbook([XSheet('粘贴', rows)], date1904: false);
+}

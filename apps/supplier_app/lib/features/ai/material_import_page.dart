@@ -16,10 +16,15 @@ Future<String?> showMaterialImport(
   AppState state, {
   String? projectId,
   ({String name, Uint8List bytes, List<Offer> offers})? table,
+  bool masterData = false,
 }) => Navigator.of(context).push<String>(
   MaterialPageRoute(
-    builder: (_) =>
-        MaterialImportPage(state: state, projectId: projectId, table: table),
+    builder: (_) => MaterialImportPage(
+      state: state,
+      projectId: projectId,
+      table: table,
+      masterData: masterData,
+    ),
   ),
 );
 
@@ -29,8 +34,10 @@ class MaterialImportPage extends StatefulWidget {
     required this.state,
     this.projectId,
     this.table,
+    this.masterData = false,
   });
   final AppState state;
+  final bool masterData;
   final String? projectId;
 
   /// A table already read without AI: opens straight at the review step.
@@ -73,8 +80,13 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
     }
     // A table with a recognizable header is read column by column: exact,
     // instant and no AI key needed.
-    if (fileBytes != null && text.text == fileText) {
-      final offers = offersFromWorkbook(readXlsx(fileBytes!));
+    final pasted = tableFromText(text.text);
+    if ((fileBytes != null && text.text == fileText) || pasted != null) {
+      final offers = offersFromWorkbook(
+        fileBytes != null && text.text == fileText
+            ? readXlsx(fileBytes!)
+            : pasted!,
+      );
       if (offers != null && offers.isNotEmpty) {
         final store = widget.state.store;
         return setState(() {
@@ -134,7 +146,7 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       backgroundColor: Tokens.canvas,
-      title: const Text('智能导入报价'),
+      title: Text(widget.masterData ? '导入物料清单' : '智能导入报价'),
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(36),
         child: Padding(
@@ -151,6 +163,7 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
             state: widget.state,
             plans: plans!,
             projectId: widget.projectId,
+            masterData: widget.masterData,
             // Evidence kept on every new quotation: the original file when
             // one was chosen and not edited since, else the pasted text.
             source: fileBytes != null
@@ -165,7 +178,7 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
             text: text,
             intro:
                 '粘贴供应商发来的报价信息：微信聊天、邮件、报价单表格或文字都可以，也可以直接选择 Excel 文件。'
-                '带表头的 Excel（有"名称""品牌""型号""单价"等列）会直接按列读取，不需要 AI；其他内容由 '
+                '带表头的 Excel 文件或从 Excel 复制的多行（有"名称""品牌""型号""单价"等列）会直接按列读取，不需要 AI；其他内容由 '
                 'AI 整理出供应商、联系人、产品、品牌型号、技术参数和价格，并与本机已有的供应商和物料对应。'
                 '确认前不会写入任何数据。只会发送你粘贴的内容，不会发送本机数据。\n'
                 'PDF 报价单可以直接复制其中的文字；截图可先用系统自带的文字识别复制出文字再粘贴'

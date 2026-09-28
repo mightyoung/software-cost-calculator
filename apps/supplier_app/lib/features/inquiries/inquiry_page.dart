@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 import '../../app/app_state.dart';
@@ -40,6 +41,42 @@ class InquiryPage extends StatelessWidget {
     if (saved && context.mounted) {
       toast(context, '已导出，发给${_supplierName(sid)}填写');
     }
+  }
+
+  Future<void> _copyMessage(BuildContext context, String sid) async {
+    await Clipboard.setData(
+      ClipboardData(
+        text: inquiryMessage(
+          store,
+          id,
+          supplierName: _supplierName(sid),
+          sender: state.setting('inquirer'),
+        ),
+      ),
+    );
+    if (context.mounted) {
+      toast(context, '询价消息已复制，可以粘贴到微信或邮件发给${_supplierName(sid)}');
+    }
+  }
+
+  Future<void> _changeDue(
+    BuildContext context,
+    Map<String, Object?> data,
+  ) async {
+    final now = DateTime.now();
+    final current = DateTime.tryParse('${data['due_date']}');
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: current ?? now.add(const Duration(days: 3)),
+      firstDate: DateTime(now.year - 1),
+      lastDate: DateTime(now.year + 2),
+      helpText: '回复截止日',
+    );
+    if (picked == null || !context.mounted) return;
+    final err = state.write(
+      (s) => s.save('inquiry', {...data, 'due_date': localDay(picked)}, id: id),
+    );
+    if (err != null) toast(context, err);
   }
 
   Future<void> _import(BuildContext context, String sid) async {
@@ -144,6 +181,10 @@ class InquiryPage extends StatelessWidget {
           title: Text(title),
           actions: [
             TextButton(
+              onPressed: () => _changeDue(context, record.data),
+              child: const Text('修改截止日'),
+            ),
+            TextButton(
               onPressed: () => state.write(
                 (s) => s.save('inquiry', {
                   ...record.data,
@@ -163,7 +204,8 @@ class InquiryPage extends StatelessWidget {
               Text(
                 [
                   '${m.rows.length} 行 × ${m.suppliers.length} 家供应商',
-                  '截止 ${m.inquiry['due_date'] ?? '不限'}',
+                  '截止 ${m.inquiry['due_date'] ?? '不限'}'
+                      '${open && m.inquiry['due_date'] != null && (m.inquiry['due_date']! as String).compareTo(localDay(DateTime.now())) < 0 ? '（已逾期）' : ''}',
                   '已定标 $awardedRows/${m.rows.length}',
                   if (!open) '已结束',
                 ].join(' · '),
@@ -266,10 +308,16 @@ class InquiryPage extends StatelessWidget {
                 PopupMenuButton<String>(
                   tooltip: '询价表',
                   icon: const Icon(Icons.more_vert, size: 18),
-                  onSelected: (v) => v == 'export'
-                      ? _export(context, title, sid)
-                      : _import(context, sid),
+                  onSelected: (v) => switch (v) {
+                    'message' => _copyMessage(context, sid),
+                    'export' => _export(context, title, sid),
+                    _ => _import(context, sid),
+                  },
                   itemBuilder: (_) => const [
+                    PopupMenuItem(
+                      value: 'message',
+                      child: Text('复制询价消息（发微信或邮件）'),
+                    ),
                     PopupMenuItem(value: 'export', child: Text('导出询价表（发给供应商）')),
                     PopupMenuItem(value: 'import', child: Text('导入供应商回填的表')),
                   ],

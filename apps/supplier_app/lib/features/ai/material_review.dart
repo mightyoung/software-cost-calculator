@@ -81,8 +81,13 @@ class MaterialReview extends StatefulWidget {
     required this.onBack,
     this.projectId,
     this.source,
+    this.masterData = false,
   });
   final AppState state;
+
+  /// Importing a material list: only suppliers, contacts and materials are
+  /// created, so no project or inquirer is asked for.
+  final bool masterData;
   final List<OfferPlan> plans;
 
   /// Kept as an attachment on every new quotation.
@@ -242,6 +247,7 @@ class _MaterialReviewState extends State<MaterialReview> {
 
   void _apply() {
     final ready = rows.where((r) => r.ready).toList();
+    if (widget.masterData) return _applyMasterData(ready);
     final person = inquirer.text.trim();
     if (person.isEmpty) return setState(() => error = '填写询价人');
     if (newProject && name.text.trim().isEmpty) {
@@ -290,6 +296,28 @@ class _MaterialReviewState extends State<MaterialReview> {
         if (sum.contacts > 0) '联系人 ${sum.contacts}',
         if (sum.products > 0) '物料 ${sum.products}',
         if (sum.items > 0) '加入预算 ${sum.items} 行',
+      ].join('，'),
+    );
+  }
+
+  void _applyMasterData(List<_Row> ready) {
+    late ImportSummary sum;
+    final err = widget.state.write(
+      (s) => sum = s.applyOffers(
+        [
+          for (final r in ready)
+            (offer: r.offer, supplierId: r.supplierId, productId: r.productId),
+        ],
+        projectId: null,
+        inquirer: widget.state.deviceName,
+      ),
+    );
+    if (err != null) return setState(() => error = err);
+    Navigator.of(context).pop(
+      [
+        '新建物料 ${sum.products}',
+        if (sum.suppliers > 0) '供应商 ${sum.suppliers}',
+        if (sum.contacts > 0) '联系人 ${sum.contacts}',
       ].join('，'),
     );
   }
@@ -550,65 +578,75 @@ class _MaterialReviewState extends State<MaterialReview> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              SegmentedButton<bool>(
-                segments: const [
-                  ButtonSegment(value: false, label: Text('已有项目')),
-                  ButtonSegment(value: true, label: Text('新建项目')),
-                ],
-                selected: {newProject},
-                showSelectedIcon: false,
-                onSelectionChanged: projects.isEmpty
-                    ? null
-                    : (v) => setState(() => newProject = v.single),
-              ),
-              if (newProject) ...[
-                field(code, '项目编号', 150),
-                field(name, '项目名称', 200),
-              ] else
-                SizedBox(
-                  width: 260,
-                  child: DropdownButtonFormField<String>(
-                    initialValue: projectId,
-                    isExpanded: true,
-                    decoration: const InputDecoration(labelText: '报价所属项目'),
-                    items: [
-                      for (final p in projects)
-                        DropdownMenuItem(
-                          value: p.id,
-                          child: Text(
-                            '${p.data['name']}（${p.data['code']}）',
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                    ],
-                    onChanged: (v) => setState(() => projectId = v),
-                  ),
+          if (widget.masterData)
+            const Text(
+              '只登记供应商、联系人和物料；表里的单价不会存为报价（报价需要所属项目和询价人，可以之后用"智能导入"导入）。',
+              style: TextStyle(fontSize: 12, color: Tokens.ink3),
+            )
+          else
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                SegmentedButton<bool>(
+                  segments: const [
+                    ButtonSegment(value: false, label: Text('已有项目')),
+                    ButtonSegment(value: true, label: Text('新建项目')),
+                  ],
+                  selected: {newProject},
+                  showSelectedIcon: false,
+                  onSelectionChanged: projects.isEmpty
+                      ? null
+                      : (v) => setState(() => newProject = v.single),
                 ),
-              field(inquirer, '询价人', 120),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Checkbox(
-                    value: addToBudget,
-                    onChanged: (v) => setState(() => addToBudget = v!),
+                if (newProject) ...[
+                  field(code, '项目编号', 150),
+                  field(name, '项目名称', 200),
+                ] else
+                  SizedBox(
+                    width: 260,
+                    child: DropdownButtonFormField<String>(
+                      initialValue: projectId,
+                      isExpanded: true,
+                      decoration: const InputDecoration(labelText: '报价所属项目'),
+                      items: [
+                        for (final p in projects)
+                          DropdownMenuItem(
+                            value: p.id,
+                            child: Text(
+                              '${p.data['name']}（${p.data['code']}）',
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                      ],
+                      onChanged: (v) => setState(() => projectId = v),
+                    ),
                   ),
-                  const Text('同时加入项目成本预算'),
-                ],
-              ),
-            ],
-          ),
+                field(inquirer, '询价人', 120),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Checkbox(
+                      value: addToBudget,
+                      onChanged: (v) => setState(() => addToBudget = v!),
+                    ),
+                    const Text('同时加入项目成本预算'),
+                  ],
+                ),
+              ],
+            ),
           const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
                 child: Text(
                   error ??
-                      '$priced 条报价 · 新建供应商 $newSuppliers · 新建物料 $newProducts',
+                      [
+                        if (!widget.masterData) '$priced 条报价',
+                        '新建供应商 $newSuppliers',
+                        '新建物料 $newProducts',
+                      ].join(' · '),
                   style: TextStyle(
                     color: error == null ? Tokens.ink2 : Tokens.red,
                   ),
