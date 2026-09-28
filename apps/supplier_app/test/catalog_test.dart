@@ -153,7 +153,7 @@ void main() {
     expect(state.store.deletedRecords().single.id, existing);
   });
 
-  testWidgets('long lists say how many there are and load more', (
+  testWidgets('the supplier table shows every row, sorts and exports', (
     tester,
   ) async {
     state.store.transaction(() {
@@ -177,21 +177,19 @@ void main() {
         ),
       ),
     );
-    expect(find.text('共 205 条'), findsOneWidget);
+    expect(find.text('共 205 个'), findsOneWidget);
+    // Sorting by name ascending puts 永泰阀门 (U+6C38) after 供应商… (U+4F9B).
+    await tester.tap(find.text('名称'));
+    await tester.pumpAndSettle();
+    expect(find.text('供应商0'), findsOneWidget);
     final list = find.descendant(
       of: find.byType(ListView),
       matching: find.byType(Scrollable),
     );
-    await tester.scrollUntilVisible(
-      find.text('再显示 200 条'),
-      500,
-      scrollable: list,
-    );
-    expect(find.text('已显示 200 条'), findsOneWidget);
-    await tester.tap(find.text('再显示 200 条'));
+    await tester.scrollUntilVisible(find.text('永泰阀门'), 800, scrollable: list);
+    expect(find.text('永泰阀门'), findsOneWidget, reason: 'nothing cut off');
+    await tester.enterText(find.byType(TextField), '永泰');
     await tester.pumpAndSettle();
-    expect(find.text('再显示 200 条'), findsNothing);
-    await tester.scrollUntilVisible(find.text('永泰阀门'), 500, scrollable: list);
-    expect(find.text('永泰阀门'), findsOneWidget, reason: 'the oldest one');
+    expect(find.text('找到 1 个'), findsOneWidget);
   });
 }

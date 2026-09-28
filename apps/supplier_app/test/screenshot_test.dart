@@ -688,4 +688,17 @@ void main() {
     }),
     skip: !hasFont,
   );
+  for (final (nav, name) in [
+    ('供应商', 'desktop_suppliers'),
+    ('物料', 'desktop_products'),
+  ]) {
+    testWidgets(
+      'desktop table $name',
+      (t) => shoot(t, const Size(1280, 800), name, () async {
+        await t.tap(find.text(nav).first);
+        await t.pumpAndSettle();
+      }),
+      skip: !hasFont,
+    );
+  }
 }
