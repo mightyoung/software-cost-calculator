@@ -98,6 +98,21 @@ class CatalogDetail extends StatelessWidget {
           d['address'] as String?,
         ].whereType<String>().where((s) => s.isNotEmpty).join(' · '),
       ),
+      if (ratingTag(d['rating']) case final tag?)
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Row(
+            children: [
+              tag,
+              if (d['rating_note'] case final String note) ...[
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(note, style: TextStyle(color: Tokens.ink2)),
+                ),
+              ],
+            ],
+          ),
+        ),
       const SizedBox(height: 12),
       _actions(context, {'supplier_id': id}),
       const SizedBox(height: 16),

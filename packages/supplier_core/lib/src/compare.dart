@@ -12,6 +12,7 @@ enum QuoteIssue {
   stale, // no valid_until and quoted more than 90 days ago
   taxUnknown,
   supplierDeleted,
+  supplierDisabled, // the supplier is rated 停用
   informal, // verbal or reference price
 }
 
@@ -21,12 +22,14 @@ List<QuoteIssue> quoteIssues(
   required String today,
   required String staleBefore,
   bool supplierDeleted = false,
+  bool supplierDisabled = false,
 }) {
   final quoted = d['quoted_on'] as String?;
   final until = d['valid_until'] as String?;
   return [
     if (d['price_basis'] != null) QuoteIssue.informal,
     if (supplierDeleted) QuoteIssue.supplierDeleted,
+    if (supplierDisabled) QuoteIssue.supplierDisabled,
     if (d['tax_mode'] == 'unknown') QuoteIssue.taxUnknown,
     if (quoted == null) QuoteIssue.undated,
     if (quoted != null && quoted.compareTo(today) > 0) QuoteIssue.future,
@@ -79,7 +82,8 @@ extension Compare on Store {
         .substring(0, 10);
     final groups = <String, List<CompareRow>>{};
     for (final r in db.select(
-      "SELECT q.id, q.data, coalesce(s.deleted, 1) AS supplier_deleted "
+      "SELECT q.id, q.data, coalesce(s.deleted, 1) AS supplier_deleted, "
+      "json_extract(s.data,'\$.rating') AS rating "
       "FROM quotation q LEFT JOIN supplier s "
       "ON s.id = json_extract(q.data,'\$.supplier_id') "
       "WHERE q.deleted = 0 AND json_extract(q.data,'\$.product_id') = ?",
@@ -91,6 +95,7 @@ extension Compare on Store {
         today: today,
         staleBefore: staleBefore,
         supplierDeleted: r['supplier_deleted'] == 1,
+        supplierDisabled: r['rating'] == 'disabled',
       );
       final targetUnit =
           product != null &&

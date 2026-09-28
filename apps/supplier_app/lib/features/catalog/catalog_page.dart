@@ -24,6 +24,7 @@ const _fields = <String, List<_Field>>{
     ('categories', '主营类别', '多个用逗号分隔'),
     ('address', '地址', null),
     ('notes', '备注', null),
+    ('rating_note', '评价说明', '例如 交货准时、售后响应慢'),
   ],
   'product': [
     ('name', '物料名称', '例如 离心水泵'),
@@ -292,9 +293,19 @@ class _CatalogPageState extends State<CatalogPage> {
         '名称',
         flex: 3,
         value: (r) => r.data['name'] as String?,
-        cell: (r) => _twoLines(
-          r.data['name']! as String,
-          (r.data['aliases']! as List).join('、'),
+        cell: (r) => Row(
+          children: [
+            Flexible(
+              child: _twoLines(
+                r.data['name']! as String,
+                (r.data['aliases']! as List).join('、'),
+              ),
+            ),
+            if (ratingTag(r.data['rating']) case final tag?) ...[
+              const SizedBox(width: 8),
+              tag,
+            ],
+          ],
         ),
       ),
       GridColumn(
@@ -438,6 +449,9 @@ class _CatalogForm extends StatefulWidget {
 class _CatalogFormState extends State<_CatalogForm> {
   final c = <String, TextEditingController>{};
   final attrs = <AttributeRow>[];
+
+  /// Supplier rating: null (not rated), preferred, caution or disabled.
+  String? rating;
   final unitConversions = <AttributeRow>[];
   String? error;
   List<Duplicate> dups = const [];
@@ -553,6 +567,7 @@ class _CatalogFormState extends State<_CatalogForm> {
         text: v is List ? v.join(', ') : v as String? ?? '',
       );
     }
+    rating = data?['rating'] as String?;
     final a = data?['attributes'];
     if (a is Map) {
       for (final e in a.entries) {
@@ -603,6 +618,7 @@ class _CatalogFormState extends State<_CatalogForm> {
                   .toList()
             : (e.value.text.trim().isEmpty ? null : e.value.text.trim()),
     };
+    if (widget.type == 'supplier') payload['rating'] = rating;
     if (widget.type == 'product') {
       final missing = [
         for (final (k, v) in attrs)
@@ -816,6 +832,37 @@ class _CatalogFormState extends State<_CatalogForm> {
                     onMerge: widget.id == null ? null : _merge,
                     onOpen: widget.id == null ? _open : null,
                   ),
+                  const SizedBox(height: 12),
+                ],
+                if (widget.type == 'supplier') ...[
+                  Row(
+                    children: [
+                      Text('评价', style: TextStyle(color: Tokens.ink2)),
+                      const SizedBox(width: 12),
+                      SegmentedButton<String>(
+                        segments: [
+                          const ButtonSegment(value: '', label: Text('未评价')),
+                          for (final e in supplierRatings.entries)
+                            ButtonSegment(value: e.key, label: Text(e.value)),
+                        ],
+                        selected: {rating ?? ''},
+                        showSelectedIcon: false,
+                        onSelectionChanged: (v) => setState(
+                          () => rating = v.single.isEmpty ? null : v.single,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (rating == 'disabled')
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Text(
+                        '停用后，这家的报价不再算有效报价，不参与最低价，也不会被自动带入预算。',
+                        style: TextStyle(fontSize: 12, color: Tokens.ink3),
+                      ),
+                    ),
+                  const SizedBox(height: 12),
+                  _input('rating_note'),
                   const SizedBox(height: 12),
                 ],
                 if (error != null)

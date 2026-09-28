@@ -130,6 +130,7 @@ class _QuotesPageState extends State<QuotesPage> {
     QuoteIssue.future: ('报价日期在未来', HintTone.warning),
     QuoteIssue.undated: ('未填报价日期', HintTone.warning),
     QuoteIssue.supplierDeleted: ('供应商已删除', HintTone.error),
+    QuoteIssue.supplierDisabled: ('供应商已停用', HintTone.error),
   };
 
   List<GridColumn<QuoteRow>> get _columns => [

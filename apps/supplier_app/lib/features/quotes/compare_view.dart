@@ -17,6 +17,7 @@ const _issueText = {
   QuoteIssue.stale: '超过 90 天且未写有效期',
   QuoteIssue.taxUnknown: '含税口径未知',
   QuoteIssue.supplierDeleted: '供应商已删除',
+  QuoteIssue.supplierDisabled: '供应商已停用',
   QuoteIssue.informal: '口头或参考价',
 };
 
@@ -224,6 +225,17 @@ class CompareView extends StatelessWidget {
                     Text(
                       '报价 ${money(r.data['price'] as String?)}',
                       style: small,
+                    ),
+                  if (r.data['price_tiers'] case final List tiers)
+                    Tooltip(
+                      message: [
+                        for (final t in tiers.cast<Map>())
+                          '≥ ${t['min_qty']} ${r.data['unit_snapshot']}：${money(t['price'] as String)}',
+                      ].join('\n'),
+                      child: Text(
+                        '阶梯价 ${tiers.length} 档',
+                        style: small.copyWith(color: Tokens.accentDeep),
+                      ),
                     ),
                 ],
               ),

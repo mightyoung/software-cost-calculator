@@ -23,6 +23,8 @@ Map<String, Object?> supplier(String name) => {
   'categories': <String>[],
   'notes': null,
   'merged_into': null,
+  'rating': null,
+  'rating_note': null,
 };
 
 Map<String, Object?> product(String name, {String unit = '件'}) => {
@@ -102,6 +104,7 @@ Map<String, Object?> quotation(
   'inquiry_id': null,
   'attachment_ids': null,
   'price_basis': null,
+  'price_tiers': null,
 };
 
 Map<String, Object?> item(

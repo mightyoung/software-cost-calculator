@@ -253,3 +253,15 @@ class MoreRow extends StatelessWidget {
     ),
   );
 }
+
+/// A supplier's rating as a tag; null when not rated.
+Widget? ratingTag(Object? rating) => switch (rating) {
+  'preferred' => const HintTag(
+    '推荐',
+    icon: Icons.thumb_up_alt_outlined,
+    tone: HintTone.success,
+  ),
+  'caution' => const HintTag('慎用', icon: Icons.warning_amber_rounded),
+  'disabled' => const HintTag('停用', icon: Icons.block, tone: HintTone.error),
+  _ => null,
+};

@@ -1,5 +1,6 @@
 import 'entities.dart';
 import 'inquiry.dart';
+import 'pricing.dart';
 import 'project.dart';
 import 'values.dart';
 
@@ -84,7 +85,43 @@ Map<String, Object?> _scopeAndAward(Map<String, Object?> value) {
         : priceBases.contains(value['price_basis'])
         ? value['price_basis']
         : invalid('price_basis', 'unknown value'),
+    'price_tiers': _tiers(value['price_tiers'], value['min_qty']),
   };
+}
+
+/// Up to 10 steps of "from this quantity, this unit price", in the quote's
+/// unit, each above the minimum order and above the step before.
+List<Map<String, Object?>>? _tiers(Object? raw, Object? minQty) {
+  if (raw == null) return null;
+  if (raw is! List || raw.isEmpty || raw.length > 10) {
+    invalid('price_tiers', 'expected 1 to 10 tiers');
+  }
+  var floor = minQty is String
+      ? micros(ExactDecimal.parse(minQty, positive: true).canonical)
+      : BigInt.zero;
+  return List.unmodifiable([
+    for (final t in raw)
+      () {
+        if (t is! Map) invalid('price_tiers', 'expected objects');
+        exactKeys(t.cast<String, Object?>(), const ['min_qty', 'price']);
+        final q = t['min_qty'], p = t['price'];
+        if (q is! String || p is! String) {
+          invalid('price_tiers', 'decimal text required');
+        }
+        final qty = ExactDecimal.parse(q, positive: true).canonical;
+        if (micros(qty) <= floor) {
+          invalid(
+            'price_tiers',
+            'quantities must rise above the minimum order',
+          );
+        }
+        floor = micros(qty);
+        return Map<String, Object?>.unmodifiable({
+          'min_qty': qty,
+          'price': ExactDecimal.parse(p).canonical,
+        });
+      }(),
+  ]);
 }
 
 Map<String, Object?> normalizeQuotation(Map<String, Object?> value) =>
@@ -126,8 +163,12 @@ final class Quotation extends EntityPayload {
     'attachment_ids',
     // Schema 4: null = formal written quote.
     'price_basis',
+    // Schema 7: lower unit prices from a larger quantity.
+    'price_tiers',
   ];
-  factory Quotation.fromJson(Map<String, Object?> value) {
+  factory Quotation.fromJson(Map<String, Object?> input) {
+    // Fields added later may be left out; they mean "not set".
+    final value = {'price_tiers': null, ...input};
     exactKeys(value, fields);
     final mode = value['capture_mode'];
     if (mode != 'standard' && mode != 'historical') {

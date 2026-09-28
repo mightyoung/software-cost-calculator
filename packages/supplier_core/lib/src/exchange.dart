@@ -403,6 +403,7 @@ extension Exchange on Store {
         'deal_price',
         'min_qty',
         'extra_cost',
+        'price_tiers',
       ],
       // Quantity is not part of the price: a refreshed price and a changed
       // quantity from two devices combine into a valid line.
