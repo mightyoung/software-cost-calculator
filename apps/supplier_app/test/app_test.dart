@@ -108,7 +108,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: buildTheme(),
-        home: Shell(state: state),
+        home: Shell(state: state, initial: Section.projects),
       ),
     );
     await tester.pumpAndSettle();

@@ -292,6 +292,12 @@ Widget _importScreen(String name, AppState state) {
 }
 
 /// An inquiry on the pump-room project: three lines, three suppliers.
+/// The workbench with an open inquiry waiting for replies.
+Shell _home(Store store, AppState state) {
+  _inquiry(store);
+  return Shell(state: state);
+}
+
 String _inquiry(Store store) {
   String supplierId(String n) => store.searchByName('supplier', n).first.id;
   final project = store.searchByName('project', '泵房改造工程').single.id;
@@ -477,7 +483,9 @@ void main() {
                   onBack: () {},
                 ),
               )
-            : Shell(state: state),
+            : name.startsWith('desktop_home')
+            ? _home(store, state)
+            : Shell(state: state, initial: Section.projects),
       ),
     );
     await tester.pumpAndSettle();
@@ -488,6 +496,25 @@ void main() {
     );
     store.close();
   }
+
+  testWidgets(
+    'desktop home',
+    (t) => shoot(t, const Size(1280, 800), 'desktop_home'),
+    skip: !hasFont,
+  );
+
+  testWidgets(
+    'desktop command palette',
+    (t) => shoot(t, const Size(1280, 800), 'desktop_home_palette', () async {
+      await t.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+      await t.sendKeyEvent(LogicalKeyboardKey.keyK);
+      await t.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+      await t.pumpAndSettle();
+      await t.enterText(find.byType(TextField).last, 'lxb');
+      await t.pumpAndSettle();
+    }),
+    skip: !hasFont,
+  );
 
   testWidgets(
     'desktop project budget',

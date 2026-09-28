@@ -5,6 +5,8 @@ import '../features/ai/ask_page.dart';
 import '../features/catalog/catalog_page.dart';
 import '../features/data_center/data_center_page.dart';
 import '../features/exchange/exchange_page.dart';
+import '../features/home/command_palette.dart';
+import '../features/home/home_page.dart';
 import '../features/projects/projects_page.dart';
 import '../features/quotes/quote_form.dart';
 import '../features/quotes/quotes_page.dart';
@@ -14,6 +16,7 @@ import 'theme.dart';
 
 /// Sidebar order: work, then AI, then system; Ctrl+1… follow it.
 enum Section {
+  home('工作台', Icons.space_dashboard_outlined),
   projects('项目', Icons.folder_copy_outlined),
   quotes('报价', Icons.manage_search),
   suppliers('供应商', Icons.factory_outlined),
@@ -31,17 +34,21 @@ enum Section {
 const _mobileBreakpoint = 720.0;
 
 class Shell extends StatefulWidget {
-  const Shell({super.key, required this.state});
+  const Shell({super.key, required this.state, this.initial = Section.home});
   final AppState state;
+  final Section initial;
 
   @override
   State<Shell> createState() => _ShellState();
 }
 
 class _ShellState extends State<Shell> {
-  var section = Section.projects;
+  late var section = widget.initial;
+
+  void go(Section s) => setState(() => section = s);
 
   Widget _page() => switch (section) {
+    Section.home => HomePage(state: widget.state, onGo: go),
     Section.projects => ProjectsPage(state: widget.state),
     Section.quotes => QuotesPage(state: widget.state),
     Section.ask => AskPage(state: widget.state),
@@ -66,7 +73,7 @@ class _ShellState extends State<Shell> {
               text:
                   '收到 ${widget.state.incoming.first.fromName}'
                   '${n > 1 ? ' 等 $n 份' : '的'}局域网推送，确认后才会导入',
-              onOpen: () => setState(() => section = Section.exchange),
+              onOpen: () => go(Section.exchange),
             );
           },
         ),
@@ -77,13 +84,42 @@ class _ShellState extends State<Shell> {
     );
     return CallbackShortcuts(
       bindings: {
-        for (var i = 0; i < 7; i++)
-          SingleActivator(LogicalKeyboardKey(0x31 + i), control: true): () =>
-              setState(() => section = Section.values[i]),
-        const SingleActivator(LogicalKeyboardKey.comma, control: true): () =>
-            setState(() => section = Section.settings),
-        const SingleActivator(LogicalKeyboardKey.keyN, control: true): () =>
-            showQuoteForm(context, widget.state),
+        // Ctrl on Windows and Android keyboards, ⌘ on macOS; both work.
+        for (final meta in [false, true]) ...{
+          for (var i = 0; i < 8; i++)
+            SingleActivator(
+              LogicalKeyboardKey(0x31 + i),
+              control: !meta,
+              meta: meta,
+            ): () =>
+                go(Section.values[i]),
+          SingleActivator(
+            LogicalKeyboardKey.comma,
+            control: !meta,
+            meta: meta,
+          ): () =>
+              go(Section.settings),
+          SingleActivator(
+            LogicalKeyboardKey.keyN,
+            control: !meta,
+            meta: meta,
+          ): () =>
+              showQuoteForm(context, widget.state),
+          SingleActivator(
+            LogicalKeyboardKey.keyK,
+            control: !meta,
+            meta: meta,
+          ): () =>
+              showCommandPalette(context, widget.state, go),
+          SingleActivator(
+            LogicalKeyboardKey.slash,
+            control: !meta,
+            meta: meta,
+          ): () =>
+              showShortcutHelp(context),
+        },
+        const SingleActivator(LogicalKeyboardKey.f1): () =>
+            showShortcutHelp(context),
       },
       child: Focus(
         autofocus: true,
@@ -205,6 +241,7 @@ class _Sidebar extends StatelessWidget {
           ),
           group('工作'),
           for (final s in [
+            Section.home,
             Section.projects,
             Section.quotes,
             Section.suppliers,
@@ -239,7 +276,7 @@ class _BottomNav extends StatelessWidget {
   final Section current;
   final ValueChanged<Section> onSelect;
 
-  static const _primary = [Section.projects, Section.quotes, Section.products];
+  static const _primary = [Section.home, Section.projects, Section.quotes];
 
   @override
   Widget build(BuildContext context) {
@@ -258,6 +295,7 @@ class _BottomNav extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 for (final s in [
+                  Section.products,
                   Section.suppliers,
                   Section.ask,
                   Section.exchange,
@@ -278,14 +316,14 @@ class _BottomNav extends StatelessWidget {
       },
       destinations: const [
         NavigationDestination(
+          icon: Icon(Icons.space_dashboard_outlined),
+          label: '工作台',
+        ),
+        NavigationDestination(
           icon: Icon(Icons.folder_copy_outlined),
           label: '项目',
         ),
         NavigationDestination(icon: Icon(Icons.manage_search), label: '报价'),
-        NavigationDestination(
-          icon: Icon(Icons.inventory_2_outlined),
-          label: '物料',
-        ),
         NavigationDestination(icon: Icon(Icons.more_horiz), label: '更多'),
       ],
     );

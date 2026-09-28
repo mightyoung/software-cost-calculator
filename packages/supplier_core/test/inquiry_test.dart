@@ -191,4 +191,41 @@ void main() {
     expect(s.applyInquirySheet(inq, yi, plan, inquirer: '王工'), 1);
     expect(s.inquiryMatrix(inq, asOf: asOf).answered[yi], 1);
   });
+
+  test('workbench: open inquiries by due date, replies, pending lines', () {
+    final inq = s.createInquiry(
+      pro,
+      '泵房设备询价',
+      itemIds: [pumpLine, valveLine],
+      supplierIds: [jia, yi],
+      dueDate: '2026-09-08',
+    );
+    final later = s.createInquiry(
+      pro,
+      '二期',
+      itemIds: [pumpLine],
+      supplierIds: [jia],
+      dueDate: '2026-09-20',
+    );
+    s.quoteForInquiry(
+      inq,
+      pumpLine,
+      jia,
+      price: '3200',
+      context: (inquirer: '王工', asOf: asOf),
+    );
+    final w = s.workbench(asOf: asOf);
+    expect([for (final i in w.inquiries) i.id], [inq, later]);
+    expect(w.inquiries.first.daysLeft, -2, reason: 'overdue');
+    expect((w.inquiries.first.replied, w.inquiries.first.suppliers), (1, 2));
+    expect(w.pending.single.lines, 2, reason: 'no line priced yet');
+    expect(w.conflicts, 0);
+
+    final msg = inquiryMessage(s, inq, supplierName: '乙机电', sender: '王工');
+    expect(msg, startsWith('乙机电 您好'));
+    expect(msg, contains('1. 离心泵 IS80，2 台'));
+    expect(msg, contains('2. 闸阀 DN100，4 个'));
+    expect(msg, contains('请在 2026-09-08 前回复'));
+    expect(msg, endsWith('谢谢！王工'));
+  });
 }

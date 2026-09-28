@@ -12,6 +12,7 @@ import 'duplicate_hints.dart';
 import '../../widgets/data_grid.dart';
 import '../../widgets/deletion.dart';
 import '../../app/format.dart';
+import '../../widgets/save_keys.dart';
 
 typedef _Field = (String key, String label, String? hint);
 
@@ -692,153 +693,160 @@ class _CatalogFormState extends State<_CatalogForm> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(widget.id == null ? '新建$noun' : '编辑$noun'),
-      content: SizedBox(
-        width: 460,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final row in _layout[widget.type]!) ...[
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (final (i, key) in row.indexed) ...[
-                      if (i > 0) const SizedBox(width: 12),
-                      Expanded(
-                        // The unit is short; the name beside it gets room.
-                        flex: key == 'unit' ? 1 : 2,
-                        child: _input(key),
-                      ),
-                    ],
-                  ],
-                ),
-                const SizedBox(height: 12),
-              ],
-              if (widget.type == 'product') ...[
-                _categoryChips(),
-                AttributesEditor(
-                  rows: attrs,
-                  suggestions: widget.state.store.categoryAttributes(
-                    c['category']!.text.trim(),
-                  ),
-                  onAdd: _addAttr,
-                  onRemove: (i) => setState(() {
-                    final (k, v) = attrs.removeAt(i);
-                    k.dispose();
-                    v.dispose();
-                    dups = _similar();
-                  }),
-                  onChanged: () => setState(() => dups = _similar()),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Text(
-                        '报价单位换算',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                    TextButton.icon(
-                      onPressed: () => setState(
-                        () => unitConversions.add((
-                          TextEditingController(),
-                          TextEditingController(),
-                        )),
-                      ),
-                      icon: const Icon(Icons.add, size: 16),
-                      label: const Text('添加单位'),
-                    ),
-                  ],
-                ),
-                Text(
-                  '填写 1 个报价单位等于多少「${c['unit']!.text.trim().isEmpty ? '基准单位' : c['unit']!.text.trim()}」，例如 1 千米 = 1000 米。修改基准单位前请先清空旧换算。',
-                  style: const TextStyle(fontSize: 12, color: Tokens.ink3),
-                ),
-                for (var i = 0; i < unitConversions.length; i++)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Row(
-                      children: [
+    return SaveKeys(
+      onSave: _save,
+      child: AlertDialog(
+        title: Text(widget.id == null ? '新建$noun' : '编辑$noun'),
+        content: SizedBox(
+          width: 460,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final row in _layout[widget.type]!) ...[
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final (i, key) in row.indexed) ...[
+                        if (i > 0) const SizedBox(width: 12),
                         Expanded(
-                          child: TextField(
-                            controller: unitConversions[i].$1,
-                            decoration: const InputDecoration(
-                              labelText: '报价单位',
-                              hintText: '千米',
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: TextField(
-                            controller: unitConversions[i].$2,
-                            decoration: InputDecoration(
-                              labelText:
-                                  '等于多少${c['unit']!.text.trim().isEmpty ? '基准单位' : c['unit']!.text.trim()}',
-                              hintText: '1000',
-                            ),
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          tooltip: '删除单位换算',
-                          icon: const Icon(Icons.close, size: 16),
-                          onPressed: () => setState(() {
-                            final (source, factor) = unitConversions.removeAt(
-                              i,
-                            );
-                            source.dispose();
-                            factor.dispose();
-                          }),
+                          // The unit is short; the name beside it gets room.
+                          flex: key == 'unit' ? 1 : 2,
+                          child: _input(key),
                         ),
                       ],
-                    ),
+                    ],
                   ),
-                const SizedBox(height: 12),
-              ],
-              if (dups.isNotEmpty) ...[
-                DuplicateHints(
-                  duplicates: dups,
-                  onMerge: widget.id == null ? null : _merge,
-                  onOpen: widget.id == null ? _open : null,
-                ),
-                const SizedBox(height: 12),
-              ],
-              if (error != null)
-                Text(error!, style: const TextStyle(color: Tokens.red)),
-              if (widget.type == 'supplier') ...[
-                const Divider(height: 24),
-                if (widget.id == null)
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      '保存后可以添加联系人',
-                      style: TextStyle(color: Tokens.ink3),
+                  const SizedBox(height: 12),
+                ],
+                if (widget.type == 'product') ...[
+                  _categoryChips(),
+                  AttributesEditor(
+                    rows: attrs,
+                    suggestions: widget.state.store.categoryAttributes(
+                      c['category']!.text.trim(),
                     ),
-                  )
-                else
-                  SupplierContacts(state: widget.state, supplierId: widget.id!),
+                    onAdd: _addAttr,
+                    onRemove: (i) => setState(() {
+                      final (k, v) = attrs.removeAt(i);
+                      k.dispose();
+                      v.dispose();
+                      dups = _similar();
+                    }),
+                    onChanged: () => setState(() => dups = _similar()),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Text(
+                          '报价单位换算',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: () => setState(
+                          () => unitConversions.add((
+                            TextEditingController(),
+                            TextEditingController(),
+                          )),
+                        ),
+                        icon: const Icon(Icons.add, size: 16),
+                        label: const Text('添加单位'),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    '填写 1 个报价单位等于多少「${c['unit']!.text.trim().isEmpty ? '基准单位' : c['unit']!.text.trim()}」，例如 1 千米 = 1000 米。修改基准单位前请先清空旧换算。',
+                    style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+                  ),
+                  for (var i = 0; i < unitConversions.length; i++)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: unitConversions[i].$1,
+                              decoration: const InputDecoration(
+                                labelText: '报价单位',
+                                hintText: '千米',
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              controller: unitConversions[i].$2,
+                              decoration: InputDecoration(
+                                labelText:
+                                    '等于多少${c['unit']!.text.trim().isEmpty ? '基准单位' : c['unit']!.text.trim()}',
+                                hintText: '1000',
+                              ),
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
+                            ),
+                          ),
+                          IconButton(
+                            tooltip: '删除单位换算',
+                            icon: const Icon(Icons.close, size: 16),
+                            onPressed: () => setState(() {
+                              final (source, factor) = unitConversions.removeAt(
+                                i,
+                              );
+                              source.dispose();
+                              factor.dispose();
+                            }),
+                          ),
+                        ],
+                      ),
+                    ),
+                  const SizedBox(height: 12),
+                ],
+                if (dups.isNotEmpty) ...[
+                  DuplicateHints(
+                    duplicates: dups,
+                    onMerge: widget.id == null ? null : _merge,
+                    onOpen: widget.id == null ? _open : null,
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                if (error != null)
+                  Text(error!, style: const TextStyle(color: Tokens.red)),
+                if (widget.type == 'supplier') ...[
+                  const Divider(height: 24),
+                  if (widget.id == null)
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '保存后可以添加联系人',
+                        style: TextStyle(color: Tokens.ink3),
+                      ),
+                    )
+                  else
+                    SupplierContacts(
+                      state: widget.state,
+                      supplierId: widget.id!,
+                    ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
-      ),
-      actionsAlignment: MainAxisAlignment.spaceBetween,
-      actions: dialogActions(
-        onDelete: widget.id == null ? null : _delete,
-        deleteLabel: '删除$noun',
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          FilledButton(onPressed: _save, child: const Text('保存')),
-        ],
+        actionsAlignment: MainAxisAlignment.spaceBetween,
+        actions: dialogActions(
+          onDelete: widget.id == null ? null : _delete,
+          deleteLabel: '删除$noun',
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('取消'),
+            ),
+            FilledButton(onPressed: _save, child: const Text('保存')),
+          ],
+        ),
       ),
     );
   }

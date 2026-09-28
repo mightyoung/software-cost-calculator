@@ -7,6 +7,7 @@ import '../../app/theme.dart';
 import '../../widgets/ledger.dart';
 import '../../widgets/deletion.dart';
 import '../trash/trash_page.dart';
+import '../../widgets/save_keys.dart';
 
 /// Search the catalogue and pick a material; each hit shows its lowest valid
 /// quote in the project's currency and tax mode.
@@ -379,133 +380,138 @@ class _ItemEditorState extends State<_ItemEditor> {
       onChanged: onChanged,
       onSubmitted: (_) => _save(),
     );
-    return AlertDialog(
-      title: Text(widget.itemId == null ? '添加到预算' : '编辑预算行'),
-      content: SizedBox(
-        width: 460,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (product != null) ...[
-                Text(
-                  product['name']! as String,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                MonoText(
-                  [
-                    product['brand'],
-                    product['model'],
-                    product['specification'],
-                  ].whereType<String>().join(' · '),
-                ),
-                const SizedBox(height: 12),
-              ] else ...[
-                DropdownButtonFormField<String>(
-                  initialValue: data['category'] as String,
-                  decoration: const InputDecoration(labelText: '费用类别'),
-                  items: [
-                    for (final e in categoryLabels.entries)
-                      DropdownMenuItem(
-                        value: e.key,
-                        child: Text(e.key == 'material' ? '材料费（待询价）' : e.value),
-                      ),
-                  ],
-                  onChanged: (v) => setState(() => data['category'] = v),
-                ),
-                const SizedBox(height: 12),
-                field('name', '名称', hint: '例如 电磁流量计 DN100 / 设备安装调试'),
-                const SizedBox(height: 12),
-              ],
-              Row(
-                children: [
-                  Expanded(
-                    child: field(
-                      'qty',
-                      '数量',
-                      number: true,
-                      onChanged: (v) => setState(() => options = _options(v)),
-                    ),
+    return SaveKeys(
+      onSave: _save,
+      child: AlertDialog(
+        title: Text(widget.itemId == null ? '添加到预算' : '编辑预算行'),
+        content: SizedBox(
+          width: 460,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (product != null) ...[
+                  Text(
+                    product['name']! as String,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: field(
-                      'unit',
-                      '单位',
-                      onChanged: (v) => setState(() {
-                        data['unit'] = v.trim();
-                        data['quotation_id'] = null;
-                        options = _options(c['qty']?.text);
-                      }),
-                    ),
+                  MonoText(
+                    [
+                      product['brand'],
+                      product['model'],
+                      product['specification'],
+                    ].whereType<String>().join(' · '),
                   ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              if (options.isNotEmpty) ...[
-                DropdownButtonFormField<String?>(
-                  key: ValueKey(data['unit']),
-                  initialValue: data['quotation_id'] as String?,
-                  isExpanded: true,
-                  decoration: const InputDecoration(labelText: '采用报价'),
-                  items: [
-                    const DropdownMenuItem(
-                      value: null,
-                      child: Text('不采用报价，手填估价'),
-                    ),
-                    for (final o in options)
-                      DropdownMenuItem(
-                        value: o.id,
-                        child: Text(
-                          '${money(o.price, prefix: '¥')}${o.converted ? '（按项目口径折算）' : ''} · ${store.get('supplier', o.data['supplier_id']! as String)?.data['name']} · ${_optionState(o)}',
-                          overflow: TextOverflow.ellipsis,
+                  const SizedBox(height: 12),
+                ] else ...[
+                  DropdownButtonFormField<String>(
+                    initialValue: data['category'] as String,
+                    decoration: const InputDecoration(labelText: '费用类别'),
+                    items: [
+                      for (final e in categoryLabels.entries)
+                        DropdownMenuItem(
+                          value: e.key,
+                          child: Text(
+                            e.key == 'material' ? '材料费（待询价）' : e.value,
+                          ),
                         ),
+                    ],
+                    onChanged: (v) => setState(() => data['category'] = v),
+                  ),
+                  const SizedBox(height: 12),
+                  field('name', '名称', hint: '例如 电磁流量计 DN100 / 设备安装调试'),
+                  const SizedBox(height: 12),
+                ],
+                Row(
+                  children: [
+                    Expanded(
+                      child: field(
+                        'qty',
+                        '数量',
+                        number: true,
+                        onChanged: (v) => setState(() => options = _options(v)),
                       ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: field(
+                        'unit',
+                        '单位',
+                        onChanged: (v) => setState(() {
+                          data['unit'] = v.trim();
+                          data['quotation_id'] = null;
+                          options = _options(c['qty']?.text);
+                        }),
+                      ),
+                    ),
                   ],
-                  onChanged: (v) => setState(() {
-                    data['quotation_id'] = v;
-                    final o = options.where((o) => o.id == v).firstOrNull;
-                    if (o != null) c['unit_cost']!.text = o.price;
-                  }),
                 ),
                 const SizedBox(height: 12),
-              ],
-              Row(
-                children: [
-                  Expanded(child: field('unit_cost', '成本单价', number: true)),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: field(
-                      'unit_price',
-                      '对外单价',
-                      hint: '留空按加价率计算',
-                      number: true,
-                    ),
+                if (options.isNotEmpty) ...[
+                  DropdownButtonFormField<String?>(
+                    key: ValueKey(data['unit']),
+                    initialValue: data['quotation_id'] as String?,
+                    isExpanded: true,
+                    decoration: const InputDecoration(labelText: '采用报价'),
+                    items: [
+                      const DropdownMenuItem(
+                        value: null,
+                        child: Text('不采用报价，手填估价'),
+                      ),
+                      for (final o in options)
+                        DropdownMenuItem(
+                          value: o.id,
+                          child: Text(
+                            '${money(o.price, prefix: '¥')}${o.converted ? '（按项目口径折算）' : ''} · ${store.get('supplier', o.data['supplier_id']! as String)?.data['name']} · ${_optionState(o)}',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                    ],
+                    onChanged: (v) => setState(() {
+                      data['quotation_id'] = v;
+                      final o = options.where((o) => o.id == v).firstOrNull;
+                      if (o != null) c['unit_cost']!.text = o.price;
+                    }),
                   ),
+                  const SizedBox(height: 12),
                 ],
-              ),
-              const SizedBox(height: 12),
-              field('notes', '备注'),
-              if (error != null) ...[
+                Row(
+                  children: [
+                    Expanded(child: field('unit_cost', '成本单价', number: true)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: field(
+                        'unit_price',
+                        '对外单价',
+                        hint: '留空按加价率计算',
+                        number: true,
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 12),
-                Text(error!, style: const TextStyle(color: Tokens.red)),
+                field('notes', '备注'),
+                if (error != null) ...[
+                  const SizedBox(height: 12),
+                  Text(error!, style: const TextStyle(color: Tokens.red)),
+                ],
               ],
-            ],
+            ),
           ),
         ),
-      ),
-      actionsAlignment: MainAxisAlignment.spaceBetween,
-      actions: dialogActions(
-        onDelete: widget.itemId == null ? null : _delete,
-        deleteLabel: '删除这一行',
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          FilledButton(onPressed: _save, child: const Text('保存')),
-        ],
+        actionsAlignment: MainAxisAlignment.spaceBetween,
+        actions: dialogActions(
+          onDelete: widget.itemId == null ? null : _delete,
+          deleteLabel: '删除这一行',
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('取消'),
+            ),
+            FilledButton(onPressed: _save, child: const Text('保存')),
+          ],
+        ),
       ),
     );
   }

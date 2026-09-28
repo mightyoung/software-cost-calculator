@@ -4,6 +4,7 @@ import 'package:supplier_core/supplier_core.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import 'quote_extras.dart';
+import '../../widgets/save_keys.dart';
 
 /// Records one standard quotation. Supplier, material and project are picked
 /// by typing; dates use the system picker (date only, never a fake 00:00).
@@ -267,142 +268,149 @@ class _QuoteFormState extends State<_QuoteForm> {
   );
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: Text(widget.id == null ? '新建报价' : '编辑报价'),
-    content: SizedBox(
-      width: 560,
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _group('报价内容'),
-            _pair(
-              _picker('supplier', 'supplier_id', '供应商'),
-              _picker('product', 'product_id', '物料'),
-            ),
-            _contactPicker(),
-            const SizedBox(height: 12),
-            _pair(
-              _text('price', '单价', number: true),
-              _text('unit_snapshot', '单位'),
-            ),
-            _pair(
-              DropdownButtonFormField<String>(
-                initialValue: data['tax_mode'] as String,
-                decoration: const InputDecoration(labelText: '价格口径'),
-                items: const [
-                  DropdownMenuItem(value: 'included', child: Text('含税')),
-                  DropdownMenuItem(value: 'excluded', child: Text('不含税')),
-                  DropdownMenuItem(value: 'unknown', child: Text('未知（不参与比价）')),
-                ],
-                onChanged: (v) => setState(() => data['tax_mode'] = v),
+  Widget build(BuildContext context) => SaveKeys(
+    onSave: _save,
+    child: AlertDialog(
+      title: Text(widget.id == null ? '新建报价' : '编辑报价'),
+      content: SizedBox(
+        width: 560,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _group('报价内容'),
+              _pair(
+                _picker('supplier', 'supplier_id', '供应商'),
+                _picker('product', 'product_id', '物料'),
               ),
-              _text('tax_rate', '税率 %', number: true),
-            ),
-            DropdownButtonFormField<String?>(
-              initialValue: data['price_basis'] as String?,
-              decoration: const InputDecoration(labelText: '价格性质'),
-              items: const [
-                DropdownMenuItem(value: null, child: Text('正式报价（书面报价单等）')),
-                DropdownMenuItem(
-                  value: 'verbal',
-                  child: Text('口头询价（仅参考，不用于预算）'),
-                ),
-                DropdownMenuItem(
-                  value: 'reference',
-                  child: Text('网上或第三方参考价（不用于预算）'),
-                ),
-              ],
-              onChanged: (v) => setState(() => data['price_basis'] = v),
-            ),
-            const SizedBox(height: 12),
-            _pair(
-              _text('min_qty', '起订量', number: true),
-              _text('lead_time_days', '交期（天）', number: true),
-            ),
-            _group('询价信息'),
-            _pair(
-              _picker('project', 'project_id', '项目'),
-              _text('inquirer_name', '询价人'),
-            ),
-            _pair(
-              _dateField('inquiry_date', '询价日期'),
-              _text('inquiry_location', '询价地点'),
-            ),
-            _group('报价范围'),
-            IncludesPicker(
-              value: (data['includes'] as List?)?.cast<String>(),
-              onChanged: (v) => setState(() => data['includes'] = v),
-            ),
-            const SizedBox(height: 12),
-            _pair(
-              _text('extra_cost', '附加费用（合计，如运费）', number: true),
-              _text('warranty_months', '质保（月）', number: true),
-            ),
-            _group('有效期与备注'),
-            _pair(
-              _dateField('quoted_on', '报价日期'),
-              _dateField('valid_until', '有效期至', clearable: true),
-            ),
-            _text('notes', '备注'),
-            const SizedBox(height: 12),
-            AttachmentsField(
-              state: widget.state,
-              ids: ((data['attachment_ids'] as List?) ?? const [])
-                  .cast<String>(),
-              onChanged: (v) =>
-                  setState(() => data['attachment_ids'] = v.isEmpty ? null : v),
-            ),
-            if (data['awarded_on'] != null) ...[
+              _contactPicker(),
               const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
-                decoration: BoxDecoration(
-                  color: Tokens.accentTint,
-                  borderRadius: BorderRadius.circular(Tokens.radius),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.verified_outlined,
-                      color: Tokens.accentDeep,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        '已于 ${data['awarded_on']} 定标，成交单价 ${data['deal_price']}'
-                        '${data['award_note'] == null ? '' : '：${data['award_note']}'}',
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        final err = widget.state.write(
-                          (s) => s.withdrawAward(widget.id!),
-                        );
-                        if (err != null) return setState(() => error = err);
-                        Navigator.pop(context);
-                      },
-                      child: const Text('撤销定标'),
+              _pair(
+                _text('price', '单价', number: true),
+                _text('unit_snapshot', '单位'),
+              ),
+              _pair(
+                DropdownButtonFormField<String>(
+                  initialValue: data['tax_mode'] as String,
+                  decoration: const InputDecoration(labelText: '价格口径'),
+                  items: const [
+                    DropdownMenuItem(value: 'included', child: Text('含税')),
+                    DropdownMenuItem(value: 'excluded', child: Text('不含税')),
+                    DropdownMenuItem(
+                      value: 'unknown',
+                      child: Text('未知（不参与比价）'),
                     ),
                   ],
+                  onChanged: (v) => setState(() => data['tax_mode'] = v),
+                ),
+                _text('tax_rate', '税率 %', number: true),
+              ),
+              DropdownButtonFormField<String?>(
+                initialValue: data['price_basis'] as String?,
+                decoration: const InputDecoration(labelText: '价格性质'),
+                items: const [
+                  DropdownMenuItem(value: null, child: Text('正式报价（书面报价单等）')),
+                  DropdownMenuItem(
+                    value: 'verbal',
+                    child: Text('口头询价（仅参考，不用于预算）'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'reference',
+                    child: Text('网上或第三方参考价（不用于预算）'),
+                  ),
+                ],
+                onChanged: (v) => setState(() => data['price_basis'] = v),
+              ),
+              const SizedBox(height: 12),
+              _pair(
+                _text('min_qty', '起订量', number: true),
+                _text('lead_time_days', '交期（天）', number: true),
+              ),
+              _group('询价信息'),
+              _pair(
+                _picker('project', 'project_id', '项目'),
+                _text('inquirer_name', '询价人'),
+              ),
+              _pair(
+                _dateField('inquiry_date', '询价日期'),
+                _text('inquiry_location', '询价地点'),
+              ),
+              _group('报价范围'),
+              IncludesPicker(
+                value: (data['includes'] as List?)?.cast<String>(),
+                onChanged: (v) => setState(() => data['includes'] = v),
+              ),
+              const SizedBox(height: 12),
+              _pair(
+                _text('extra_cost', '附加费用（合计，如运费）', number: true),
+                _text('warranty_months', '质保（月）', number: true),
+              ),
+              _group('有效期与备注'),
+              _pair(
+                _dateField('quoted_on', '报价日期'),
+                _dateField('valid_until', '有效期至', clearable: true),
+              ),
+              _text('notes', '备注'),
+              const SizedBox(height: 12),
+              AttachmentsField(
+                state: widget.state,
+                ids: ((data['attachment_ids'] as List?) ?? const [])
+                    .cast<String>(),
+                onChanged: (v) => setState(
+                  () => data['attachment_ids'] = v.isEmpty ? null : v,
                 ),
               ),
+              if (data['awarded_on'] != null) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
+                  decoration: BoxDecoration(
+                    color: Tokens.accentTint,
+                    borderRadius: BorderRadius.circular(Tokens.radius),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.verified_outlined,
+                        color: Tokens.accentDeep,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '已于 ${data['awarded_on']} 定标，成交单价 ${data['deal_price']}'
+                          '${data['award_note'] == null ? '' : '：${data['award_note']}'}',
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          final err = widget.state.write(
+                            (s) => s.withdrawAward(widget.id!),
+                          );
+                          if (err != null) return setState(() => error = err);
+                          Navigator.pop(context);
+                        },
+                        child: const Text('撤销定标'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              if (error != null) ...[
+                const SizedBox(height: 12),
+                Text(error!, style: const TextStyle(color: Tokens.red)),
+              ],
             ],
-            if (error != null) ...[
-              const SizedBox(height: 12),
-              Text(error!, style: const TextStyle(color: Tokens.red)),
-            ],
-          ],
+          ),
         ),
       ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('取消'),
+        ),
+        FilledButton(onPressed: _save, child: const Text('保存报价')),
+      ],
     ),
-    actions: [
-      TextButton(
-        onPressed: () => Navigator.pop(context),
-        child: const Text('取消'),
-      ),
-      FilledButton(onPressed: _save, child: const Text('保存报价')),
-    ],
   );
 }

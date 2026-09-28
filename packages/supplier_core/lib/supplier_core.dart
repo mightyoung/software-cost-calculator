@@ -32,4 +32,5 @@ export 'src/store.dart';
 export 'src/tables.dart';
 export 'src/trash.dart';
 export 'src/values.dart';
+export 'src/workbench.dart';
 export 'src/xlsx.dart';
