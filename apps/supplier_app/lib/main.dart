@@ -4,9 +4,11 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'app/app_state.dart';
 import 'app/shell.dart';
 import 'app/theme.dart';
+import 'app/title_bar.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initWindow();
   Object? startupError;
   AppState? state;
   try {

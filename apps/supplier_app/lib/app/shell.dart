@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:window_manager/window_manager.dart';
 
 import '../features/ai/ask_page.dart';
 import '../features/catalog/catalog_page.dart';
@@ -13,6 +14,7 @@ import '../features/quotes/quotes_page.dart';
 import '../features/settings/settings_page.dart';
 import 'app_state.dart';
 import 'theme.dart';
+import 'title_bar.dart';
 
 /// Sidebar order: work, then AI, then system; Ctrl+1… follow it.
 enum Section {
@@ -138,7 +140,16 @@ class _ShellState extends State<Shell> {
                       device: widget.state.deviceName,
                       onSelect: (s) => setState(() => section = s),
                     ),
-                    Expanded(child: page),
+                    Expanded(
+                      child: customTitleBar
+                          ? Column(
+                              children: [
+                                const TitleBar(),
+                                Expanded(child: page),
+                              ],
+                            )
+                          : page,
+                    ),
                   ],
                 ),
               )
@@ -225,6 +236,12 @@ class _Sidebar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // The window is dragged by the top of the sidebar too.
+          if (customTitleBar)
+            SizedBox(
+              height: sidebarTopInset,
+              child: const DragToMoveArea(child: SizedBox.expand()),
+            ),
           const Padding(
             padding: EdgeInsets.fromLTRB(10, 0, 10, 6),
             child: Row(
