@@ -38,7 +38,7 @@ class AttributesEditor extends StatelessWidget {
           children: [
             const Text('关键属性', style: TextStyle(fontWeight: FontWeight.w600)),
             const SizedBox(width: 8),
-            const Expanded(
+            Expanded(
               child: Text(
                 '区分同名物料的参数，如 流量、扬程、材质；查重和搜索都会用到',
                 style: TextStyle(fontSize: 12, color: Tokens.ink3),
@@ -86,10 +86,7 @@ class AttributesEditor extends StatelessWidget {
             runSpacing: 6,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              const Text(
-                '同类常用：',
-                style: TextStyle(fontSize: 12, color: Tokens.ink3),
-              ),
+              Text('同类常用：', style: TextStyle(fontSize: 12, color: Tokens.ink3)),
               for (final s in open.take(6))
                 ActionChip(
                   avatar: const Icon(Icons.add, size: 14),

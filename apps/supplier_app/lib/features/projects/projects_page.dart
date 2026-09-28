@@ -177,7 +177,7 @@ class _ProjectList extends StatelessWidget {
       const Divider(),
       Expanded(
         child: projects.isEmpty
-            ? const Padding(
+            ? Padding(
                 padding: EdgeInsets.all(16),
                 child: Text('没有符合条件的项目', style: TextStyle(color: Tokens.ink3)),
               )
@@ -195,7 +195,7 @@ class _ProjectList extends StatelessWidget {
                       child: Container(
                         decoration: BoxDecoration(
                           border: on
-                              ? const Border(
+                              ? Border(
                                   left: BorderSide(
                                     color: Tokens.accent,
                                     width: 3,
@@ -223,7 +223,7 @@ class _ProjectList extends StatelessWidget {
                                 Expanded(
                                   child: Text(
                                     p.data['customer'] as String? ?? '',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12,
                                       color: Tokens.ink3,
                                     ),
@@ -232,7 +232,7 @@ class _ProjectList extends StatelessWidget {
                                 ),
                                 Text(
                                   '成本 ${yuan(cost)}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
                                     color: Tokens.ink3,
                                     fontFeatures: tabular,
@@ -283,7 +283,7 @@ class _Pill extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: selected ? Colors.white : Tokens.ink2,
+            color: selected ? Tokens.surface : Tokens.ink2,
           ),
         ),
       ),

@@ -33,7 +33,7 @@ class _DataCenterPageState extends State<DataCenterPage> {
           padding: const EdgeInsets.fromLTRB(24, 18, 24, 0),
           child: Text('数据中心', style: Theme.of(context).textTheme.titleLarge),
         ),
-        const Padding(
+        Padding(
           padding: EdgeInsets.fromLTRB(24, 4, 24, 0),
           child: Text(
             '软件里有哪些数据、它们怎样关联、质量如何，以及 AI 能读到什么。',
@@ -139,15 +139,12 @@ class _ModelTab extends StatelessWidget {
                   const Spacer(),
                   Text(
                     '${counts[selected]} 条记录',
-                    style: const TextStyle(color: Tokens.ink3),
+                    style: TextStyle(color: Tokens.ink3),
                   ),
                 ],
               ),
               const SizedBox(height: 4),
-              Text(
-                type.description,
-                style: const TextStyle(color: Tokens.ink2),
-              ),
+              Text(type.description, style: TextStyle(color: Tokens.ink2)),
               const SizedBox(height: 12),
               _Links(type: selected, onSelect: onSelect),
               const SizedBox(height: 12),
@@ -180,7 +177,7 @@ class _Links extends StatelessWidget {
                   width: 64,
                   child: Text(
                     title,
-                    style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+                    style: TextStyle(fontSize: 12, color: Tokens.ink3),
                   ),
                 ),
                 for (final (target, text) in items)
@@ -223,7 +220,7 @@ class _Fields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const head = TextStyle(
+    final head = TextStyle(
       fontSize: 12,
       fontWeight: FontWeight.w600,
       color: Tokens.ink2,
@@ -238,7 +235,7 @@ class _Fields extends StatelessWidget {
             onTap: () => onSelect(f.target!),
             child: Text(
               '${f.kind.label} → ${ontology[f.target]!.label}',
-              style: const TextStyle(fontSize: 13, color: Tokens.accentDeep),
+              style: TextStyle(fontSize: 13, color: Tokens.accentDeep),
             ),
           );
     Widget about(FieldSpec f) => Column(
@@ -270,7 +267,7 @@ class _Fields extends StatelessWidget {
           for (final f in type.fields)
             Container(
               padding: const EdgeInsets.symmetric(vertical: 8),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 border: Border(top: BorderSide(color: Tokens.rule)),
               ),
               child: Column(
@@ -287,7 +284,7 @@ class _Fields extends StatelessWidget {
                       MonoText(f.name),
                       kind(f),
                       if (f.required)
-                        const Text(
+                        Text(
                           '必填',
                           style: TextStyle(fontSize: 12, color: Tokens.ink3),
                         ),
@@ -311,7 +308,7 @@ class _Fields extends StatelessWidget {
       defaultVerticalAlignment: TableCellVerticalAlignment.top,
       children: [
         TableRow(
-          decoration: const BoxDecoration(color: Tokens.sunken),
+          decoration: BoxDecoration(color: Tokens.sunken),
           children: [
             for (final h in ['字段', '类型', '必填', '说明'])
               cell(Text(h, style: head)),
@@ -319,7 +316,7 @@ class _Fields extends StatelessWidget {
         ),
         for (final f in type.fields)
           TableRow(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               border: Border(bottom: BorderSide(color: Tokens.rule)),
             ),
             children: [
@@ -332,7 +329,7 @@ class _Fields extends StatelessWidget {
               cell(kind(f)),
               cell(
                 f.required
-                    ? const Icon(Icons.check, size: 16, color: Tokens.ink2)
+                    ? Icon(Icons.check, size: 16, color: Tokens.ink2)
                     : const SizedBox(),
               ),
               cell(about(f)),
@@ -360,7 +357,7 @@ class _ValueTag extends StatelessWidget {
         children: [
           TextSpan(
             text: '$value ',
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: monoFamily,
               fontFamilyFallback: monoFallback,
               color: Tokens.ink,
@@ -369,7 +366,7 @@ class _ValueTag extends StatelessWidget {
           TextSpan(text: meaning),
         ],
       ),
-      style: const TextStyle(fontSize: 12, color: Tokens.ink2),
+      style: TextStyle(fontSize: 12, color: Tokens.ink2),
     ),
   );
 }
@@ -387,7 +384,7 @@ class _QualityTab extends StatelessWidget {
       children: [
         Text(
           open == 0 ? '没有发现需要处理的问题。' : '$open 项需要处理，处理后比价和预算会更可靠。',
-          style: const TextStyle(color: Tokens.ink2),
+          style: TextStyle(color: Tokens.ink2),
         ),
         const SizedBox(height: 12),
         _card(
@@ -403,7 +400,7 @@ class _QualityTab extends StatelessWidget {
                   decoration: BoxDecoration(
                     border: i == 0
                         ? null
-                        : const Border(top: BorderSide(color: Tokens.rule)),
+                        : Border(top: BorderSide(color: Tokens.rule)),
                   ),
                   child: Row(
                     children: [
@@ -422,7 +419,7 @@ class _QualityTab extends StatelessWidget {
                             Text(c.label),
                             Text(
                               c.hint,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 color: Tokens.ink3,
                               ),
@@ -475,7 +472,7 @@ class _AiTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 '"问数据"里的 AI 助手读取的就是这里的数据模型和规则，并且只能用下列只读工具查询，不能修改数据。'
                 '也可以把完整的数据说明复制给其他 AI 工具，让它理解这些数据。',
                 style: TextStyle(color: Tokens.ink2, height: 1.6),
@@ -495,7 +492,7 @@ class _AiTab extends StatelessWidget {
                   ),
                   Text(
                     '约 ${guide.length} 字，只含结构和规则，不含任何业务数据',
-                    style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+                    style: TextStyle(fontSize: 12, color: Tokens.ink3),
                   ),
                 ],
               ),
@@ -526,7 +523,7 @@ class _AiTab extends StatelessWidget {
                   decoration: BoxDecoration(
                     border: i == 0
                         ? null
-                        : const Border(top: BorderSide(color: Tokens.rule)),
+                        : Border(top: BorderSide(color: Tokens.rule)),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -597,7 +594,7 @@ class _McpCard extends StatelessWidget {
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             'Claude Desktop、Cursor 等支持 MCP 的工具，可以通过随软件附带的 siq-mcp 直接查询本机数据：'
             '把下面的配置加入该工具的 MCP 设置并重启它。siq-mcp 以只读方式打开数据库，'
             '用的是上面同一组只读工具；查询到的数据会发送给该工具所用的 AI 服务。',
@@ -638,7 +635,7 @@ class _McpCard extends StatelessWidget {
           ],
           if (bundled && Platform.isMacOS) ...[
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'macOS 首次运行时可能询问是否允许访问其他 App 的数据，请选择允许。',
               style: TextStyle(fontSize: 12, color: Tokens.ink3),
             ),

@@ -215,10 +215,7 @@ class _Sidebar extends StatelessWidget {
 
     Widget group(String label) => Padding(
       padding: const EdgeInsets.fromLTRB(12, 14, 10, 6),
-      child: Text(
-        label,
-        style: const TextStyle(fontSize: 12, color: Tokens.navInk3),
-      ),
+      child: Text(label, style: TextStyle(fontSize: 12, color: Tokens.navInk3)),
     );
 
     return Container(
@@ -260,14 +257,14 @@ class _Sidebar extends StatelessWidget {
           item(Section.exchange),
           item(Section.data),
           const Spacer(),
-          const Divider(color: Tokens.navHover),
+          Divider(color: Tokens.navHover),
           const SizedBox(height: 8),
           item(Section.settings),
           Padding(
             padding: const EdgeInsets.fromLTRB(10, 6, 10, 0),
             child: Text(
               '本机：$device',
-              style: const TextStyle(fontSize: 12, color: Tokens.navInk3),
+              style: TextStyle(fontSize: 12, color: Tokens.navInk3),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -347,7 +344,7 @@ class _IncomingBar extends StatelessWidget {
     padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
     child: Row(
       children: [
-        const Icon(Icons.move_to_inbox, color: Tokens.accentDeep, size: 20),
+        Icon(Icons.move_to_inbox, color: Tokens.accentDeep, size: 20),
         const SizedBox(width: 8),
         Expanded(child: Text(text)),
         TextButton(onPressed: onOpen, child: const Text('去查看')),

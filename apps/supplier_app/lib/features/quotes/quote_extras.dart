@@ -46,10 +46,7 @@ class IncludesPicker extends StatelessWidget {
     children: [
       Row(
         children: [
-          const Text(
-            '报价包含',
-            style: TextStyle(fontSize: 12, color: Tokens.ink2),
-          ),
+          Text('报价包含', style: TextStyle(fontSize: 12, color: Tokens.ink2)),
           const SizedBox(width: 8),
           ChoiceChip(
             label: const Text('未说明'),
@@ -115,10 +112,7 @@ class AttachmentsField extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Text(
-              '原件',
-              style: TextStyle(fontSize: 12, color: Tokens.ink2),
-            ),
+            Text('原件', style: TextStyle(fontSize: 12, color: Tokens.ink2)),
             const Spacer(),
             TextButton.icon(
               onPressed: () => _add(context),
@@ -128,23 +122,16 @@ class AttachmentsField extends StatelessWidget {
           ],
         ),
         if (list.isEmpty)
-          const Text(
-            '没有原件',
-            style: TextStyle(fontSize: 12, color: Tokens.ink3),
-          ),
+          Text('没有原件', style: TextStyle(fontSize: 12, color: Tokens.ink3)),
         for (final a in list)
           Row(
             children: [
-              const Icon(
-                Icons.description_outlined,
-                size: 16,
-                color: Tokens.ink3,
-              ),
+              Icon(Icons.description_outlined, size: 16, color: Tokens.ink3),
               const SizedBox(width: 6),
               Expanded(child: Text(a.name, overflow: TextOverflow.ellipsis)),
               Text(
                 '${(a.size / 1024).ceil()} KB',
-                style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+                style: TextStyle(fontSize: 12, color: Tokens.ink3),
               ),
               IconButton(
                 tooltip: '另存一份查看',

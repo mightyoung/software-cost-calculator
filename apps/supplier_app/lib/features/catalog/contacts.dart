@@ -38,7 +38,7 @@ class SupplierContacts extends StatelessWidget {
             ],
           ),
           if (contacts.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(bottom: 8),
               child: Text('还没有联系人', style: TextStyle(color: Tokens.ink3)),
             ),
@@ -164,7 +164,7 @@ class _ContactFormState extends State<_ContactForm> {
               const SizedBox(height: 10),
             ],
             if (error != null)
-              Text(error!, style: const TextStyle(color: Tokens.red)),
+              Text(error!, style: TextStyle(color: Tokens.red)),
           ],
         ),
       ),

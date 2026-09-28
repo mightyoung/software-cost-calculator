@@ -189,7 +189,7 @@ class CatalogDetail extends StatelessWidget {
                 ),
                 child: Text(
                   '${e.key} ${e.value}',
-                  style: const TextStyle(fontSize: 12, color: Tokens.ink2),
+                  style: TextStyle(fontSize: 12, color: Tokens.ink2),
                 ),
               ),
           ],
@@ -221,7 +221,7 @@ class CatalogDetail extends StatelessWidget {
             child: Text(
               '历史 最低 ${money(history.min)} · 平均 ${money(history.average)} · 最高 ${money(history.max)}'
               '${history.lastDeal == null ? '' : ' · 最近成交 ${money(history.lastDeal)}'}',
-              style: const TextStyle(fontSize: 12, color: Tokens.ink2),
+              style: TextStyle(fontSize: 12, color: Tokens.ink2),
             ),
           ),
         _section('各家报价'),
@@ -272,11 +272,11 @@ class CatalogDetail extends StatelessWidget {
       ? const SizedBox()
       : Padding(
           padding: const EdgeInsets.only(top: 4),
-          child: Text(text, style: const TextStyle(color: Tokens.ink2)),
+          child: Text(text, style: TextStyle(color: Tokens.ink2)),
         );
 
   Widget _strip(List<(String, String)> cells) => Container(
-    decoration: const BoxDecoration(
+    decoration: BoxDecoration(
       border: Border.symmetric(horizontal: BorderSide(color: Tokens.rule)),
     ),
     padding: const EdgeInsets.symmetric(vertical: 10),
@@ -287,10 +287,7 @@ class CatalogDetail extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  label,
-                  style: const TextStyle(fontSize: 12, color: Tokens.ink3),
-                ),
+                Text(label, style: TextStyle(fontSize: 12, color: Tokens.ink3)),
                 Text(
                   value,
                   style: const TextStyle(
@@ -330,7 +327,7 @@ class CatalogDetail extends StatelessWidget {
     onTap: onTap,
     child: Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Tokens.rule)),
       ),
       child: Row(
@@ -341,10 +338,7 @@ class CatalogDetail extends StatelessWidget {
               children: [
                 Text(title, overflow: TextOverflow.ellipsis),
                 if (sub.isNotEmpty)
-                  Text(
-                    sub,
-                    style: const TextStyle(fontSize: 12, color: Tokens.ink3),
-                  ),
+                  Text(sub, style: TextStyle(fontSize: 12, color: Tokens.ink3)),
               ],
             ),
           ),
@@ -361,6 +355,6 @@ class CatalogDetail extends StatelessWidget {
 
   Widget _empty(String text) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 8),
-    child: Text(text, style: const TextStyle(color: Tokens.ink3)),
+    child: Text(text, style: TextStyle(color: Tokens.ink3)),
   );
 }

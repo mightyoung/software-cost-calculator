@@ -125,7 +125,7 @@ class _DataGridState<T> extends State<DataGrid<T>> {
     ];
     final header = Container(
       height: 38,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Tokens.sunken,
         border: Border(bottom: BorderSide(color: Tokens.rule)),
       ),
@@ -161,7 +161,7 @@ class _DataGridState<T> extends State<DataGrid<T>> {
                     child: Text(
                       c.label,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: Tokens.ink2,
@@ -200,7 +200,7 @@ class _DataGridState<T> extends State<DataGrid<T>> {
                 children: [
                   Text(
                     '已选 ${selected.length} 项',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Tokens.accentDeep,
                       fontWeight: FontWeight.w600,
                     ),
@@ -242,9 +242,7 @@ class _DataGridState<T> extends State<DataGrid<T>> {
                         color: on
                             ? Tokens.accentTint
                             : (hover == i ? Tokens.groupRow : null),
-                        border: const Border(
-                          bottom: BorderSide(color: Tokens.rule),
-                        ),
+                        border: Border(bottom: BorderSide(color: Tokens.rule)),
                       ),
                       child: _cells([
                         if (selectable)

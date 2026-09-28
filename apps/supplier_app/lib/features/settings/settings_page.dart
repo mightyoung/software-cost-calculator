@@ -51,7 +51,7 @@ class _SettingsPageState extends State<SettingsPage> {
         const SizedBox(height: 20),
         const Text('本机名称', style: TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(height: 4),
-        const Text(
+        Text(
           '用于交换文件名和变更记录，便于区分是哪台设备做的修改。',
           style: TextStyle(color: Tokens.ink2),
         ),
@@ -70,11 +70,30 @@ class _SettingsPageState extends State<SettingsPage> {
           ],
         ),
         const SizedBox(height: 28),
+        const Text('外观', style: TextStyle(fontWeight: FontWeight.w600)),
+        const SizedBox(height: 10),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: SegmentedButton<String>(
+            segments: const [
+              ButtonSegment(value: 'system', label: Text('跟随系统')),
+              ButtonSegment(value: 'light', label: Text('浅色')),
+              ButtonSegment(value: 'dark', label: Text('深色')),
+            ],
+            selected: {widget.state.setting('appearance') ?? 'system'},
+            showSelectedIcon: false,
+            onSelectionChanged: (v) => widget.state.saveSetting(
+              'appearance',
+              v.single == 'system' ? null : v.single,
+            ),
+          ),
+        ),
+        const SizedBox(height: 28),
         AiSettings(state: widget.state),
         const SizedBox(height: 28),
         const Text('已删除的记录', style: TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(height: 4),
-        const Text(
+        Text(
           '删除的供应商、物料、项目、报价等保留在这里，可以恢复。',
           style: TextStyle(color: Tokens.ink2),
         ),
@@ -138,7 +157,7 @@ class _SettingsPageState extends State<SettingsPage> {
       children: [
         SizedBox(
           width: 96,
-          child: Text(k, style: const TextStyle(color: Tokens.ink3)),
+          child: Text(k, style: TextStyle(color: Tokens.ink3)),
         ),
         Expanded(child: SelectableText(v)),
       ],

@@ -444,6 +444,13 @@ void main() {
     String name, [
     Future<void> Function()? act,
   ]) async {
+    // dark_* shots are the desktop_* scene in the dark appearance.
+    final golden = name;
+    if (name.startsWith('dark_')) {
+      Tokens.dark = true;
+      addTearDown(() => Tokens.dark = false);
+      name = name.replaceFirst('dark_', 'desktop_');
+    }
     final dir = Directory.systemTemp.createTempSync('shot');
     final store = Store.open(
       '${dir.path}/s.db',
@@ -492,9 +499,39 @@ void main() {
     if (act != null) await act();
     await expectLater(
       find.byType(MaterialApp),
-      matchesGoldenFile('screens/$name.png'),
+      matchesGoldenFile('screens/$golden.png'),
     );
     store.close();
+  }
+
+  for (final (scene, act) in [
+    ('dark_home', null),
+    (
+      'dark_budget',
+      (WidgetTester t) async {
+        await t.tap(find.text('泵房改造工程'));
+        await t.pumpAndSettle();
+      },
+    ),
+    (
+      'dark_quotes',
+      (WidgetTester t) async {
+        await t.tap(find.text('报价').first);
+        await t.pumpAndSettle();
+      },
+    ),
+    ('dark_inquiry', null),
+  ]) {
+    testWidgets(
+      'dark appearance $scene',
+      (t) => shoot(
+        t,
+        const Size(1280, 800),
+        scene,
+        act == null ? null : () => act(t),
+      ),
+      skip: !hasFont,
+    );
   }
 
   testWidgets(

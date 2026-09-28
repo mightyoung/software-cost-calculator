@@ -319,7 +319,7 @@ class _Preview extends StatelessWidget {
               const SizedBox(height: 14),
               Text(
                 '$conflicts 条记录在两台设备上都被修改过：改了不同地方的都会保留；改了同一处的采用较晚的修改，并列入待确认的冲突。',
-                style: const TextStyle(color: Tokens.amber),
+                style: TextStyle(color: Tokens.amber),
               ),
             ],
           ],

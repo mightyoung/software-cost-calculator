@@ -134,14 +134,14 @@ class _AwardDialogState extends State<_AwardDialog> {
           ),
           if (widget.itemId != null) ...[
             const SizedBox(height: 10),
-            const Text(
+            Text(
               '确认后，预算中这一行的成本单价会改为成交单价。',
               style: TextStyle(fontSize: 12, color: Tokens.ink3),
             ),
           ],
           if (error != null) ...[
             const SizedBox(height: 10),
-            Text(error!, style: const TextStyle(color: Tokens.red)),
+            Text(error!, style: TextStyle(color: Tokens.red)),
           ],
         ],
       ),

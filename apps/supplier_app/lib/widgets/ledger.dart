@@ -18,7 +18,7 @@ class LedgerStrip extends StatelessWidget {
         cells.sublist(i, (i + perRow).clamp(0, cells.length)),
     ];
     return DecoratedBox(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border.symmetric(horizontal: BorderSide(color: Tokens.rule)),
       ),
       child: Column(
@@ -28,7 +28,7 @@ class LedgerStrip extends StatelessWidget {
               decoration: BoxDecoration(
                 border: r == 0
                     ? null
-                    : const Border(top: BorderSide(color: Tokens.rule)),
+                    : Border(top: BorderSide(color: Tokens.rule)),
               ),
               child: IntrinsicHeight(
                 child: Row(
@@ -47,7 +47,7 @@ class LedgerStrip extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   border: i == 0
                                       ? null
-                                      : const Border(
+                                      : Border(
                                           left: BorderSide(color: Tokens.rule),
                                         ),
                                 ),
@@ -74,7 +74,7 @@ class LedgerCell extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(label, style: const TextStyle(fontSize: 12, color: Tokens.ink3)),
+      Text(label, style: TextStyle(fontSize: 12, color: Tokens.ink3)),
       const SizedBox(height: 2),
       Text.rich(
         TextSpan(
@@ -90,7 +90,7 @@ class LedgerCell extends StatelessWidget {
             if (note != null)
               TextSpan(
                 text: '  $note',
-                style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+                style: TextStyle(fontSize: 12, color: Tokens.ink3),
               ),
           ],
         ),
@@ -165,10 +165,7 @@ class HintText extends StatelessWidget {
       Icon(icon, size: 13, color: Tokens.amber),
       const SizedBox(width: 4),
       Flexible(
-        child: Text(
-          text,
-          style: const TextStyle(fontSize: 12, color: Tokens.amber),
-        ),
+        child: Text(text, style: TextStyle(fontSize: 12, color: Tokens.amber)),
       ),
     ],
   );
@@ -198,7 +195,7 @@ class EmptyState extends StatelessWidget {
             Text(
               body,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Tokens.ink2),
+              style: TextStyle(color: Tokens.ink2),
             ),
             if (actions.isNotEmpty) ...[
               const SizedBox(height: 16),
@@ -224,7 +221,7 @@ class MonoText extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     text,
-    style: const TextStyle(
+    style: TextStyle(
       fontSize: 12,
       color: Tokens.ink2,
       fontFamily: monoFamily,
@@ -249,7 +246,7 @@ class MoreRow extends StatelessWidget {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text('已显示 $shown 条', style: const TextStyle(color: Tokens.ink3)),
+        Text('已显示 $shown 条', style: TextStyle(color: Tokens.ink3)),
         const SizedBox(width: 8),
         TextButton(onPressed: onMore, child: const Text('再显示 200 条')),
       ],

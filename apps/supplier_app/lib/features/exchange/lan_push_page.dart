@@ -133,7 +133,7 @@ class _LanPushPageState extends State<LanPushPage> {
                           return Center(
                             child: Text(
                               '没有找到$label',
-                              style: const TextStyle(color: Tokens.ink3),
+                              style: TextStyle(color: Tokens.ink3),
                             ),
                           );
                         }
@@ -181,7 +181,7 @@ class _LanPushPageState extends State<LanPushPage> {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: Tokens.surface,
           border: Border(top: BorderSide(color: Tokens.rule)),
         ),
@@ -193,7 +193,7 @@ class _LanPushPageState extends State<LanPushPage> {
           children: [
             Text(
               closure == null ? '勾选要推送的内容' : '将发送 ${_summary(closure)}（含关联记录）',
-              style: const TextStyle(color: Tokens.ink2),
+              style: TextStyle(color: Tokens.ink2),
             ),
             Row(
               mainAxisSize: MainAxisSize.min,

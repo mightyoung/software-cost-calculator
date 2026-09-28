@@ -155,7 +155,7 @@ class _CatalogPageState extends State<CatalogPage> {
               query.isEmpty && category == null
                   ? '共 $total 个'
                   : '找到 ${rows.length} 个',
-              style: const TextStyle(color: Tokens.ink3),
+              style: TextStyle(color: Tokens.ink3),
             ),
             const Spacer(),
             OutlinedButton.icon(
@@ -372,7 +372,7 @@ class _CatalogPageState extends State<CatalogPage> {
           cell: (r) {
             final q = r.lastQuote;
             if (q == null) {
-              return const Text('—', style: TextStyle(color: Tokens.ink3));
+              return Text('—', style: TextStyle(color: Tokens.ink3));
             }
             return _twoLines(
               '${money(q['price'] as String?, prefix: q['currency'] == 'CNY' ? '¥' : '${q['currency']} ')} / ${q['unit_snapshot']}',
@@ -410,7 +410,7 @@ Widget _twoLines(
           : Text(
               sub,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+              style: TextStyle(fontSize: 12, color: Tokens.ink3),
             ),
   ],
 );
@@ -650,10 +650,7 @@ class _CatalogFormState extends State<_CatalogForm> {
         runSpacing: 6,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          const Text(
-            '已有类别：',
-            style: TextStyle(fontSize: 12, color: Tokens.ink3),
-          ),
+          Text('已有类别：', style: TextStyle(fontSize: 12, color: Tokens.ink3)),
           for (final k in options.take(8))
             ActionChip(
               label: Text(k),
@@ -766,7 +763,7 @@ class _CatalogFormState extends State<_CatalogForm> {
                   ),
                   Text(
                     '填写 1 个报价单位等于多少「${c['unit']!.text.trim().isEmpty ? '基准单位' : c['unit']!.text.trim()}」，例如 1 千米 = 1000 米。修改基准单位前请先清空旧换算。',
-                    style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+                    style: TextStyle(fontSize: 12, color: Tokens.ink3),
                   ),
                   for (var i = 0; i < unitConversions.length; i++)
                     Padding(
@@ -822,11 +819,11 @@ class _CatalogFormState extends State<_CatalogForm> {
                   const SizedBox(height: 12),
                 ],
                 if (error != null)
-                  Text(error!, style: const TextStyle(color: Tokens.red)),
+                  Text(error!, style: TextStyle(color: Tokens.red)),
                 if (widget.type == 'supplier') ...[
                   const Divider(height: 24),
                   if (widget.id == null)
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         '保存后可以添加联系人',

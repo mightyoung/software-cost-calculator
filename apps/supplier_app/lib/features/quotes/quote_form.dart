@@ -259,7 +259,7 @@ class _QuoteFormState extends State<_QuoteForm> {
     padding: const EdgeInsets.only(top: 4, bottom: 8),
     child: Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w600,
         color: Tokens.ink2,
@@ -371,10 +371,7 @@ class _QuoteFormState extends State<_QuoteForm> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(
-                        Icons.verified_outlined,
-                        color: Tokens.accentDeep,
-                      ),
+                      Icon(Icons.verified_outlined, color: Tokens.accentDeep),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -398,7 +395,7 @@ class _QuoteFormState extends State<_QuoteForm> {
               ],
               if (error != null) ...[
                 const SizedBox(height: 12),
-                Text(error!, style: const TextStyle(color: Tokens.red)),
+                Text(error!, style: TextStyle(color: Tokens.red)),
               ],
             ],
           ),

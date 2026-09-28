@@ -35,7 +35,7 @@ class HomePage extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
-              const Text(
+              Text(
                 'Ctrl+K 搜索与命令',
                 style: TextStyle(fontSize: 12, color: Tokens.ink3),
               ),
@@ -115,10 +115,7 @@ class HomePage extends StatelessWidget {
                   _Line(
                     title: p.name,
                     sub: '${p.lines} 行还没有关联报价',
-                    trailing: const Icon(
-                      Icons.chevron_right,
-                      color: Tokens.ink3,
-                    ),
+                    trailing: Icon(Icons.chevron_right, color: Tokens.ink3),
                     onTap: () => openRecord(context, state, 'project', p.id),
                   ),
               ],
@@ -156,7 +153,7 @@ class HomePage extends StatelessWidget {
       : '—';
 
   Widget _due(int? days, String? date) => switch (days) {
-    null => const Text('未设截止日', style: TextStyle(color: Tokens.ink3)),
+    null => Text('未设截止日', style: TextStyle(color: Tokens.ink3)),
     < 0 => HintTag(
       '已逾期 ${-days} 天',
       icon: Icons.error_outline,
@@ -164,7 +161,7 @@ class HomePage extends StatelessWidget {
     ),
     0 => const HintTag('今天截止', icon: Icons.schedule),
     <= 3 => HintTag('还剩 $days 天', icon: Icons.schedule),
-    _ => Text('$date 截止', style: const TextStyle(color: Tokens.ink2)),
+    _ => Text('$date 截止', style: TextStyle(color: Tokens.ink2)),
   };
 }
 
@@ -192,7 +189,7 @@ class _Section extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               '$count',
-              style: const TextStyle(color: Tokens.ink3, fontFeatures: tabular),
+              style: TextStyle(color: Tokens.ink3, fontFeatures: tabular),
             ),
             const Spacer(),
             ?action,
@@ -229,7 +226,7 @@ class _Line extends StatelessWidget {
     onTap: onTap,
     child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Tokens.rule)),
       ),
       child: Row(
@@ -242,7 +239,7 @@ class _Line extends StatelessWidget {
                 Text(
                   sub,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+                  style: TextStyle(fontSize: 12, color: Tokens.ink3),
                 ),
               ],
             ),

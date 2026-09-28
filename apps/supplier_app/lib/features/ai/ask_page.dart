@@ -150,7 +150,7 @@ class _AskPageState extends State<AskPage> {
           ],
         ),
         const SizedBox(height: 4),
-        const Text(
+        Text(
           'AI 只能查询本机数据，不会修改任何记录。回答中的金额来自数据库原值。问答记录只保存在本机。',
           style: TextStyle(color: Tokens.ink2),
         ),
@@ -183,7 +183,7 @@ class _AskPageState extends State<AskPage> {
                                 const SizedBox(width: 10),
                                 Text(
                                   activity == null ? '正在理解问题…' : '正在$activity…',
-                                  style: const TextStyle(color: Tokens.ink3),
+                                  style: TextStyle(color: Tokens.ink3),
                                 ),
                               ],
                             ),
@@ -353,7 +353,7 @@ class _RecordChip extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
           child: Text(
             name,
-            style: const TextStyle(
+            style: TextStyle(
               color: Tokens.accentDeep,
               fontWeight: FontWeight.w600,
             ),

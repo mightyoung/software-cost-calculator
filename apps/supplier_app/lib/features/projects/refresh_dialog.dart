@@ -67,7 +67,7 @@ class _RefreshDialogState extends State<_RefreshDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
+            Text(
               '下面的行有更合适的有效报价（已定标的优先，其次有效单价最低）。手填估价的行默认不勾选。',
               style: TextStyle(color: Tokens.ink2),
             ),
@@ -116,7 +116,7 @@ class _RefreshDialogState extends State<_RefreshDialog> {
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             if (error != null)
-              Text(error!, style: const TextStyle(color: Tokens.red)),
+              Text(error!, style: TextStyle(color: Tokens.red)),
           ],
         ),
       ),

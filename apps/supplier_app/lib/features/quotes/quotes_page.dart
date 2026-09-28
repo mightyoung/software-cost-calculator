@@ -172,7 +172,7 @@ class _QuotesPageState extends State<QuotesPage> {
           ),
           Text(
             taxModeLabels[r.data['tax_mode']] ?? '',
-            style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+            style: TextStyle(fontSize: 12, color: Tokens.ink3),
           ),
         ],
       ),
@@ -200,7 +200,7 @@ class _QuotesPageState extends State<QuotesPage> {
               tone: HintTone.success,
             )
           : r.issues.isEmpty
-          ? const Text('可用', style: TextStyle(color: Tokens.ink3))
+          ? Text('可用', style: TextStyle(color: Tokens.ink3))
           : HintTag(
               _issueLabels[r.issues.first]!.$1,
               icon: Icons.block,
@@ -376,7 +376,7 @@ class _QuotesPageState extends State<QuotesPage> {
                           projectId == null
                       ? '共 ${page.total} 条'
                       : '找到 ${page.total} 条',
-                  style: const TextStyle(color: Tokens.ink3),
+                  style: TextStyle(color: Tokens.ink3),
                 ),
                 const SizedBox(width: 16),
                 OutlinedButton.icon(
@@ -471,7 +471,7 @@ class _QuotesPageState extends State<QuotesPage> {
                 spacing: 10,
                 runSpacing: 4,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.notifications_active_outlined,
                     size: 18,
                     color: Tokens.accent,
@@ -494,7 +494,7 @@ class _QuotesPageState extends State<QuotesPage> {
                 runSpacing: 6,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  const Text('比价：', style: TextStyle(color: Tokens.ink2)),
+                  Text('比价：', style: TextStyle(color: Tokens.ink2)),
                   for (final m in matches)
                     ActionChip(
                       avatar: const Icon(Icons.compare_arrows, size: 16),

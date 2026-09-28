@@ -4,17 +4,13 @@ import '../app/theme.dart';
 
 /// Dashed border = "proposal, not yet confirmed" (AI matches, previews).
 class DraftFrame extends StatelessWidget {
-  const DraftFrame({
-    super.key,
-    required this.child,
-    this.color = Tokens.accent,
-  });
+  const DraftFrame({super.key, required this.child, this.color});
   final Widget child;
-  final Color color;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) => CustomPaint(
-    foregroundPainter: _Dashes(color),
+    foregroundPainter: _Dashes(color ?? Tokens.accent),
     child: ClipRRect(
       borderRadius: BorderRadius.circular(Tokens.radius),
       child: child,

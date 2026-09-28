@@ -139,7 +139,7 @@ class _HeaderRow extends StatelessWidget {
     color: Tokens.sunken,
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     child: DefaultTextStyle.merge(
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w600,
         color: Tokens.ink2,
@@ -172,7 +172,7 @@ class _GroupRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    decoration: const BoxDecoration(
+    decoration: BoxDecoration(
       color: Tokens.groupRow,
       border: Border(top: BorderSide(color: Tokens.rule)),
     ),
@@ -180,10 +180,7 @@ class _GroupRow extends StatelessWidget {
     child: Row(
       children: [
         Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-        Text(
-          '  $count 项',
-          style: const TextStyle(fontSize: 12, color: Tokens.ink3),
-        ),
+        Text('  $count 项', style: TextStyle(fontSize: 12, color: Tokens.ink3)),
         const Spacer(),
         Text(
           money(cost, prefix: '¥'),
@@ -269,7 +266,7 @@ class _LineRow extends StatelessWidget {
         if (product == null && d['notes'] != null)
           Text(
             d['notes']! as String,
-            style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+            style: TextStyle(fontSize: 12, color: Tokens.ink3),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -303,7 +300,7 @@ class _LineRow extends StatelessWidget {
                   ),
                   Text(
                     '${qty(d['qty']! as String)} ${d['unit']}${unpriced ? '' : ' × ${money(d['unit_cost']! as String)}'}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: Tokens.ink3,
                       fontFeatures: tabular,
@@ -347,7 +344,7 @@ class _LineRow extends StatelessWidget {
     return InkWell(
       onTap: () => showItemEditor(context, state, projectId, itemId: line.id),
       child: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           border: Border(top: BorderSide(color: Tokens.rule)),
         ),
         padding: EdgeInsets.symmetric(
@@ -380,12 +377,12 @@ class BudgetTotals extends StatelessWidget {
     final pending = budget.lines.where(_unpriced).length;
     Widget figure(String label, String value) => Text.rich(
       TextSpan(
-        style: const TextStyle(fontSize: 13, color: Tokens.ink2),
+        style: TextStyle(fontSize: 13, color: Tokens.ink2),
         children: [
           TextSpan(text: '$label  '),
           TextSpan(
             text: money(value, prefix: '¥'),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: Tokens.ink,
@@ -401,7 +398,7 @@ class BudgetTotals extends StatelessWidget {
     return Container(
       margin: EdgeInsets.fromLTRB(margin, 0, margin, compact ? 8 : 16),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Tokens.surface,
         border: Border(
           top: BorderSide(color: Tokens.ink, width: 2),

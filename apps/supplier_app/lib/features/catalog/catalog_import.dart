@@ -75,7 +75,7 @@ class _SupplierPreview extends StatelessWidget {
               '带联系方式 $contacts 行 · 有问题 ${errors.length} 行',
             ),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               '名称与本机已有供应商相同（忽略"有限公司"等字样）时不会重复新建。',
               style: TextStyle(fontSize: 12, color: Tokens.ink3),
             ),
@@ -84,7 +84,7 @@ class _SupplierPreview extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 6),
                 child: Text(
                   '第 ${e.row} 行：${friendlyError(e.error!)}',
-                  style: const TextStyle(color: Tokens.red),
+                  style: TextStyle(color: Tokens.red),
                 ),
               ),
           ],

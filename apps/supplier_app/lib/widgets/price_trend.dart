@@ -34,7 +34,7 @@ class PriceTrend extends StatelessWidget {
     final sorted = [...points]..sort((a, b) => a.day.compareTo(b.day));
     final prices = [for (final p in sorted) double.parse(p.price)];
     final low = prices.reduce(min), high = prices.reduce(max);
-    const label = TextStyle(fontSize: 12, color: Tokens.ink3);
+    final label = TextStyle(fontSize: 12, color: Tokens.ink3);
     return SizedBox(
       height: height,
       child: Row(

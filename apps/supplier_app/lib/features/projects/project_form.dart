@@ -266,10 +266,7 @@ class _ProjectFormState extends State<_ProjectForm> {
                   const SizedBox(height: 12),
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Text(
-                      error!,
-                      style: const TextStyle(color: Tokens.red),
-                    ),
+                    child: Text(error!, style: TextStyle(color: Tokens.red)),
                   ),
                 ],
               ],

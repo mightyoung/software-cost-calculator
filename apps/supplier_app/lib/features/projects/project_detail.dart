@@ -177,7 +177,7 @@ class _Header extends StatelessWidget {
               ),
               child: Text(
                 statusLabels[p['status']] ?? '',
-                style: const TextStyle(fontSize: 12, color: Tokens.accentDeep),
+                style: TextStyle(fontSize: 12, color: Tokens.accentDeep),
               ),
             ),
           ],
@@ -188,7 +188,7 @@ class _Header extends StatelessWidget {
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 4),
-        Text(meta, style: const TextStyle(fontSize: 13, color: Tokens.ink2)),
+        Text(meta, style: TextStyle(fontSize: 13, color: Tokens.ink2)),
         const SizedBox(height: 14),
         LedgerStrip(
           columns: compact ? 2 : null,

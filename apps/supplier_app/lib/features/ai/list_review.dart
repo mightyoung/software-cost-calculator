@@ -160,7 +160,7 @@ class _ListReviewState extends State<ListReview> {
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
           child: Text(
             '虚线框内是尚未确认的建议，确认前不会写入任何数据。匹配时只发送了物料名称与规格，没有发送价格。',
-            style: const TextStyle(color: Tokens.ink2),
+            style: TextStyle(color: Tokens.ink2),
           ),
         ),
         Expanded(
@@ -246,7 +246,7 @@ class _ListReviewState extends State<ListReview> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Text(
               '清单原文${widget.sourceName == null ? '' : ' · ${widget.sourceName}'}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: Tokens.ink2,
@@ -274,10 +274,7 @@ class _ListReviewState extends State<ListReview> {
                         width: 26,
                         child: Text(
                           '${i + 1}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Tokens.ink3,
-                          ),
+                          style: TextStyle(fontSize: 12, color: Tokens.ink3),
                         ),
                       ),
                       Expanded(
@@ -317,7 +314,7 @@ class _ListReviewState extends State<ListReview> {
         if (item.requirements != null)
           Text(
             item.requirements!,
-            style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+            style: TextStyle(fontSize: 12, color: Tokens.ink3),
           ),
       ],
     );
@@ -361,7 +358,7 @@ class _ListReviewState extends State<ListReview> {
         if (r.line.reason != null && !r.changedByUser)
           Text(
             r.line.reason!,
-            style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+            style: TextStyle(fontSize: 12, color: Tokens.ink3),
           ),
       ],
     );
@@ -377,7 +374,7 @@ class _ListReviewState extends State<ListReview> {
         if (best != null)
           Text(
             '${store.get('supplier', best.data['supplier_id']! as String)?.data['name'] ?? ''}${best.validityPending ? ' · 有效期待确认' : ''}',
-            style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+            style: TextStyle(fontSize: 12, color: Tokens.ink3),
             textAlign: TextAlign.right,
           ),
       ],
@@ -402,7 +399,7 @@ class _ListReviewState extends State<ListReview> {
         if (r.qtyUncertain)
           Text(
             '原文"${item.qty ?? '未写'}"',
-            style: const TextStyle(fontSize: 12, color: Tokens.amber),
+            style: TextStyle(fontSize: 12, color: Tokens.amber),
           ),
       ],
     );
@@ -444,7 +441,7 @@ class _ListReviewState extends State<ListReview> {
       child: Container(
         decoration: BoxDecoration(
           border: r.attention
-              ? const Border(left: BorderSide(color: Tokens.amber, width: 3))
+              ? Border(left: BorderSide(color: Tokens.amber, width: 3))
               : null,
         ),
         padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
@@ -481,8 +478,7 @@ class _ListReviewState extends State<ListReview> {
           field(markup, '加价率 %', 90),
           if (attention > 0)
             HintText('$attention 项需确认', icon: Icons.warning_amber_rounded),
-          if (error != null)
-            Text(error!, style: const TextStyle(color: Tokens.red)),
+          if (error != null) Text(error!, style: TextStyle(color: Tokens.red)),
           OutlinedButton(onPressed: widget.onBack, child: const Text('返回修改清单')),
           FilledButton.icon(
             onPressed: _generate,

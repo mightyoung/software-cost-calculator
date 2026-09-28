@@ -134,7 +134,7 @@ class _CreateInquiryState extends State<_CreateInquiry> {
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               if (lines.isEmpty)
-                const Text('这个项目还没有材料行', style: TextStyle(color: Tokens.ink3)),
+                Text('这个项目还没有材料行', style: TextStyle(color: Tokens.ink3)),
               for (final l in lines)
                 CheckboxListTile(
                   dense: true,
@@ -193,7 +193,7 @@ class _CreateInquiryState extends State<_CreateInquiry> {
                   runSpacing: 6,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       '报过这些物料：',
                       style: TextStyle(fontSize: 12, color: Tokens.ink3),
                     ),
@@ -208,7 +208,7 @@ class _CreateInquiryState extends State<_CreateInquiry> {
               ],
               if (error != null) ...[
                 const SizedBox(height: 10),
-                Text(error!, style: const TextStyle(color: Tokens.red)),
+                Text(error!, style: TextStyle(color: Tokens.red)),
               ],
             ],
           ),

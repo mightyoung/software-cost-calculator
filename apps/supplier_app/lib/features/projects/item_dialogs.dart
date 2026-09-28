@@ -191,7 +191,7 @@ class _AddItemsState extends State<_AddItems> {
           if (supplier != null)
             Text(
               '$supplier${best!.validityPending ? ' · 有效期待确认' : ''}',
-              style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+              style: TextStyle(fontSize: 12, color: Tokens.ink3),
             ),
         ],
       ),
@@ -494,7 +494,7 @@ class _ItemEditorState extends State<_ItemEditor> {
                 field('notes', '备注'),
                 if (error != null) ...[
                   const SizedBox(height: 12),
-                  Text(error!, style: const TextStyle(color: Tokens.red)),
+                  Text(error!, style: TextStyle(color: Tokens.red)),
                 ],
               ],
             ),
