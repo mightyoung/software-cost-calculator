@@ -209,7 +209,7 @@ class _CellDialogState extends State<_CellDialog> {
               ),
               if (error != null) ...[
                 const SizedBox(height: 10),
-                Text(error!, style: const TextStyle(color: Tokens.red)),
+                Text(error!, style: TextStyle(color: Tokens.red)),
               ],
             ],
           ),

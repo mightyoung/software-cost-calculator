@@ -16,8 +16,17 @@ final class Supplier extends EntityPayload {
     'categories',
     'notes',
     'merged_into',
+    // Schema 7: the buyer's own judgement.
+    'rating',
+    'rating_note',
   ];
-  factory Supplier.fromJson(Map<String, Object?> value) {
+  factory Supplier.fromJson(Map<String, Object?> input) {
+    // Fields added later may be left out; they mean "not set".
+    final value = {'rating': null, 'rating_note': null, ...input};
+    final rating = value['rating'];
+    if (rating != null && !supplierRatings.containsKey(rating)) {
+      invalid('rating', 'unknown value');
+    }
     exactKeys(value, fields);
     return Supplier._({
       'name': normalizeText(value['name'], 'name', 200, required: true),
@@ -31,9 +40,15 @@ final class Supplier extends EntityPayload {
       ),
       'notes': normalizeText(value['notes'], 'notes', 2000),
       'merged_into': _mergedInto(value),
+      'rating': rating,
+      'rating_note': normalizeText(value['rating_note'], 'rating_note', 500),
     });
   }
 }
+
+/// 停用 suppliers' quotes never count as usable or lowest; 慎用 is shown
+/// as a warning.
+const supplierRatings = {'preferred': '推荐', 'caution': '慎用', 'disabled': '停用'};
 
 /// A duplicate that was merged keeps its row and points at the record it
 /// was merged into, so references arriving from other devices can follow.

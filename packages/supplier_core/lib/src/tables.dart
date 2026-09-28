@@ -214,7 +214,8 @@ extension Tables on Store {
         QuoteFilter.usable => (
           "NOT ${expired.$1} AND ${f('quoted_on')} <= ? AND "
               "${f('price_basis')} IS NULL AND ${f('tax_mode')} <> 'unknown' "
-              'AND coalesce(s.deleted, 1) = 0',
+              'AND coalesce(s.deleted, 1) = 0 '
+              "AND coalesce(json_extract(s.data,'\$.rating'), '') <> 'disabled'",
           [...expired.$2, today],
         ),
       },
@@ -241,6 +242,7 @@ extension Tables on Store {
     final rows = db.select(
       '''
       SELECT q.id, q.data, coalesce(s.deleted, 1) AS supplier_deleted,
+        json_extract(s.data,'\$.rating') AS rating,
         json_extract(s.data,'\$.name') AS supplier,
         json_extract(p.data,'\$.name') AS product,
         json_extract(p.data,'\$.model') AS model,
@@ -272,6 +274,7 @@ extension Tables on Store {
               today: today,
               staleBefore: staleBefore,
               supplierDeleted: r['supplier_deleted'] == 1,
+              supplierDisabled: r['rating'] == 'disabled',
             ),
           );
         }(),

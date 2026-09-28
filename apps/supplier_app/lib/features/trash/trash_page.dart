@@ -49,7 +49,7 @@ class TrashPage extends StatelessWidget {
         return ListView(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
           children: [
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(bottom: 10),
               child: Text(
                 '恢复后记录回到原处，并随同步与交换传到其他设备。',
@@ -70,7 +70,7 @@ class TrashPage extends StatelessWidget {
                       decoration: BoxDecoration(
                         border: i == 0
                             ? null
-                            : const Border(top: BorderSide(color: Tokens.rule)),
+                            : Border(top: BorderSide(color: Tokens.rule)),
                       ),
                       child: Row(
                         children: [
@@ -78,7 +78,7 @@ class TrashPage extends StatelessWidget {
                             width: 64,
                             child: Text(
                               ontology[r.type]!.label,
-                              style: const TextStyle(color: Tokens.ink3),
+                              style: TextStyle(color: Tokens.ink3),
                             ),
                           ),
                           Expanded(
@@ -88,7 +88,7 @@ class TrashPage extends StatelessWidget {
                                 Text(recordTitle(state.store, r.type, r.data)),
                                 Text(
                                   '${r.at.substring(0, 16).replaceFirst('T', ' ')} 由 ${r.by} 删除',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
                                     color: Tokens.ink3,
                                   ),

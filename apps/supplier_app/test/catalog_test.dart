@@ -85,6 +85,18 @@ void main() {
     expect(state.store.searchByName('supplier', '永泰').single.id, existing);
   });
 
+  testWidgets('a supplier can be rated with a reason', (tester) async {
+    await open(tester, id: existing);
+    await tester.tap(find.text('停用'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('不参与最低价'), findsOneWidget);
+    await tester.enterText(find.widgetWithText(TextField, '评价说明'), '交货屡次延期');
+    await tester.tap(find.text('保存'));
+    await tester.pumpAndSettle();
+    final d = state.store.get('supplier', existing)!.data;
+    expect((d['rating'], d['rating_note']), ('disabled', '交货屡次延期'));
+  });
+
   testWidgets('product form saves a configurable quote unit', (tester) async {
     await open(tester, type: 'product');
     await tester.enterText(find.widgetWithText(TextField, '物料名称'), '动力电缆');

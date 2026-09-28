@@ -31,7 +31,7 @@ class ProjectInquiries extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Expanded(
+            Expanded(
               child: Text(
                 '把待询价的行发给几家供应商，回来的报价在矩阵里逐行比较并定标，定标后自动回填预算。',
                 style: TextStyle(color: Tokens.ink2),

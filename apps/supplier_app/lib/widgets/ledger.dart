@@ -4,8 +4,16 @@ import '../app/theme.dart';
 
 /// A ruled row of labelled figures; replaces metric cards.
 class LedgerStrip extends StatelessWidget {
-  const LedgerStrip({super.key, required this.cells, this.columns});
+  const LedgerStrip({
+    super.key,
+    required this.cells,
+    this.columns,
+    this.dense = false,
+  });
   final List<LedgerCell> cells;
+
+  /// Phones: one row, tighter gaps (the cells should be dense too).
+  final bool dense;
 
   /// Wraps into a grid of this many columns (phones use 2).
   final int? columns;
@@ -18,7 +26,7 @@ class LedgerStrip extends StatelessWidget {
         cells.sublist(i, (i + perRow).clamp(0, cells.length)),
     ];
     return DecoratedBox(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border.symmetric(horizontal: BorderSide(color: Tokens.rule)),
       ),
       child: Column(
@@ -28,7 +36,7 @@ class LedgerStrip extends StatelessWidget {
               decoration: BoxDecoration(
                 border: r == 0
                     ? null
-                    : const Border(top: BorderSide(color: Tokens.rule)),
+                    : Border(top: BorderSide(color: Tokens.rule)),
               ),
               child: IntrinsicHeight(
                 child: Row(
@@ -39,15 +47,15 @@ class LedgerStrip extends StatelessWidget {
                         child: i < rows[r].length
                             ? Container(
                                 padding: EdgeInsets.fromLTRB(
-                                  i == 0 ? 0 : 14,
-                                  10,
-                                  8,
-                                  10,
+                                  i == 0 ? 0 : (dense ? 8 : 14),
+                                  dense ? 8 : 10,
+                                  dense ? 4 : 8,
+                                  dense ? 8 : 10,
                                 ),
                                 decoration: BoxDecoration(
                                   border: i == 0
                                       ? null
-                                      : const Border(
+                                      : Border(
                                           left: BorderSide(color: Tokens.rule),
                                         ),
                                 ),
@@ -66,35 +74,47 @@ class LedgerStrip extends StatelessWidget {
 }
 
 class LedgerCell extends StatelessWidget {
-  const LedgerCell(this.label, this.value, {super.key, this.note, this.alert});
+  const LedgerCell(
+    this.label,
+    this.value, {
+    super.key,
+    this.note,
+    this.alert,
+    this.dense = false,
+  });
   final String label, value;
   final String? note, alert;
+
+  /// Smaller figure with the note beneath it, for four cells across a phone.
+  final bool dense;
 
   @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(label, style: const TextStyle(fontSize: 12, color: Tokens.ink3)),
+      Text(label, style: TextStyle(fontSize: 12, color: Tokens.ink3)),
       const SizedBox(height: 2),
       Text.rich(
         TextSpan(
           children: [
             TextSpan(
               text: value,
-              style: const TextStyle(
-                fontSize: 20,
+              style: TextStyle(
+                fontSize: dense ? 15 : 20,
                 fontWeight: FontWeight.w600,
                 fontFeatures: tabular,
               ),
             ),
-            if (note != null)
+            if (note != null && !dense)
               TextSpan(
                 text: '  $note',
-                style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+                style: TextStyle(fontSize: 12, color: Tokens.ink3),
               ),
           ],
         ),
       ),
+      if (note != null && dense)
+        Text(note!, style: TextStyle(fontSize: 12, color: Tokens.ink3)),
       if (alert != null) ...[
         const SizedBox(height: 2),
         HintText(alert!, icon: Icons.warning_amber_rounded),
@@ -165,10 +185,7 @@ class HintText extends StatelessWidget {
       Icon(icon, size: 13, color: Tokens.amber),
       const SizedBox(width: 4),
       Flexible(
-        child: Text(
-          text,
-          style: const TextStyle(fontSize: 12, color: Tokens.amber),
-        ),
+        child: Text(text, style: TextStyle(fontSize: 12, color: Tokens.amber)),
       ),
     ],
   );
@@ -198,7 +215,7 @@ class EmptyState extends StatelessWidget {
             Text(
               body,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Tokens.ink2),
+              style: TextStyle(color: Tokens.ink2),
             ),
             if (actions.isNotEmpty) ...[
               const SizedBox(height: 16),
@@ -224,7 +241,7 @@ class MonoText extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     text,
-    style: const TextStyle(
+    style: TextStyle(
       fontSize: 12,
       color: Tokens.ink2,
       fontFamily: monoFamily,
@@ -249,10 +266,22 @@ class MoreRow extends StatelessWidget {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text('已显示 $shown 条', style: const TextStyle(color: Tokens.ink3)),
+        Text('已显示 $shown 条', style: TextStyle(color: Tokens.ink3)),
         const SizedBox(width: 8),
         TextButton(onPressed: onMore, child: const Text('再显示 200 条')),
       ],
     ),
   );
 }
+
+/// A supplier's rating as a tag; null when not rated.
+Widget? ratingTag(Object? rating) => switch (rating) {
+  'preferred' => const HintTag(
+    '推荐',
+    icon: Icons.thumb_up_alt_outlined,
+    tone: HintTone.success,
+  ),
+  'caution' => const HintTag('慎用', icon: Icons.warning_amber_rounded),
+  'disabled' => const HintTag('停用', icon: Icons.block, tone: HintTone.error),
+  _ => null,
+};

@@ -221,4 +221,70 @@ void main() {
       isNull,
     );
   });
+
+  test('price tiers: the largest step the quantity reaches sets the price', () {
+    final tiered = s.save('quotation', {
+      ...quotation(sup, prod, pro, '100'),
+      'price_tiers': [
+        {'min_qty': '10', 'price': '90'},
+        {'min_qty': '50', 'price': '80.5'},
+      ],
+    });
+    final flat = s.save('quotation', quotation(sup, prod, pro, '95'));
+    String best(String qty) =>
+        s.quoteOptions(pro, prod, asOf: asOf, qty: qty).first.price;
+    expect(best('5'), '95', reason: 'below every tier: 100 vs 95');
+    expect(best('10'), '90');
+    final fifty = s.quoteOptions(pro, prod, asOf: asOf, qty: '60').first;
+    expect((fifty.id, fifty.price, fifty.tiered), (tiered, '80.5', true));
+    expect(s.quoteOptions(pro, prod, asOf: asOf).first.id, flat);
+
+    for (final bad in [
+      <Object>[],
+      [
+        {'min_qty': '1', 'price': '9'},
+      ], // not above min_qty 1
+      [
+        {'min_qty': '20', 'price': '9'},
+        {'min_qty': '10', 'price': '8'},
+      ], // not rising
+      [
+        {'min_qty': '20', 'price': '9', 'x': '1'},
+      ],
+    ]) {
+      expect(
+        () => s.save('quotation', {
+          ...quotation(sup, prod, pro, '100'),
+          'price_tiers': bad,
+        }),
+        throwsFormatException,
+        reason: '$bad',
+      );
+    }
+  });
+
+  test('a supplier rated 停用 no longer offers usable or lowest prices', () {
+    final cheap = s.save('supplier', {
+      ...supplier('乙'),
+      'rating': 'disabled',
+      'rating_note': '交货屡次延期',
+    });
+    s.save('quotation', quotation(cheap, prod, pro, '50'));
+    final ok = s.save('quotation', quotation(sup, prod, pro, '100'));
+    expect(s.quoteOptions(pro, prod, asOf: asOf).map((o) => o.id), [ok]);
+    final rows = s.compareQuotes(prod, asOf: asOf).single.rows;
+    expect(rows.singleWhere((r) => r.lowest).id, ok);
+    expect(
+      rows.singleWhere((r) => r.id != ok).issues,
+      contains(QuoteIssue.supplierDisabled),
+    );
+    expect(
+      s.quoteRows(filter: QuoteFilter.usable, asOf: asOf).rows.map((r) => r.id),
+      [ok],
+    );
+    expect(
+      () => s.save('supplier', {...supplier('丙'), 'rating': 'best'}),
+      throwsFormatException,
+    );
+  });
 }

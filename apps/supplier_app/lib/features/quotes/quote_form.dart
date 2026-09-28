@@ -5,6 +5,7 @@ import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import 'quote_extras.dart';
 import '../../widgets/save_keys.dart';
+import 'tiers_editor.dart';
 
 /// Records one standard quotation. Supplier, material and project are picked
 /// by typing; dates use the system picker (date only, never a fake 00:00).
@@ -33,6 +34,7 @@ class _QuoteForm extends StatefulWidget {
 class _QuoteFormState extends State<_QuoteForm> {
   late Map<String, Object?> data;
   final c = <String, TextEditingController>{};
+  final tiers = <TierRow>[];
   String? error;
 
   Store get store => widget.state.store;
@@ -69,11 +71,20 @@ class _QuoteFormState extends State<_QuoteForm> {
       final v = data[k];
       c[k] = TextEditingController(text: v == null ? '' : '$v');
     }
+    for (final t in (data['price_tiers'] as List?) ?? const []) {
+      tiers.add((
+        TextEditingController(text: '${(t as Map)['min_qty']}'),
+        TextEditingController(text: '${t['price']}'),
+      ));
+    }
   }
 
   @override
   void dispose() {
-    for (final x in c.values) {
+    for (final x in [
+      ...c.values,
+      for (final (q, p) in tiers) ...[q, p],
+    ]) {
       x.dispose();
     }
     super.dispose();
@@ -172,6 +183,16 @@ class _QuoteFormState extends State<_QuoteForm> {
                 : v);
     }
     payload['min_qty'] ??= '1';
+    String clean(TextEditingController t) => t.text.trim().replaceAll(',', '');
+    if (tiers.any((t) => clean(t.$1).isEmpty || clean(t.$2).isEmpty)) {
+      return setState(() => error = '阶梯价的数量和单价都要填写，不用的档请删除');
+    }
+    payload['price_tiers'] = tiers.isEmpty
+        ? null
+        : [
+            for (final (q, p) in tiers)
+              {'min_qty': clean(q), 'price': clean(p)},
+          ];
     final missing = [
       if (payload['supplier_id'] == null) '供应商',
       if (payload['product_id'] == null) '物料',
@@ -259,7 +280,7 @@ class _QuoteFormState extends State<_QuoteForm> {
     padding: const EdgeInsets.only(top: 4, bottom: 8),
     child: Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w600,
         color: Tokens.ink2,
@@ -327,6 +348,24 @@ class _QuoteFormState extends State<_QuoteForm> {
                 _text('min_qty', '起订量', number: true),
                 _text('lead_time_days', '交期（天）', number: true),
               ),
+              TiersEditor(
+                rows: tiers,
+                unit: c['unit_snapshot']!.text.trim().isEmpty
+                    ? '报价单位'
+                    : c['unit_snapshot']!.text.trim(),
+                onAdd: () => setState(
+                  () => tiers.add((
+                    TextEditingController(),
+                    TextEditingController(),
+                  )),
+                ),
+                onRemove: (i) => setState(() {
+                  final (q, p) = tiers.removeAt(i);
+                  q.dispose();
+                  p.dispose();
+                }),
+              ),
+              const SizedBox(height: 4),
               _group('询价信息'),
               _pair(
                 _picker('project', 'project_id', '项目'),
@@ -371,10 +410,7 @@ class _QuoteFormState extends State<_QuoteForm> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(
-                        Icons.verified_outlined,
-                        color: Tokens.accentDeep,
-                      ),
+                      Icon(Icons.verified_outlined, color: Tokens.accentDeep),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -398,7 +434,7 @@ class _QuoteFormState extends State<_QuoteForm> {
               ],
               if (error != null) ...[
                 const SizedBox(height: 12),
-                Text(error!, style: const TextStyle(color: Tokens.red)),
+                Text(error!, style: TextStyle(color: Tokens.red)),
               ],
             ],
           ),

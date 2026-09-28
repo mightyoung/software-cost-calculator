@@ -112,10 +112,7 @@ class _ExchangePageState extends State<ExchangePage> {
                 const SizedBox(height: 10),
                 Text(title, style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 6),
-                Text(
-                  body,
-                  style: const TextStyle(color: Tokens.ink2, height: 1.6),
-                ),
+                Text(body, style: TextStyle(color: Tokens.ink2, height: 1.6)),
                 const SizedBox(height: 16),
                 action,
               ],
@@ -198,12 +195,12 @@ class _ExchangePageState extends State<ExchangePage> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.call_split, color: Tokens.amber),
+                    Icon(Icons.call_split, color: Tokens.amber),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         '有 $n 处修改冲突需要确认',
-                        style: const TextStyle(color: Tokens.amber),
+                        style: TextStyle(color: Tokens.amber),
                       ),
                     ),
                     TextButton(

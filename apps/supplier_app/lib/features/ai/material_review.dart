@@ -151,22 +151,19 @@ class _MaterialReviewState extends State<MaterialReview> {
               children: [
                 Text('识别结果：$value'),
                 const SizedBox(height: 8),
-                Text(
-                  widget.source!.name,
-                  style: const TextStyle(color: Tokens.ink3),
-                ),
+                Text(widget.source!.name, style: TextStyle(color: Tokens.ink3)),
                 const SizedBox(height: 12),
                 if (original == null)
                   const Text('无法显示这份附件的原文，请返回查看原始文件后核对。')
                 else if (at < 0) ...[
-                  const Text(
+                  Text(
                     '未找到完全相同的原文，可能经过格式整理或人工修改。请核对以下原文，必要时修改识别结果。',
                     style: TextStyle(color: Tokens.amber),
                   ),
                   const SizedBox(height: 12),
                   SelectableText(original),
                 ] else ...[
-                  const Text(
+                  Text(
                     '高亮为原文中的匹配内容；仍需核对它是否属于当前报价。',
                     style: TextStyle(color: Tokens.ink2),
                   ),
@@ -180,7 +177,7 @@ class _MaterialReviewState extends State<MaterialReview> {
                         ),
                         TextSpan(
                           text: original.substring(at, matchEnd),
-                          style: const TextStyle(
+                          style: TextStyle(
                             backgroundColor: Tokens.amberBg,
                             color: Tokens.ink,
                             fontWeight: FontWeight.w600,
@@ -340,7 +337,7 @@ class _MaterialReviewState extends State<MaterialReview> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.fromLTRB(20, 4, 20, 8),
           child: Text(
             '虚线框内是 AI 整理出的内容，确认前不会写入。可以逐条修改，或改为对应本机已有的供应商和物料。',
@@ -412,7 +409,7 @@ class _MaterialReviewState extends State<MaterialReview> {
             if (o['qty'] != null) '数量 ${o['qty']}',
             if (o['valid_until'] != null) '有效至 ${o['valid_until']}',
           ].whereType<String>().join(' · '),
-          style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+          style: TextStyle(fontSize: 12, color: Tokens.ink3),
         ),
       ],
     );
@@ -428,11 +425,11 @@ class _MaterialReviewState extends State<MaterialReview> {
             o['specification']!,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+            style: TextStyle(fontSize: 12, color: Tokens.ink3),
           ),
         Text(
           [?o['supplier'], if (contact.isNotEmpty) contact].join(' · '),
-          style: const TextStyle(fontSize: 12, color: Tokens.ink2),
+          style: TextStyle(fontSize: 12, color: Tokens.ink2),
         ),
         if (!wide) ...[const SizedBox(height: 4), price],
         const SizedBox(height: 8),
@@ -497,7 +494,7 @@ class _MaterialReviewState extends State<MaterialReview> {
     return Container(
       decoration: BoxDecoration(
         border: r.plan.error != null
-            ? const Border(left: BorderSide(color: Tokens.red, width: 3))
+            ? Border(left: BorderSide(color: Tokens.red, width: 3))
             : null,
       ),
       padding: const EdgeInsets.fromLTRB(4, 10, 8, 10),
@@ -579,7 +576,7 @@ class _MaterialReviewState extends State<MaterialReview> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (widget.masterData)
-            const Text(
+            Text(
               '只登记供应商、联系人和物料；表里的单价不会存为报价（报价需要所属项目和询价人，可以之后用"智能导入"导入）。',
               style: TextStyle(fontSize: 12, color: Tokens.ink3),
             )
@@ -637,33 +634,55 @@ class _MaterialReviewState extends State<MaterialReview> {
               ],
             ),
           const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  error ??
-                      [
-                        if (!widget.masterData) '$priced 条报价',
-                        '新建供应商 $newSuppliers',
-                        '新建物料 $newProducts',
-                      ].join(' · '),
-                  style: TextStyle(
-                    color: error == null ? Tokens.ink2 : Tokens.red,
-                  ),
+          Builder(
+            builder: (context) {
+              final summary = Text(
+                error ??
+                    [
+                      if (!widget.masterData) '$priced 条报价',
+                      '新建供应商 $newSuppliers',
+                      '新建物料 $newProducts',
+                    ].join(' · '),
+                style: TextStyle(
+                  color: error == null ? Tokens.ink2 : Tokens.red,
                 ),
-              ),
-              const SizedBox(width: 10),
-              OutlinedButton(
+              );
+              final back = OutlinedButton(
                 onPressed: widget.onBack,
                 child: const Text('返回修改'),
-              ),
-              const SizedBox(width: 8),
-              FilledButton.icon(
+              );
+              final confirm = FilledButton.icon(
                 onPressed: ready == 0 ? null : _apply,
                 icon: const Icon(Icons.check, size: 18),
                 label: Text('确认导入（$ready 条）'),
-              ),
-            ],
+              );
+              // Phones: the summary gets its own line above the buttons.
+              if (MediaQuery.sizeOf(context).width < 600) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    summary,
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        back,
+                        const SizedBox(width: 8),
+                        Expanded(child: confirm),
+                      ],
+                    ),
+                  ],
+                );
+              }
+              return Row(
+                children: [
+                  Expanded(child: summary),
+                  const SizedBox(width: 10),
+                  back,
+                  const SizedBox(width: 8),
+                  confirm,
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -767,7 +786,7 @@ class _OfferFormState extends State<_OfferForm> {
                   ),
                 ),
             if (error != null)
-              Text(error!, style: const TextStyle(color: Tokens.red)),
+              Text(error!, style: TextStyle(color: Tokens.red)),
           ],
         ),
       ),

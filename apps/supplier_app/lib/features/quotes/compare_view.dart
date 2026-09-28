@@ -17,6 +17,7 @@ const _issueText = {
   QuoteIssue.stale: '超过 90 天且未写有效期',
   QuoteIssue.taxUnknown: '含税口径未知',
   QuoteIssue.supplierDeleted: '供应商已删除',
+  QuoteIssue.supplierDisabled: '供应商已停用',
   QuoteIssue.informal: '口头或参考价',
 };
 
@@ -57,7 +58,7 @@ class CompareView extends StatelessWidget {
             ),
           ],
         ),
-        const Padding(
+        Padding(
           padding: EdgeInsets.fromLTRB(0, 4, 0, 10),
           child: Text(
             '同币种报价按含税价及物料基准单位比较；跨税口径需税率，跨单位需在物料中配置换算。无法换算的报价单列。',
@@ -121,7 +122,7 @@ class CompareView extends StatelessWidget {
 
   Widget _columnsHeader() => Container(
     height: 34,
-    decoration: const BoxDecoration(
+    decoration: BoxDecoration(
       color: Tokens.groupRow,
       border: Border(
         left: BorderSide(color: Tokens.rule),
@@ -136,7 +137,7 @@ class CompareView extends StatelessWidget {
             i,
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: Tokens.ink2,
@@ -168,7 +169,7 @@ class CompareView extends StatelessWidget {
               as String?;
     final muted = !r.valid;
     final ink = muted ? Tokens.ink3 : Tokens.ink;
-    const small = TextStyle(fontSize: 12, color: Tokens.ink3);
+    final small = TextStyle(fontSize: 12, color: Tokens.ink3);
     String? n(Object? v, String unit) => v == null ? null : '$v $unit';
     return InkWell(
       onTap: () => showQuoteForm(context, state, id: r.id),
@@ -177,7 +178,7 @@ class CompareView extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 6),
         decoration: BoxDecoration(
           color: r.lowest ? Tokens.greenBg : Tokens.surface,
-          border: const Border(
+          border: Border(
             left: BorderSide(color: Tokens.rule),
             right: BorderSide(color: Tokens.rule),
             bottom: BorderSide(color: Tokens.rule),
@@ -224,6 +225,17 @@ class CompareView extends StatelessWidget {
                     Text(
                       '报价 ${money(r.data['price'] as String?)}',
                       style: small,
+                    ),
+                  if (r.data['price_tiers'] case final List tiers)
+                    Tooltip(
+                      message: [
+                        for (final t in tiers.cast<Map>())
+                          '≥ ${t['min_qty']} ${r.data['unit_snapshot']}：${money(t['price'] as String)}',
+                      ].join('\n'),
+                      child: Text(
+                        '阶梯价 ${tiers.length} 档',
+                        style: small.copyWith(color: Tokens.accentDeep),
+                      ),
                     ),
                 ],
               ),
@@ -377,7 +389,7 @@ class _GroupHeader extends StatelessWidget {
                   '历史 最低 ${money(h.min)} · 平均 ${money(h.average)} · 最高 ${money(h.max)}'
                       '${h.lastDeal == null ? '' : ' · 最近成交 ${money(h.lastDeal)}'}',
               ].join('\n'),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: Tokens.ink2,

@@ -134,7 +134,7 @@ class _PaletteState extends State<_Palette> {
       child: Material(
         color: Tokens.surface,
         shape: RoundedRectangleBorder(
-          side: const BorderSide(color: Tokens.ruleStrong),
+          side: BorderSide(color: Tokens.ruleStrong),
           borderRadius: BorderRadius.circular(Tokens.radius + 2),
         ),
         clipBehavior: Clip.antiAlias,
@@ -170,7 +170,7 @@ class _PaletteState extends State<_Palette> {
               const Divider(height: 1),
               Expanded(
                 child: list.isEmpty
-                    ? const Center(
+                    ? Center(
                         child: Text(
                           '没有找到',
                           style: TextStyle(color: Tokens.ink3),
@@ -196,7 +196,7 @@ class _PaletteState extends State<_Palette> {
                                 ? null
                                 : Text(
                                     e.keys!,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12,
                                       color: Tokens.ink3,
                                     ),
@@ -213,7 +213,7 @@ class _PaletteState extends State<_Palette> {
                   horizontal: 14,
                   vertical: 6,
                 ),
-                child: const Text(
+                child: Text(
                   '↑↓ 选择 · Enter 打开 · Esc 关闭',
                   style: TextStyle(fontSize: 12, color: Tokens.ink3),
                 ),
@@ -267,7 +267,7 @@ Future<void> showShortcutHelp(BuildContext context) => showDialog<void>(
               ),
             ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             'macOS 上用 ⌘ 代替 Ctrl。',
             style: TextStyle(fontSize: 12, color: Tokens.ink3),
           ),

@@ -21,6 +21,9 @@ const _reasons = {
   'clear or reconfigure conversions when changing the base unit':
       '修改基准单位前请清空旧换算，或按新基准单位重新设置',
   'expected at most 50 conversions': '最多设置 50 条单位换算',
+  'expected 1 to 10 tiers': '阶梯价应为 1 到 10 档',
+  'expected objects': '数据格式错误',
+  'quantities must rise above the minimum order': '每档数量须大于起订量，并且逐档递增',
   'duplicate or base unit, or invalid factor': '来源单位不能重复或等于基准单位，换算数量须为正数',
   'record does not exist': '记录已被删除',
   'record is not deleted': '记录没有被删除',

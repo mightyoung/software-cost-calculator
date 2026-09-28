@@ -23,6 +23,7 @@ class QuoteOption {
     String? effectivePrice,
     String? price,
     this.converted = false,
+    this.tiered = false,
   }) : price = price ?? priceOf(data),
        effectivePrice = effectivePrice ?? price ?? priceOf(data);
   final String id;
@@ -45,6 +46,9 @@ class QuoteOption {
   final String price;
   String get sourcePrice => priceOf(data);
   final bool converted;
+
+  /// [price] comes from a quantity tier, not the base unit price.
+  final bool tiered;
 
   /// [price] plus tax-normalized extra cost spread over the needed quantity
   /// (equal to [price] when there is no extra cost or no quantity).
@@ -151,6 +155,7 @@ extension Budgets on Store {
         "SELECT q.id, q.data FROM quotation q "
         "JOIN supplier s ON s.id = json_extract(q.data,'\$.supplier_id') "
         "WHERE q.deleted = 0 AND s.deleted = 0 "
+        "AND coalesce(json_extract(s.data,'\$.rating'), '') <> 'disabled' "
         "AND json_extract(q.data,'\$.product_id') = ? "
         "AND json_extract(q.data,'\$.currency') = ?",
         [productId, currency],
@@ -196,8 +201,9 @@ extension Budgets on Store {
     String unit,
   ) {
     final data = decodeStoredPayload('quotation', raw);
+    final priced = qty == null ? data : atQuantity(data, product, unit, qty);
     final price = priceInUnit(
-      data,
+      priced,
       product: product,
       unit: unit,
       currency: currency,
@@ -217,6 +223,7 @@ extension Budgets on Store {
       until == null,
       price: price,
       converted: data['tax_mode'] != taxMode || data['unit_snapshot'] != unit,
+      tiered: !identical(priced, data),
       meetsMinQty:
           qty == null || meetsMinimumQuantity(data, product, unit, qty),
       effectivePrice: effectivePriceOf(

@@ -61,7 +61,7 @@ class _PassphraseDialogState extends State<_PassphraseDialog> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (widget.message != null) ...[
-            Text(widget.message!, style: const TextStyle(color: Tokens.ink2)),
+            Text(widget.message!, style: TextStyle(color: Tokens.ink2)),
             const SizedBox(height: 12),
           ],
           TextField(
@@ -82,7 +82,7 @@ class _PassphraseDialogState extends State<_PassphraseDialog> {
           ],
           if (error != null) ...[
             const SizedBox(height: 10),
-            Text(error!, style: const TextStyle(color: Tokens.red)),
+            Text(error!, style: TextStyle(color: Tokens.red)),
           ],
         ],
       ),
@@ -160,7 +160,7 @@ class _PassphraseRowState extends State<PassphraseRow> {
                 isSet == true ? '交换口令：已设置' : '交换口令：未设置',
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
-              const Text(
+              Text(
                 '设置后，导出的交换文件和共享文件夹里本机的文件都会加密（AES-256）；导入加密文件时使用这个口令。',
                 style: TextStyle(fontSize: 12, color: Tokens.ink2),
               ),

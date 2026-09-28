@@ -1,5 +1,6 @@
 import 'budget.dart';
 import 'compare.dart';
+import 'entities.dart';
 import 'inquiry.dart';
 import 'project.dart';
 import 'quotation.dart';
@@ -134,6 +135,14 @@ final _types = <ObjectType>[
     const FieldSpec('categories', '经营类别', Kind.textList, '如"水泵""阀门"'),
     _notes,
     _merged('supplier'),
+    const FieldSpec(
+      'rating',
+      '评价',
+      Kind.enumeration,
+      '采购方自己的判断；停用的供应商其报价不算有效、不参与最低价',
+      values: supplierRatings,
+    ),
+    const FieldSpec('rating_note', '评价说明', Kind.text, '为什么这样评价，最长 500 字'),
   ]),
   const ObjectType('contact', '联系人', '供应商的联系人，至少有一种联系方式', [
     FieldSpec(
@@ -433,6 +442,13 @@ final _types = <ObjectType>[
       '为空表示正式书面报价；口头价和参考价只作参考，不用于预算和最低价',
       values: {'verbal': '口头报价', 'reference': '参考价（网价、往年价等）'},
     ),
+    const FieldSpec(
+      'price_tiers',
+      '阶梯价',
+      Kind.object,
+      '[{min_qty, price}]，按报价单位：需求数量达到 min_qty 时单价为 price；'
+          '数量递增且都大于起订量，最多 10 档。已定标的按成交价，不看阶梯',
+    ),
   ]),
   ObjectType('inquiry', '询价单', '把一个项目的若干预算行发给若干供应商询价', [
     const FieldSpec(
@@ -558,5 +574,6 @@ Map<String, List<String>> get validatorEnums => {
   'project_item.category': costCategories,
   'quotation.includes': quoteIncludes,
   'quotation.price_basis': priceBases,
+  'supplier.rating': supplierRatings.keys.toList(),
   'inquiry.status': inquiryStatuses,
 };

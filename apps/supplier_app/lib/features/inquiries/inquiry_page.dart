@@ -105,7 +105,7 @@ class InquiryPage extends StatelessWidget {
             for (final e in errors.take(5))
               Text(
                 '第 ${e.row} 行：${e.error}',
-                style: const TextStyle(color: Tokens.red),
+                style: TextStyle(color: Tokens.red),
               ),
           ],
         ),
@@ -209,10 +209,10 @@ class InquiryPage extends StatelessWidget {
                   '已定标 $awardedRows/${m.rows.length}',
                   if (!open) '已结束',
                 ].join(' · '),
-                style: const TextStyle(color: Tokens.ink2),
+                style: TextStyle(color: Tokens.ink2),
               ),
               const SizedBox(height: 4),
-              const Text(
+              Text(
                 '点单元格录入或修改报价；有效单价 = 单价 + 附加费用 ÷ 数量。每行比较的是口径（币种、含税、单位）与项目一致且仍有效的报价。',
                 style: TextStyle(fontSize: 12, color: Tokens.ink3),
               ),
@@ -296,10 +296,7 @@ class InquiryPage extends StatelessWidget {
                         ),
                         Text(
                           '已报 ${m.answered[sid]}/${m.rows.length}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Tokens.ink3,
-                          ),
+                          style: TextStyle(fontSize: 12, color: Tokens.ink3),
                         ),
                       ],
                     ),
@@ -350,7 +347,7 @@ class InquiryPage extends StatelessWidget {
         .where((c) => c.awarded)
         .firstOrNull;
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Tokens.rule)),
       ),
       child: IntrinsicHeight(
@@ -373,7 +370,7 @@ class InquiryPage extends StatelessWidget {
                     ),
                     Text(
                       '${qty(r.item['qty']! as String)} ${r.item['unit']}',
-                      style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+                      style: TextStyle(fontSize: 12, color: Tokens.ink3),
                     ),
                   ],
                 ),
@@ -405,14 +402,14 @@ class InquiryPage extends StatelessWidget {
                           Text(
                             '${_supplierName(won.data['supplier_id']! as String)} '
                             '${money(won.data['deal_price'] as String?, prefix: '¥')}',
-                            style: const TextStyle(color: Tokens.accentDeep),
+                            style: TextStyle(color: Tokens.accentDeep),
                           ),
                           if (won.data['award_note'] != null)
                             Text(
                               won.data['award_note']! as String,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 color: Tokens.ink3,
                               ),
@@ -454,7 +451,7 @@ class _Cell extends StatelessWidget {
     if (c == null) {
       return InkWell(
         onTap: onTap,
-        child: const Padding(
+        child: Padding(
           padding: EdgeInsets.all(10),
           child: Text('录入报价', style: TextStyle(color: Tokens.ink3)),
         ),
@@ -506,7 +503,7 @@ class _Cell extends StatelessWidget {
                 if (d['lead_time_days'] != null) '${d['lead_time_days']} 天',
                 scope ?? '范围未说明',
               ].whereType<String>().join(' · '),
-              style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+              style: TextStyle(fontSize: 12, color: Tokens.ink3),
             ),
             if (tags.isNotEmpty) ...[
               const SizedBox(height: 4),

@@ -55,7 +55,7 @@ class SourceInput extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(intro, style: const TextStyle(color: Tokens.ink2, height: 1.6)),
+        Text(intro, style: TextStyle(color: Tokens.ink2, height: 1.6)),
         if (hasKey == false) ...[
           const SizedBox(height: 10),
           const HintText(
@@ -75,7 +75,7 @@ class SourceInput extends StatelessWidget {
               label: const Text('选择 Excel 文件'),
             ),
             if (fileName != null)
-              Text('已读取：$fileName', style: const TextStyle(color: Tokens.ink2)),
+              Text('已读取：$fileName', style: TextStyle(color: Tokens.ink2)),
             if (extra != null) ...[const SizedBox(width: 12), extra!],
           ],
         ),
@@ -92,11 +92,11 @@ class SourceInput extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         if (error != null) ...[
-          Text(error!, style: const TextStyle(color: Tokens.red)),
+          Text(error!, style: TextStyle(color: Tokens.red)),
           const SizedBox(height: 8),
         ],
         if (progress != null) ...[
-          Text(progress!, style: const TextStyle(color: Tokens.ink2)),
+          Text(progress!, style: TextStyle(color: Tokens.ink2)),
           const SizedBox(height: 6),
           const LinearProgressIndicator(),
           const SizedBox(height: 10),

@@ -177,7 +177,7 @@ class _ProjectList extends StatelessWidget {
       const Divider(),
       Expanded(
         child: projects.isEmpty
-            ? const Padding(
+            ? Padding(
                 padding: EdgeInsets.all(16),
                 child: Text('没有符合条件的项目', style: TextStyle(color: Tokens.ink3)),
               )
@@ -187,7 +187,15 @@ class _ProjectList extends StatelessWidget {
                 itemBuilder: (context, i) {
                   final p = projects[i];
                   final on = p.id == selected;
-                  final cost = store.budget(p.id, withWarnings: false).cost;
+                  final b = store.budget(p.id, withWarnings: false);
+                  // Material lines without a quote still to be inquired.
+                  final pending = b.lines
+                      .where(
+                        (l) =>
+                            l.data['category'] == 'material' &&
+                            l.data['quotation_id'] == null,
+                      )
+                      .length;
                   return Material(
                     color: on ? Tokens.surface : Colors.transparent,
                     child: InkWell(
@@ -195,7 +203,7 @@ class _ProjectList extends StatelessWidget {
                       child: Container(
                         decoration: BoxDecoration(
                           border: on
-                              ? const Border(
+                              ? Border(
                                   left: BorderSide(
                                     color: Tokens.accent,
                                     width: 3,
@@ -223,7 +231,7 @@ class _ProjectList extends StatelessWidget {
                                 Expanded(
                                   child: Text(
                                     p.data['customer'] as String? ?? '',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12,
                                       color: Tokens.ink3,
                                     ),
@@ -231,8 +239,8 @@ class _ProjectList extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  '成本 ${yuan(cost)}',
-                                  style: const TextStyle(
+                                  '成本 ${yuan(b.cost)}',
+                                  style: TextStyle(
                                     fontSize: 12,
                                     color: Tokens.ink3,
                                     fontFeatures: tabular,
@@ -240,6 +248,33 @@ class _ProjectList extends StatelessWidget {
                                 ),
                               ],
                             ),
+                            if (pending > 0 || b.lines.isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  if (pending > 0)
+                                    HintTag(
+                                      '$pending 行待询价',
+                                      icon: Icons.help_outline,
+                                    ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      '毛利 ${yuan(b.margin)}',
+                                      textAlign: TextAlign.right,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: micros(b.margin) > BigInt.zero
+                                            ? Tokens.green
+                                            : Tokens.ink3,
+                                        fontFeatures: tabular,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -283,7 +318,7 @@ class _Pill extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: selected ? Colors.white : Tokens.ink2,
+            color: selected ? Tokens.surface : Tokens.ink2,
           ),
         ),
       ),

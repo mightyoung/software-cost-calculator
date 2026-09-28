@@ -90,7 +90,7 @@ class _LanPanelState extends State<LanPanel> {
           children: [
             Row(
               children: [
-                const Icon(Icons.wifi_tethering, color: Tokens.accent),
+                Icon(Icons.wifi_tethering, color: Tokens.accent),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -98,7 +98,7 @@ class _LanPanelState extends State<LanPanel> {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
-                const Text('局域网可见', style: TextStyle(color: Tokens.ink2)),
+                Text('局域网可见', style: TextStyle(color: Tokens.ink2)),
                 const SizedBox(width: 6),
                 Switch(
                   value: state.lanVisible,
@@ -107,13 +107,13 @@ class _LanPanelState extends State<LanPanel> {
               ],
             ),
             const SizedBox(height: 6),
-            const Text(
+            Text(
               '同一 Wi-Fi 或办公网里、都打开了"局域网可见"的设备会互相看到。选中项目、物料或供应商推送过去，关联的预算行、报价、联系人会一起带上；对方确认后才会导入，合并方式和交换文件相同。',
               style: TextStyle(color: Tokens.ink2, height: 1.6),
             ),
             if (state.lanError != null) ...[
               const SizedBox(height: 8),
-              Text(state.lanError!, style: const TextStyle(color: Tokens.red)),
+              Text(state.lanError!, style: TextStyle(color: Tokens.red)),
             ],
             if (node != null) ...[
               FutureBuilder(
@@ -136,7 +136,7 @@ class _LanPanelState extends State<LanPanel> {
               ),
               const SizedBox(height: 6),
               if (node.peers.isEmpty)
-                const Text(
+                Text(
                   '正在查找…对方也需要打开"局域网可见"。找不到时可按地址添加。',
                   style: TextStyle(color: Tokens.ink3),
                 )
@@ -146,20 +146,13 @@ class _LanPanelState extends State<LanPanel> {
                     padding: const EdgeInsets.symmetric(vertical: 3),
                     child: Row(
                       children: [
-                        const Icon(
-                          Icons.computer,
-                          size: 18,
-                          color: Tokens.ink2,
-                        ),
+                        Icon(Icons.computer, size: 18, color: Tokens.ink2),
                         const SizedBox(width: 8),
                         Text(p.name),
                         const SizedBox(width: 8),
                         Text(
                           p.address,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Tokens.ink3,
-                          ),
+                          style: TextStyle(fontSize: 12, color: Tokens.ink3),
                         ),
                       ],
                     ),
@@ -187,7 +180,7 @@ class _LanPanelState extends State<LanPanel> {
                   s.data == null || s.data!.isEmpty
                       ? ''
                       : '本机地址：${s.data!.join('、')}',
-                  style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+                  style: TextStyle(fontSize: 12, color: Tokens.ink3),
                 ),
               ),
             ],
@@ -215,7 +208,7 @@ class _LanPanelState extends State<LanPanel> {
           ),
           child: Row(
             children: [
-              const Icon(Icons.move_to_inbox, color: Tokens.accentDeep),
+              Icon(Icons.move_to_inbox, color: Tokens.accentDeep),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(

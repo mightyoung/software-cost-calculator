@@ -74,13 +74,13 @@ class _FolderSyncPanelState extends State<FolderSyncPanel> {
         children: [
           Row(
             children: [
-              const Icon(Icons.folder_shared_outlined, color: Tokens.accent),
+              Icon(Icons.folder_shared_outlined, color: Tokens.accent),
               const SizedBox(width: 10),
               Text('共享文件夹同步', style: Theme.of(context).textTheme.titleMedium),
             ],
           ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             '选一个所有电脑都能访问的文件夹（公司共享盘、NAS 或网盘同步文件夹）。每台电脑只写自己的文件，并合并其他电脑的文件；打开软件时会自动同步一次。',
             style: TextStyle(color: Tokens.ink2, height: 1.6),
           ),
@@ -88,11 +88,11 @@ class _FolderSyncPanelState extends State<FolderSyncPanel> {
           if (dir == null)
             FilledButton(onPressed: _choose, child: const Text('选择共享文件夹'))
           else ...[
-            SelectableText(dir, style: const TextStyle(color: Tokens.ink2)),
+            SelectableText(dir, style: TextStyle(color: Tokens.ink2)),
             const SizedBox(height: 4),
             Text(
               '本机文件：${state.syncFileName}',
-              style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+              style: TextStyle(fontSize: 12, color: Tokens.ink3),
             ),
             const SizedBox(height: 10),
             Wrap(
@@ -119,7 +119,7 @@ class _FolderSyncPanelState extends State<FolderSyncPanel> {
               const SizedBox(height: 8),
               Text(
                 '上次同步失败：${state.lastSyncError}',
-                style: const TextStyle(color: Tokens.red),
+                style: TextStyle(color: Tokens.red),
               ),
             ] else if (r != null) ...[
               const SizedBox(height: 8),
@@ -132,7 +132,7 @@ class _FolderSyncPanelState extends State<FolderSyncPanel> {
                     '${r.failed.length} 个文件暂时读不了（可能还在上传），下次同步再试：'
                         '${r.failed.keys.join('、')}',
                 ].join('；'),
-                style: const TextStyle(fontSize: 12, color: Tokens.ink2),
+                style: TextStyle(fontSize: 12, color: Tokens.ink2),
               ),
             ],
             if (update != null) ...[
@@ -145,10 +145,7 @@ class _FolderSyncPanelState extends State<FolderSyncPanel> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(
-                      Icons.system_update_alt,
-                      color: Tokens.accentDeep,
-                    ),
+                    Icon(Icons.system_update_alt, color: Tokens.accentDeep),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(

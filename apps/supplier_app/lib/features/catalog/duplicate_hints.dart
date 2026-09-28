@@ -28,7 +28,7 @@ class DuplicateHints extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
+        Text(
           '可能已经存在',
           style: TextStyle(fontWeight: FontWeight.w600, color: Tokens.amber),
         ),

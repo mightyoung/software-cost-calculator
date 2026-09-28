@@ -2,33 +2,38 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-/// Colour tokens from .impeccable.md ("precision console").
+/// Colour tokens from .impeccable.md ("precision console"), light and dark.
+/// [dark] is set once per build of the app root (see app.dart), which
+/// rebuilds everything when it changes.
 abstract final class Tokens {
-  static const canvas = Color(0xFFF3F5F8);
-  static const surface = Color(0xFFFFFFFF);
-  static const sunken = Color(0xFFEDF0F4);
-  static const groupRow = Color(0xFFF6F8FB);
-  static const rule = Color(0xFFDCE1E8);
-  static const ruleStrong = Color(0xFFC3CAD6);
-  static const ink = Color(0xFF111827);
-  static const ink2 = Color(0xFF4B5565);
-  static const ink3 = Color(0xFF636C7E);
-  static const accent = Color(0xFF285FF0);
-  static const accentDeep = Color(0xFF1B47C2);
-  static const accentTint = Color(0xFFE8EFFF);
-  static const nav = Color(0xFF0E1729);
-  static const navHover = Color(0xFF1A2640);
-  static const navInk = Color(0xFFC7D0E0);
-  static const navInk3 = Color(0xFF7C89A3);
-  static const amber = Color(0xFF9A5000);
-  static const amberBg = Color(0xFFFFF2DF);
-  static const red = Color(0xFFB8302A);
-  static const redBg = Color(0xFFFDE8E6);
+  static var dark = false;
+  static Color _pick(int light, int night) => Color(dark ? night : light);
+
+  static Color get canvas => _pick(0xFFF3F5F8, 0xFF0F1420);
+  static Color get surface => _pick(0xFFFFFFFF, 0xFF161C29);
+  static Color get sunken => _pick(0xFFEDF0F4, 0xFF1C2333);
+  static Color get groupRow => _pick(0xFFF6F8FB, 0xFF1A2130);
+  static Color get rule => _pick(0xFFDCE1E8, 0xFF2A3345);
+  static Color get ruleStrong => _pick(0xFFC3CAD6, 0xFF3A4459);
+  static Color get ink => _pick(0xFF111827, 0xFFE6EAF2);
+  static Color get ink2 => _pick(0xFF4B5565, 0xFFB3BCCD);
+  static Color get ink3 => _pick(0xFF636C7E, 0xFF8C96AA);
+  static Color get accent => _pick(0xFF285FF0, 0xFF5B8CFF);
+  static Color get accentDeep => _pick(0xFF1B47C2, 0xFF93B2FF);
+  static Color get accentTint => _pick(0xFFE8EFFF, 0xFF1C2A4D);
+  static Color get nav => _pick(0xFF0E1729, 0xFF0A0F1A);
+  static Color get navHover => _pick(0xFF1A2640, 0xFF18223A);
+  static Color get navInk => _pick(0xFFC7D0E0, 0xFFC7D0E0);
+  static Color get navInk3 => _pick(0xFF7C89A3, 0xFF7C89A3);
+  static Color get amber => _pick(0xFF9A5000, 0xFFF0A649);
+  static Color get amberBg => _pick(0xFFFFF2DF, 0xFF3A2A12);
+  static Color get red => _pick(0xFFB8302A, 0xFFFF7A70);
+  static Color get redBg => _pick(0xFFFDE8E6, 0xFF3D1B1B);
 
   /// Good outcomes only: lowest valid price, awarded. Blue stays for what
   /// can be clicked or is selected.
-  static const green = Color(0xFF17693F);
-  static const greenBg = Color(0xFFE6F4EC);
+  static Color get green => _pick(0xFF17693F, 0xFF4CC38A);
+  static Color get greenBg => _pick(0xFFE6F4EC, 0xFF14301F);
   static const radius = 8.0;
 }
 
@@ -54,10 +59,14 @@ const monoFallback = [
 const tabular = [FontFeature.tabularFigures()];
 
 ThemeData buildTheme() {
-  const scheme = ColorScheme(
-    brightness: Brightness.light,
+  final scheme = ColorScheme(
+    brightness: Tokens.dark ? Brightness.dark : Brightness.light,
     primary: Tokens.accent,
-    onPrimary: Colors.white,
+    // Light blue in the dark theme carries dark text (white would fail
+    // contrast); selected chips turn blue-tinted instead of light grey.
+    onPrimary: Tokens.dark ? const Color(0xFF0B1221) : Colors.white,
+    secondaryContainer: Tokens.dark ? Tokens.accentTint : Tokens.ink2,
+    onSecondaryContainer: Tokens.dark ? Tokens.accentDeep : Colors.white,
     primaryContainer: Tokens.accentTint,
     onPrimaryContainer: Tokens.accentDeep,
     secondary: Tokens.ink2,
@@ -69,6 +78,8 @@ ThemeData buildTheme() {
     surface: Tokens.surface,
     onSurface: Tokens.ink,
     onSurfaceVariant: Tokens.ink2,
+    inverseSurface: Tokens.ink,
+    onInverseSurface: Tokens.surface,
     outline: Tokens.ruleStrong,
     outlineVariant: Tokens.rule,
     surfaceContainerLowest: Tokens.surface,
@@ -80,7 +91,7 @@ ThemeData buildTheme() {
   final shape = RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(Tokens.radius),
   );
-  const text = TextTheme(
+  final text = TextTheme(
     titleLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
     titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
     titleSmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
@@ -103,13 +114,9 @@ ThemeData buildTheme() {
     visualDensity: VisualDensity.compact,
     splashFactory: NoSplash.splashFactory,
   );
-  final side = const BorderSide(color: Tokens.ruleStrong);
+  final side = BorderSide(color: Tokens.ruleStrong);
   return base.copyWith(
-    dividerTheme: const DividerThemeData(
-      color: Tokens.rule,
-      space: 1,
-      thickness: 1,
-    ),
+    dividerTheme: DividerThemeData(color: Tokens.rule, space: 1, thickness: 1),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         shape: shape,
@@ -143,19 +150,21 @@ ThemeData buildTheme() {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(Tokens.radius),
-        borderSide: const BorderSide(color: Tokens.accent, width: 2),
+        borderSide: BorderSide(color: Tokens.accent, width: 2),
       ),
-      labelStyle: const TextStyle(color: Tokens.ink2),
-      hintStyle: const TextStyle(color: Tokens.ink3),
+      labelStyle: TextStyle(color: Tokens.ink2),
+      hintStyle: TextStyle(color: Tokens.ink3),
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: Tokens.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 0,
     ),
-    snackBarTheme: const SnackBarThemeData(
+    snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
       backgroundColor: Tokens.ink,
+      contentTextStyle: TextStyle(color: Tokens.surface, fontSize: 13),
+      actionTextColor: Tokens.accentTint,
     ),
     cardTheme: const CardThemeData(elevation: 0, margin: EdgeInsets.zero),
   );

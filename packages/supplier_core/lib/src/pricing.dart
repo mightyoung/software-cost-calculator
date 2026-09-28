@@ -74,6 +74,32 @@ bool meetsMinimumQuantity(
       quantity * target >= micros(quote['min_qty']! as String) * source;
 }
 
+/// [quote] as priced for [quantity] (given in [unit]): the highest price
+/// tier the quantity reaches replaces the unit price. An award keeps its
+/// agreed price; a quantity in an unconvertible unit gets no tier.
+Map<String, Object?> atQuantity(
+  Map<String, Object?> quote,
+  Map<String, Object?> product,
+  String unit,
+  BigInt quantity,
+) {
+  final tiers = quote['price_tiers'] as List?;
+  if (tiers == null || quote['deal_price'] != null) return quote;
+  final same = quote['unit_snapshot'] == unit;
+  final source = same
+      ? BigInt.one
+      : unitFactor(product, quote['unit_snapshot']! as String);
+  final target = same ? BigInt.one : unitFactor(product, unit);
+  if (source == null || target == null) return quote;
+  String? price;
+  for (final t in tiers.cast<Map>()) {
+    if (quantity * target >= micros(t['min_qty']! as String) * source) {
+      price = t['price']! as String;
+    }
+  }
+  return price == null ? quote : {...quote, 'price': price};
+}
+
 /// Normalize a source price without modifying its quotation. A missing tax
 /// rate is acceptable only when no conversion is needed; FX is unsupported.
 String? priceInTaxMode(

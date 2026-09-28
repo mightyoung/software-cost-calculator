@@ -16,7 +16,8 @@ import 'values.dart';
 /// 4: quotation price_basis, product attributes.
 /// 5: quotation storage omits top-level null fields.
 /// 6: products gain `unit_conversions` (quote unit → base units).
-const schemaVersion = 6;
+/// 7: supplier `rating`/`rating_note`, quotation `price_tiers`.
+const schemaVersion = 7;
 const fileFormat = 'supplier-inquiry';
 
 /// Merge order matters only for the reference check at the end of an import;

@@ -66,7 +66,7 @@ class ConflictsPage extends StatelessWidget {
         return ListView(
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
           children: [
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(bottom: 12),
               child: Text(
                 '下面每一处都被两台设备同时修改过。目前采用的是时间较晚的修改，请确认要保留哪一个；'
@@ -102,7 +102,7 @@ class ConflictsPage extends StatelessWidget {
                   Text(
                     '${v.device} · ${_local(v.at)}'
                     '${inUse ? ' · 当前采用' : ''}',
-                    style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+                    style: TextStyle(fontSize: 12, color: Tokens.ink3),
                   ),
                 ],
               ),
