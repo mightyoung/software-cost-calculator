@@ -292,6 +292,12 @@ Widget _importScreen(String name, AppState state) {
 }
 
 /// An inquiry on the pump-room project: three lines, three suppliers.
+/// The workbench with an open inquiry waiting for replies.
+Shell _home(Store store, AppState state) {
+  _inquiry(store);
+  return Shell(state: state);
+}
+
 String _inquiry(Store store) {
   String supplierId(String n) => store.searchByName('supplier', n).first.id;
   final project = store.searchByName('project', '泵房改造工程').single.id;
@@ -477,7 +483,9 @@ void main() {
                   onBack: () {},
                 ),
               )
-            : Shell(state: state),
+            : name.startsWith('desktop_home')
+            ? _home(store, state)
+            : Shell(state: state, initial: Section.projects),
       ),
     );
     await tester.pumpAndSettle();
@@ -488,6 +496,25 @@ void main() {
     );
     store.close();
   }
+
+  testWidgets(
+    'desktop home',
+    (t) => shoot(t, const Size(1280, 800), 'desktop_home'),
+    skip: !hasFont,
+  );
+
+  testWidgets(
+    'desktop command palette',
+    (t) => shoot(t, const Size(1280, 800), 'desktop_home_palette', () async {
+      await t.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+      await t.sendKeyEvent(LogicalKeyboardKey.keyK);
+      await t.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+      await t.pumpAndSettle();
+      await t.enterText(find.byType(TextField).last, 'lxb');
+      await t.pumpAndSettle();
+    }),
+    skip: !hasFont,
+  );
 
   testWidgets(
     'desktop project budget',
@@ -551,7 +578,7 @@ void main() {
   testWidgets(
     'desktop quote comparison',
     (t) => shoot(t, const Size(1280, 800), 'desktop_compare', () async {
-      await t.tap(find.text('报价查询'));
+      await t.tap(find.text('报价').first);
       await t.pumpAndSettle();
       await t.enterText(find.byType(TextField).first, '离心泵');
       await t.pumpAndSettle();
@@ -641,7 +668,7 @@ void main() {
       state.saveSetting('sync_dir', shared.path);
       state.saveSetting('device_id', '12345678-aaaa-4bbb-8ccc-1234567890ab');
       state.syncNow();
-      await t.tap(find.text('数据交换'));
+      await t.tap(find.text('同步与交换'));
       await t.pumpAndSettle();
     }),
     skip: !hasFont,
@@ -688,4 +715,33 @@ void main() {
     }),
     skip: !hasFont,
   );
+  for (final (nav, name) in [
+    ('报价', 'desktop_quotes'),
+    ('供应商', 'desktop_suppliers'),
+    ('物料', 'desktop_products'),
+  ]) {
+    testWidgets(
+      'desktop table $name',
+      (t) => shoot(t, const Size(1280, 800), name, () async {
+        await t.tap(find.text(nav).first);
+        await t.pumpAndSettle();
+      }),
+      skip: !hasFont,
+    );
+  }
+  for (final (nav, row, name) in [
+    ('供应商', '甲泵业', 'desktop_supplier_detail'),
+    ('物料', '不锈钢离心泵', 'desktop_product_detail'),
+  ]) {
+    testWidgets(
+      'desktop detail $name',
+      (t) => shoot(t, const Size(1280, 860), name, () async {
+        await t.tap(find.text(nav).first);
+        await t.pumpAndSettle();
+        await t.tap(find.text(row).first);
+        await t.pumpAndSettle();
+      }),
+      skip: !hasFont,
+    );
+  }
 }

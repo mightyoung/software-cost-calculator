@@ -91,3 +91,58 @@ List<Widget> dialogActions({
     ),
   Row(mainAxisSize: MainAxisSize.min, spacing: 8, children: actions),
 ];
+
+/// Deletes several records at once after asking; one undo restores all.
+Future<void> deleteManyWithUndo(
+  BuildContext context,
+  AppState state, {
+  required String type,
+  required List<String> ids,
+}) async {
+  final label = ontology[type]!.label;
+  final sure = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('删除选中的 ${ids.length} 个$label？'),
+      content: const Text('引用它们的记录会保留。删除后可以立即撤销，也可以在 设置 › 已删除的记录 中恢复。'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('取消'),
+        ),
+        FilledButton(
+          style: FilledButton.styleFrom(backgroundColor: Tokens.red),
+          onPressed: () => Navigator.pop(context, true),
+          child: Text('删除 ${ids.length} 个'),
+        ),
+      ],
+    ),
+  );
+  if (sure != true || !context.mounted) return;
+  final messenger = ScaffoldMessenger.of(context);
+  final err = state.write(
+    (s) => s.transaction(() {
+      for (final id in ids) {
+        s.delete(type, id);
+      }
+    }),
+  );
+  if (err != null) return toast(context, '没有删除：$err');
+  messenger
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        content: Text('已删除 ${ids.length} 个$label'),
+        action: SnackBarAction(
+          label: '撤销',
+          onPressed: () => state.write(
+            (s) => s.transaction(() {
+              for (final id in ids) {
+                s.restore(type, id);
+              }
+            }),
+          ),
+        ),
+      ),
+    );
+}

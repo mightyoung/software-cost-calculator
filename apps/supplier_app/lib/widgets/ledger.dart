@@ -138,7 +138,14 @@ class HintTag extends StatelessWidget {
           children: [
             Icon(icon, size: 13, color: fg),
             const SizedBox(width: 4),
-            Text(text, style: TextStyle(fontSize: 12, color: fg)),
+            // Narrow cells cut the words rather than overflow.
+            Flexible(
+              child: Text(
+                text,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 12, color: fg),
+              ),
+            ),
           ],
         ),
       ),

@@ -6,6 +6,7 @@ import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
 import '../../widgets/deletion.dart';
+import '../../widgets/save_keys.dart';
 
 /// Contact list shown inside the supplier editor.
 class SupplierContacts extends StatelessWidget {
@@ -143,56 +144,59 @@ class _ContactFormState extends State<_ContactForm> {
   }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: Text(widget.id == null ? '添加联系人' : '编辑联系人'),
-    content: SizedBox(
-      width: 400,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final (k, label) in _fields) ...[
-            TextField(
-              controller: c[k],
-              autofocus: k == 'name',
-              keyboardType: k == 'phone' ? TextInputType.phone : null,
-              decoration: InputDecoration(labelText: label),
-              onSubmitted: (_) => _save(),
-            ),
-            const SizedBox(height: 10),
+  Widget build(BuildContext context) => SaveKeys(
+    onSave: _save,
+    child: AlertDialog(
+      title: Text(widget.id == null ? '添加联系人' : '编辑联系人'),
+      content: SizedBox(
+        width: 400,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final (k, label) in _fields) ...[
+              TextField(
+                controller: c[k],
+                autofocus: k == 'name',
+                keyboardType: k == 'phone' ? TextInputType.phone : null,
+                decoration: InputDecoration(labelText: label),
+                onSubmitted: (_) => _save(),
+              ),
+              const SizedBox(height: 10),
+            ],
+            if (error != null)
+              Text(error!, style: const TextStyle(color: Tokens.red)),
           ],
-          if (error != null)
-            Text(error!, style: const TextStyle(color: Tokens.red)),
+        ),
+      ),
+      actionsAlignment: MainAxisAlignment.spaceBetween,
+      actions: dialogActions(
+        onDelete: widget.id == null
+            ? null
+            : () {
+                final id = widget.id!;
+                final name =
+                    widget.state.store.get('contact', id)?.data['name']
+                        as String? ??
+                    '';
+                if (deleteWithUndo(
+                  context,
+                  widget.state,
+                  type: 'contact',
+                  id: id,
+                  name: name,
+                )) {
+                  Navigator.pop(context);
+                }
+              },
+        deleteLabel: '删除联系人',
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          FilledButton(onPressed: _save, child: const Text('保存')),
         ],
       ),
-    ),
-    actionsAlignment: MainAxisAlignment.spaceBetween,
-    actions: dialogActions(
-      onDelete: widget.id == null
-          ? null
-          : () {
-              final id = widget.id!;
-              final name =
-                  widget.state.store.get('contact', id)?.data['name']
-                      as String? ??
-                  '';
-              if (deleteWithUndo(
-                context,
-                widget.state,
-                type: 'contact',
-                id: id,
-                name: name,
-              )) {
-                Navigator.pop(context);
-              }
-            },
-      deleteLabel: '删除联系人',
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
-        ),
-        FilledButton(onPressed: _save, child: const Text('保存')),
-      ],
     ),
   );
 }

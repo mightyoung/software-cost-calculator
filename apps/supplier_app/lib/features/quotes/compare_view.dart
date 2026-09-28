@@ -8,6 +8,7 @@ import '../../widgets/ledger.dart';
 import '../inquiries/award_dialog.dart';
 import 'quote_extras.dart';
 import 'quote_form.dart';
+import '../../widgets/price_trend.dart';
 
 const _issueText = {
   QuoteIssue.expired: '已过期',
@@ -79,8 +80,9 @@ class CompareView extends StatelessWidget {
                           forCompareGroup: true,
                         ),
                       ),
+                      _columnsHeader(),
                       for (final r in g.rows) _row(context, r, g),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 16),
                     ],
                   ],
                 ),
@@ -89,8 +91,65 @@ class CompareView extends StatelessWidget {
     );
   }
 
+  /// Column widths shared by the header and the rows (null = flexible).
+  static const _cols = <(String, double?, bool)>[
+    ('供应商', null, false),
+    ('比较价', 150, true),
+    ('报价日期', 100, false),
+    ('有效期至', 100, false),
+    ('起订', 64, true),
+    ('交期', 64, true),
+    ('质保', 64, true),
+    ('价格包含', null, false),
+    ('状态', null, false),
+    ('', 76, false),
+  ];
+
+  static Widget _cell(int i, Widget child) {
+    final (_, width, numeric) = _cols[i];
+    final aligned = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Align(
+        alignment: numeric ? Alignment.centerRight : Alignment.centerLeft,
+        child: child,
+      ),
+    );
+    return width == null
+        ? Expanded(flex: i == 0 ? 3 : 2, child: aligned)
+        : SizedBox(width: width, child: aligned);
+  }
+
+  Widget _columnsHeader() => Container(
+    height: 34,
+    decoration: const BoxDecoration(
+      color: Tokens.groupRow,
+      border: Border(
+        left: BorderSide(color: Tokens.rule),
+        right: BorderSide(color: Tokens.rule),
+        bottom: BorderSide(color: Tokens.rule),
+      ),
+    ),
+    child: Row(
+      children: [
+        for (final (i, (label, _, _)) in _cols.indexed)
+          _cell(
+            i,
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Tokens.ink2,
+              ),
+            ),
+          ),
+      ],
+    ),
+  );
+
   Widget _row(BuildContext context, CompareRow r, CompareGroup g) {
-    final history = state.store.priceHistory(
+    final store = state.store;
+    final history = store.priceHistory(
       productId,
       currency: g.currency,
       taxMode: g.taxMode,
@@ -100,7 +159,6 @@ class CompareView extends StatelessWidget {
     final deviation = history != null && history.count >= 3
         ? history.deviationPercent(r.comparisonPrice)
         : null;
-    final store = state.store;
     final supplier =
         store.get('supplier', r.data['supplier_id']! as String)?.data['name']
             as String?;
@@ -109,9 +167,14 @@ class CompareView extends StatelessWidget {
         : store.get('project', r.data['project_id']! as String)?.data['name']
               as String?;
     final muted = !r.valid;
+    final ink = muted ? Tokens.ink3 : Tokens.ink;
+    const small = TextStyle(fontSize: 12, color: Tokens.ink3);
+    String? n(Object? v, String unit) => v == null ? null : '$v $unit';
     return InkWell(
       onTap: () => showQuoteForm(context, state, id: r.id),
       child: Container(
+        constraints: const BoxConstraints(minHeight: 52),
+        padding: const EdgeInsets.symmetric(vertical: 6),
         decoration: BoxDecoration(
           color: r.lowest ? Tokens.greenBg : Tokens.surface,
           border: const Border(
@@ -120,117 +183,153 @@ class CompareView extends StatelessWidget {
             bottom: BorderSide(color: Tokens.rule),
           ),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         child: Row(
           children: [
-            Expanded(
-              child: Column(
+            _cell(
+              0,
+              Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     supplier ?? '未知供应商',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      color: muted ? Tokens.ink3 : Tokens.ink,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.w500, color: ink),
                   ),
-                  Text(
-                    [
-                      '报价 ${r.data['quoted_on'] ?? '未填'}',
-                      if (r.data['valid_until'] != null)
-                        '有效至 ${r.data['valid_until']}',
-                      if (r.data['min_qty'] != '1') '起订 ${r.data['min_qty']}',
-                      ?project,
-                    ].join(' · '),
-                    style: const TextStyle(fontSize: 12, color: Tokens.ink3),
-                  ),
-                  Text(
-                    [
-                      scopeText(r.data['includes']) ?? '范围未说明',
-                      if (r.converted)
-                        '统一口径 ${money(r.comparisonPrice)} / ${g.unit}（原报价 ${money(r.price)} / ${r.data['unit_snapshot']} · ${taxModeLabels[r.data['tax_mode']] ?? r.data['tax_mode']}）',
-                      if (r.data['extra_cost'] != null)
-                        '另有附加费用 ${money(r.data['extra_cost'] as String?)}',
-                      if (r.awarded)
-                        '已定标，成交价 ${money(r.data['deal_price'] as String?)}'
-                            '（报价 ${money(r.data['price'] as String?)}）',
-                    ].join(' · '),
-                    style: const TextStyle(fontSize: 12, color: Tokens.ink3),
-                  ),
+                  if (project != null) Text(project, style: small),
                 ],
               ),
             ),
-            if (deviation != null && deviation.abs() >= historyWarnPercent)
-              Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: HintTag(
-                  '比均价 ${deviation > 0 ? '+' : ''}$deviation%',
-                  icon: Icons.history,
-                ),
-              ),
-            if (r.lowest)
-              const Padding(
-                padding: EdgeInsets.only(right: 12),
-                child: Text(
-                  '最低有效价',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Tokens.green,
-                    fontWeight: FontWeight.w600,
+            _cell(
+              1,
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    money(r.comparisonPrice),
+                    style: TextStyle(
+                      fontFeatures: tabular,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      color: r.lowest ? Tokens.green : ink,
+                      decoration: muted ? TextDecoration.lineThrough : null,
+                    ),
                   ),
-                ),
-              ),
-            if (muted)
-              Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: Wrap(
-                  spacing: 4,
-                  children: [
-                    for (final i in r.issues)
-                      HintTag(
-                        _issueText[i]!,
-                        icon: Icons.block,
-                        tone: i == QuoteIssue.expired
-                            ? HintTone.error
-                            : HintTone.warning,
-                      ),
-                  ],
-                ),
-              ),
-            SizedBox(
-              width: 120,
-              child: Text(
-                money(r.comparisonPrice),
-                textAlign: TextAlign.right,
-                style: TextStyle(
-                  fontFeatures: tabular,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                  color: muted ? Tokens.ink3 : Tokens.ink,
-                  decoration: muted ? TextDecoration.lineThrough : null,
-                ),
+                  if (r.converted)
+                    Text(
+                      '原 ${money(r.price)} / ${r.data['unit_snapshot']}',
+                      style: small,
+                    ),
+                  if (r.awarded)
+                    Text(
+                      '报价 ${money(r.data['price'] as String?)}',
+                      style: small,
+                    ),
+                ],
               ),
             ),
-            SizedBox(
-              width: 64,
-              child: !r.valid || r.awarded || r.data['project_id'] == null
-                  ? null
-                  : Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: TextButton(
-                        onPressed: () => showAwardDialog(
-                          context,
-                          state,
-                          itemId: budgetLineFor(state.store, r.data),
-                          choices: [
-                            (
-                              quotationId: r.id,
-                              label: quoteLabel(state.store, r.data),
-                            ),
-                          ],
-                        ),
-                        child: const Text('定标'),
+            _cell(
+              2,
+              Text(
+                r.data['quoted_on'] as String? ?? '—',
+                style: TextStyle(color: ink),
+              ),
+            ),
+            _cell(
+              3,
+              Text(
+                r.data['valid_until'] as String? ?? '—',
+                style: TextStyle(color: ink),
+              ),
+            ),
+            _cell(
+              4,
+              Text(
+                '${r.data['min_qty']}',
+                style: TextStyle(color: ink, fontFeatures: tabular),
+              ),
+            ),
+            _cell(
+              5,
+              Text(
+                n(r.data['lead_time_days'], '天') ?? '—',
+                style: TextStyle(color: ink),
+              ),
+            ),
+            _cell(
+              6,
+              Text(
+                n(r.data['warranty_months'], '月') ?? '—',
+                style: TextStyle(color: ink),
+              ),
+            ),
+            _cell(
+              7,
+              Text(
+                [
+                  scopeText(r.data['includes']) ?? '未说明',
+                  if (r.data['extra_cost'] != null)
+                    '另加 ${money(r.data['extra_cost'] as String?)}',
+                ].join(' · '),
+                style: TextStyle(fontSize: 12, color: ink),
+              ),
+            ),
+            _cell(
+              8,
+              Wrap(
+                spacing: 4,
+                runSpacing: 4,
+                children: [
+                  if (r.lowest)
+                    const HintTag(
+                      '最低有效价',
+                      icon: Icons.south,
+                      tone: HintTone.success,
+                    ),
+                  if (r.awarded)
+                    const HintTag(
+                      '已定标',
+                      icon: Icons.verified_outlined,
+                      tone: HintTone.success,
+                    ),
+                  for (final i in r.issues)
+                    HintTag(
+                      _issueText[i]!,
+                      icon: Icons.block,
+                      tone: i == QuoteIssue.expired
+                          ? HintTone.error
+                          : HintTone.warning,
+                    ),
+                  if (deviation != null &&
+                      deviation.abs() >= historyWarnPercent)
+                    HintTag(
+                      '比均价 ${deviation > 0 ? '+' : ''}$deviation%',
+                      icon: Icons.history,
+                    ),
+                ],
+              ),
+            ),
+            _cell(
+              9,
+              !r.valid || r.awarded || r.data['project_id'] == null
+                  ? const SizedBox()
+                  : TextButton(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        visualDensity: VisualDensity.compact,
                       ),
+                      onPressed: () => showAwardDialog(
+                        context,
+                        state,
+                        itemId: budgetLineFor(state.store, r.data),
+                        choices: [
+                          (
+                            quotationId: r.id,
+                            label: quoteLabel(state.store, r.data),
+                          ),
+                        ],
+                      ),
+                      child: const Text('定标'),
                     ),
             ),
           ],
@@ -246,27 +345,50 @@ class _GroupHeader extends StatelessWidget {
   final PriceHistory? history;
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-    decoration: BoxDecoration(
-      color: Tokens.sunken,
-      border: Border.all(color: Tokens.rule),
-      borderRadius: const BorderRadius.vertical(
-        top: Radius.circular(Tokens.radius),
+  Widget build(BuildContext context) {
+    final dated = [
+      for (final r in group.rows)
+        if (r.data['quoted_on'] case final String day)
+          TrendPoint(
+            day,
+            r.comparisonPrice,
+            usable: r.valid,
+            lowest: r.lowest,
+            awarded: r.awarded,
+          ),
+    ];
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Tokens.sunken,
+        border: Border.all(color: Tokens.rule),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(Tokens.radius),
+        ),
       ),
-    ),
-    child: Text(
-      [
-        '${group.currency} · ${taxModeLabels[group.taxMode] ?? group.taxMode}${group.rows.any((r) => r.converted) ? '（含换算）' : ''} · 单位 ${group.unit} · ${group.rows.length} 条报价',
-        if (history case final h?)
-          '历史 最低 ${money(h.min)} · 平均 ${money(h.average)} · 最高 ${money(h.max)}'
-              '${h.lastDeal == null ? '' : ' · 最近成交 ${money(h.lastDeal)}'}',
-      ].join('    '),
-      style: const TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        color: Tokens.ink2,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Text(
+              [
+                '${group.currency} · ${taxModeLabels[group.taxMode] ?? group.taxMode}${group.rows.any((r) => r.converted) ? '（含换算）' : ''} · 单位 ${group.unit} · ${group.rows.length} 条报价',
+                if (history case final h?)
+                  '历史 最低 ${money(h.min)} · 平均 ${money(h.average)} · 最高 ${money(h.max)}'
+                      '${h.lastDeal == null ? '' : ' · 最近成交 ${money(h.lastDeal)}'}',
+              ].join('\n'),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Tokens.ink2,
+                height: 1.7,
+              ),
+            ),
+          ),
+          if (dated.length >= 2)
+            SizedBox(width: 340, child: PriceTrend(points: dated, height: 96)),
+        ],
       ),
-    ),
-  );
+    );
+  }
 }

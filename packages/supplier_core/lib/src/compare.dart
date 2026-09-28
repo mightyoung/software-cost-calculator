@@ -15,6 +15,27 @@ enum QuoteIssue {
   informal, // verbal or reference price
 }
 
+/// Why [d] (a quotation payload) is not usable today; empty when it is.
+List<QuoteIssue> quoteIssues(
+  Map<String, Object?> d, {
+  required String today,
+  required String staleBefore,
+  bool supplierDeleted = false,
+}) {
+  final quoted = d['quoted_on'] as String?;
+  final until = d['valid_until'] as String?;
+  return [
+    if (d['price_basis'] != null) QuoteIssue.informal,
+    if (supplierDeleted) QuoteIssue.supplierDeleted,
+    if (d['tax_mode'] == 'unknown') QuoteIssue.taxUnknown,
+    if (quoted == null) QuoteIssue.undated,
+    if (quoted != null && quoted.compareTo(today) > 0) QuoteIssue.future,
+    if (until != null && until.compareTo(today) < 0) QuoteIssue.expired,
+    if (until == null && quoted != null && quoted.compareTo(staleBefore) < 0)
+      QuoteIssue.stale,
+  ];
+}
+
 class CompareRow {
   CompareRow(
     this.id,
@@ -65,20 +86,12 @@ extension Compare on Store {
       [productId],
     )) {
       final d = decodeStoredPayload('quotation', r['data'] as String);
-      final quoted = d['quoted_on'] as String?;
-      final until = d['valid_until'] as String?;
-      final issues = [
-        if (d['price_basis'] != null) QuoteIssue.informal,
-        if (r['supplier_deleted'] == 1) QuoteIssue.supplierDeleted,
-        if (d['tax_mode'] == 'unknown') QuoteIssue.taxUnknown,
-        if (quoted == null) QuoteIssue.undated,
-        if (quoted != null && quoted.compareTo(today) > 0) QuoteIssue.future,
-        if (until != null && until.compareTo(today) < 0) QuoteIssue.expired,
-        if (until == null &&
-            quoted != null &&
-            quoted.compareTo(staleBefore) < 0)
-          QuoteIssue.stale,
-      ];
+      final issues = quoteIssues(
+        d,
+        today: today,
+        staleBefore: staleBefore,
+        supplierDeleted: r['supplier_deleted'] == 1,
+      );
       final targetUnit =
           product != null &&
               unitFactor(product, d['unit_snapshot']! as String) != null

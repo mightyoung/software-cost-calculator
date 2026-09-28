@@ -395,6 +395,9 @@ class BudgetTotals extends StatelessWidget {
         ],
       ),
     );
+    // On desktops the totals stay in view in the ledger strip above; the
+    // footer only speaks up when lines are left out of them.
+    if (!compact && pending == 0) return const SizedBox(height: 16);
     return Container(
       margin: EdgeInsets.fromLTRB(margin, 0, margin, compact ? 8 : 16),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -420,9 +423,10 @@ class BudgetTotals extends StatelessWidget {
               children: [
                 if (pending > 0)
                   HintText('含 $pending 项待询价，未计入', icon: Icons.help_outline),
-                figure('成本合计', budget.cost),
-                if (!compact) figure('对外报价合计', budget.price),
-                figure('毛利', budget.margin),
+                if (compact) ...[
+                  figure('成本合计', budget.cost),
+                  figure('毛利', budget.margin),
+                ],
               ],
             ),
           ),
@@ -461,6 +465,10 @@ class _InlineCell extends StatefulWidget {
 class _InlineCellState extends State<_InlineCell> {
   late final controller = TextEditingController(text: widget.value);
   final focus = FocusNode();
+
+  /// The cell while not editing: arrows and Tab move between cells, Enter
+  /// or a digit starts editing (as in Excel).
+  final cellFocus = FocusNode();
   var editing = false;
   String? error;
 
@@ -476,18 +484,40 @@ class _InlineCellState extends State<_InlineCell> {
   void dispose() {
     controller.dispose();
     focus.dispose();
+    cellFocus.dispose();
     super.dispose();
   }
 
-  void _commit() {
+  void _commit({TraversalDirection? then}) {
     final text = controller.text.trim();
-    if (text == widget.value || text.isEmpty) return _cancel();
-    final err = widget.onSave(text);
-    if (!mounted) return;
-    setState(() {
-      error = err;
-      editing = err != null;
-    });
+    String? err;
+    if (text == widget.value || text.isEmpty) {
+      _cancel();
+    } else {
+      err = widget.onSave(text);
+      if (!mounted) return;
+      setState(() {
+        error = err;
+        editing = err != null;
+      });
+    }
+    if (err == null && then != null) {
+      // Back on the cell, then on to the neighbour once the row redrew.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        cellFocus.requestFocus();
+        cellFocus.focusInDirection(then);
+      });
+    }
+  }
+
+  void _edit([String? typed]) {
+    controller.text = typed ?? widget.value;
+    controller.selection = typed == null
+        ? TextSelection(baseOffset: 0, extentOffset: controller.text.length)
+        : TextSelection.collapsed(offset: controller.text.length);
+    setState(() => editing = true);
+    focus.requestFocus();
   }
 
   void _cancel() => setState(() {
@@ -499,13 +529,22 @@ class _InlineCellState extends State<_InlineCell> {
   @override
   Widget build(BuildContext context) {
     if (!editing) {
-      return InkWell(
-        onTap: () {
-          controller.text = widget.value;
-          setState(() => editing = true);
-          focus.requestFocus();
+      return Focus(
+        onKeyEvent: (_, event) {
+          final ch = event.character;
+          if (event is! KeyUpEvent &&
+              ch != null &&
+              RegExp(r'^[0-9.]$').hasMatch(ch)) {
+            _edit(ch);
+            return KeyEventResult.handled;
+          }
+          return KeyEventResult.ignored;
         },
-        child: Text(widget.display, style: _num),
+        child: InkWell(
+          focusNode: cellFocus,
+          onTap: _edit,
+          child: Text(widget.display, style: _num),
+        ),
       );
     }
     final dirty = controller.text.trim() != widget.value;
@@ -516,7 +555,16 @@ class _InlineCellState extends State<_InlineCell> {
             ? _DashedUnderline(error != null ? Tokens.red : Tokens.accent)
             : null,
         child: CallbackShortcuts(
-          bindings: {const SingleActivator(LogicalKeyboardKey.escape): _cancel},
+          bindings: {
+            const SingleActivator(LogicalKeyboardKey.escape): () {
+              _cancel();
+              cellFocus.requestFocus();
+            },
+            const SingleActivator(LogicalKeyboardKey.arrowDown): () =>
+                _commit(then: TraversalDirection.down),
+            const SingleActivator(LogicalKeyboardKey.arrowUp): () =>
+                _commit(then: TraversalDirection.up),
+          },
           child: TextField(
             controller: controller,
             focusNode: focus,
@@ -524,7 +572,7 @@ class _InlineCellState extends State<_InlineCell> {
             style: _num,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             onChanged: (_) => setState(() {}),
-            onSubmitted: (_) => _commit(),
+            onSubmitted: (_) => _commit(then: TraversalDirection.down),
             decoration: InputDecoration(
               isDense: true,
               filled: false,

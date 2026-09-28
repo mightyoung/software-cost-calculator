@@ -5,6 +5,7 @@ import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
 import '../../widgets/deletion.dart';
+import '../../widgets/save_keys.dart';
 
 /// Suggests "2026-PC01-007": year, device code, next sequence. Codes are only
 /// a label; identity is the record id, so collisions across devices are fine.
@@ -170,120 +171,126 @@ class _ProjectFormState extends State<_ProjectForm> {
       autofocus: key == 'name',
       onSubmitted: (_) => _save(),
     );
-    return AlertDialog(
-      title: Text(creating ? '新建项目' : '编辑项目'),
-      content: SizedBox(
-        width: 520,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final pair in [
-                [('code', '项目编号'), ('name', '项目名称')],
-                [('customer', '客户'), ('contract_no', '合同号')],
-                [('contract_amount', '合同金额'), ('markup_rate', '加价率 %')],
-                [('leader', '负责人'), ('department', '部门')],
-              ]) ...[
+    return SaveKeys(
+      onSave: _save,
+      child: AlertDialog(
+        title: Text(creating ? '新建项目' : '编辑项目'),
+        content: SizedBox(
+          width: 520,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final pair in [
+                  [('code', '项目编号'), ('name', '项目名称')],
+                  [('customer', '客户'), ('contract_no', '合同号')],
+                  [('contract_amount', '合同金额'), ('markup_rate', '加价率 %')],
+                  [('leader', '负责人'), ('department', '部门')],
+                ]) ...[
+                  Row(
+                    children: [
+                      Expanded(child: field(pair[0].$1, pair[0].$2)),
+                      const SizedBox(width: 12),
+                      Expanded(child: field(pair[1].$1, pair[1].$2)),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 Row(
                   children: [
-                    Expanded(child: field(pair[0].$1, pair[0].$2)),
+                    Expanded(child: _dropdown('status', '状态', statusLabels)),
                     const SizedBox(width: 12),
-                    Expanded(child: field(pair[1].$1, pair[1].$2)),
-                  ],
-                ),
-                const SizedBox(height: 12),
-              ],
-              Row(
-                children: [
-                  Expanded(child: _dropdown('status', '状态', statusLabels)),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _dropdown('type', '类型', {
-                      null: '未指定',
-                      'market': '市场订单',
-                      'internal': '内部研发',
-                    }),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _dropdown('level', '级别', {
-                      null: '未指定',
-                      'A': 'A',
-                      'B': 'B',
-                      'C': 'C',
-                    }),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: _dropdown('tax_mode', '价格口径', {
-                      'included': '含税',
-                      'excluded': '不含税',
-                    }),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _dropdown('currency', '币种', {
-                      'CNY': 'CNY 人民币',
-                      'USD': 'USD 美元',
-                      'EUR': 'EUR 欧元',
-                    }),
-                  ),
-                ],
-              ),
-              if (creating && others.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String?>(
-                  initialValue: copyFrom,
-                  isExpanded: true,
-                  decoration: const InputDecoration(
-                    labelText: '复制已有项目的成本清单（可选）',
-                  ),
-                  items: [
-                    const DropdownMenuItem(
-                      value: null,
-                      child: Text('不复制，从空白开始'),
+                    Expanded(
+                      child: _dropdown('type', '类型', {
+                        null: '未指定',
+                        'market': '市场订单',
+                        'internal': '内部研发',
+                      }),
                     ),
-                    for (final h in others)
-                      DropdownMenuItem(
-                        value: h.id,
-                        child: Text(
-                          '${h.data['name']}（${h.data['code']}）',
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _dropdown('level', '级别', {
+                        null: '未指定',
+                        'A': 'A',
+                        'B': 'B',
+                        'C': 'C',
+                      }),
+                    ),
                   ],
-                  onChanged: (v) => setState(() => copyFrom = v),
                 ),
-              ],
-              if (error != null) ...[
                 const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    error!,
-                    style: const TextStyle(color: Tokens.red),
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _dropdown('tax_mode', '价格口径', {
+                        'included': '含税',
+                        'excluded': '不含税',
+                      }),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _dropdown('currency', '币种', {
+                        'CNY': 'CNY 人民币',
+                        'USD': 'USD 美元',
+                        'EUR': 'EUR 欧元',
+                      }),
+                    ),
+                  ],
                 ),
+                if (creating && others.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<String?>(
+                    initialValue: copyFrom,
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      labelText: '复制已有项目的成本清单（可选）',
+                    ),
+                    items: [
+                      const DropdownMenuItem(
+                        value: null,
+                        child: Text('不复制，从空白开始'),
+                      ),
+                      for (final h in others)
+                        DropdownMenuItem(
+                          value: h.id,
+                          child: Text(
+                            '${h.data['name']}（${h.data['code']}）',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                    ],
+                    onChanged: (v) => setState(() => copyFrom = v),
+                  ),
+                ],
+                if (error != null) ...[
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      error!,
+                      style: const TextStyle(color: Tokens.red),
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
-      ),
-      actionsAlignment: MainAxisAlignment.spaceBetween,
-      actions: dialogActions(
-        onDelete: creating ? null : _delete,
-        deleteLabel: '删除项目',
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          FilledButton(onPressed: _save, child: Text(creating ? '创建项目' : '保存')),
-        ],
+        actionsAlignment: MainAxisAlignment.spaceBetween,
+        actions: dialogActions(
+          onDelete: creating ? null : _delete,
+          deleteLabel: '删除项目',
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('取消'),
+            ),
+            FilledButton(
+              onPressed: _save,
+              child: Text(creating ? '创建项目' : '保存'),
+            ),
+          ],
+        ),
       ),
     );
   }

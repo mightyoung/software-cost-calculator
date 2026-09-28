@@ -44,7 +44,7 @@ extension DataQuality on Store {
         'open_conflicts',
         '待确认的修改冲突',
         openConflicts().length,
-        '数据交换 › 去确认',
+        '同步与交换 › 去确认',
       ),
       QualityCheck(
         'duplicate_suppliers',

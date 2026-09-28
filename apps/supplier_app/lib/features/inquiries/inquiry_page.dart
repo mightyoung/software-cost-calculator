@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 import '../../app/app_state.dart';
@@ -40,6 +41,42 @@ class InquiryPage extends StatelessWidget {
     if (saved && context.mounted) {
       toast(context, '已导出，发给${_supplierName(sid)}填写');
     }
+  }
+
+  Future<void> _copyMessage(BuildContext context, String sid) async {
+    await Clipboard.setData(
+      ClipboardData(
+        text: inquiryMessage(
+          store,
+          id,
+          supplierName: _supplierName(sid),
+          sender: state.setting('inquirer'),
+        ),
+      ),
+    );
+    if (context.mounted) {
+      toast(context, '询价消息已复制，可以粘贴到微信或邮件发给${_supplierName(sid)}');
+    }
+  }
+
+  Future<void> _changeDue(
+    BuildContext context,
+    Map<String, Object?> data,
+  ) async {
+    final now = DateTime.now();
+    final current = DateTime.tryParse('${data['due_date']}');
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: current ?? now.add(const Duration(days: 3)),
+      firstDate: DateTime(now.year - 1),
+      lastDate: DateTime(now.year + 2),
+      helpText: '回复截止日',
+    );
+    if (picked == null || !context.mounted) return;
+    final err = state.write(
+      (s) => s.save('inquiry', {...data, 'due_date': localDay(picked)}, id: id),
+    );
+    if (err != null) toast(context, err);
   }
 
   Future<void> _import(BuildContext context, String sid) async {
@@ -144,6 +181,10 @@ class InquiryPage extends StatelessWidget {
           title: Text(title),
           actions: [
             TextButton(
+              onPressed: () => _changeDue(context, record.data),
+              child: const Text('修改截止日'),
+            ),
+            TextButton(
               onPressed: () => state.write(
                 (s) => s.save('inquiry', {
                   ...record.data,
@@ -163,7 +204,8 @@ class InquiryPage extends StatelessWidget {
               Text(
                 [
                   '${m.rows.length} 行 × ${m.suppliers.length} 家供应商',
-                  '截止 ${m.inquiry['due_date'] ?? '不限'}',
+                  '截止 ${m.inquiry['due_date'] ?? '不限'}'
+                      '${open && m.inquiry['due_date'] != null && (m.inquiry['due_date']! as String).compareTo(localDay(DateTime.now())) < 0 ? '（已逾期）' : ''}',
                   '已定标 $awardedRows/${m.rows.length}',
                   if (!open) '已结束',
                 ].join(' · '),
@@ -176,26 +218,38 @@ class InquiryPage extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: SizedBox(
-                    width:
-                        _lineWidth +
-                        _cellWidth * m.suppliers.length +
-                        _awardWidth,
-                    child: Column(
-                      children: [
-                        _header(context, m, title),
-                        Expanded(
-                          child: ListView(
-                            children: [
-                              for (final r in m.rows) _row(context, m, r),
-                            ],
-                          ),
+                // Supplier columns share the width left over; below the
+                // minimum the matrix scrolls sideways.
+                child: LayoutBuilder(
+                  builder: (context, box) {
+                    final cell = m.suppliers.isEmpty
+                        ? _cellWidth
+                        : ((box.maxWidth - _lineWidth - _awardWidth) /
+                                  m.suppliers.length)
+                              .clamp(_cellWidth, 320.0);
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: SizedBox(
+                        width:
+                            _lineWidth +
+                            cell * m.suppliers.length +
+                            _awardWidth,
+                        child: Column(
+                          children: [
+                            _header(context, m, title, cell),
+                            Expanded(
+                              child: ListView(
+                                children: [
+                                  for (final r in m.rows)
+                                    _row(context, m, r, cell),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
@@ -209,6 +263,7 @@ class InquiryPage extends StatelessWidget {
     BuildContext context,
     InquiryMatrix m,
     String title,
+    double cell,
   ) => Container(
     color: Tokens.sunken,
     child: Row(
@@ -225,7 +280,7 @@ class InquiryPage extends StatelessWidget {
         ),
         for (final sid in m.suppliers)
           SizedBox(
-            width: _cellWidth,
+            width: cell,
             child: Row(
               children: [
                 Expanded(
@@ -253,10 +308,16 @@ class InquiryPage extends StatelessWidget {
                 PopupMenuButton<String>(
                   tooltip: '询价表',
                   icon: const Icon(Icons.more_vert, size: 18),
-                  onSelected: (v) => v == 'export'
-                      ? _export(context, title, sid)
-                      : _import(context, sid),
+                  onSelected: (v) => switch (v) {
+                    'message' => _copyMessage(context, sid),
+                    'export' => _export(context, title, sid),
+                    _ => _import(context, sid),
+                  },
                   itemBuilder: (_) => const [
+                    PopupMenuItem(
+                      value: 'message',
+                      child: Text('复制询价消息（发微信或邮件）'),
+                    ),
                     PopupMenuItem(value: 'export', child: Text('导出询价表（发给供应商）')),
                     PopupMenuItem(value: 'import', child: Text('导入供应商回填的表')),
                   ],
@@ -275,7 +336,12 @@ class InquiryPage extends StatelessWidget {
     ),
   );
 
-  Widget _row(BuildContext context, InquiryMatrix m, InquiryRow r) {
+  Widget _row(
+    BuildContext context,
+    InquiryMatrix m,
+    InquiryRow r,
+    double cell,
+  ) {
     final p = r.item['product_id'] == null
         ? null
         : store.get('product', r.item['product_id']! as String)?.data;
@@ -315,7 +381,7 @@ class InquiryPage extends StatelessWidget {
             ),
             for (var i = 0; i < m.suppliers.length; i++)
               SizedBox(
-                width: _cellWidth,
+                width: cell,
                 child: _Cell(
                   cell: r.cells[i],
                   onTap: () => showInquiryCell(

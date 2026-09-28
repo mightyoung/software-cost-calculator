@@ -52,7 +52,7 @@ class TrashPage extends StatelessWidget {
             const Padding(
               padding: EdgeInsets.only(bottom: 10),
               child: Text(
-                '恢复后记录回到原处，并随数据交换同步到其他设备。',
+                '恢复后记录回到原处，并随同步与交换传到其他设备。',
                 style: TextStyle(color: Tokens.ink2),
               ),
             ),

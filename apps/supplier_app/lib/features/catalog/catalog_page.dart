@@ -6,9 +6,14 @@ import '../../app/theme.dart';
 import '../../widgets/ledger.dart';
 import '../../platform/files.dart';
 import 'attributes_editor.dart';
+import 'catalog_import.dart';
 import 'contacts.dart';
+import 'detail_panel.dart';
 import 'duplicate_hints.dart';
+import '../../widgets/data_grid.dart';
 import '../../widgets/deletion.dart';
+import '../../app/format.dart';
+import '../../widgets/save_keys.dart';
 
 typedef _Field = (String key, String label, String? hint);
 
@@ -33,6 +38,22 @@ const _fields = <String, List<_Field>>{
 
 const _lists = {'aliases', 'categories'};
 
+/// Form rows: related short fields side by side.
+const _layout = {
+  'supplier': [
+    ['name'],
+    ['aliases', 'categories'],
+    ['address'],
+    ['notes'],
+  ],
+  'product': [
+    ['name', 'unit'],
+    ['brand', 'model'],
+    ['specification'],
+    ['category', 'notes'],
+  ],
+};
+
 /// Fields whose edits re-run the duplicate check.
 const _identity = {
   'supplier': {'name'},
@@ -51,134 +72,348 @@ class CatalogPage extends StatefulWidget {
 
 class _CatalogPageState extends State<CatalogPage> {
   String query = '';
-  var limit = pageSize;
+  String? category;
+
+  /// Record shown in the side panel.
+  String? selected;
+
+  void _open(String id) {
+    if (MediaQuery.sizeOf(context).width >= 1100) {
+      setState(() => selected = id);
+      return;
+    }
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => Scaffold(
+          appBar: AppBar(backgroundColor: Tokens.surface, title: Text(noun)),
+          body: CatalogDetail(state: widget.state, type: widget.type, id: id),
+        ),
+      ),
+    );
+  }
 
   bool get isProduct => widget.type == 'product';
   String get noun => isProduct ? '物料' : '供应商';
 
-  List<Hit> _hits(Store store) {
+  /// Ids matching the search box, or null when it is empty.
+  Set<String>? _hits(Store store) {
     final words = query
         .split(RegExp(r'\s+'))
         .where((w) => w.isNotEmpty)
         .toList();
-    if (isProduct && words.isNotEmpty) {
-      return store.searchProducts(words, limit: limit);
-    }
-    return store.searchByName(widget.type, query, limit: limit);
+    if (words.isEmpty) return null;
+    return {
+      for (final h
+          in isProduct
+              ? store.searchProducts(words, limit: 1 << 20)
+              : store.searchByName(widget.type, query, limit: 1 << 20))
+        h.id,
+    };
+  }
+
+  Future<void> _export<T>(List<GridColumn<T>> columns, List<T> rows) async {
+    final saved = await saveBytes(
+      '$noun-${today()}.xlsx',
+      gridToXlsx(noun, columns, rows),
+      extensions: ['xlsx'],
+    );
+    if (saved && mounted) toast(context, '已导出 ${rows.length} 个$noun');
   }
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: widget.state,
     builder: (context, _) {
-      final hits = _hits(widget.state.store);
-      final more = hits.length >= limit;
-      final total = widget.state.store.recordCounts()[widget.type]!;
+      final store = widget.state.store;
+      final hits = _hits(store);
       return Padding(
         padding: const EdgeInsets.fromLTRB(24, 18, 24, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Text(noun, style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(width: 10),
-                Text(
-                  query.isEmpty
-                      ? '共 $total 条'
-                      : '找到 ${hits.length}${more ? '+' : ''} 条',
-                  style: const TextStyle(color: Tokens.ink3),
-                ),
-                const Spacer(),
-                FilledButton.icon(
-                  onPressed: () =>
-                      showCatalogForm(context, widget.state, widget.type),
-                  icon: const Icon(Icons.add, size: 18),
-                  label: Text('新建$noun'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search, size: 18),
-                hintText: isProduct ? '型号、名称、品牌或规格' : '名称或别名',
-              ),
-              onChanged: (v) => setState(() {
-                query = v.trim();
-                limit = pageSize;
-              }),
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: hits.isEmpty
-                  ? EmptyState(
-                      title: query.isEmpty ? '还没有$noun' : '没有找到"$query"',
-                      body: isProduct
-                          ? '物料是报价和预算的基础，建立后可在项目中直接选用。'
-                          : '记录供应商后，报价和预算会显示对应的供应商。',
-                    )
-                  : Material(
-                      color: Tokens.surface,
-                      clipBehavior: Clip.antiAlias,
-                      shape: RoundedRectangleBorder(
-                        side: const BorderSide(color: Tokens.rule),
-                        borderRadius: BorderRadius.circular(Tokens.radius),
-                      ),
-                      child: ListView.separated(
-                        itemCount: hits.length + (more ? 1 : 0),
-                        separatorBuilder: (_, _) => const Divider(),
-                        itemBuilder: (context, i) {
-                          if (i == hits.length) {
-                            return MoreRow(
-                              shown: hits.length,
-                              onMore: () => setState(() => limit += pageSize),
-                            );
-                          }
-                          final h = hits[i];
-                          final sub = isProduct
-                              ? [
-                                  h.data['brand'],
-                                  h.data['model'],
-                                  h.data['specification'],
-                                ]
-                              : [
-                                  (h.data['aliases']! as List).join('、'),
-                                  h.data['address'],
-                                ];
-                          final line = sub
-                              .whereType<String>()
-                              .where((s) => s.isNotEmpty)
-                              .join(' · ');
-                          return ListTile(
-                            minTileHeight: 52,
-                            title: Text(h.data['name']! as String),
-                            subtitle: line.isEmpty
-                                ? null
-                                : (isProduct ? MonoText(line) : Text(line)),
-                            trailing: isProduct
-                                ? Text(
-                                    '单位：${h.data['unit']}',
-                                    style: const TextStyle(color: Tokens.ink3),
-                                  )
-                                : null,
-                            onTap: () => showCatalogForm(
-                              context,
-                              widget.state,
-                              widget.type,
-                              id: h.id,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-            ),
-          ],
-        ),
+        child: isProduct ? _products(store, hits) : _suppliers(store, hits),
       );
     },
   );
+
+  /// Columns hidden while the side panel narrows the table.
+  static const _secondary = {'类别', '规格', '中标', '项目', '供应商'};
+
+  Widget _page<T>({
+    required List<T> rows,
+    required List<GridColumn<T>> columns,
+    required String Function(T) id,
+    required String Function(T) name,
+    Widget? filters,
+  }) {
+    final total = widget.state.store.recordCounts()[widget.type]!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Text(noun, style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(width: 10),
+            Text(
+              query.isEmpty && category == null
+                  ? '共 $total 个'
+                  : '找到 ${rows.length} 个',
+              style: const TextStyle(color: Tokens.ink3),
+            ),
+            const Spacer(),
+            OutlinedButton.icon(
+              onPressed: () =>
+                  importCatalogList(context, widget.state, widget.type),
+              icon: const Icon(Icons.file_upload_outlined, size: 18),
+              label: const Text('导入'),
+            ),
+            const SizedBox(width: 8),
+            OutlinedButton.icon(
+              onPressed: rows.isEmpty ? null : () => _export(columns, rows),
+              icon: const Icon(Icons.file_download_outlined, size: 18),
+              label: const Text('导出'),
+            ),
+            const SizedBox(width: 8),
+            FilledButton.icon(
+              onPressed: () =>
+                  showCatalogForm(context, widget.state, widget.type),
+              icon: const Icon(Icons.add, size: 18),
+              label: Text('新建$noun'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search, size: 18),
+                  hintText: isProduct ? '型号、名称、品牌、规格或拼音首字母' : '名称、别名或拼音首字母',
+                ),
+                onChanged: (v) => setState(() => query = v.trim()),
+              ),
+            ),
+            if (filters != null) ...[const SizedBox(width: 10), filters],
+          ],
+        ),
+        const SizedBox(height: 12),
+        Expanded(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: _table(
+                  rows,
+                  selected == null
+                      ? columns
+                      : [
+                          for (final c in columns)
+                            if (!_secondary.contains(c.label)) c,
+                        ],
+                  id,
+                ),
+              ),
+              if (selected != null &&
+                  MediaQuery.sizeOf(context).width >= 1100) ...[
+                const SizedBox(width: 12),
+                Container(
+                  width: 420,
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Tokens.rule),
+                    borderRadius: BorderRadius.circular(Tokens.radius),
+                  ),
+                  child: CatalogDetail(
+                    key: ValueKey(selected),
+                    state: widget.state,
+                    type: widget.type,
+                    id: selected!,
+                    onClose: () => setState(() => selected = null),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _table<T>(
+    List<T> rows,
+    List<GridColumn<T>> columns,
+    String Function(T) id,
+  ) {
+    return SizedBox(
+      child: rows.isEmpty
+          ? EmptyState(
+              title: query.isEmpty && category == null
+                  ? '还没有$noun'
+                  : '没有找到符合条件的$noun',
+              body: isProduct
+                  ? '物料是报价和预算的基础，建立后可在项目中直接选用。'
+                  : '记录供应商后，报价和预算会显示对应的供应商。',
+            )
+          : DataGrid<T>(
+              rows: rows,
+              columns: columns,
+              id: id,
+              onOpen: (r) => _open(id(r)),
+              selectedId: selected,
+              bulkActions: (picked, clear) => [
+                TextButton.icon(
+                  onPressed: () => _export(columns, picked),
+                  icon: const Icon(Icons.file_download_outlined, size: 18),
+                  label: const Text('导出选中'),
+                ),
+                TextButton.icon(
+                  style: TextButton.styleFrom(foregroundColor: Tokens.red),
+                  onPressed: () async {
+                    await deleteManyWithUndo(
+                      context,
+                      widget.state,
+                      type: widget.type,
+                      ids: picked.map(id).toList(),
+                    );
+                    clear();
+                  },
+                  icon: const Icon(Icons.delete_outline, size: 18),
+                  label: const Text('删除'),
+                ),
+              ],
+            ),
+    );
+  }
+
+  Widget _suppliers(Store store, Set<String>? hits) => _page<SupplierRow>(
+    rows: store.supplierRows(only: hits),
+    id: (r) => r.id,
+    name: (r) => r.data['name']! as String,
+    columns: [
+      GridColumn(
+        '名称',
+        flex: 3,
+        value: (r) => r.data['name'] as String?,
+        cell: (r) => _twoLines(
+          r.data['name']! as String,
+          (r.data['aliases']! as List).join('、'),
+        ),
+      ),
+      GridColumn(
+        '类别',
+        flex: 2,
+        value: (r) => (r.data['categories']! as List).join('、'),
+      ),
+      GridColumn(
+        '联系人',
+        flex: 2,
+        value: (r) => r.contactName,
+        cell: (r) => _twoLines(
+          r.contactName ?? '—',
+          [
+            r.contactPhone,
+            if (r.contacts > 1) '共 ${r.contacts} 人',
+          ].whereType<String>().join(' · '),
+        ),
+      ),
+      GridColumn('报价', width: 72, numeric: true, value: (r) => r.quotes),
+      GridColumn('中标', width: 72, numeric: true, value: (r) => r.awards),
+      GridColumn('项目', width: 72, numeric: true, value: (r) => r.projects),
+      GridColumn('最近报价', width: 110, value: (r) => r.lastQuotedOn),
+    ],
+  );
+
+  Widget _products(Store store, Set<String>? hits) {
+    final categories = store.productCategories();
+    final rows = [
+      for (final r in store.productRows(only: hits))
+        if (category == null || r.data['category'] == category) r,
+    ];
+    return _page<ProductRow>(
+      rows: rows,
+      id: (r) => r.id,
+      name: (r) => r.data['name']! as String,
+      filters: categories.isEmpty
+          ? null
+          : DropdownButton<String?>(
+              value: category,
+              hint: const Text('全部类别'),
+              items: [
+                const DropdownMenuItem(value: null, child: Text('全部类别')),
+                for (final c in categories)
+                  DropdownMenuItem(value: c, child: Text(c)),
+              ],
+              onChanged: (c) => setState(() => category = c),
+            ),
+      columns: [
+        GridColumn(
+          '名称 / 型号',
+          flex: 3,
+          value: (r) => r.data['name'] as String?,
+          cell: (r) => _twoLines(
+            r.data['name']! as String,
+            [r.data['brand'], r.data['model']].whereType<String>().join(' · '),
+            mono: true,
+          ),
+        ),
+        GridColumn(
+          '规格',
+          flex: 3,
+          value: (r) => r.data['specification'] as String?,
+        ),
+        GridColumn('类别', flex: 1, value: (r) => r.data['category'] as String?),
+        GridColumn('单位', width: 56, value: (r) => r.data['unit'] as String?),
+        GridColumn(
+          '最近报价',
+          width: 150,
+          numeric: true,
+          value: (r) => switch (r.lastQuote?['price']) {
+            final String p => Num(p),
+            _ => null,
+          },
+          cell: (r) {
+            final q = r.lastQuote;
+            if (q == null) {
+              return const Text('—', style: TextStyle(color: Tokens.ink3));
+            }
+            return _twoLines(
+              '${money(q['price'] as String?, prefix: q['currency'] == 'CNY' ? '¥' : '${q['currency']} ')} / ${q['unit_snapshot']}',
+              q['quoted_on'] as String? ?? '',
+              end: true,
+            );
+          },
+        ),
+        GridColumn('报价', width: 64, numeric: true, value: (r) => r.quotes),
+        GridColumn('供应商', width: 72, numeric: true, value: (r) => r.suppliers),
+        GridColumn('项目', width: 64, numeric: true, value: (r) => r.projects),
+      ],
+    );
+  }
 }
+
+/// A main line with a quieter second line (skipped when empty).
+Widget _twoLines(
+  String main,
+  String sub, {
+  bool mono = false,
+  bool end = false,
+}) => Column(
+  mainAxisSize: MainAxisSize.min,
+  crossAxisAlignment: end ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+  children: [
+    Text(
+      main,
+      overflow: TextOverflow.ellipsis,
+      style: end ? const TextStyle(fontFeatures: tabular) : null,
+    ),
+    if (sub.isNotEmpty)
+      mono
+          ? MonoText(sub)
+          : Text(
+              sub,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+            ),
+  ],
+);
 
 Future<String?> showCatalogForm(
   BuildContext context,
@@ -432,6 +667,21 @@ class _CatalogFormState extends State<_CatalogForm> {
     );
   }
 
+  Widget _input(String key) {
+    final (_, label, hint) = _fields[widget.type]!.firstWhere(
+      (f) => f.$1 == key,
+    );
+    return TextField(
+      controller: c[key],
+      autofocus: key == 'name',
+      decoration: InputDecoration(labelText: label, hintText: hint),
+      onChanged: _identity[widget.type]!.contains(key)
+          ? (_) => setState(() => dups = _similar())
+          : null,
+      onSubmitted: (_) => _save(),
+    );
+  }
+
   Future<void> _delete() async {
     final state = widget.state, id = widget.id!;
     final name =
@@ -451,149 +701,160 @@ class _CatalogFormState extends State<_CatalogForm> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(widget.id == null ? '新建$noun' : '编辑$noun'),
-      content: SizedBox(
-        width: 460,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final (key, label, hint) in _fields[widget.type]!) ...[
-                TextField(
-                  controller: c[key],
-                  autofocus: key == 'name',
-                  decoration: InputDecoration(labelText: label, hintText: hint),
-                  onChanged: _identity[widget.type]!.contains(key)
-                      ? (_) => setState(() => dups = _similar())
-                      : null,
-                  onSubmitted: (_) => _save(),
-                ),
-                const SizedBox(height: 12),
-              ],
-              if (widget.type == 'product') ...[
-                _categoryChips(),
-                AttributesEditor(
-                  rows: attrs,
-                  suggestions: widget.state.store.categoryAttributes(
-                    c['category']!.text.trim(),
-                  ),
-                  onAdd: _addAttr,
-                  onRemove: (i) => setState(() {
-                    final (k, v) = attrs.removeAt(i);
-                    k.dispose();
-                    v.dispose();
-                    dups = _similar();
-                  }),
-                  onChanged: () => setState(() => dups = _similar()),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Text(
-                        '报价单位换算',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                    TextButton.icon(
-                      onPressed: () => setState(
-                        () => unitConversions.add((
-                          TextEditingController(),
-                          TextEditingController(),
-                        )),
-                      ),
-                      icon: const Icon(Icons.add, size: 16),
-                      label: const Text('添加单位'),
-                    ),
-                  ],
-                ),
-                Text(
-                  '填写 1 个报价单位等于多少「${c['unit']!.text.trim().isEmpty ? '基准单位' : c['unit']!.text.trim()}」，例如 1 千米 = 1000 米。修改基准单位前请先清空旧换算。',
-                  style: const TextStyle(fontSize: 12, color: Tokens.ink3),
-                ),
-                for (var i = 0; i < unitConversions.length; i++)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Row(
-                      children: [
+    return SaveKeys(
+      onSave: _save,
+      child: AlertDialog(
+        title: Text(widget.id == null ? '新建$noun' : '编辑$noun'),
+        content: SizedBox(
+          width: 460,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final row in _layout[widget.type]!) ...[
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final (i, key) in row.indexed) ...[
+                        if (i > 0) const SizedBox(width: 12),
                         Expanded(
-                          child: TextField(
-                            controller: unitConversions[i].$1,
-                            decoration: const InputDecoration(
-                              labelText: '报价单位',
-                              hintText: '千米',
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: TextField(
-                            controller: unitConversions[i].$2,
-                            decoration: InputDecoration(
-                              labelText:
-                                  '等于多少${c['unit']!.text.trim().isEmpty ? '基准单位' : c['unit']!.text.trim()}',
-                              hintText: '1000',
-                            ),
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          tooltip: '删除单位换算',
-                          icon: const Icon(Icons.close, size: 16),
-                          onPressed: () => setState(() {
-                            final (source, factor) = unitConversions.removeAt(
-                              i,
-                            );
-                            source.dispose();
-                            factor.dispose();
-                          }),
+                          // The unit is short; the name beside it gets room.
+                          flex: key == 'unit' ? 1 : 2,
+                          child: _input(key),
                         ),
                       ],
-                    ),
+                    ],
                   ),
-                const SizedBox(height: 12),
-              ],
-              if (dups.isNotEmpty) ...[
-                DuplicateHints(
-                  duplicates: dups,
-                  onMerge: widget.id == null ? null : _merge,
-                  onOpen: widget.id == null ? _open : null,
-                ),
-                const SizedBox(height: 12),
-              ],
-              if (error != null)
-                Text(error!, style: const TextStyle(color: Tokens.red)),
-              if (widget.type == 'supplier') ...[
-                const Divider(height: 24),
-                if (widget.id == null)
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      '保存后可以添加联系人',
-                      style: TextStyle(color: Tokens.ink3),
+                  const SizedBox(height: 12),
+                ],
+                if (widget.type == 'product') ...[
+                  _categoryChips(),
+                  AttributesEditor(
+                    rows: attrs,
+                    suggestions: widget.state.store.categoryAttributes(
+                      c['category']!.text.trim(),
                     ),
-                  )
-                else
-                  SupplierContacts(state: widget.state, supplierId: widget.id!),
+                    onAdd: _addAttr,
+                    onRemove: (i) => setState(() {
+                      final (k, v) = attrs.removeAt(i);
+                      k.dispose();
+                      v.dispose();
+                      dups = _similar();
+                    }),
+                    onChanged: () => setState(() => dups = _similar()),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Text(
+                          '报价单位换算',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: () => setState(
+                          () => unitConversions.add((
+                            TextEditingController(),
+                            TextEditingController(),
+                          )),
+                        ),
+                        icon: const Icon(Icons.add, size: 16),
+                        label: const Text('添加单位'),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    '填写 1 个报价单位等于多少「${c['unit']!.text.trim().isEmpty ? '基准单位' : c['unit']!.text.trim()}」，例如 1 千米 = 1000 米。修改基准单位前请先清空旧换算。',
+                    style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+                  ),
+                  for (var i = 0; i < unitConversions.length; i++)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: unitConversions[i].$1,
+                              decoration: const InputDecoration(
+                                labelText: '报价单位',
+                                hintText: '千米',
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              controller: unitConversions[i].$2,
+                              decoration: InputDecoration(
+                                labelText:
+                                    '等于多少${c['unit']!.text.trim().isEmpty ? '基准单位' : c['unit']!.text.trim()}',
+                                hintText: '1000',
+                              ),
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
+                            ),
+                          ),
+                          IconButton(
+                            tooltip: '删除单位换算',
+                            icon: const Icon(Icons.close, size: 16),
+                            onPressed: () => setState(() {
+                              final (source, factor) = unitConversions.removeAt(
+                                i,
+                              );
+                              source.dispose();
+                              factor.dispose();
+                            }),
+                          ),
+                        ],
+                      ),
+                    ),
+                  const SizedBox(height: 12),
+                ],
+                if (dups.isNotEmpty) ...[
+                  DuplicateHints(
+                    duplicates: dups,
+                    onMerge: widget.id == null ? null : _merge,
+                    onOpen: widget.id == null ? _open : null,
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                if (error != null)
+                  Text(error!, style: const TextStyle(color: Tokens.red)),
+                if (widget.type == 'supplier') ...[
+                  const Divider(height: 24),
+                  if (widget.id == null)
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '保存后可以添加联系人',
+                        style: TextStyle(color: Tokens.ink3),
+                      ),
+                    )
+                  else
+                    SupplierContacts(
+                      state: widget.state,
+                      supplierId: widget.id!,
+                    ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
-      ),
-      actionsAlignment: MainAxisAlignment.spaceBetween,
-      actions: dialogActions(
-        onDelete: widget.id == null ? null : _delete,
-        deleteLabel: '删除$noun',
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          FilledButton(onPressed: _save, child: const Text('保存')),
-        ],
+        actionsAlignment: MainAxisAlignment.spaceBetween,
+        actions: dialogActions(
+          onDelete: widget.id == null ? null : _delete,
+          deleteLabel: '删除$noun',
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('取消'),
+            ),
+            FilledButton(onPressed: _save, child: const Text('保存')),
+          ],
+        ),
       ),
     );
   }

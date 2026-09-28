@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
@@ -35,6 +37,34 @@ class _AskPageState extends State<AskPage> {
 
   /// What the assistant is doing right now (the tool it called last).
   String? activity;
+
+  /// Earlier questions and answers stay on this device (last 100 messages),
+  /// so leaving the page or restarting keeps them.
+  static const _historyKey = 'ask_history';
+
+  @override
+  void initState() {
+    super.initState();
+    try {
+      final saved = jsonDecode(widget.state.setting(_historyKey) ?? '[]');
+      for (final m in (saved as List).whereType<List>()) {
+        messages.add(_Message(m[0] == true, '${m[1]}', error: m[2] == true));
+      }
+    } on FormatException {
+      // A damaged history is simply dropped.
+    }
+    if (messages.isNotEmpty) _scrollDown(animate: false);
+  }
+
+  void _saveHistory() => widget.state.saveSetting(
+    _historyKey,
+    jsonEncode([
+      for (final m in messages.skip(
+        messages.length > 100 ? messages.length - 100 : 0,
+      ))
+        [m.fromUser, m.text, m.error],
+    ]),
+  );
 
   @override
   void dispose() {
@@ -80,18 +110,22 @@ class _AskPageState extends State<AskPage> {
       messages.add(reply);
       busy = false;
     });
+    _saveHistory();
     _scrollDown();
   }
 
-  void _scrollDown() => WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (scroll.hasClients) {
-      scroll.animateTo(
-        scroll.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-      );
-    }
-  });
+  void _scrollDown({bool animate = true}) =>
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (scroll.hasClients && !animate) {
+          scroll.jumpTo(scroll.position.maxScrollExtent);
+        } else if (scroll.hasClients) {
+          scroll.animateTo(
+            scroll.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+          );
+        }
+      });
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -99,10 +133,25 @@ class _AskPageState extends State<AskPage> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('问数据', style: Theme.of(context).textTheme.titleLarge),
+        Row(
+          children: [
+            Expanded(
+              child: Text('问数据', style: Theme.of(context).textTheme.titleLarge),
+            ),
+            if (messages.isNotEmpty && !busy)
+              TextButton.icon(
+                onPressed: () {
+                  setState(messages.clear);
+                  widget.state.saveSetting(_historyKey, null);
+                },
+                icon: const Icon(Icons.delete_sweep_outlined, size: 18),
+                label: const Text('清空记录'),
+              ),
+          ],
+        ),
         const SizedBox(height: 4),
         const Text(
-          'AI 只能查询本机数据，不会修改任何记录。回答中的金额来自数据库原值。',
+          'AI 只能查询本机数据，不会修改任何记录。回答中的金额来自数据库原值。问答记录只保存在本机。',
           style: TextStyle(color: Tokens.ink2),
         ),
         const SizedBox(height: 12),
