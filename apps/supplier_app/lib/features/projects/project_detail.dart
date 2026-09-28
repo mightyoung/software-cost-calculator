@@ -4,6 +4,7 @@ import 'package:supplier_core/supplier_core.dart';
 import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
+import '../../platform/cjk_font.dart';
 import '../../platform/files.dart';
 import '../../widgets/ledger.dart';
 import '../ai/list_to_project.dart';
@@ -38,6 +39,7 @@ class _ProjectDetailState extends State<ProjectDetail> {
 
   Future<void> _export(String kind, Map<String, Object?> p) async {
     final store = state.store;
+    if (kind.endsWith('_pdf')) return _exportPdf(kind, p);
     final (name, bytes) = switch (kind) {
       'quote' => ('项目报价单', store.exportQuoteSheet(widget.projectId)),
       'budget' => ('成本预算表', store.exportCostBudget(widget.projectId)),
@@ -49,6 +51,25 @@ class _ProjectDetailState extends State<ProjectDetail> {
       extensions: ['xlsx'],
     );
     if (saved && mounted) toast(context, '已导出$name');
+  }
+
+  Future<void> _exportPdf(String kind, Map<String, Object?> p) async {
+    final font = await cjkFont();
+    if (!mounted) return;
+    if (font == null) {
+      return toast(context, '本机没有找到可嵌入 PDF 的中文字体，请改用 Excel 导出');
+    }
+    final quote = kind == 'quote_pdf';
+    final name = quote ? '项目报价单' : '成本预算表';
+    final bytes = quote
+        ? await state.store.quoteSheetPdf(widget.projectId, font)
+        : await state.store.costBudgetPdf(widget.projectId, font);
+    final saved = await saveBytes(
+      '$name-${p['name']}-${today()}.pdf',
+      bytes,
+      extensions: ['pdf'],
+    );
+    if (saved && mounted) toast(context, '已导出$name PDF');
   }
 
   @override
@@ -237,7 +258,9 @@ class _Toolbar extends StatelessWidget {
 
   static const _exports = [
     ('quote', '导出项目报价单（给客户）'),
+    ('quote_pdf', '导出项目报价单 PDF'),
     ('budget', '导出成本预算表（内部）'),
+    ('budget_pdf', '导出成本预算表 PDF'),
     ('inquiry', '导出待询价清单（给供应商）'),
   ];
 

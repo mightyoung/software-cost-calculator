@@ -22,6 +22,7 @@ export 'src/merge.dart';
 export 'src/ontology.dart';
 export 'src/project.dart';
 export 'src/project_export.dart';
+export 'src/project_pdf.dart';
 export 'src/quotation.dart';
 export 'src/quote_excel.dart';
 export 'src/record_query.dart';
