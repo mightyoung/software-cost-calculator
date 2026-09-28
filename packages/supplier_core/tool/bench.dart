@@ -137,6 +137,15 @@ void main() {
     return b.searchProducts(['物料']);
   });
   timed('pinyin search', 300, () => b.searchByName('supplier', 'gys'));
+  // List pages: whole tables with counts, and one sorted page of quotes.
+  timed('supplier table (10k)', 3000, () => b.supplierRows());
+  timed('product table (20k)', 3000, () => b.productRows());
+  timed('quote page, newest 200 of 100k', 1000, () => b.quoteRows());
+  timed(
+    'quote page, usable by price',
+    1500,
+    () => b.quoteRows(filter: QuoteFilter.usable, sort: QuoteSort.price),
+  );
   print('rss ${ProcessInfo.maxRss ~/ 1048576} MiB');
   if (failures.isNotEmpty) {
     print('BENCHMARK FAILED: ${failures.join(', ')}');
