@@ -634,33 +634,55 @@ class _MaterialReviewState extends State<MaterialReview> {
               ],
             ),
           const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  error ??
-                      [
-                        if (!widget.masterData) '$priced 条报价',
-                        '新建供应商 $newSuppliers',
-                        '新建物料 $newProducts',
-                      ].join(' · '),
-                  style: TextStyle(
-                    color: error == null ? Tokens.ink2 : Tokens.red,
-                  ),
+          Builder(
+            builder: (context) {
+              final summary = Text(
+                error ??
+                    [
+                      if (!widget.masterData) '$priced 条报价',
+                      '新建供应商 $newSuppliers',
+                      '新建物料 $newProducts',
+                    ].join(' · '),
+                style: TextStyle(
+                  color: error == null ? Tokens.ink2 : Tokens.red,
                 ),
-              ),
-              const SizedBox(width: 10),
-              OutlinedButton(
+              );
+              final back = OutlinedButton(
                 onPressed: widget.onBack,
                 child: const Text('返回修改'),
-              ),
-              const SizedBox(width: 8),
-              FilledButton.icon(
+              );
+              final confirm = FilledButton.icon(
                 onPressed: ready == 0 ? null : _apply,
                 icon: const Icon(Icons.check, size: 18),
                 label: Text('确认导入（$ready 条）'),
-              ),
-            ],
+              );
+              // Phones: the summary gets its own line above the buttons.
+              if (MediaQuery.sizeOf(context).width < 600) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    summary,
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        back,
+                        const SizedBox(width: 8),
+                        Expanded(child: confirm),
+                      ],
+                    ),
+                  ],
+                );
+              }
+              return Row(
+                children: [
+                  Expanded(child: summary),
+                  const SizedBox(width: 10),
+                  back,
+                  const SizedBox(width: 8),
+                  confirm,
+                ],
+              );
+            },
           ),
         ],
       ),

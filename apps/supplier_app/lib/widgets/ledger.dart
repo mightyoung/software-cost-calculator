@@ -4,8 +4,16 @@ import '../app/theme.dart';
 
 /// A ruled row of labelled figures; replaces metric cards.
 class LedgerStrip extends StatelessWidget {
-  const LedgerStrip({super.key, required this.cells, this.columns});
+  const LedgerStrip({
+    super.key,
+    required this.cells,
+    this.columns,
+    this.dense = false,
+  });
   final List<LedgerCell> cells;
+
+  /// Phones: one row, tighter gaps (the cells should be dense too).
+  final bool dense;
 
   /// Wraps into a grid of this many columns (phones use 2).
   final int? columns;
@@ -39,10 +47,10 @@ class LedgerStrip extends StatelessWidget {
                         child: i < rows[r].length
                             ? Container(
                                 padding: EdgeInsets.fromLTRB(
-                                  i == 0 ? 0 : 14,
-                                  10,
-                                  8,
-                                  10,
+                                  i == 0 ? 0 : (dense ? 8 : 14),
+                                  dense ? 8 : 10,
+                                  dense ? 4 : 8,
+                                  dense ? 8 : 10,
                                 ),
                                 decoration: BoxDecoration(
                                   border: i == 0
@@ -66,9 +74,19 @@ class LedgerStrip extends StatelessWidget {
 }
 
 class LedgerCell extends StatelessWidget {
-  const LedgerCell(this.label, this.value, {super.key, this.note, this.alert});
+  const LedgerCell(
+    this.label,
+    this.value, {
+    super.key,
+    this.note,
+    this.alert,
+    this.dense = false,
+  });
   final String label, value;
   final String? note, alert;
+
+  /// Smaller figure with the note beneath it, for four cells across a phone.
+  final bool dense;
 
   @override
   Widget build(BuildContext context) => Column(
@@ -81,13 +99,13 @@ class LedgerCell extends StatelessWidget {
           children: [
             TextSpan(
               text: value,
-              style: const TextStyle(
-                fontSize: 20,
+              style: TextStyle(
+                fontSize: dense ? 15 : 20,
                 fontWeight: FontWeight.w600,
                 fontFeatures: tabular,
               ),
             ),
-            if (note != null)
+            if (note != null && !dense)
               TextSpan(
                 text: '  $note',
                 style: TextStyle(fontSize: 12, color: Tokens.ink3),
@@ -95,6 +113,8 @@ class LedgerCell extends StatelessWidget {
           ],
         ),
       ),
+      if (note != null && dense)
+        Text(note!, style: TextStyle(fontSize: 12, color: Tokens.ink3)),
       if (alert != null) ...[
         const SizedBox(height: 2),
         HintText(alert!, icon: Icons.warning_amber_rounded),

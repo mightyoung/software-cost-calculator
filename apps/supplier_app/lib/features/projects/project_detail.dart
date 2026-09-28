@@ -211,24 +211,34 @@ class _Header extends StatelessWidget {
         const SizedBox(height: 4),
         Text(meta, style: TextStyle(fontSize: 13, color: Tokens.ink2)),
         const SizedBox(height: 14),
+        // Phones: the four figures in one row instead of a 2×2 block.
         LedgerStrip(
-          columns: compact ? 2 : null,
+          dense: compact,
           cells: [
-            LedgerCell('合同金额', contract == null ? '未填' : yuan(contract)),
             LedgerCell(
-              '成本合计',
-              yuan(budget.cost),
-              alert: budget.contractWarning ? '已达合同金额 $contractPct' : null,
+              compact ? '合同' : '合同金额',
+              contract == null ? '未填' : yuan(contract),
+              dense: compact,
             ),
             LedgerCell(
-              '对外报价',
+              compact ? '成本' : '成本合计',
+              yuan(budget.cost),
+              alert: budget.contractWarning
+                  ? (compact ? '达合同 $contractPct' : '已达合同金额 $contractPct')
+                  : null,
+              dense: compact,
+            ),
+            LedgerCell(
+              compact ? '报价' : '对外报价',
               yuan(budget.price),
               note: '加价 ${p['markup_rate']}%',
+              dense: compact,
             ),
             LedgerCell(
               '毛利',
               yuan(budget.margin),
               note: percent(budget.margin, budget.price),
+              dense: compact,
             ),
           ],
         ),
