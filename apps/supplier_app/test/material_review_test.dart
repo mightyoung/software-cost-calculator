@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supplier_app/app/app_state.dart';
 import 'package:supplier_app/app/theme.dart';
+import 'package:supplier_app/features/ai/material_import_page.dart';
 import 'package:supplier_app/features/ai/material_review.dart';
 import 'package:supplier_core/supplier_core.dart';
 
@@ -267,5 +268,58 @@ void main() {
     expect(quotes.single.data['price'], '3200');
     expect(store.budget(project).lines, hasLength(1));
     expect(state.setting('inquirer'), '王五');
+  });
+
+  testWidgets('an Excel table opens at review and creates what is missing', (
+    tester,
+  ) async {
+    final dir = Directory.systemTemp.createTempSync('material_table');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final store = Store.open('${dir.path}/m.db', device: '测试机');
+    addTearDown(store.close);
+    final state = AppState.test(store, dir);
+    final project = store.save('project', {
+      for (final f in Project.fields) f: null,
+      'code': 'P1',
+      'name': '监控',
+      'status': 'active',
+      'currency': 'CNY',
+      'tax_mode': 'included',
+      'markup_rate': '0',
+    });
+    final bytes = writeXlsx([
+      SheetData('Sheet1', [
+        ['设备名称', '品牌', '型号', '单位', '数量', '单价'],
+        ['网关', '巨控', 'NET422-CS', '个', Num('4'), Num('3190')],
+        ['工控机', null, null, '台', Num('5'), Num('15000')],
+      ]),
+    ]);
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildTheme(),
+        home: MaterialImportPage(
+          state: state,
+          projectId: project,
+          table: (
+            name: '选型.xlsx',
+            bytes: bytes,
+            offers: offersFromWorkbook(readXlsx(bytes))!,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('没有供应商，只登记物料'), findsOneWidget);
+    expect(find.textContaining('新建供应商：巨控'), findsOneWidget);
+    await tester.enterText(find.widgetWithText(TextField, '询价人'), '王五');
+    await tester.tap(find.text('确认导入（2 条）'));
+    await tester.pumpAndSettle();
+    expect(store.listQuotations(projectId: project), hasLength(1));
+    expect(store.searchByName('supplier', '巨控'), hasLength(1));
+    expect(store.searchByName('product', '工控机'), hasLength(1));
+    expect(tester.takeException(), isNull);
   });
 }

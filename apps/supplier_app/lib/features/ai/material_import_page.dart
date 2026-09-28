@@ -15,16 +15,26 @@ Future<String?> showMaterialImport(
   BuildContext context,
   AppState state, {
   String? projectId,
+  ({String name, Uint8List bytes, List<Offer> offers})? table,
 }) => Navigator.of(context).push<String>(
   MaterialPageRoute(
-    builder: (_) => MaterialImportPage(state: state, projectId: projectId),
+    builder: (_) =>
+        MaterialImportPage(state: state, projectId: projectId, table: table),
   ),
 );
 
 class MaterialImportPage extends StatefulWidget {
-  const MaterialImportPage({super.key, required this.state, this.projectId});
+  const MaterialImportPage({
+    super.key,
+    required this.state,
+    this.projectId,
+    this.table,
+  });
   final AppState state;
   final String? projectId;
+
+  /// A table already read without AI: opens straight at the review step.
+  final ({String name, Uint8List bytes, List<Offer> offers})? table;
 
   @override
   State<MaterialImportPage> createState() => _MaterialImportPageState();
@@ -32,7 +42,7 @@ class MaterialImportPage extends StatefulWidget {
 
 class _MaterialImportPageState extends State<MaterialImportPage> {
   final text = TextEditingController();
-  String? fileName, error, progress;
+  String? fileName, fileText, error, progress;
   Uint8List? fileBytes;
   bool? hasKey;
   List<OfferPlan>? plans;
@@ -41,6 +51,11 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
   @override
   void initState() {
     super.initState();
+    if (widget.table case final t?) {
+      fileName = t.name;
+      fileBytes = t.bytes;
+      plans = [for (final o in t.offers) widget.state.store.planOffer(o)];
+    }
     widget.state.hasAiKey().then((v) {
       if (mounted) setState(() => hasKey = v);
     });
@@ -55,6 +70,18 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
   Future<void> _start() async {
     if (text.text.trim().isEmpty) {
       return setState(() => error = '先粘贴报价信息，或选择一个 Excel 文件');
+    }
+    // A table with a recognizable header is read column by column: exact,
+    // instant and no AI key needed.
+    if (fileBytes != null && text.text == fileText) {
+      final offers = offersFromWorkbook(readXlsx(fileBytes!));
+      if (offers != null && offers.isNotEmpty) {
+        final store = widget.state.store;
+        return setState(() {
+          error = null;
+          plans = [for (final o in offers) store.planOffer(o)];
+        });
+      }
     }
     final LlmClient? llm;
     try {
@@ -138,7 +165,8 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
             text: text,
             intro:
                 '粘贴供应商发来的报价信息：微信聊天、邮件、报价单表格或文字都可以，也可以直接选择 Excel 文件。'
-                'AI 会整理出供应商、联系人、产品、品牌型号、技术参数和价格，并与本机已有的供应商和物料对应。'
+                '带表头的 Excel（有"名称""品牌""型号""单价"等列）会直接按列读取，不需要 AI；其他内容由 '
+                'AI 整理出供应商、联系人、产品、品牌型号、技术参数和价格，并与本机已有的供应商和物料对应。'
                 '确认前不会写入任何数据。只会发送你粘贴的内容，不会发送本机数据。\n'
                 'PDF 报价单可以直接复制其中的文字；截图可先用系统自带的文字识别复制出文字再粘贴'
                 '（Windows 截图工具的"文本操作"、macOS 的实况文本、安卓的 Google 镜头）。',
@@ -153,6 +181,7 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
             onFile: (name, bytes, err) => setState(() {
               fileName = name;
               fileBytes = err == null ? bytes : null;
+              fileText = err == null ? text.text : null;
               error = err;
             }),
             onStart: _start,

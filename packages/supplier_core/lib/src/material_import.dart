@@ -19,6 +19,7 @@ const offerFields = {
   'wechat': ('微信', 100),
   'email': ('邮箱', 254),
   'name': ('产品名称', 200),
+  'category': ('类别', 100),
   'brand': ('品牌', 200),
   'model': ('型号', 200),
   'specification': ('技术参数', 1000),
@@ -135,18 +136,27 @@ extension MaterialImport on Store {
         ], limit: 6))
           h.id: h,
     };
-    String? single(List<Duplicate> ds) {
-      final same = [
+    String? single(List<Duplicate> ds, {bool bySpec = false}) {
+      var same = [
         for (final d in ds)
-          if (d.level == Similarity.same) d.hit.id,
+          if (d.level == Similarity.same) d.hit,
       ];
-      return same.length == 1 ? same.single : null;
+      // Same name, brand and model but several specs: the identical one.
+      if (same.length > 1 && bySpec) {
+        same = [
+          for (final h in same)
+            if (normalizeKey(h.data['specification'] as String?) ==
+                normalizeKey(offer['specification']))
+              h,
+        ];
+      }
+      return same.length == 1 ? same.single.id : null;
     }
 
     return OfferPlan(
       offer,
       supplierId: single(suppliers),
-      productId: single(products),
+      productId: single(products, bySpec: true),
       supplierCandidates: [for (final d in suppliers.take(8)) d.hit],
       productCandidates: productCandidates.values.take(8).toList(),
       error: offerError(offer),
@@ -156,7 +166,8 @@ extension MaterialImport on Store {
 
   /// Creates suppliers, contacts, products and standard quotations for every
   /// choice in one transaction; optionally adds each material to the
-  /// project's budget. Offers without a price create no quotation.
+  /// project's budget. Offers without a price or supplier create no
+  /// quotation.
   ImportSummary applyOffers(
     List<OfferChoice> choices, {
     required String projectId,
@@ -178,17 +189,20 @@ extension MaterialImport on Store {
     var quotations = 0, duplicates = 0, items = 0;
     for (final c in choices) {
       final o = c.offer;
+      // No supplier (e.g. a selection list without one): material only.
       final supplierId =
           c.supplierId ??
-          newSuppliers.putIfAbsent(
-            companyKey(o['supplier']!),
-            () => save('supplier', {
-              for (final f in Supplier.fields) f: null,
-              'name': o['supplier'],
-              'aliases': <String>[],
-              'categories': <String>[],
-            }),
-          );
+          (o['supplier'] == null
+              ? null
+              : newSuppliers.putIfAbsent(
+                  companyKey(o['supplier']!),
+                  () => save('supplier', {
+                    for (final f in Supplier.fields) f: null,
+                    'name': o['supplier'],
+                    'aliases': <String>[],
+                    'categories': <String>[],
+                  }),
+                ));
       final productId =
           c.productId ??
           newProducts.putIfAbsent(
@@ -198,14 +212,15 @@ extension MaterialImport on Store {
             ].join('|'),
             () => save('product', {
               for (final f in Product.fields) f: o[f],
-              'category': null,
               'notes': null,
             }),
           );
-      final contactId = _contact(o, supplierId, newContacts);
+      final contactId = supplierId == null
+          ? null
+          : _contact(o, supplierId, newContacts);
       final product = get('product', productId)!.data;
       String? quoteId;
-      if (o['price'] != null) {
+      if (o['price'] != null && supplierId != null) {
         final payload = _quotation(
           o,
           supplierId: supplierId,
@@ -349,7 +364,6 @@ extension MaterialImport on Store {
   /// Validates the offer as the records it would create, with placeholder
   /// ids; returns a Chinese message or null.
   String? offerError(Offer o) {
-    if (o['supplier'] == null) return '缺少供应商名称';
     if (o['name'] == null) return '缺少产品名称';
     if (o['unit'] == null) return '缺少单位';
     for (final k in ['price', 'tax_rate']) {

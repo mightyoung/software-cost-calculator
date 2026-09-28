@@ -299,10 +299,16 @@ class _MaterialReviewState extends State<MaterialReview> {
     final ready = rows.where((r) => r.ready).toList();
     final newSuppliers = {
       for (final r in ready)
-        if (r.supplierId == null) r.offer['supplier'],
+        if (r.supplierId == null) ?r.offer['supplier'],
     }.length;
     final newProducts = ready.where((r) => r.productId == null).length;
-    final priced = ready.where((r) => r.offer['price'] != null).length;
+    final priced = ready
+        .where(
+          (r) =>
+              r.offer['price'] != null &&
+              (r.supplierId != null || r.offer['supplier'] != null),
+        )
+        .length;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -345,6 +351,8 @@ class _MaterialReviewState extends State<MaterialReview> {
     final tags = [
       if (r.plan.error != null)
         HintTag(r.plan.error!, icon: Icons.error_outline, tone: HintTone.error)
+      else if (o['supplier'] == null && r.supplierId == null)
+        const HintTag('没有供应商，只登记物料', icon: Icons.info_outline)
       else if (o['price'] == null)
         const HintTag('没有单价，只登记物料', icon: Icons.info_outline),
       if (o['price'] != null && o['tax_mode'] == 'unknown')
@@ -404,13 +412,14 @@ class _MaterialReviewState extends State<MaterialReview> {
           spacing: 8,
           runSpacing: 8,
           children: [
-            _picker(
-              value: r.supplierId,
-              newLabel: '新建供应商：${o['supplier'] ?? '（未识别）'}',
-              candidates: r.plan.supplierCandidates,
-              label: (d) => d['name']! as String,
-              onChanged: (v) => setState(() => r.supplierId = v),
-            ),
+            if (o['supplier'] != null || r.plan.supplierCandidates.isNotEmpty)
+              _picker(
+                value: r.supplierId,
+                newLabel: '新建供应商：${o['supplier'] ?? '（未识别）'}',
+                candidates: r.plan.supplierCandidates,
+                label: (d) => d['name']! as String,
+                onChanged: (v) => setState(() => r.supplierId = v),
+              ),
             _picker(
               value: r.productId,
               newLabel: '新建物料',

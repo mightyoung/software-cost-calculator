@@ -157,7 +157,7 @@ void main() {
     Offer offer(Map<String, String?> extra) =>
         cleanOffer({'supplier': '甲', 'name': '泵', 'unit': '台', ...extra});
     expect(s.offerError(offer({})), isNull);
-    expect(s.offerError(offer({'supplier': null})), '缺少供应商名称');
+    expect(s.offerError(offer({'supplier': null})), isNull, reason: '只登记物料');
     expect(s.offerError({...offer({}), 'price': '1234567890123'}), '单价有误');
   });
 
@@ -199,5 +199,169 @@ void main() {
     final att = s.attachmentsOf(q['attachment_ids'] as List).single;
     expect(att.name, '微信聊天.txt');
     expect(utf8.decode(s.attachment(att.id)!.bytes!), source);
+  });
+
+  test('a selection sheet imports without AI and creates what is missing', () {
+    final s = device('A');
+    final pro = s.save('project', project('P1'));
+    // Shaped like a real selection list: no supplier column, merged cells
+    // (blank continuation rows), a total row, contact words instead of phones.
+    final book = readXlsx(
+      writeXlsx([
+        SheetData('Sheet1', [
+          [
+            '序号',
+            '系统名称',
+            '设备类别',
+            '设备名称',
+            '品牌',
+            '型号',
+            '主要指标要求',
+            '单位',
+            '数量',
+            '单价',
+            '联系人',
+            '联系方式',
+            '备注',
+          ],
+          [
+            Num('1'),
+            '温湿度',
+            '硬件',
+            '温湿度传感器',
+            '永安',
+            'YAWS-200',
+            '技术指标：',
+            '个',
+            Num('25'),
+            Num('400'),
+            '牛工',
+            Num('13812508860'),
+            '含备件',
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            '（1）防护等级IP65',
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+          ],
+          [
+            Num('2'),
+            null,
+            '硬件',
+            '探头',
+            '果宇',
+            'GY-1',
+            null,
+            '个',
+            Num('4'),
+            Num('3900'),
+            '谢',
+            '微信',
+            null,
+          ],
+          [
+            Num('3'),
+            null,
+            '硬件',
+            '工控机',
+            null,
+            null,
+            '八核',
+            '台',
+            Num('5'),
+            Num('15000'),
+            null,
+            null,
+            null,
+          ],
+          [
+            '4',
+            null,
+            '硬件',
+            '探头',
+            '果宇',
+            'GY-1',
+            '长款',
+            '个',
+            Num('2'),
+            Num('4100'),
+            null,
+            null,
+            null,
+          ],
+          [
+            null,
+            '总价',
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+          ],
+        ]),
+      ]),
+    );
+    final offers = offersFromWorkbook(book)!;
+    expect(offers, hasLength(4));
+    expect(offers[0], containsPair('supplier', '永安'));
+    expect(offers[0], containsPair('category', '硬件'));
+    expect(offers[0], containsPair('phone', '13812508860'));
+    expect(offers[0]['specification'], '技术指标：\n（1）防护等级IP65');
+    expect(offers[1]['phone'], isNull);
+    expect(offers[1]['notes'], '联系方式：微信');
+    expect(offers[2]['supplier'], isNull);
+
+    final plans = [for (final o in offers) s.planOffer(o)];
+    expect([for (final p in plans) p.error], [null, null, null, null]);
+    final sum = s.applyOffers(
+      [
+        for (final p in plans)
+          (offer: p.offer, supplierId: p.supplierId, productId: p.productId),
+      ],
+      projectId: pro,
+      inquirer: '王五',
+      addToBudget: true,
+    );
+    expect(sum, (
+      suppliers: 2,
+      contacts: 1,
+      products: 4,
+      quotations: 3,
+      duplicates: 0,
+      items: 4,
+    ));
+    expect(s.searchByName('product', '工控机').single.data['category'], '硬件');
+    // Importing the same sheet again matches everything it created, also
+    // two materials that differ only in their specification.
+    final again = [for (final o in offersFromWorkbook(book)!) s.planOffer(o)];
+    expect(again.every((p) => p.productId != null), isTrue);
+    expect(
+      offersFromWorkbook(
+        readXlsx(
+          writeXlsx([
+            SheetData('x', [
+              ['日期', '金额'],
+            ]),
+          ]),
+        ),
+      ),
+      isNull,
+    );
   });
 }

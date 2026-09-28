@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
@@ -220,20 +221,36 @@ class _QuotesPageState extends State<QuotesPage> {
   Future<void> _import() async {
     final file = await pickBytes(['xlsx']);
     if (file == null || !mounted) return;
-    List<QuoteRowPlan> plans;
+    List<QuoteRowPlan>? plans;
+    String? problem;
     try {
       plans = store.planQuotationImport(file.bytes);
     } on FormatException catch (e) {
-      return toast(context, '无法读取 ${file.name}：${friendlyError(e.message)}');
+      problem = e.message;
+    }
+    if (plans == null) {
+      // Not our template: read it as an ordinary quote or selection table
+      // and review it like a smart import (new suppliers and materials).
+      final offers = _tableOffers(file.bytes);
+      if (offers == null || offers.isEmpty) {
+        return toast(context, '无法读取 ${file.name}：${friendlyError(problem!)}');
+      }
+      final msg = await showMaterialImport(
+        context,
+        widget.state,
+        table: (name: file.name, bytes: file.bytes, offers: offers),
+      );
+      if (msg != null && mounted) toast(context, msg);
+      return;
     }
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (_) => _ImportPreview(name: file.name, plans: plans),
+      builder: (_) => _ImportPreview(name: file.name, plans: plans!),
     );
     if (confirmed != true || !mounted) return;
     late int saved;
     final err = widget.state.write(
-      (s) => saved = s.applyQuotationImport(plans),
+      (s) => saved = s.applyQuotationImport(plans!),
     );
     toast(context, err ?? '已写入 $saved 条报价');
   }
@@ -616,5 +633,13 @@ class _ImportPreview extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+List<Offer>? _tableOffers(Uint8List bytes) {
+  try {
+    return offersFromWorkbook(readXlsx(bytes));
+  } on FormatException {
+    return null;
   }
 }
