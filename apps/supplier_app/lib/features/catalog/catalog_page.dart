@@ -36,6 +36,22 @@ const _fields = <String, List<_Field>>{
 
 const _lists = {'aliases', 'categories'};
 
+/// Form rows: related short fields side by side.
+const _layout = {
+  'supplier': [
+    ['name'],
+    ['aliases', 'categories'],
+    ['address'],
+    ['notes'],
+  ],
+  'product': [
+    ['name', 'unit'],
+    ['brand', 'model'],
+    ['specification'],
+    ['category', 'notes'],
+  ],
+};
+
 /// Fields whose edits re-run the duplicate check.
 const _identity = {
   'supplier': {'name'},
@@ -642,6 +658,21 @@ class _CatalogFormState extends State<_CatalogForm> {
     );
   }
 
+  Widget _input(String key) {
+    final (_, label, hint) = _fields[widget.type]!.firstWhere(
+      (f) => f.$1 == key,
+    );
+    return TextField(
+      controller: c[key],
+      autofocus: key == 'name',
+      decoration: InputDecoration(labelText: label, hintText: hint),
+      onChanged: _identity[widget.type]!.contains(key)
+          ? (_) => setState(() => dups = _similar())
+          : null,
+      onSubmitted: (_) => _save(),
+    );
+  }
+
   Future<void> _delete() async {
     final state = widget.state, id = widget.id!;
     final name =
@@ -669,15 +700,19 @@ class _CatalogFormState extends State<_CatalogForm> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              for (final (key, label, hint) in _fields[widget.type]!) ...[
-                TextField(
-                  controller: c[key],
-                  autofocus: key == 'name',
-                  decoration: InputDecoration(labelText: label, hintText: hint),
-                  onChanged: _identity[widget.type]!.contains(key)
-                      ? (_) => setState(() => dups = _similar())
-                      : null,
-                  onSubmitted: (_) => _save(),
+              for (final row in _layout[widget.type]!) ...[
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (final (i, key) in row.indexed) ...[
+                      if (i > 0) const SizedBox(width: 12),
+                      Expanded(
+                        // The unit is short; the name beside it gets room.
+                        flex: key == 'unit' ? 1 : 2,
+                        child: _input(key),
+                      ),
+                    ],
+                  ],
                 ),
                 const SizedBox(height: 12),
               ],

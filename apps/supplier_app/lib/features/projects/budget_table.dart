@@ -395,6 +395,9 @@ class BudgetTotals extends StatelessWidget {
         ],
       ),
     );
+    // On desktops the totals stay in view in the ledger strip above; the
+    // footer only speaks up when lines are left out of them.
+    if (!compact && pending == 0) return const SizedBox(height: 16);
     return Container(
       margin: EdgeInsets.fromLTRB(margin, 0, margin, compact ? 8 : 16),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -420,9 +423,10 @@ class BudgetTotals extends StatelessWidget {
               children: [
                 if (pending > 0)
                   HintText('含 $pending 项待询价，未计入', icon: Icons.help_outline),
-                figure('成本合计', budget.cost),
-                if (!compact) figure('对外报价合计', budget.price),
-                figure('毛利', budget.margin),
+                if (compact) ...[
+                  figure('成本合计', budget.cost),
+                  figure('毛利', budget.margin),
+                ],
               ],
             ),
           ),

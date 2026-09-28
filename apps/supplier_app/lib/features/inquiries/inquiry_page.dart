@@ -176,26 +176,38 @@ class InquiryPage extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: SizedBox(
-                    width:
-                        _lineWidth +
-                        _cellWidth * m.suppliers.length +
-                        _awardWidth,
-                    child: Column(
-                      children: [
-                        _header(context, m, title),
-                        Expanded(
-                          child: ListView(
-                            children: [
-                              for (final r in m.rows) _row(context, m, r),
-                            ],
-                          ),
+                // Supplier columns share the width left over; below the
+                // minimum the matrix scrolls sideways.
+                child: LayoutBuilder(
+                  builder: (context, box) {
+                    final cell = m.suppliers.isEmpty
+                        ? _cellWidth
+                        : ((box.maxWidth - _lineWidth - _awardWidth) /
+                                  m.suppliers.length)
+                              .clamp(_cellWidth, 320.0);
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: SizedBox(
+                        width:
+                            _lineWidth +
+                            cell * m.suppliers.length +
+                            _awardWidth,
+                        child: Column(
+                          children: [
+                            _header(context, m, title, cell),
+                            Expanded(
+                              child: ListView(
+                                children: [
+                                  for (final r in m.rows)
+                                    _row(context, m, r, cell),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
@@ -209,6 +221,7 @@ class InquiryPage extends StatelessWidget {
     BuildContext context,
     InquiryMatrix m,
     String title,
+    double cell,
   ) => Container(
     color: Tokens.sunken,
     child: Row(
@@ -225,7 +238,7 @@ class InquiryPage extends StatelessWidget {
         ),
         for (final sid in m.suppliers)
           SizedBox(
-            width: _cellWidth,
+            width: cell,
             child: Row(
               children: [
                 Expanded(
@@ -275,7 +288,12 @@ class InquiryPage extends StatelessWidget {
     ),
   );
 
-  Widget _row(BuildContext context, InquiryMatrix m, InquiryRow r) {
+  Widget _row(
+    BuildContext context,
+    InquiryMatrix m,
+    InquiryRow r,
+    double cell,
+  ) {
     final p = r.item['product_id'] == null
         ? null
         : store.get('product', r.item['product_id']! as String)?.data;
@@ -315,7 +333,7 @@ class InquiryPage extends StatelessWidget {
             ),
             for (var i = 0; i < m.suppliers.length; i++)
               SizedBox(
-                width: _cellWidth,
+                width: cell,
                 child: _Cell(
                   cell: r.cells[i],
                   onTap: () => showInquiryCell(
