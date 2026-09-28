@@ -689,6 +689,7 @@ void main() {
     skip: !hasFont,
   );
   for (final (nav, name) in [
+    ('报价', 'desktop_quotes'),
     ('供应商', 'desktop_suppliers'),
     ('物料', 'desktop_products'),
   ]) {

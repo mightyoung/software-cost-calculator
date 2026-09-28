@@ -7,6 +7,8 @@ import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
+import '../../widgets/data_grid.dart';
+import '../../widgets/deletion.dart';
 import '../../widgets/ledger.dart';
 import '../ai/material_import_page.dart';
 import 'compare_view.dart';
@@ -26,6 +28,9 @@ class QuotesPage extends StatefulWidget {
 class _QuotesPageState extends State<QuotesPage> {
   String query = '';
   var limit = pageSize;
+  var filter = QuoteFilter.all;
+  String? projectId;
+  GridSort sort = (column: 4, ascending: false);
   String? comparing;
   Store get store => widget.state.store;
   QuoteAttention? attention;
@@ -88,16 +93,128 @@ class _QuotesPageState extends State<QuotesPage> {
   List<String> get _words =>
       query.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
 
-  List<Hit> _quotes() {
-    final words = query
-        .split(RegExp(r'\s+'))
-        .where((w) => w.isNotEmpty)
-        .toList();
-    if (words.isEmpty) return store.listQuotations(limit: limit);
-    return [
-      for (final p in store.searchProducts(words, limit: 50))
-        ...store.listQuotations(productId: p.id, limit: limit),
-    ].take(limit).toList();
+  /// Grid column → database sort; null for columns that do not sort.
+  static const _sortBy = {
+    0: QuoteSort.product,
+    1: QuoteSort.supplier,
+    3: QuoteSort.price,
+    4: QuoteSort.quotedOn,
+  };
+
+  QuotePage _quotes() {
+    final words = _words;
+    return store.quoteRows(
+      filter: filter,
+      projectId: projectId,
+      productIds: words.isEmpty
+          ? null
+          : {for (final h in store.searchProducts(words, limit: 500)) h.id},
+      supplierIds: words.isEmpty
+          ? null
+          : {
+              for (final h in store.searchByName('supplier', query, limit: 500))
+                h.id,
+            },
+      sort: _sortBy[sort.column]!,
+      descending: !sort.ascending,
+      limit: limit,
+    );
+  }
+
+  static const _issueLabels = {
+    QuoteIssue.expired: ('已过期', HintTone.error),
+    QuoteIssue.stale: ('超 90 天未更新', HintTone.warning),
+    QuoteIssue.informal: ('口头或参考价', HintTone.warning),
+    QuoteIssue.taxUnknown: ('含税口径未知', HintTone.warning),
+    QuoteIssue.future: ('报价日期在未来', HintTone.warning),
+    QuoteIssue.undated: ('未填报价日期', HintTone.warning),
+    QuoteIssue.supplierDeleted: ('供应商已删除', HintTone.error),
+  };
+
+  List<GridColumn<QuoteRow>> get _columns => [
+    GridColumn(
+      '物料 / 型号',
+      flex: 3,
+      value: (r) => r.product,
+      cell: (r) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(r.product, overflow: TextOverflow.ellipsis),
+          if (r.model != null) MonoText(r.model!),
+        ],
+      ),
+    ),
+    GridColumn('供应商', flex: 2, value: (r) => r.supplier),
+    GridColumn(
+      '项目',
+      flex: 2,
+      sortable: false,
+      value: (r) => r.project ?? '通用报价',
+    ),
+    GridColumn(
+      '单价',
+      width: 150,
+      numeric: true,
+      value: (r) => Num(priceOf(r.data)),
+      cell: (r) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            '${money(priceOf(r.data), prefix: r.data['currency'] == 'CNY' ? '¥' : '${r.data['currency']} ')} / ${r.data['unit_snapshot']}',
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              fontFeatures: tabular,
+            ),
+          ),
+          Text(
+            taxModeLabels[r.data['tax_mode']] ?? '',
+            style: const TextStyle(fontSize: 12, color: Tokens.ink3),
+          ),
+        ],
+      ),
+    ),
+    GridColumn('报价日期', width: 104, value: (r) => r.data['quoted_on']),
+    GridColumn(
+      '有效期至',
+      width: 104,
+      sortable: false,
+      value: (r) => r.data['valid_until'],
+    ),
+    GridColumn(
+      '状态',
+      width: 150,
+      sortable: false,
+      value: (r) => r.awarded
+          ? '已定标'
+          : r.issues.isEmpty
+          ? '可用'
+          : _issueLabels[r.issues.first]!.$1,
+      cell: (r) => r.awarded
+          ? const HintTag(
+              '已定标',
+              icon: Icons.verified_outlined,
+              tone: HintTone.success,
+            )
+          : r.issues.isEmpty
+          ? const Text('可用', style: TextStyle(color: Tokens.ink3))
+          : HintTag(
+              _issueLabels[r.issues.first]!.$1,
+              icon: Icons.block,
+              tone: _issueLabels[r.issues.first]!.$2,
+            ),
+    ),
+  ];
+
+  Future<void> _exportRows(List<QuoteRow> rows) async {
+    final saved = await saveBytes(
+      '报价-${today()}.xlsx',
+      gridToXlsx('报价', _columns, rows),
+      extensions: ['xlsx'],
+    );
+    if (saved && mounted) toast(context, '已导出 ${rows.length} 条报价');
   }
 
   Future<void> _import() async {
@@ -217,8 +334,9 @@ class _QuotesPageState extends State<QuotesPage> {
           ),
         );
       }
-      final quotes = _quotes();
-      final more = quotes.length >= limit;
+      final page = _quotes();
+      final quotes = page.rows;
+      final more = quotes.length < page.total;
       final matches = _words.isEmpty
           ? const <Hit>[]
           : store.searchProducts(_words, limit: 6);
@@ -236,9 +354,11 @@ class _QuotesPageState extends State<QuotesPage> {
                 Text('报价', style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(width: 10),
                 Text(
-                  query.isEmpty
-                      ? '共 ${store.recordCounts()['quotation']} 条'
-                      : '找到 ${quotes.length}${more ? '+' : ''} 条',
+                  query.isEmpty &&
+                          filter == QuoteFilter.all &&
+                          projectId == null
+                      ? '共 ${page.total} 条'
+                      : '找到 ${page.total} 条',
                   style: const TextStyle(color: Tokens.ink3),
                 ),
                 const SizedBox(width: 16),
@@ -264,12 +384,56 @@ class _QuotesPageState extends State<QuotesPage> {
             TextField(
               decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.search, size: 18),
-                hintText: '按物料型号、名称、品牌或规格查找',
+                hintText: '物料、型号、供应商或拼音首字母',
               ),
               onChanged: (v) => setState(() {
                 query = v.trim();
                 limit = pageSize;
               }),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                for (final (f, label) in [
+                  (QuoteFilter.all, '全部'),
+                  (QuoteFilter.usable, '可用'),
+                  (QuoteFilter.expired, '已过期'),
+                  (QuoteFilter.informal, '口头参考'),
+                  (QuoteFilter.awarded, '已定标'),
+                ])
+                  ChoiceChip(
+                    label: Text(label),
+                    selected: filter == f,
+                    onSelected: (_) => setState(() {
+                      filter = f;
+                      limit = pageSize;
+                    }),
+                  ),
+                const SizedBox(width: 10),
+                DropdownButton<String?>(
+                  value: projectId,
+                  hint: const Text('全部项目'),
+                  items: [
+                    const DropdownMenuItem(value: null, child: Text('全部项目')),
+                    for (final h in store.searchByName(
+                      'project',
+                      '',
+                      limit: 500,
+                    ))
+                      DropdownMenuItem(
+                        value: h.id,
+                        child: Text(h.data['name']! as String),
+                      ),
+                  ],
+                  onChanged: (v) => setState(() {
+                    projectId = v;
+                    limit = pageSize;
+                  }),
+                ),
+              ],
             ),
             if (attentionFailed)
               Align(
@@ -335,23 +499,50 @@ class _QuotesPageState extends State<QuotesPage> {
                       title: query.isEmpty ? '还没有报价' : '没有找到相关报价',
                       body: '可以逐条新建、用"智能导入"粘贴供应商发来的报价，或用报价模板在 Excel 里批量填写后导入。',
                     )
-                  : Material(
-                      color: Tokens.surface,
-                      clipBehavior: Clip.antiAlias,
-                      shape: RoundedRectangleBorder(
-                        side: const BorderSide(color: Tokens.rule),
-                        borderRadius: BorderRadius.circular(Tokens.radius),
-                      ),
-                      child: ListView.separated(
-                        itemCount: quotes.length + (more ? 1 : 0),
-                        separatorBuilder: (_, _) => const Divider(),
-                        itemBuilder: (context, i) => i == quotes.length
-                            ? MoreRow(
-                                shown: quotes.length,
-                                onMore: () => setState(() => limit += pageSize),
-                              )
-                            : _row(quotes[i]),
-                      ),
+                  : DataGrid<QuoteRow>(
+                      rows: quotes,
+                      columns: _columns,
+                      id: (r) => r.id,
+                      sort: sort,
+                      onSort: (next) => setState(() {
+                        // Unsortable columns keep the current order.
+                        if (_sortBy.containsKey(next.column)) sort = next;
+                        limit = pageSize;
+                      }),
+                      onOpen: (r) =>
+                          showQuoteForm(context, widget.state, id: r.id),
+                      footer: more
+                          ? MoreRow(
+                              shown: quotes.length,
+                              onMore: () => setState(() => limit += pageSize),
+                            )
+                          : null,
+                      bulkActions: (selected, clear) => [
+                        TextButton.icon(
+                          onPressed: () => _exportRows(selected),
+                          icon: const Icon(
+                            Icons.file_download_outlined,
+                            size: 18,
+                          ),
+                          label: const Text('导出选中'),
+                        ),
+                        TextButton.icon(
+                          style: TextButton.styleFrom(
+                            foregroundColor: Tokens.red,
+                          ),
+                          onPressed: () async {
+                            await deleteManyWithUndo(
+                              context,
+                              widget.state,
+                              type: 'quotation',
+                              ids: [for (final r in selected) r.id],
+                            );
+                            clear();
+                          },
+                          icon: const Icon(Icons.delete_outline, size: 18),
+                          label: const Text('删除'),
+                        ),
+                      ],
                     ),
             ),
           ],
@@ -359,62 +550,6 @@ class _QuotesPageState extends State<QuotesPage> {
       );
     },
   );
-
-  Widget _row(Hit h) {
-    final q = h.data;
-    final product = store.get('product', q['product_id']! as String)?.data;
-    final supplier = store
-        .get('supplier', q['supplier_id']! as String)
-        ?.data['name'];
-    final project = q['project_id'] == null
-        ? null
-        : store.get('project', q['project_id']! as String)?.data['name'];
-    final today = DateTime.now().toIso8601String().substring(0, 10);
-    final expired =
-        q['valid_until'] != null &&
-        (q['valid_until']! as String).compareTo(today) < 0;
-    return ListTile(
-      minTileHeight: 56,
-      title: Text(
-        [product?['name'], product?['model']].whereType<String>().join('  '),
-      ),
-      subtitle: Text(
-        [
-          supplier,
-          project,
-          '报价 ${q['quoted_on'] ?? '日期未填'}',
-          if (q['valid_until'] != null) '有效至 ${q['valid_until']}',
-        ].whereType<String>().join(' · '),
-        overflow: TextOverflow.ellipsis,
-      ),
-      trailing: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Text(
-            '${money(q['price'] as String?, prefix: q['currency'] == 'CNY' ? '¥' : '${q['currency']} ')} / ${q['unit_snapshot']}',
-            style: const TextStyle(
-              fontSize: 15,
-              fontFeatures: tabular,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          if (expired)
-            const HintTag(
-              '已过期',
-              icon: Icons.event_busy_outlined,
-              tone: HintTone.error,
-            )
-          else
-            Text(
-              taxModeLabels[q['tax_mode']] ?? '',
-              style: const TextStyle(fontSize: 12, color: Tokens.ink3),
-            ),
-        ],
-      ),
-      onTap: () => showQuoteForm(context, widget.state, id: h.id),
-    );
-  }
 }
 
 class _ImportPreview extends StatelessWidget {
