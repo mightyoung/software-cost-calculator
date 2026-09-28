@@ -7,6 +7,7 @@ import '../../widgets/ledger.dart';
 import '../../platform/files.dart';
 import 'attributes_editor.dart';
 import 'contacts.dart';
+import 'detail_panel.dart';
 import 'duplicate_hints.dart';
 import '../../widgets/data_grid.dart';
 import '../../widgets/deletion.dart';
@@ -55,6 +56,24 @@ class _CatalogPageState extends State<CatalogPage> {
   String query = '';
   String? category;
 
+  /// Record shown in the side panel.
+  String? selected;
+
+  void _open(String id) {
+    if (MediaQuery.sizeOf(context).width >= 1100) {
+      setState(() => selected = id);
+      return;
+    }
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => Scaffold(
+          appBar: AppBar(backgroundColor: Tokens.surface, title: Text(noun)),
+          body: CatalogDetail(state: widget.state, type: widget.type, id: id),
+        ),
+      ),
+    );
+  }
+
   bool get isProduct => widget.type == 'product';
   String get noun => isProduct ? '物料' : '供应商';
 
@@ -95,6 +114,9 @@ class _CatalogPageState extends State<CatalogPage> {
       );
     },
   );
+
+  /// Columns hidden while the side panel narrows the table.
+  static const _secondary = {'类别', '规格', '中标', '项目', '供应商'};
 
   Widget _page<T>({
     required List<T> rows,
@@ -149,49 +171,90 @@ class _CatalogPageState extends State<CatalogPage> {
         ),
         const SizedBox(height: 12),
         Expanded(
-          child: rows.isEmpty
-              ? EmptyState(
-                  title: query.isEmpty && category == null
-                      ? '还没有$noun'
-                      : '没有找到符合条件的$noun',
-                  body: isProduct
-                      ? '物料是报价和预算的基础，建立后可在项目中直接选用。'
-                      : '记录供应商后，报价和预算会显示对应的供应商。',
-                )
-              : DataGrid<T>(
-                  rows: rows,
-                  columns: columns,
-                  id: id,
-                  onOpen: (r) => showCatalogForm(
-                    context,
-                    widget.state,
-                    widget.type,
-                    id: id(r),
-                  ),
-                  bulkActions: (selected, clear) => [
-                    TextButton.icon(
-                      onPressed: () => _export(columns, selected),
-                      icon: const Icon(Icons.file_download_outlined, size: 18),
-                      label: const Text('导出选中'),
-                    ),
-                    TextButton.icon(
-                      style: TextButton.styleFrom(foregroundColor: Tokens.red),
-                      onPressed: () async {
-                        await deleteManyWithUndo(
-                          context,
-                          widget.state,
-                          type: widget.type,
-                          ids: selected.map(id).toList(),
-                        );
-                        clear();
-                      },
-                      icon: const Icon(Icons.delete_outline, size: 18),
-                      label: const Text('删除'),
-                    ),
-                  ],
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: _table(
+                  rows,
+                  selected == null
+                      ? columns
+                      : [
+                          for (final c in columns)
+                            if (!_secondary.contains(c.label)) c,
+                        ],
+                  id,
                 ),
+              ),
+              if (selected != null &&
+                  MediaQuery.sizeOf(context).width >= 1100) ...[
+                const SizedBox(width: 12),
+                Container(
+                  width: 420,
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Tokens.rule),
+                    borderRadius: BorderRadius.circular(Tokens.radius),
+                  ),
+                  child: CatalogDetail(
+                    key: ValueKey(selected),
+                    state: widget.state,
+                    type: widget.type,
+                    id: selected!,
+                    onClose: () => setState(() => selected = null),
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _table<T>(
+    List<T> rows,
+    List<GridColumn<T>> columns,
+    String Function(T) id,
+  ) {
+    return SizedBox(
+      child: rows.isEmpty
+          ? EmptyState(
+              title: query.isEmpty && category == null
+                  ? '还没有$noun'
+                  : '没有找到符合条件的$noun',
+              body: isProduct
+                  ? '物料是报价和预算的基础，建立后可在项目中直接选用。'
+                  : '记录供应商后，报价和预算会显示对应的供应商。',
+            )
+          : DataGrid<T>(
+              rows: rows,
+              columns: columns,
+              id: id,
+              onOpen: (r) => _open(id(r)),
+              selectedId: selected,
+              bulkActions: (picked, clear) => [
+                TextButton.icon(
+                  onPressed: () => _export(columns, picked),
+                  icon: const Icon(Icons.file_download_outlined, size: 18),
+                  label: const Text('导出选中'),
+                ),
+                TextButton.icon(
+                  style: TextButton.styleFrom(foregroundColor: Tokens.red),
+                  onPressed: () async {
+                    await deleteManyWithUndo(
+                      context,
+                      widget.state,
+                      type: widget.type,
+                      ids: picked.map(id).toList(),
+                    );
+                    clear();
+                  },
+                  icon: const Icon(Icons.delete_outline, size: 18),
+                  label: const Text('删除'),
+                ),
+              ],
+            ),
     );
   }
 

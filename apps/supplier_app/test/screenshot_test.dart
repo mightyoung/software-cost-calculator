@@ -702,4 +702,19 @@ void main() {
       skip: !hasFont,
     );
   }
+  for (final (nav, row, name) in [
+    ('供应商', '甲泵业', 'desktop_supplier_detail'),
+    ('物料', '不锈钢离心泵', 'desktop_product_detail'),
+  ]) {
+    testWidgets(
+      'desktop detail $name',
+      (t) => shoot(t, const Size(1280, 860), name, () async {
+        await t.tap(find.text(nav).first);
+        await t.pumpAndSettle();
+        await t.tap(find.text(row).first);
+        await t.pumpAndSettle();
+      }),
+      skip: !hasFont,
+    );
+  }
 }

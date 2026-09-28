@@ -7,19 +7,23 @@ import 'quote_extras.dart';
 
 /// Records one standard quotation. Supplier, material and project are picked
 /// by typing; dates use the system picker (date only, never a fake 00:00).
+/// Edits quotation [id], or starts a new one with [prefill] fields (for
+/// example the supplier or material it is being added from).
 Future<void> showQuoteForm(
   BuildContext context,
   AppState state, {
   String? id,
+  Map<String, Object?> prefill = const {},
 }) => showDialog(
   context: context,
-  builder: (_) => _QuoteForm(state: state, id: id),
+  builder: (_) => _QuoteForm(state: state, id: id, prefill: prefill),
 );
 
 class _QuoteForm extends StatefulWidget {
-  const _QuoteForm({required this.state, this.id});
+  const _QuoteForm({required this.state, this.id, this.prefill = const {}});
   final AppState state;
   final String? id;
+  final Map<String, Object?> prefill;
 
   @override
   State<_QuoteForm> createState() => _QuoteFormState();
@@ -47,6 +51,7 @@ class _QuoteFormState extends State<_QuoteForm> {
             'inquiry_precision': 'date',
             'inquiry_date': today,
             'capture_mode': 'standard',
+            ...widget.prefill,
           };
     for (final k in [
       'price',
