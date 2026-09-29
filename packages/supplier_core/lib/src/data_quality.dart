@@ -7,18 +7,32 @@ import 'product_params.dart';
 import 'spec_migration.dart';
 import 'store.dart';
 
+/// Which part of the work a finding belongs to. Technical requirements are
+/// what a project asks for; material parameters are what a material offers.
+enum QualityArea {
+  requirements('项目与技术要求'),
+  parameters('物料参数'),
+  quotes('报价'),
+  records('供应商与数据一致性');
+
+  const QualityArea(this.label);
+  final String label;
+}
+
 /// One data-quality finding: how many records need attention and where to
 /// fix them.
 class QualityCheck {
-  QualityCheck(this.key, this.label, this.count, this.hint);
+  QualityCheck(this.key, this.label, this.count, this.hint, this.area);
   final String key, label, hint;
   final int count;
+  final QualityArea area;
 
   Map<String, Object?> toJson() => {
     'key': key,
     'label': label,
     'count': count,
     'hint': hint,
+    'area': area.label,
   };
 }
 
@@ -47,6 +61,7 @@ extension DataQuality on Store {
         '待确认的修改冲突',
         openConflicts().length,
         '同步与交换 › 去确认',
+        QualityArea.records,
       ),
       QualityCheck(
         'duplicate_suppliers',
@@ -60,6 +75,7 @@ extension DataQuality on Store {
           ],
         ),
         '供应商 › 打开其中一条 › 合并',
+        QualityArea.records,
       ),
       QualityCheck(
         'duplicate_products',
@@ -71,6 +87,7 @@ extension DataQuality on Store {
               : ['$model|${normalizeKey(d['brand'] as String?)}'];
         }),
         '物料 › 打开其中一条 › 合并',
+        QualityArea.records,
       ),
       QualityCheck(
         'unknown_tax_mode',
@@ -80,6 +97,7 @@ extension DataQuality on Store {
           "AND json_extract(data,'\$.tax_mode') = 'unknown'",
         ),
         '不参与比价，补上含税或不含税',
+        QualityArea.quotes,
       ),
       QualityCheck(
         'undated_quotes',
@@ -89,6 +107,7 @@ extension DataQuality on Store {
           "AND json_extract(data,'\$.quoted_on') IS NULL",
         ),
         '无法判断是否有效，不参与最低价',
+        QualityArea.quotes,
       ),
       QualityCheck(
         'needs_inquiry',
@@ -99,7 +118,9 @@ extension DataQuality on Store {
           "AND json_extract(data,'\$.product_id') IS NULL",
         ),
         '项目 › 预算，关联物料或建询价单',
+        QualityArea.requirements,
       ),
+      ..._requirementChecks(),
       QualityCheck(
         'products_never_quoted',
         '从未报价的物料',
@@ -110,6 +131,7 @@ extension DataQuality on Store {
           "AND json_extract(q.data,'\$.product_id') = p.id)",
         ),
         '询价后录入或智能导入报价',
+        QualityArea.quotes,
       ),
       ..._paramChecks(),
       QualityCheck(
@@ -122,6 +144,7 @@ extension DataQuality on Store {
           "AND json_extract(c.data,'\$.supplier_id') = s.id)",
         ),
         '供应商 › 添加联系人',
+        QualityArea.records,
       ),
     ];
   }
@@ -175,19 +198,52 @@ extension DataQuality on Store {
         'products_unclassified',
         '可归类但未选参数模板的物料',
         unclassified,
-        '数据质量 › 从型号和规格文字补全参数',
+        '数据中心 › 数据质量 › 物料参数 › 从型号和规格说明补全',
+        QualityArea.parameters,
       ),
       QualityCheck(
         'products_missing_key_params',
         '缺关键参数的物料',
         incomplete,
-        '数据质量 › 参数视图，或从型号和规格文字补全',
+        '物料 › 物料参数表，或从型号和规格说明补全',
+        QualityArea.parameters,
       ),
       QualityCheck(
         'products_unconfirmed_params',
         '有未确认参数的物料',
         unconfirmed,
-        '数据质量 › 参数视图 › 确认',
+        '物料 › 物料参数表 › 确认',
+        QualityArea.parameters,
+      ),
+    ];
+  }
+
+  /// What a project's technical requirements still need: clauses nobody
+  /// checked against the original text, and items without a chosen material.
+  List<QualityCheck> _requirementChecks() {
+    final r = db
+        .select(
+          'SELECT (SELECT count(*) FROM spec_item i, '
+          "json_each(i.data,'\$.clauses') c WHERE i.deleted = 0 "
+          "AND json_extract(c.value,'\$.reviewed') = 0) AS unreviewed, "
+          '(SELECT count(*) FROM spec_item WHERE deleted = 0 '
+          "AND json_extract(data,'\$.chosen_product_id') IS NULL) AS unchosen",
+        )
+        .first;
+    return [
+      QualityCheck(
+        'spec_clauses_unreviewed',
+        '待核对的技术要求条款',
+        r['unreviewed'] as int,
+        '项目 › 技术要求，逐条对照原文确认读出的条件',
+        QualityArea.requirements,
+      ),
+      QualityCheck(
+        'spec_items_unchosen',
+        '还没定选物料的需求项',
+        r['unchosen'] as int,
+        '项目 › 技术要求 › 匹配与定选',
+        QualityArea.requirements,
       ),
     ];
   }

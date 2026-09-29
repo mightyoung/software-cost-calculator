@@ -169,7 +169,7 @@ class _QuotesPageState extends State<QuotesPage> {
           Text(
             '${money(priceOf(r.data), prefix: r.data['currency'] == 'CNY' ? '¥' : '${r.data['currency']} ')} / ${r.data['unit_snapshot']}',
             style: const TextStyle(
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               fontFeatures: tabular,
             ),

@@ -1,6 +1,6 @@
 export const groups = [
-  {name:'供应商关系', ids:['supplier','contact'], color:'#677DA1'},
-  {name:'物料与报价', ids:['product','product_param','quotation'], color:'#5C8B86'},
+  {name:'供应商与报价', ids:['supplier','contact','quotation'], color:'#677DA1'},
+  {name:'物料与物料参数', ids:['product','product_param'], color:'#5C8B86'},
   {name:'项目与询价', ids:['project','project_item','inquiry'], color:'#92734F'},
   {name:'技术要求', ids:['spec_request','spec_item','spec_response'], color:'#84709B'},
 ];

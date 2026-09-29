@@ -7,6 +7,7 @@ import 'package:sqlite3/sqlite3.dart';
 import 'entities.dart';
 import 'quotation.dart';
 import 'pricing.dart';
+import 'project.dart';
 import 'search_index.dart';
 import 'storage_codec.dart';
 import 'values.dart';
@@ -20,7 +21,7 @@ import 'values.dart';
 /// 8: product `spec_class`; typed parameter records `product_param`.
 /// 9: technical requirements `spec_request` and their items `spec_item`.
 /// 10: supplier clause-by-clause responses `spec_response`.
-const schemaVersion = 10;
+const schemaVersion = 11;
 const fileFormat = 'supplier-inquiry';
 
 /// Merge order matters only for the reference check at the end of an import;
@@ -200,6 +201,13 @@ void migrate(Database db) {
           invalid('$type.data', 'unknown field');
         }
         final full = {for (final f in fields) f: data[f]};
+        if (type == 'project_item' && from < 11) {
+          final (requirement, notes) = splitLegacyRequirement(
+            full['notes'] as String?,
+          );
+          full['requirement'] = requirement;
+          full['notes'] = notes;
+        }
         db.execute('UPDATE $type SET data=? WHERE id=?', [
           encodeStoredPayload(type, full),
           r['id'],

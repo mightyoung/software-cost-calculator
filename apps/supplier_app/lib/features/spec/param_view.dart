@@ -17,7 +17,7 @@ Future<void> showParamView(BuildContext context, AppState state) =>
 
 const _maxRows = 200;
 
-/// 参数视图 (design §9.3, §10.2): the materials of one class against its key
+/// 物料参数表 (design §9.3, §10.2): the materials of one class against its key
 /// parameters. Filters are written like requirements ("IP65" keeps IP65 and
 /// better); unconfirmed values can be fixed cell by cell and confirmed per
 /// row or column.
@@ -116,7 +116,7 @@ class _ParamViewPageState extends State<ParamViewPage> {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: Tokens.canvas,
-          title: const Text('参数视图'),
+          title: const Text('物料参数表'),
         ),
         body: ListView(
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
@@ -158,7 +158,7 @@ class _ParamViewPageState extends State<ParamViewPage> {
             ),
             const SizedBox(height: 12),
             Text(
-              '筛选按技术要求的写法填：防护等级填 IP65 即 IP65 及以上，量程填 -20~80 即覆盖这个范围。缺参数的物料在筛选时不显示。',
+              '这里是物料自身的参数。筛选条件的写法与技术要求相同：防护等级填 IP65 即 IP65 及以上，量程填 -20~80 即覆盖这个范围。缺参数的物料在筛选时不显示。',
               style: TextStyle(fontSize: 12, color: Tokens.ink3),
             ),
             const SizedBox(height: 8),
@@ -195,7 +195,7 @@ class _ParamViewPageState extends State<ParamViewPage> {
             if (all.isEmpty)
               const EmptyState(
                 title: '这个类别还没有物料',
-                body: '在物料表单里选择参数模板，或在 数据中心 › 数据质量 里从型号和规格文字补全。',
+                body: '在物料表单里选择参数模板，或在 数据中心 › 数据质量 › 物料参数 里从型号和规格说明补全。',
               )
             else
               SingleChildScrollView(

@@ -10,6 +10,7 @@ import '../features/data_center/data_center_page.dart';
 import '../features/exchange/exchange_page.dart';
 import '../features/home/command_palette.dart';
 import '../features/home/home_page.dart';
+import '../features/hub/hub_page.dart';
 import '../features/projects/projects_page.dart';
 import '../features/quotes/quote_form.dart';
 import '../features/quotes/quotes_page.dart';
@@ -30,7 +31,8 @@ enum Section {
   exchange('同步与交换', Icons.sync_alt),
   data('数据中心', Icons.hub_outlined),
   settings('设置', Icons.settings_outlined),
-  aiTasks('AI 任务', Icons.history_outlined);
+  aiTasks('AI 任务', Icons.history_outlined),
+  hub('公司资料', Icons.folder_shared_outlined);
 
   const Section(this.label, this.icon);
   final String label;
@@ -64,6 +66,10 @@ class _ShellState extends State<Shell> {
     Section.exchange => ExchangePage(state: widget.state),
     Section.data => DataCenterPage(state: widget.state),
     Section.settings => SettingsPage(state: widget.state),
+    Section.hub => HubPage(
+      state: widget.state,
+      onOpenSettings: () => go(Section.settings),
+    ),
   };
 
   @override
@@ -258,7 +264,7 @@ class _Sidebar extends StatelessWidget {
                   '询价台账',
                   style: TextStyle(
                     color: Tokens.ink,
-                    fontSize: 17,
+                    fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -276,6 +282,7 @@ class _Sidebar extends StatelessWidget {
                   Section.quotes,
                   Section.suppliers,
                   Section.products,
+                  Section.hub,
                 ])
                   item(s),
                 group('辅助工具'),
@@ -338,6 +345,7 @@ class _BottomNav extends StatelessWidget {
                   for (final s in [
                     Section.products,
                     Section.suppliers,
+                    Section.hub,
                     Section.ask,
                     Section.aiTasks,
                     Section.exchange,

@@ -25,7 +25,7 @@ const fieldLabels = {
   'notes': '备注',
   'brand': '品牌',
   'model': '型号',
-  'specification': '规格参数',
+  'specification': '规格说明',
   'category': '类别',
   'phone': '电话',
   'wechat': '微信',

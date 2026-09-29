@@ -107,7 +107,7 @@ fn fields(kind: &str) -> Result<&'static str> {
             "supplier_id product_id price currency tax_mode unit_snapshot min_qty quoted_on contact_id contact_snapshot tax_rate lead_time_days valid_until notes project_id inquiry_location inquirer_name inquiry_precision inquiry_date inquired_at inquiry_utc_offset_minutes capture_mode includes warranty_months extra_cost deal_price awarded_on award_note inquiry_id attachment_ids price_basis price_tiers"
         }
         "project_item" => {
-            "project_id category product_id name qty unit quotation_id unit_cost unit_price notes"
+            "project_id category product_id name qty unit quotation_id unit_cost unit_price requirement notes"
         }
         "inquiry" => "project_id title item_ids supplier_ids due_date status notes",
         _ => return Err(invalid(format!("unsupported v1 entity: {kind}"))),

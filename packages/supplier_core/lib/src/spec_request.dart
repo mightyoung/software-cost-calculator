@@ -336,8 +336,7 @@ extension SpecRequests on Store {
   });
 
   /// Drafts for a project's material lines still to be inquired (no
-  /// material yet); the requirement is the "要求：" part of the notes that
-  /// 按清单建项目 writes.
+  /// material yet), read from each line's technical requirement.
   List<SpecItemDraft> draftsFromProject(String projectId) => [
     for (final r in db.select(
       "SELECT id FROM project_item WHERE deleted = 0 "
@@ -349,7 +348,7 @@ extension SpecRequests on Store {
       if (get('project_item', r['id'] as String) case final line?)
         draftItem(
           line.data['name']! as String,
-          _requirement(line.data['notes'] as String?),
+          (line.data['requirement'] as String?) ?? '',
           qty: line.data['qty'] as String?,
           unit: line.data['unit'] as String?,
           projectItemId: line.id,
@@ -546,11 +545,6 @@ extension SpecRequests on Store {
       allowClear: true,
     );
   }
-}
-
-String _requirement(String? notes) {
-  if (notes == null || !notes.startsWith('要求：')) return '';
-  return notes.substring(3).replaceFirst(RegExp('；清单单位：.*\$'), '');
 }
 
 List<Map<String, Object?>>? snapshotRows(Record item) => [

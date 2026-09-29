@@ -153,7 +153,7 @@ void _seed(Store s) {
     'name': '电磁流量计',
     'unit': '台',
     'unit_cost': '0',
-    'notes': '要求：DN100，远传 4–20mA',
+    'requirement': 'DN100，远传 4–20mA',
   });
   line({
     'category': 'material',

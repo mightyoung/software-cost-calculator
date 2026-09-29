@@ -12,6 +12,7 @@ import '../records/open_record.dart';
 import 'catalog_page.dart';
 import 'contacts.dart';
 import 'params_editor.dart';
+import '../hub/hub_publish.dart';
 
 /// Side panel (or full page on phones) about one supplier or material:
 /// what it is, its quotations and where it is used.
@@ -81,6 +82,13 @@ class CatalogDetail extends StatelessWidget {
         icon: const AppIcon(Icons.add, size: 16),
         label: const Text('新建报价'),
       ),
+      if (type == 'supplier' && state.hubAddress != null)
+        OutlinedButton.icon(
+          onPressed: () =>
+              showHubPublish(context, state, type: 'supplier', id: id),
+          icon: const AppIcon(Icons.upload_file_outlined, size: 16),
+          label: const Text('发布到公司资料'),
+        ),
     ],
   );
 
@@ -293,7 +301,7 @@ class CatalogDetail extends StatelessWidget {
     return [
       _section(
         [
-          '参数',
+          '物料参数',
           if (cls != null) specClass(cls)?.label ?? cls,
           if (done.total > 0) '关键参数 ${done.filled}/${done.total}',
         ].join(' · '),
@@ -346,7 +354,7 @@ class CatalogDetail extends StatelessWidget {
                 Text(
                   value,
                   style: const TextStyle(
-                    fontSize: 15,
+                    fontSize: 16,
                     fontWeight: FontWeight.w600,
                     fontFeatures: tabular,
                   ),

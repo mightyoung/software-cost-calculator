@@ -40,10 +40,10 @@ Future<void> showParamMigration(BuildContext context, AppState state) async {
   if (ok != true || !context.mounted) return;
   late int n;
   final err = state.write((s) => n = s.applyAttributeMigration(plans));
-  toast(context, err ?? '已转换 $n 项参数（未确认），可在参数视图里核对');
+  toast(context, err ?? '已转换 $n 项参数（未确认），可在物料参数表里核对');
 }
 
-const _sourceWords = {'rule': '规格文字', 'decoder': '型号解码', 'ai': 'AI'};
+const _sourceWords = {'rule': '规格说明', 'decoder': '型号解码', 'ai': 'AI'};
 
 /// Previews parameters read from model codes (cables) and specification
 /// text, then writes them unconfirmed with their evidence.
@@ -51,11 +51,11 @@ Future<void> showParamFill(BuildContext context, AppState state) async {
   final plans = state.store.planParamFill();
   final values = plans.fold(0, (n, p) => n + p.guesses.length);
   if (values == 0 && plans.every((p) => !p.newClass)) {
-    return toast(context, '型号和规格文字里没有读出新的参数');
+    return toast(context, '型号和规格说明里没有读出新的参数');
   }
   final ok = await _preview(
     context,
-    title: '从型号和规格文字补全参数',
+    title: '从型号和规格说明补全参数',
     summary:
         '${plans.length} 个物料，读出参数 $values 项；'
         '没有参数模板的按名称识别 ${plans.where((p) => p.newClass).length} 个。'
@@ -79,7 +79,7 @@ Future<void> showParamFill(BuildContext context, AppState state) async {
   if (ok != true || !context.mounted) return;
   late int n;
   final err = state.write((s) => n = s.applyParamFill(plans));
-  toast(context, err ?? '已写入 $n 项参数（未确认），可在参数视图里核对');
+  toast(context, err ?? '已写入 $n 项参数（未确认），可在物料参数表里核对');
 }
 
 Future<bool?> _preview(

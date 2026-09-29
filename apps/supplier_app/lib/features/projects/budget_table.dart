@@ -264,9 +264,9 @@ class _LineRow extends StatelessWidget {
           style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
         ),
         if (detail.isNotEmpty) MonoText(detail),
-        if (product == null && d['notes'] != null)
+        if (d['requirement'] != null)
           Text(
-            d['notes']! as String,
+            '要求：${d['requirement']}',
             style: TextStyle(fontSize: 12, color: Tokens.ink3),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,

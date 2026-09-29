@@ -148,7 +148,7 @@ class _AiSettingsState extends State<AiSettings> {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      const Text('AI 接入', style: TextStyle(fontWeight: FontWeight.w600)),
+      Text('AI 接入', style: Theme.of(context).textTheme.titleMedium),
       const SizedBox(height: 4),
       Text(
         '用于"按清单建项目"、"智能导入报价"和"问数据"。默认使用 DeepSeek，也可以填写其他兼容 OpenAI 接口的服务。',

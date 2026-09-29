@@ -9,6 +9,7 @@ import '../../app/theme.dart';
 import 'quote_extras.dart';
 import '../../widgets/save_keys.dart';
 import 'tiers_editor.dart';
+import '../hub/hub_publish.dart';
 
 /// Records one standard quotation. Supplier, material and project are picked
 /// by typing; dates use the system picker (date only, never a fake 00:00).
@@ -457,12 +458,31 @@ class _QuoteFormState extends State<_QuoteForm> {
           ),
         ),
       ),
+      actionsAlignment: MainAxisAlignment.spaceBetween,
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
+        if (widget.id != null && widget.state.hubAddress != null)
+          TextButton.icon(
+            onPressed: () => showHubPublish(
+              context,
+              widget.state,
+              type: 'quotation',
+              id: widget.id!,
+            ),
+            icon: const AppIcon(Icons.upload_file_outlined, size: 18),
+            label: const Text('发布到公司资料'),
+          )
+        else
+          const SizedBox.shrink(),
+        Wrap(
+          spacing: 8,
+          children: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('取消'),
+            ),
+            FilledButton(onPressed: _save, child: const Text('保存报价')),
+          ],
         ),
-        FilledButton(onPressed: _save, child: const Text('保存报价')),
       ],
     ),
   );

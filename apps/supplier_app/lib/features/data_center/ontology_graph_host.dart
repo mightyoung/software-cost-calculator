@@ -189,9 +189,33 @@ class _OntologyWebView extends StatefulWidget {
   State<_OntologyWebView> createState() => _OntologyWebViewState();
 }
 
+/// One WebView2 environment for the whole app: creating it is the slowest
+/// step of opening the graph on Windows, and every graph view can share it.
+Future<WebViewEnvironment>? _windowsEnvironment;
+
+Future<WebViewEnvironment> _sharedWindowsEnvironment() =>
+    _windowsEnvironment ??=
+        () async {
+          if (await WebViewEnvironment.getAvailableVersion() == null) {
+            throw StateError('WebView2 unavailable');
+          }
+          final support = await getApplicationSupportDirectory();
+          final dir = Directory(
+            '${support.path}${Platform.pathSeparator}ontology_webview',
+          );
+          await dir.create(recursive: true);
+          return WebViewEnvironment.create(
+            settings: WebViewEnvironmentSettings(userDataFolder: dir.path),
+          );
+        }().catchError((Object error) {
+          _windowsEnvironment = null; // a later attempt may succeed
+          throw error;
+        });
+
 class _OntologyWebViewState extends State<_OntologyWebView> {
   InAppWebViewController? _controller;
   WebViewEnvironment? _environment;
+  String? _sent;
   bool _prepared = false;
   bool _ready = false;
   bool _sending = false;
@@ -205,24 +229,7 @@ class _OntologyWebViewState extends State<_OntologyWebView> {
 
   Future<void> _prepare() async {
     try {
-      if (Platform.isWindows) {
-        if (await WebViewEnvironment.getAvailableVersion() == null) {
-          throw StateError('WebView2 unavailable');
-        }
-        final support = await getApplicationSupportDirectory();
-        final dir = Directory(
-          '${support.path}${Platform.pathSeparator}ontology_webview',
-        );
-        await dir.create(recursive: true);
-        final environment = await WebViewEnvironment.create(
-          settings: WebViewEnvironmentSettings(userDataFolder: dir.path),
-        );
-        if (!mounted) {
-          await environment.dispose();
-          return;
-        }
-        _environment = environment;
-      }
+      if (Platform.isWindows) _environment = await _sharedWindowsEnvironment();
       if (mounted) setState(() => _prepared = true);
     } catch (error, stack) {
       developer.log(
@@ -254,9 +261,12 @@ class _OntologyWebViewState extends State<_OntologyWebView> {
     try {
       while (mounted && _pending && _ready) {
         _pending = false;
-        await _controller!.evaluateJavascript(
-          source: ontologyUpdateScript(widget.config.payload),
-        );
+        // Parents rebuild on every data change; only a different state is
+        // worth a round trip into the page.
+        final script = ontologyUpdateScript(widget.config.payload);
+        if (script == _sent) continue;
+        await _controller!.evaluateJavascript(source: script);
+        _sent = script;
       }
     } catch (error, stack) {
       developer.log(
@@ -273,24 +283,8 @@ class _OntologyWebViewState extends State<_OntologyWebView> {
 
   @override
   void dispose() {
+    // The shared Windows environment lives as long as the app.
     _ready = false;
-    // The platform view owns its controller; dispose its Windows environment
-    // after the child view has been removed from the widget tree.
-    final environment = _environment;
-    if (environment != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        unawaited(
-          environment.dispose().catchError((Object error, StackTrace stack) {
-            developer.log(
-              'Ontology environment disposal failed',
-              name: 'ontology',
-              error: error,
-              stackTrace: stack,
-            );
-          }),
-        );
-      });
-    }
     super.dispose();
   }
 
@@ -312,7 +306,11 @@ class _OntologyWebViewState extends State<_OntologyWebView> {
         _controller = controller;
         controller.addJavaScriptHandler(
           handlerName: 'ontologyReady',
-          callback: (_) => mounted ? widget.config.payload : null,
+          callback: (_) {
+            if (!mounted) return null;
+            _sent = ontologyUpdateScript(widget.config.payload);
+            return widget.config.payload;
+          },
         );
         controller.addJavaScriptHandler(
           handlerName: 'ontologyRendered',

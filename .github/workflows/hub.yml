@@ -3,9 +3,9 @@ name: supplier-hub
 on:
   push:
     branches: [main, codex-backend, 'codex/**']
-    paths: ['services/supplier_hub/**', 'packages/supplier_core/tool/hub_export.dart', 'packages/supplier_core/test/hub_export_test.dart', '.github/workflows/hub.yml']
+    paths: ['services/supplier_hub/**', 'packages/supplier_core/lib/src/hub.dart', 'packages/supplier_core/tool/hub_export.dart', 'packages/supplier_core/test/hub_*_test.dart', 'apps/supplier_app/lib/features/hub/**', '.github/workflows/hub.yml']
   pull_request:
-    paths: ['services/supplier_hub/**', 'packages/supplier_core/tool/hub_export.dart', 'packages/supplier_core/test/hub_export_test.dart', '.github/workflows/hub.yml']
+    paths: ['services/supplier_hub/**', 'packages/supplier_core/lib/src/hub.dart', 'packages/supplier_core/tool/hub_export.dart', 'packages/supplier_core/test/hub_*_test.dart', 'apps/supplier_app/lib/features/hub/**', '.github/workflows/hub.yml']
   workflow_dispatch:
 
 permissions:
@@ -45,8 +45,10 @@ jobs:
         working-directory: packages/supplier_core
         run: |
           dart pub get
-          dart analyze tool/hub_export.dart test/hub_export_test.dart
+          dart analyze lib/src/hub.dart tool/hub_export.dart test/hub_export_test.dart test/hub_client_test.dart
           HUB_EXPORT_FIXTURE="${RUNNER_TEMP}/hub-quote.json" dart test test/hub_export_test.dart
+          # Client against the hub binary built above.
+          dart test test/hub_client_test.dart
       - name: Two-process smoke
         if: runner.os == 'Linux'
         run: python3 tool/smoke_test.py target/debug/supplier-hub --quote-json "${RUNNER_TEMP}/hub-quote.json"

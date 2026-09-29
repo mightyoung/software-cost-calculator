@@ -131,10 +131,13 @@ String inquiryMessage(
       product?['brand'],
       product?['model'],
     ].whereType<String>().join(' ');
-    final spec = product?['specification'] as String?;
+    String line(String label, Object? text) => text == null
+        ? ''
+        : '\n   $label：${(text as String).replaceAll('\n', '；')}';
     lines.add(
       '${lines.length + 1}. $name，${d['qty']} ${d['unit']}'
-      '${spec == null ? '' : '\n   要求：${spec.replaceAll('\n', '；')}'}',
+      '${line('规格', product?['specification'])}'
+      '${line('要求', d['requirement'])}',
     );
   }
   final due = inquiry['due_date'] as String?;

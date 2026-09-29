@@ -52,7 +52,19 @@ void main() {
       expect(find.text('待确认的修改冲突'), findsNothing);
       await tester.tap(find.text('全部 ${store.dataQuality().length}'));
       await tester.pumpAndSettle();
+      // Findings are grouped by area; data consistency comes last.
+      expect(find.text('项目与技术要求'), findsOneWidget);
+      await tester.dragUntilVisible(
+        find.text('0 项冲突'),
+        find.byType(ListView).first,
+        const Offset(0, -300),
+      );
       expect(find.text('0 项冲突'), findsOneWidget);
+      await tester.dragUntilVisible(
+        find.text('待处理 2'),
+        find.byType(ListView).first,
+        const Offset(0, 300),
+      );
       await tester.tap(find.text('待处理 2'));
       await tester.pumpAndSettle();
       if (width >= 600) {

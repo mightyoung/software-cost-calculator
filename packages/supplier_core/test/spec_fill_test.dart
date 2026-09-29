@@ -100,21 +100,31 @@ void main() {
     expect(issues['products_unclassified'], 0);
   });
 
+  test('a slash shares the prefix: OPC DA/UA names both', () {
+    final c = parseClause('comm.gateway', 1, '支持Modbus TCP、OPC DA/UA协议');
+    expect(c.constraints.single.value['vs'], [
+      'Modbus TCP',
+      'OPC DA',
+      'OPC UA',
+    ]);
+    expect(c.hint, isNull);
+  });
+
   group('AI reading', () {
     test('keeps what traces to the clause and drops the rest', () async {
       final clauses = draftItem(
         '网关',
         '支持Modbus TCP、OPC DA/UA；\n与现有系统适配；\n通道数不少于16路',
       ).clauses;
-      expect(clauses[0].hint, contains('UA'));
+      expect(clauses[0].hint, isNull, reason: 'rules read OPC DA/UA');
       final prompts = <String>[];
       final llm = fakeModel({
         'clauses': [
           {
             'n': 1,
             'constraints': [
-              // "OPC UA" is not written out in the evidence (DA/UA): the
-              // shorthand cannot be checked, so it stays for a person.
+              // Rules read clause 1 fully, so it is not asked and this
+              // answer is ignored.
               {
                 'property': 'io.protocol',
                 'op': 'all',
@@ -153,12 +163,13 @@ void main() {
       }, prompts);
       final r = await aiReadClauses(llm, 'comm.gateway', clauses);
       expect(r.added, 0);
-      expect(r.dropped, 4);
+      expect(r.dropped, 3);
       expect(r.clauses[1].isText, isTrue);
       expect(r.clauses[1].hint, contains('已丢弃'));
       expect(r.clauses[2], same(clauses[2]), reason: 'clean clauses stay');
       // Only the open clauses and the dictionary are sent.
       expect(prompts.single, contains('[2] 与现有系统适配'));
+      expect(prompts.single, isNot(contains('[1]')));
       expect(prompts.single, isNot(contains('[3]')));
     });
 
@@ -201,6 +212,32 @@ void main() {
       );
       expect(c.hint, allOf(contains('AI 补充了 2 个条件'), contains('1 个结果')));
       expect(c.reviewed, isFalse);
+    });
+
+    test('does not add a parameter another clause already reads', () async {
+      final clauses = [
+        SpecClause(1, '通过以太网分流转发', hint: '待读'),
+        parseClause('comm.gateway', 2, '上行接口：以太网'),
+      ];
+      expect(clauses[1].constraints, isNotEmpty);
+      final llm = fakeModel({
+        'clauses': [
+          {
+            'n': 1,
+            'constraints': [
+              {
+                'property': clauses[1].constraints.single.property,
+                'op': 'any',
+                'value': '以太网',
+                'evidence': '以太网',
+              },
+            ],
+          },
+        ],
+      }, []);
+      final r = await aiReadClauses(llm, 'comm.gateway', clauses);
+      expect(r.added, 0);
+      expect(r.clauses.first.constraints, isEmpty);
     });
 
     test('verification rules one by one', () {

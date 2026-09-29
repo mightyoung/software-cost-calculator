@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'entities.dart';
+import 'list_import.dart' show clipText;
 import 'product_params.dart';
 import 'spec_compare.dart';
 import 'spec_constraint.dart';
@@ -489,9 +490,8 @@ extension SpecResponses on Store {
         'quotation_id': null,
         'unit_cost': '0',
         'unit_price': null,
-        'notes': text == null
-            ? null
-            : '要求：${text.length > 1900 ? text.substring(0, 1900) : text}',
+        'requirement': text == null ? null : clipText(text, 2000),
+        'notes': null,
       });
       save('spec_item', {...d, 'project_item_id': line}, id: item.id);
       n++;

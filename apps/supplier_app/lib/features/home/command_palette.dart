@@ -74,7 +74,7 @@ class _PaletteState extends State<_Palette> {
     }),
     _Entry('按要求找物料', Icons.rule, (c) => showSpecMatch(c, widget.state)),
     _Entry(
-      '参数视图（按参数筛选、核对物料参数）',
+      '物料参数表（按参数筛选、核对物料参数）',
       Icons.table_rows_outlined,
       (c) => showParamView(c, widget.state),
     ),

@@ -8,6 +8,7 @@ import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../app/version.dart';
 import '../../platform/files.dart';
+import '../hub/hub_settings.dart';
 import 'ai_settings.dart';
 import '../trash/trash_page.dart';
 
@@ -50,7 +51,7 @@ class _SettingsPageState extends State<SettingsPage> {
       children: [
         Text('设置', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 20),
-        const Text('本机名称', style: TextStyle(fontWeight: FontWeight.w600)),
+        Text('本机名称', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 4),
         Text(
           '用于交换文件名和变更记录，便于区分是哪台设备做的修改。',
@@ -73,7 +74,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ],
         ),
         const SizedBox(height: 28),
-        const Text('外观', style: TextStyle(fontWeight: FontWeight.w600)),
+        Text('外观', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 10),
         Align(
           alignment: Alignment.centerLeft,
@@ -91,18 +92,28 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
         ),
-        const SizedBox(height: 28),
-        AiSettings(state: widget.state),
-        SwitchListTile.adaptive(
-          contentPadding: EdgeInsets.zero,
-          title: const Text('减少动态效果'),
-          subtitle: const Text('关闭页面位移和加载动画；系统的减少动态效果设置始终优先。'),
-          value: widget.state.setting('reduce_motion') == 'true',
-          onChanged: (value) =>
-              widget.state.saveSetting('reduce_motion', value ? 'true' : null),
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('减少动态效果'),
+              subtitle: const Text('关闭页面位移和加载动画；系统的减少动态效果设置始终优先。'),
+              value: widget.state.setting('reduce_motion') == 'true',
+              onChanged: (value) => widget.state.saveSetting(
+                'reduce_motion',
+                value ? 'true' : null,
+              ),
+            ),
+          ),
         ),
         const SizedBox(height: 28),
-        const Text('已删除的记录', style: TextStyle(fontWeight: FontWeight.w600)),
+        AiSettings(state: widget.state),
+        const SizedBox(height: 28),
+        HubSettings(state: widget.state),
+        const SizedBox(height: 28),
+        Text('已删除的记录', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 4),
         Text(
           '删除的供应商、物料、项目、报价等保留在这里，可以恢复。',
@@ -120,10 +131,7 @@ class _SettingsPageState extends State<SettingsPage> {
         const SizedBox(height: 28),
         ExpansionTile(
           tilePadding: EdgeInsets.zero,
-          title: const Text(
-            '诊断信息',
-            style: TextStyle(fontWeight: FontWeight.w600),
-          ),
+          title: Text('诊断信息', style: Theme.of(context).textTheme.titleMedium),
           children: [
             _kv('版本', appVersion),
             _kv('数据位置', widget.state.dataDir.path),

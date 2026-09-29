@@ -105,9 +105,12 @@ final class ProjectItem extends EntityPayload {
     'quotation_id',
     'unit_cost',
     'unit_price',
+    'requirement',
     'notes',
   ];
-  factory ProjectItem.fromJson(Map<String, Object?> value) {
+  factory ProjectItem.fromJson(Map<String, Object?> input) {
+    // Before schema 11 a line's requirement lived in its notes.
+    final value = {'requirement': null, ...input};
     exactKeys(value, fields);
     final category = value['category'];
     if (!costCategories.contains(category)) {
@@ -143,7 +146,24 @@ final class ProjectItem extends EntityPayload {
       'quotation_id': quotationId,
       'unit_cost': cost,
       'unit_price': _decimal(value['unit_price'], 'unit_price'),
+      'requirement': normalizeText(value['requirement'], 'requirement', 2000),
       'notes': normalizeText(value['notes'], 'notes', 2000),
     });
   }
+}
+
+/// Before schema 11, 按清单建项目 and 技术要求 wrote a line's requirement
+/// into its notes as "要求：…", followed by "；" and generated remarks.
+/// Splits such notes into (requirement, remaining notes).
+(String?, String?) splitLegacyRequirement(String? notes) {
+  if (notes == null || !notes.startsWith('要求：')) return (null, notes);
+  final text = notes.substring(3);
+  final tail = RegExp('；(清单原文数量：|数量待确认，清单原文：|清单单位：)').firstMatch(text);
+  final requirement = (tail == null ? text : text.substring(0, tail.start))
+      .trim();
+  final rest = tail == null ? '' : text.substring(tail.start + 1).trim();
+  return (
+    requirement.isEmpty ? null : requirement,
+    rest.isEmpty ? null : rest,
+  );
 }

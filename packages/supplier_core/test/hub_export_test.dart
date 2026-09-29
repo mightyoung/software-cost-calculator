@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:supplier_core/supplier_core.dart';
 import 'package:test/test.dart';
-import '../tool/hub_export.dart';
 import 'fixtures.dart' as fixture;
 
 void main() {
@@ -75,6 +74,19 @@ void main() {
       revision: 1,
     );
     expect((result['records'] as List).length, 1);
+    final withContacts = buildHubPublication(
+      store,
+      type: 'supplier',
+      id: supplier,
+      publicationId: '99999999-9999-4999-8999-999999999999',
+      revision: 1,
+      includeContacts: true,
+    );
+    expect(
+      [for (final r in withContacts['records'] as List) (r as Map)['entity_type']],
+      unorderedEquals(['supplier', 'contact']),
+      reason: 'contacts only when asked for',
+    );
   });
 
   test('rejects missing roots and invalid revisions without writes', () {

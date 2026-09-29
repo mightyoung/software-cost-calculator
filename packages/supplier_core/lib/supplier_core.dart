@@ -15,6 +15,7 @@ export 'src/folder_sync.dart';
 export 'src/inquiries.dart';
 export 'src/inquiry.dart';
 export 'src/lan.dart';
+export 'src/hub.dart';
 export 'src/list_import.dart';
 export 'src/llm.dart';
 export 'src/material_import.dart';

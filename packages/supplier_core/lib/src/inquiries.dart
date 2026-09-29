@@ -418,14 +418,13 @@ extension Inquiries on Store {
       final p = item.data['product_id'] == null
           ? null
           : get('product', item.data['product_id']! as String)?.data;
-      final notes = item.data['notes'] as String?;
       rows.add([
         Num('${++n}'),
         p?['name'] ?? item.data['name'],
         [p?['brand'], p?['model']].whereType<String>().join(' '),
         [
           p?['specification'],
-          if (notes != null && notes.startsWith('要求：')) notes.substring(3),
+          item.data['requirement'],
         ].whereType<String>().join('；'),
         Num(item.data['qty']! as String),
         item.data['unit'],

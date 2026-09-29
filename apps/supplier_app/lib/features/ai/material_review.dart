@@ -13,54 +13,8 @@ import '../../app/theme.dart';
 import '../../widgets/draft_frame.dart';
 import '../../widgets/ledger.dart';
 import '../projects/project_form.dart';
-
-// Compare complete numeric tokens without losing the original highlight span.
-// String canonicalization avoids rounding long amounts through a double.
-String? _canonicalNumber(String value) {
-  if (!RegExp(r'^[+-]?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$').hasMatch(value)) {
-    return null;
-  }
-  var number = value.replaceAll(',', '');
-  final negative = number.startsWith('-');
-  number = number.replaceFirst(RegExp(r'^[+-]'), '');
-  final parts = number.split('.');
-  final whole = parts.first.replaceFirst(RegExp(r'^0+(?=\d)'), '');
-  final fraction = parts.length == 1
-      ? ''
-      : parts.last.replaceFirst(RegExp(r'0+$'), '');
-  final zero = whole == '0' && fraction.isEmpty;
-  return '${negative && !zero ? '-' : ''}$whole${fraction.isEmpty ? '' : '.$fraction'}';
-}
-
-({int start, int end})? _sourceMatch(
-  String source,
-  String field,
-  String value,
-) {
-  if (!const {'price', 'qty', 'tax_rate', 'lead_time_days'}.contains(field)) {
-    final at = source.indexOf(value);
-    return at < 0 ? null : (start: at, end: at + value.length);
-  }
-  final wanted = _canonicalNumber(value.replaceFirst(RegExp(r'%$'), ''));
-  if (wanted == null) return null;
-  for (final token in RegExp(
-    r'[+-]?\d+(?:[,.]\d+)*(?:[eE][+-]?\d+)?(?:万|千|亿)?',
-  ).allMatches(source)) {
-    // Do not treat model/identifier digits as a standalone numeric amount.
-    if (token.start > 0 &&
-        RegExp(r'[A-Za-z0-9_.]').hasMatch(source[token.start - 1])) {
-      continue;
-    }
-    if (token.end < source.length &&
-        RegExp(r'[A-Za-z0-9_]').hasMatch(source[token.end])) {
-      continue;
-    }
-    if (_canonicalNumber(token.group(0)!) == wanted) {
-      return (start: token.start, end: token.end);
-    }
-  }
-  return null;
-}
+import 'material_source.dart';
+import 'offer_form.dart';
 
 /// Mutable review state for one offer; the plan itself stays immutable and
 /// is replaced when the offer is edited.
@@ -133,90 +87,6 @@ class _MaterialReviewState extends State<MaterialReview> {
     }
   }
 
-  void _showSource(String field, String value) {
-    if (field == 'tax_mode') value = taxModeLabels[value] ?? value;
-    final original = sourceText;
-    final match = original == null
-        ? null
-        : _sourceMatch(original, field, value);
-    final at = match?.start ?? -1;
-    final matchEnd = match?.end ?? 0;
-    // Keep the match visible even in a long workbook or pasted conversation.
-    final start = at < 0 || at < 160 ? 0 : at - 160;
-    final end = at < 0
-        ? (original?.length ?? 0)
-        : (matchEnd + 160).clamp(0, original!.length);
-    showAppDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('${offerFields[field]!.$1} · 核对原文'),
-        content: SizedBox(
-          width: 600,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('识别结果：$value'),
-                const SizedBox(height: 8),
-                Text(widget.source!.name, style: TextStyle(color: Tokens.ink3)),
-                const SizedBox(height: 12),
-                if (original == null)
-                  const Text('无法显示这份附件的原文，请返回查看原始文件后核对。')
-                else if (at < 0) ...[
-                  Text(
-                    '未找到完全相同的原文，可能经过格式整理或人工修改。请核对以下原文，必要时修改识别结果。',
-                    style: TextStyle(color: Tokens.amber),
-                  ),
-                  const SizedBox(height: 12),
-                  SelectableText(original),
-                ] else ...[
-                  Text(
-                    '高亮为原文中的匹配内容；仍需核对它是否属于当前报价。',
-                    style: TextStyle(color: Tokens.ink2),
-                  ),
-                  const SizedBox(height: 12),
-                  SelectableText.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text:
-                              '${start > 0 ? '…' : ''}${original.substring(start, at)}',
-                        ),
-                        TextSpan(
-                          text: original.substring(at, matchEnd),
-                          style: TextStyle(
-                            backgroundColor: Tokens.amberBg,
-                            color: Tokens.ink,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        TextSpan(
-                          text:
-                              '${original.substring(matchEnd, end)}${end < original.length ? '…' : ''}',
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (start > 0 || end < original.length)
-                    ExpansionTile(
-                      title: const Text('查看完整原文'),
-                      children: [SelectableText(original)],
-                    ),
-                ],
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('关闭'),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   void initState() {
     super.initState();
@@ -238,7 +108,7 @@ class _MaterialReviewState extends State<MaterialReview> {
   Future<void> _edit(_Row r) async {
     final offer = await showAppDialog<Offer>(
       context: context,
-      builder: (_) => _OfferForm(offer: r.offer),
+      builder: (_) => OfferForm(offer: r.offer),
     );
     if (offer == null) return;
     setState(() {
@@ -564,7 +434,13 @@ class _MaterialReviewState extends State<MaterialReview> {
                             overflow: TextOverflow.ellipsis,
                           ),
                           tooltip: '查看${offerFields[field]!.$1}的原文',
-                          onPressed: () => _showSource(field, o[field]!),
+                          onPressed: () => showSourceEvidence(
+                            context,
+                            original: sourceText,
+                            sourceName: widget.source!.name,
+                            field: field,
+                            value: o[field]!,
+                          ),
                         ),
                   ],
                 ),
@@ -856,112 +732,3 @@ class _MaterialReviewState extends State<MaterialReview> {
 }
 
 /// Edits every field of one offer. Returns the cleaned offer.
-class _OfferForm extends StatefulWidget {
-  const _OfferForm({required this.offer});
-  final Offer offer;
-
-  @override
-  State<_OfferForm> createState() => _OfferFormState();
-}
-
-class _OfferFormState extends State<_OfferForm> {
-  late final c = {
-    for (final k in offerFields.keys)
-      if (k != 'tax_mode') k: TextEditingController(text: widget.offer[k]),
-  };
-  late String taxMode = widget.offer['tax_mode'] ?? 'unknown';
-  String? error;
-
-  @override
-  void dispose() {
-    for (final x in c.values) {
-      x.dispose();
-    }
-    super.dispose();
-  }
-
-  String? _problem(Offer o) {
-    bool bad(String k, bool Function(String) ok) => o[k] != null && !ok(o[k]!);
-    bool isDate(String s) => RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(s);
-    if (bad('price', (s) => parsePrice(s) != null)) return '单价应为数字';
-    if (bad('tax_rate', (s) => parsePrice(s.replaceAll('%', '')) != null)) {
-      return '税率应为数字';
-    }
-    if (bad('quoted_on', isDate) || bad('valid_until', isDate)) {
-      return '日期格式为 2026-09-30';
-    }
-    if (bad('lead_time_days', (s) => int.tryParse(s) != null)) {
-      return '交期填天数';
-    }
-    if (o['quoted_on'] != null &&
-        o['valid_until'] != null &&
-        o['valid_until']!.compareTo(o['quoted_on']!) < 0) {
-      return '有效期不能早于报价日期';
-    }
-    return null;
-  }
-
-  void _save() {
-    final raw = <String, String?>{
-      for (final e in c.entries)
-        e.key: e.value.text.trim().isEmpty ? null : e.value.text.trim(),
-      'tax_mode': taxMode,
-    };
-    final problem = _problem(raw);
-    if (problem != null) return setState(() => error = problem);
-    Navigator.pop(context, cleanOffer(raw));
-  }
-
-  @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: const Text('修改报价信息'),
-    content: SizedBox(
-      width: 560,
-      child: SingleChildScrollView(
-        child: Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: [
-            for (final MapEntry(key: k, value: (label, _))
-                in offerFields.entries)
-              if (k == 'tax_mode')
-                SizedBox(
-                  width: 170,
-                  child: DropdownButtonFormField<String>(
-                    initialValue: taxMode,
-                    decoration: InputDecoration(labelText: label),
-                    items: [
-                      for (final e in taxModeLabels.entries)
-                        DropdownMenuItem(value: e.key, child: Text(e.value)),
-                    ],
-                    onChanged: (v) => setState(() => taxMode = v!),
-                  ),
-                )
-              else
-                SizedBox(
-                  width: const {'specification', 'notes'}.contains(k)
-                      ? 540
-                      : 170,
-                  child: TextField(
-                    controller: c[k],
-                    maxLines: const {'specification', 'notes'}.contains(k)
-                        ? 3
-                        : 1,
-                    decoration: InputDecoration(labelText: label),
-                  ),
-                ),
-            if (error != null)
-              Text(error!, style: TextStyle(color: Tokens.red)),
-          ],
-        ),
-      ),
-    ),
-    actions: [
-      TextButton(
-        onPressed: () => Navigator.pop(context),
-        child: const Text('取消'),
-      ),
-      FilledButton(onPressed: _save, child: const Text('保存')),
-    ],
-  );
-}

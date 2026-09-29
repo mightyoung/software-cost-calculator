@@ -92,13 +92,25 @@ Future<AiReading> aiReadClauses(
       byN[x['n']! as int] = x['constraints']! as List;
     }
   }
+  // A parameter the rules already read in another clause of the same item is
+  // not asked again: a second, looser reading of it is a duplicate at best.
+  final elsewhere = <int, Set<String>>{
+    for (final c in clauses)
+      c.n: {
+        for (final o in clauses)
+          if (o.n != c.n) ...o.constraints.map((k) => k.property),
+      },
+  };
   var added = 0, dropped = 0;
   final out = [
     for (final c in clauses)
       () {
         final raw = open.contains(c) ? byN[c.n] : null;
         if (raw == null) return c;
-        final have = {for (final k in c.constraints) k.property};
+        final have = {
+          for (final k in c.constraints) k.property,
+          ...?elsewhere[c.n],
+        };
         final kept = <SpecConstraint>[];
         var bad = 0;
         for (final r in raw) {
