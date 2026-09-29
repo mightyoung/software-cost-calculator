@@ -16,6 +16,8 @@ const _at = {
   'inquiry': Offset(.3, .87),
   'project': Offset(.7, .87),
   'product_param': Offset(.7, .5),
+  'spec_item': Offset(.29, .6),
+  'spec_request': Offset(.45, .66),
 };
 const _box = Size(116, 46);
 

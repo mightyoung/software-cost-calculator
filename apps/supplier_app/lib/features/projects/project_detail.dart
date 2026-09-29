@@ -11,12 +11,13 @@ import '../ai/list_to_project.dart';
 import '../ai/material_import_page.dart';
 import '../inquiries/project_inquiries.dart';
 import '../exchange/lan_push_page.dart';
+import '../spec/spec_request_list.dart';
 import 'budget_table.dart';
 import 'item_dialogs.dart';
 import 'project_form.dart';
 import 'refresh_dialog.dart';
 
-enum _Tab { budget, inquiries, quotes, changes }
+enum _Tab { budget, inquiries, specs, quotes, changes }
 
 class ProjectDetail extends StatefulWidget {
   const ProjectDetail({
@@ -131,6 +132,10 @@ class _ProjectDetailState extends State<ProjectDetail> {
                   compact: widget.compact,
                 ),
                 _Tab.inquiries => ProjectInquiries(
+                  state: state,
+                  projectId: widget.projectId,
+                ),
+                _Tab.specs => SpecRequestList(
                   state: state,
                   projectId: widget.projectId,
                 ),
@@ -301,6 +306,7 @@ class _Toolbar extends StatelessWidget {
     final tabs = [
       tabButton(_Tab.budget, '成本预算'),
       tabButton(_Tab.inquiries, '询价单'),
+      tabButton(_Tab.specs, '技术要求'),
       tabButton(_Tab.quotes, '报价记录'),
       tabButton(_Tab.changes, '变更记录'),
     ];
@@ -308,8 +314,13 @@ class _Toolbar extends StatelessWidget {
       // Phones: actions live in one overflow menu; "添加" sits by the totals.
       return Row(
         children: [
-          ...tabs,
-          const Spacer(),
+          // Five tabs do not fit a phone's width: they scroll sideways.
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(children: tabs),
+            ),
+          ),
           PopupMenuButton<String>(
             tooltip: '更多操作',
             icon: const Icon(Icons.more_vert),

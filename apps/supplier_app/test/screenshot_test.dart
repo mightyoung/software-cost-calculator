@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:supplier_app/app/app_state.dart';
 import 'package:supplier_app/app/shell.dart';
 import 'package:supplier_app/features/spec/spec_match_page.dart';
+import 'package:supplier_app/features/spec/spec_request_page.dart';
 
 import 'spec_match_page_test.dart' show seedSensors;
 import 'package:supplier_app/app/theme.dart';
@@ -301,6 +302,25 @@ Widget _specMatch(Store store, AppState state) {
   return SpecMatchPage(state: state);
 }
 
+Widget _specRequest(Store store, AppState state) {
+  seedSensors(store);
+  final req = store.createSpecRequest('泵房监控系统技术要求', [
+    draftItem(
+      '温湿度传感器',
+      '（1）测量范围，温度-20℃~+80℃；相对湿度：0%~+100%RH。\n'
+          '（2）测量精度要求：温度优于±0.3℃，相对湿度优于±3%。\n'
+          '（3）输出信号4-20mA或RS485标准工业信号，与温湿度监控系统控制器或采集器适配。\n'
+          '★（4）防护等级不低于IP65。\n'
+          '（5）防爆等级不低于EX d IIBT4 Gb。',
+      qty: '25',
+      unit: '个',
+    ),
+    draftItem('工控机', 'CPU：八核及以上，主频2.3GHz及以上；内存：DDR4 16GB', qty: '5', unit: '台'),
+    draftItem('显示器', '尺寸不小于27英寸，最佳固有分辨率不小于2K', qty: '7', unit: '台'),
+  ]);
+  return SpecRequestPage(state: state, requestId: req);
+}
+
 /// The workbench with an open inquiry waiting for replies.
 Shell _home(Store store, AppState state) {
   _inquiry(store);
@@ -481,6 +501,8 @@ void main() {
             ? ConflictsPage(state: state)
             : name == 'desktop_spec_match'
             ? _specMatch(store, state)
+            : name == 'desktop_spec_request'
+            ? _specRequest(store, state)
             : name == 'desktop_inquiry'
             ? InquiryPage(state: state, id: _inquiry(store))
             : name.contains('import')
@@ -570,6 +592,12 @@ void main() {
       );
       await t.pumpAndSettle();
     }),
+    skip: !hasFont,
+  );
+
+  testWidgets(
+    'desktop spec request',
+    (t) => shoot(t, const Size(1280, 900), 'desktop_spec_request'),
     skip: !hasFont,
   );
 
