@@ -11,6 +11,7 @@ import '../catalog/catalog_page.dart';
 import '../projects/project_form.dart';
 import '../quotes/quote_form.dart';
 import '../records/open_record.dart';
+import '../spec/param_view.dart';
 import '../spec/spec_match_page.dart';
 import '../spec/spec_request_list.dart';
 
@@ -69,6 +70,11 @@ class _PaletteState extends State<_Palette> {
       }
     }),
     _Entry('按要求找物料', Icons.rule, (c) => showSpecMatch(c, widget.state)),
+    _Entry(
+      '参数视图（按参数筛选、核对物料参数）',
+      Icons.table_rows_outlined,
+      (c) => showParamView(c, widget.state),
+    ),
     _Entry(
       '技术要求选型（导入要求、定选、偏离表）',
       Icons.fact_check_outlined,

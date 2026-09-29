@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'conflicts.dart';
 import 'duplicates.dart';
 import 'ontology.dart';
+import 'product_params.dart';
+import 'spec_migration.dart';
 import 'store.dart';
 
 /// One data-quality finding: how many records need attention and where to
@@ -109,6 +111,7 @@ extension DataQuality on Store {
         ),
         '询价后录入或智能导入报价',
       ),
+      ..._paramChecks(),
       QualityCheck(
         'suppliers_without_contact',
         '没有联系人的供应商',
@@ -119,6 +122,55 @@ extension DataQuality on Store {
           "AND json_extract(c.data,'\$.supplier_id') = s.id)",
         ),
         '供应商 › 添加联系人',
+      ),
+    ];
+  }
+
+  /// Design §9.5: materials that could have a parameter template but do
+  /// not, that miss key parameters, or whose parameters nobody checked.
+  // ponytail: one completeness query per classified material; fine for
+  // thousands, batch it if the catalogue grows much larger.
+  List<QualityCheck> _paramChecks() {
+    var unclassified = 0, incomplete = 0;
+    for (final r in db.select('SELECT id, data FROM product WHERE $_live')) {
+      final d = jsonDecode(r['data'] as String) as Map<String, Object?>;
+      if (d['spec_class'] == null) {
+        if (guessSpecClass([d['name'] as String?, d['category'] as String?]) !=
+            null) {
+          unclassified++;
+        }
+        continue;
+      }
+      final c = paramCompleteness(r['id'] as String);
+      if (c.filled < c.total) incomplete++;
+    }
+    final unconfirmed =
+        db
+                .select(
+                  "SELECT count(DISTINCT json_extract(data,'\$.product_id')) AS n "
+                  "FROM product_param WHERE deleted = 0 "
+                  "AND json_extract(data,'\$.confirmed') = 0",
+                )
+                .first['n']
+            as int;
+    return [
+      QualityCheck(
+        'products_unclassified',
+        '可归类但未选参数模板的物料',
+        unclassified,
+        '数据质量 › 从型号和规格文字补全参数',
+      ),
+      QualityCheck(
+        'products_missing_key_params',
+        '缺关键参数的物料',
+        incomplete,
+        '数据质量 › 参数视图，或从型号和规格文字补全',
+      ),
+      QualityCheck(
+        'products_unconfirmed_params',
+        '有未确认参数的物料',
+        unconfirmed,
+        '数据质量 › 参数视图 › 确认',
       ),
     ];
   }

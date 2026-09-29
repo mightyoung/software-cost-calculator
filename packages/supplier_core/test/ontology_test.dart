@@ -182,6 +182,8 @@ void main() {
         'project_budget': {'project_id': pro},
         'inquiry_matrix': {'inquiry_id': inq},
         'data_quality': {},
+        'spec_classes': {'class': 'sensor.th'},
+        'match_item': {'class': 'sensor.th', 'requirement': '防护等级IP65'},
       };
       expect({
         for (final t in agentTools) (t['function']! as Map)['name'],
