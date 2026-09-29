@@ -3,6 +3,7 @@ import 'inquiry.dart';
 import 'product_params.dart';
 import 'pricing.dart';
 import 'project.dart';
+import 'spec_request.dart';
 import 'values.dart';
 
 Map<String, Object?> validatePayload(
@@ -17,6 +18,8 @@ Map<String, Object?> validatePayload(
   'project_item' => ProjectItem.fromJson(value).toJson(),
   'inquiry' => Inquiry.fromJson(value).toJson(),
   'product_param' => ProductParam.fromJson(value).toJson(),
+  'spec_request' => SpecRequest.fromJson(value).toJson(),
+  'spec_item' => SpecItem.fromJson(value).toJson(),
   _ => invalid('entity_type', 'unknown entity type'),
 };
 
@@ -30,6 +33,8 @@ List<String> payloadFields(String entityType) => switch (entityType) {
   'project_item' => ProjectItem.fields,
   'inquiry' => Inquiry.fields,
   'product_param' => ProductParam.fields,
+  'spec_request' => SpecRequest.fields,
+  'spec_item' => SpecItem.fields,
   _ => invalid('entity_type', 'unknown entity type'),
 };
 

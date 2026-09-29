@@ -116,18 +116,26 @@ extension SpecMatch on Store {
     String classCode,
     List<SpecConstraint> constraints, {
     DateTime? asOf,
+    List<String>? productIds,
   }) {
     final today = localDay(asOf ?? clock());
     final allHard = constraints.every((c) => c.mark == ClauseMark.none);
     bool hard(SpecConstraint c) => allHard || c.mark == ClauseMark.star;
 
-    final family = classFamily(classCode).toList();
-    final products = db.select(
-      'SELECT id, data FROM product WHERE deleted = 0 '
-      "AND json_extract(data,'\$.merged_into') IS NULL "
-      "AND json_extract(data,'\$.spec_class') IN (SELECT value FROM json_each(?))",
-      [jsonEncode(family)],
-    );
+    // productIds: judge exactly these materials, whatever their class.
+    final products = productIds != null
+        ? db.select(
+            'SELECT id, data FROM product WHERE id IN '
+            '(SELECT value FROM json_each(?))',
+            [jsonEncode(productIds)],
+          )
+        : db.select(
+            'SELECT id, data FROM product WHERE deleted = 0 '
+            "AND json_extract(data,'\$.merged_into') IS NULL "
+            "AND json_extract(data,'\$.spec_class') IN "
+            '(SELECT value FROM json_each(?))',
+            [jsonEncode(classFamily(classCode).toList())],
+          );
     final ids = [for (final r in products) r['id'] as String];
     final params = <String, Map<String, Map<String, Object?>>>{};
     for (final r in db.select(

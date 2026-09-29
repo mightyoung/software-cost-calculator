@@ -97,6 +97,27 @@ void main() {
           'confirmed': true,
           'dict_version': 1,
         },
+        'spec_request': {
+          'project_id': pro,
+          'title': '技术要求',
+          'source_name': null,
+          'dict_version': 1,
+          'notes': null,
+        },
+        'spec_item': {
+          'request_id': s.createSpecRequest('技术要求', []),
+          'seq': 1,
+          'name': '工控机',
+          'spec_class': null,
+          'qty': null,
+          'unit': null,
+          'text': null,
+          'project_item_id': null,
+          'clauses': <Object>[],
+          'chosen_product_id': null,
+          'chosen_snapshot': null,
+          'notes': null,
+        },
       };
       for (final t in ontology.values) {
         validatePayload(t.name, samples[t.name]!); // the sample is valid

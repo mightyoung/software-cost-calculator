@@ -91,7 +91,7 @@ void main() {
     '/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf',
   ].where((p) => File(p).existsSync()).firstOrNull;
   test(
-    'quote sheet and cost budget render as PDF with a system CJK font',
+    'quote sheet, cost budget and deviation table render as PDF with a system CJK font',
     () async {
       final s = device('A');
       final prod = s.save('product', product('离心泵', unit: '台'));
@@ -101,10 +101,14 @@ void main() {
         'unit': '台',
         'unit_cost': '32500',
       });
+      final req = s.createSpecRequest('泵房', [
+        draftItem('温湿度传感器', '★防护等级不低于IP65\n与采集器适配'),
+      ], projectId: pro);
       final font = embeddableFont(File(fontPath!).readAsBytesSync())!;
       for (final pdf in [
         await s.quoteSheetPdf(pro, font),
         await s.costBudgetPdf(pro, font),
+        await s.deviationPdf(req, font),
       ]) {
         expect(String.fromCharCodes(pdf.take(5)), '%PDF-');
         expect(pdf.length, lessThan(200000), reason: 'font is subset');

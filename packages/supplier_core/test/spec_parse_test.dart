@@ -1,0 +1,569 @@
+import 'dart:io';
+
+import 'package:supplier_core/supplier_core.dart';
+import 'package:test/test.dart';
+
+import 'fixtures.dart';
+
+// The evaluation set of design §12: the requirement column of
+// docs/test-doc/设备具体选型品牌型号.xlsx, labelled by hand clause by clause.
+
+typedef _Want = (String, String, Map<String, Object?>);
+
+_Want w(String p, String op, Map<String, Object?> v) => (p, op, v);
+Map<String, Object?> ex(String s) =>
+    parseParamText(specProperty('prot.ex')!, s)!;
+
+final _domestic = w('gen.brand_origin', 'eq', {'v': 'domestic'});
+final _ip65 = w('prot.ip', 'ip_ge', {
+  'codes': ['IP65'],
+});
+final _exT4 = w('prot.ex', 'ex_ge', ex('Ex d IIB T4'));
+final _cableControl = [
+  [
+    w('cable.use', 'eq', {'v': 'control'}),
+    w('cable.flame', 'ge', {'v': 'ZR'}),
+  ],
+  <_Want>[],
+];
+final _cablePower = [
+  [
+    w('cable.flame', 'ge', {'v': 'ZR'}),
+  ],
+  <_Want>[],
+];
+final _auxiliary = [<_Want>[], <_Want>[]];
+final _alarm = [
+  [
+    w('env.op_temp', 'covers', {'min': '-20', 'max': '40', 'u': 'Cel'}),
+    w('env.op_rh', 'covers', {'min': null, 'max': '95', 'u': '%RH'}),
+  ],
+  [
+    w('alarm.light', 'eq', {'v': 'LED'}),
+    w('alarm.flash', 'eq', {'v': 'strobe'}),
+  ],
+  [
+    w('alarm.spl', 'ge', {'v': '90', 'u': 'dB(A)'}),
+    w('alarm.voice', 'is', {'v': true}),
+    w('alarm.programmable', 'is', {'v': true}),
+  ],
+];
+
+final sample = <(String, String, List<List<_Want>>)>[
+  (
+    '数据分流装置',
+    '要求国产品牌。直接安装在西门子PLC的DP接口方式获取数据，并通过以太网分流转发。输入接口：DB9，9.6-1.5Mbps；输出接口：RJ45，10Mbit/s。',
+    [
+      [_domestic],
+      [],
+      [],
+      [
+        w('gw.north_ports', 'all', {
+          'vs': ['Ethernet'],
+        }),
+      ],
+    ],
+  ),
+  (
+    '网关',
+    '要求国产品牌，工业级设计，支持7×24小时连续运行；支持Modbus TCP、OPC DA/UA、Siemens S7、TCP/UDP自定义协议、HTTP/HTTPS等协议，配套网线等设备。',
+    [
+      [
+        _domestic,
+        w('gen.industrial', 'is', {'v': true}),
+      ],
+      [
+        w('io.protocol', 'all', {
+          'vs': [
+            'Modbus TCP',
+            'OPC DA',
+            'OPC UA',
+            'Siemens S7',
+            'TCP/UDP',
+            'HTTP',
+            'HTTPS',
+          ],
+        }),
+      ],
+    ],
+  ),
+  (
+    '温湿度传感器',
+    '具体传感器主要技术指标：\n'
+        '（1）测量范围，温度-20℃~+80℃；相对湿度：0%~+100%RH。\n'
+        '（2）测量精度要求：温度优于±0.3℃，相对湿度优于±3%。\n'
+        '（3）分辨率：温度不低于0.1℃，相对湿度不低于0.1%。\n'
+        '（4）输出信号4-20mA或RS485标准工业信号，与温湿度监控系统控制器或采集器适配。\n'
+        '（5）防护等级不低于IP65。\n'
+        '（6）防爆等级不低于EX d IIBT4 Gb。',
+    [
+      [
+        w('th.temp_range', 'covers', {'min': '-20', 'max': '80', 'u': 'Cel'}),
+        w('th.rh_range', 'covers', {'min': '0', 'max': '100', 'u': '%RH'}),
+      ],
+      [
+        w('th.temp_accuracy', 'le', {'v': '0.3', 'u': 'Cel'}),
+        w('th.rh_accuracy', 'le', {'v': '3', 'u': '%RH'}),
+      ],
+      [
+        w('th.temp_resolution', 'le', {'v': '0.1', 'u': 'Cel'}),
+        w('th.rh_resolution', 'le', {'v': '0.1', 'u': '%RH'}),
+      ],
+      [
+        w('io.output', 'any', {
+          'vs': ['4-20mA', 'RS485'],
+        }),
+      ],
+      [_ip65],
+      [w('prot.ex', 'ex_ge', ex('Ex d IIB T4 Gb'))],
+    ],
+  ),
+  (
+    '温湿度监测系统控制器或采集器',
+    '1）通过控制器或采集器实现至少23路温湿度传感器的数据实时采集，同时具备通过的网络通讯功能，能将采集的数据实时上传至上位机软件。\n'
+        '2）选用的控制器或采集器，优先选用国产品牌，配套相应的通讯线缆及配件等。\n'
+        '3）现场安装满足相关标准规范。\n'
+        '4）配套上位机软件。',
+    [
+      [
+        w('gw.channels', 'ge', {'v': '23'}),
+      ],
+      [_domestic],
+      [],
+      [],
+    ],
+  ),
+  ('控制信号链路', '控制电缆采用阻燃型控制屏蔽线；\n线缆长度约3000米（以现场实际距离为准）', _cableControl),
+  ('供电链路', '电缆采用阻燃型电缆；\n线缆长度约50米（以现场实际距离为准）', _cablePower),
+  ('辅材', '主要包括镀锌钢管，线槽，连接软管等。镀锌钢管厚度不小于2.5mm，长度约200米（以现场实际距离为准）。', _auxiliary),
+  (
+    '气体浓度检测探头（毒气）',
+    '气体浓度检测探头主要技术指标：\n'
+        '（1）量程：0～100ppm；\n'
+        '（2）分辨率：0.1ppm；\n'
+        '（3）响应时间：≤30秒；\n'
+        '（4）恢复时间：≤30秒；\n'
+        '（5）防护等级：IP65；\n'
+        '（6）防爆等级：不低于ExdIIBT4。',
+    [
+      [
+        w('gas.range', 'covers', {'min': '0', 'max': '100', 'u': 'ppm'}),
+      ],
+      [
+        w('gas.resolution', 'le', {'v': '0.1', 'u': 'ppm'}),
+      ],
+      [
+        w('gas.t90', 'le', {'v': '30', 'u': 's'}),
+      ],
+      [
+        w('gas.recovery', 'le', {'v': '30', 'u': 's'}),
+      ],
+      [_ip65],
+      [_exT4],
+    ],
+  ),
+  (
+    '氧浓度检测探头',
+    '气体浓度检测探头主要技术指标：\n'
+        '（1）量程：0～100%O2；\n'
+        '（2）分辨率：0.1%O2；\n'
+        '（3）测量精度：不低于±1%FS；\n'
+        '（4）响应时间：≤30秒；\n'
+        '（5）恢复时间：≤60秒；\n'
+        '（6）防护等级：IP65；\n'
+        '（7）输出和电气接口：具备标准的工业通讯接口，4-20mA或RS485；\n'
+        '（8）环境适配：温度-10℃～45℃，相对湿度10%～95%，无冷凝。\n'
+        '（9）防爆等级：不低于ExdIIBT4。',
+    [
+      [
+        w('gas.range', 'covers', {'min': '0', 'max': '100', 'u': '%VOL'}),
+      ],
+      [
+        w('gas.resolution', 'le', {'v': '0.1', 'u': '%VOL'}),
+      ],
+      [
+        w('gas.accuracy', 'le', {'v': '1', 'basis': 'FS'}),
+      ],
+      [
+        w('gas.t90', 'le', {'v': '30', 'u': 's'}),
+      ],
+      [
+        w('gas.recovery', 'le', {'v': '60', 'u': 's'}),
+      ],
+      [_ip65],
+      [
+        w('io.output', 'any', {
+          'vs': ['4-20mA', 'RS485'],
+        }),
+      ],
+      [
+        w('env.op_temp', 'covers', {'min': '-10', 'max': '45', 'u': 'Cel'}),
+        w('env.op_rh', 'covers', {'min': '10', 'max': '95', 'u': '%RH'}),
+      ],
+      [_exT4],
+    ],
+  ),
+  (
+    '气体浓度监测控制系统',
+    '1）控制系统核心PLC为国产自主可控产品，PLC芯片、通讯芯片、AI/AO、DI/DO等带芯片模块均采用国产芯片。\n'
+        '2）系统IO控制点必须严格按要求配置，AI/AO、DI/DO控制点要求均有20%的余量，便于未来系统扩展。\n'
+        '3）控制系统PLC、上位机的全套软件开发过程必须符合软件工程规范并通过第三方软件测评。\n'
+        '4）配套开发PLC、上位机软件。',
+    [
+      [
+        _domestic,
+        w('plc.chips_domestic', 'is', {'v': true}),
+      ],
+      [],
+      [],
+      [],
+    ],
+  ),
+  ('控制信号链路', '控制电缆采用阻燃型控制屏蔽线；\n线缆长度约4000米（以现场实际距离为准）', _cableControl),
+  ('供电链路', '电缆采用阻燃型电缆；\n线缆长度约400米（以现场实际距离为准）', _cablePower),
+  ('辅材', '主要包括镀锌钢管，线槽，连接软管等。镀锌钢管厚度不小于2.5mm，长度约400米（以现场实际距离为准）。', _auxiliary),
+  (
+    '声光报警器（防爆）',
+    '声光报警器工作环境为-20℃-+40℃，相对湿度≤95%；光源采用LED光源，频闪发光方式；声级不小于90dB，支持多种语音播报，具备二次开发功能\n'
+        '防爆等级：不低于ExdIIBT4。',
+    [
+      ..._alarm,
+      [_exT4],
+    ],
+  ),
+  (
+    '工控机',
+    'CPU：八核及以上，主频2.3GHz及以上；内存：DDR4 16GB 2666MHz及以上；显卡：独立显卡，2GB以上，不少于3路高清输出信号；《军用关键软硬件自主可控产品目录》（最新版）选取；配套正版授权操作系统，常用办公软件',
+    [
+      [
+        w('cpu.cores', 'ge', {'v': '8'}),
+        w('cpu.base_freq', 'ge', {'v': '2.3', 'u': 'GHz'}),
+      ],
+      [
+        w('mem.type', 'ge', {'v': 'DDR4'}),
+        w('mem.total', 'ge', {'v': '16', 'u': 'GiB'}),
+        w('mem.speed', 'ge', {'v': '2666', 'u': 'MT/s'}),
+      ],
+      [
+        w('gpu.discrete', 'is', {'v': true}),
+        w('gpu.mem', 'ge', {'v': '2', 'u': 'GiB'}),
+        w('gpu.outputs', 'ge', {'v': '3'}),
+      ],
+      [
+        w('comp.catalog', 'listed', {
+          'entries': [
+            {
+              'name': '军用关键软硬件自主可控产品目录',
+              'batch': null,
+              'level': null,
+              'valid_until': null,
+            },
+          ],
+        }),
+      ],
+      [
+        w('sw.licensed', 'is', {'v': true}),
+      ],
+    ],
+  ),
+  (
+    '显示器',
+    '长宽比优先选择16:9，尺寸不小于27英寸（要求显示器与现有操作台适配），最佳固有分辨率不小于2K，响应时间小于1ms，刷新频率大于等于60HZ，内置电源，HDMI接口',
+    [
+      [
+        w('disp.aspect', 'eq', {'v': '16:9'}),
+        w('disp.size', 'ge', {'v': '27', 'u': '[in_i]'}),
+        w('disp.res', 'ge', {'v': 'QHD'}),
+        w('disp.response', 'lt', {'v': '1', 'u': 'ms'}),
+        w('disp.refresh', 'ge', {'v': '60', 'u': 'Hz'}),
+        w('disp.psu_internal', 'is', {'v': true}),
+        w('disp.ports', 'all', {
+          'vs': ['HDMI'],
+        }),
+      ],
+    ],
+  ),
+  (
+    '声光报警器',
+    '声光报警器工作环境为-20℃-+40℃，相对湿度≤95%；光源采用LED光源，频闪发光方式；声级不小于90dB，支持多种语音播报，具备二次开发功能',
+    _alarm,
+  ),
+  (
+    '软件开发',
+    '总体要求：软件系统采用B/S架构，整体采用分层架构+模块化设计，全面适配国产化软硬件生态环境，在国产主流浏览器上运行。\n'
+        '主要功能要求：主要包括环境监测各分系统监视、综合值班显示、中央空调监控、物资出入库管理等配置项；\n'
+        '分系统监视应用至少应具备：参数界面显示（工艺流程显示）、数据存储、历史数据查询、报表打印、曲线展示、报警提示、系统管理等功能；\n'
+        '空调监控系统具备的功能与分系统监视功能要求一致，在此基础上增加参数设置功能，同时要求在控制操作时具备二次确认功能。\n'
+        '综合值班显示至少应具备：各系统（气体监测、空调、温湿度监控等）综合态势显示、视频监控显示控制、网络通信状态监视、预警报警信息显示处理、关键数据实时曲线显示等功能；\n'
+        '物资出入库管理系统至少需具备：入库管理、出库管理、库存管理、库房配置、用户管理等功能。\n'
+        '主要性能要求：软件连续正常工作时间大于72h；数据据和图形显示刷新周期不大于2s；集中监控上位机在运行软件时，CPU平均占用率低于50%，内存余量不低于60%',
+    [
+      [
+        w('sw.arch', 'eq', {'v': 'BS'}),
+      ],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+    ],
+  ),
+];
+
+String _key(String p, String op, Map<String, Object?> v) {
+  final prop = specProperty(p)!;
+  return '$p $op ${normalizeParamValue(prop, v)}';
+}
+
+void main() {
+  test('the sample requirement: ≥70% of clauses right, none silently wrong', () {
+    var total = 0, right = 0, flagged = 0;
+    final silent = <String>[], report = StringBuffer();
+    for (final (name, text, want) in sample) {
+      final item = draftItem(name, text);
+      expect(
+        item.clauses,
+        hasLength(want.length),
+        reason: '$name: ${[for (final c in item.clauses) c.text]}',
+      );
+      for (final (i, c) in item.clauses.indexed) {
+        total++;
+        final got = {
+          for (final x in c.constraints) _key(x.property, x.op, x.value),
+        };
+        final exp = {for (final (p, op, v) in want[i]) _key(p, op, v)};
+        final ok = got.length == exp.length && got.containsAll(exp);
+        if (ok) right++;
+        if (c.hint != null) flagged++;
+        if (!ok && c.hint == null && got.isNotEmpty)
+          silent.add('$name ${c.text}');
+        if (!ok) {
+          report.writeln(
+            '✗ $name「${c.text}」\n  got  $got\n  want $exp\n  hint ${c.hint}',
+          );
+        }
+      }
+    }
+    final rate = right / total;
+    // ignore: avoid_print
+    print(
+      'clauses $total, right $right (${(rate * 100).round()}%), flagged $flagged',
+    );
+    expect(silent, isEmpty, reason: '$report');
+    expect(rate, greaterThanOrEqualTo(0.7), reason: '$report');
+  });
+
+  test('classes come from the name, then the text', () {
+    expect(draftItem('工控机', '').specClass, 'computer.ipc');
+    expect(draftItem('控制信号链路', '控制电缆采用阻燃型').specClass, 'cable');
+    expect(draftItem('辅材', '镀锌钢管').specClass, isNull);
+  });
+
+  test('clause splitting: numbering, inline numbers, headings, marks', () {
+    expect(splitClauses('主要技术指标：\n（1）量程：0～100ppm；（2）分辨率：0.1ppm；'), [
+      '（1）量程：0～100ppm',
+      '（2）分辨率：0.1ppm',
+    ]);
+    expect(splitClauses('A；B。C'), ['A', 'B', 'C']);
+    final star = parseClause('sensor.th', 1, '★（5）防护等级不低于IP65');
+    expect(star.mark, ClauseMark.star);
+    expect(star.constraints.single.mark, ClauseMark.star);
+    expect(
+      parseClause('sensor.th', 1, '▲防护等级不低于IP65').mark,
+      ClauseMark.triangle,
+    );
+    expect(
+      parseClause('sensor.th', 1, '防护等级IP65（实质性条款）').mark,
+      ClauseMark.star,
+    );
+  });
+
+  test('hard cases never parse silently', () {
+    // "不小于" on resolution (smaller is better) keeps the words but asks.
+    final res = parseClause('sensor.gas', 1, '分辨率不小于0.1ppm');
+    expect(res.constraints.single.op, 'ge');
+    expect(res.hint, contains('方向相反'));
+    // %LEL is not ppm; an unknown unit stays unread.
+    final lel = parseClause('sensor.gas', 1, '量程：0～100%LEL');
+    expect(lel.constraints.single.value['u'], '%LEL');
+    final odd = parseClause('display.monitor', 1, '分辨率不小于2K');
+    expect(odd.constraints, isEmpty);
+    expect(odd.hint, isNotNull);
+    // Without a work/environment cue a temperature range is the measuring
+    // range, with one it is the operating range.
+    expect(
+      parseClause('sensor.th', 1, '温度-40~80℃').constraints.single.property,
+      'th.temp_range',
+    );
+    expect(
+      parseClause('sensor.th', 1, '工作温度-40~80℃').constraints.single.property,
+      'env.op_temp',
+    );
+    // Negated features are not read as "has".
+    final no = parseClause('computer.ipc', 1, '无独立显卡');
+    expect(no.constraints, isEmpty);
+    expect(no.hint, contains('否定'));
+  });
+
+  test('pasted tables and paragraphs', () {
+    final table = specItemsFromText(
+      '序号\t设备名称\t主要指标要求\t数量\t单位\n'
+      '1\t工控机\tCPU：八核及以上\t5\t台\n'
+      '\t\t内存：DDR4 16GB\t\t\n',
+    );
+    expect(table.single.name, '工控机');
+    expect((table.single.qty, table.single.unit), ('5', '台'));
+    expect(table.single.clauses, hasLength(2));
+    final paras = specItemsFromText('显示器\n尺寸不小于27英寸\n\n工控机：\nCPU八核');
+    expect([for (final p in paras) p.name], ['显示器', '工控机']);
+    expect(paras.first.clauses.single.constraints.single.property, 'disp.size');
+  });
+
+  group('stored requirements', () {
+    setUp(() => tmp = Directory.systemTemp.createTempSync('supplier_req'));
+    tearDown(() => tmp.deleteSync(recursive: true));
+
+    test('save, review, choose and answer text clauses', () {
+      final s = device('A');
+      final item = draftItem(
+        '温湿度传感器',
+        '（1）测量范围，温度-20℃~+80℃\n（2）防护等级不低于IP65\n（3）与采集器适配',
+        qty: '25',
+        unit: '个',
+      );
+      final req = s.createSpecRequest('泵房监控', [item], sourceName: '粘贴文本');
+      final rec = s.specItemsOf(req).single;
+      expect(rec.data['qty'], '25');
+      final clauses = clausesOf(rec);
+      expect(clauses.map((c) => c.isText), [false, false, true]);
+
+      // Reviewing: mark the IP clause ★.
+      s.saveClauses(rec.id, [
+        clauses[0].copyWith(reviewed: true),
+        clauses[1].copyWith(mark: ClauseMark.star, reviewed: true),
+        clauses[2].copyWith(reviewed: true),
+      ]);
+      final reviewed = clausesOf(s.get('spec_item', rec.id)!);
+      expect(reviewed[1].constraints.single.mark, ClauseMark.star);
+
+      final p = s.save('product', {
+        ...product('YAWS-200', unit: '个'),
+        'spec_class': 'sensor.th',
+      });
+      s.setParam(p, 'th.temp_range', {'min': '-40', 'max': '85', 'u': 'Cel'});
+      s.setParam(p, 'prot.ip', {
+        'codes': ['IP66'],
+      }, confirmed: false);
+      s.chooseProduct(rec.id, p);
+      var rows = snapshotRows(s.get('spec_item', rec.id)!)!;
+      expect(rows[0]['outcome'], 'better');
+      expect(rows[0]['response'], contains('-40～85'));
+      expect(rows[1]['note'], contains('参数未确认'));
+      expect(rows[2]['manual'], isTrue);
+      expect(rows[2]['outcome'], isNull);
+
+      s.setClauseResponse(rec.id, 3, '支持 RS485，与采集器适配', Outcome.exact);
+      // Choosing again keeps the person's answer to the text clause.
+      s.chooseProduct(rec.id, p);
+      rows = snapshotRows(s.get('spec_item', rec.id)!)!;
+      expect(rows[2]['response'], '支持 RS485，与采集器适配');
+      expect(rows[2]['outcome'], 'exact');
+
+      final table = deviationTable(s, req);
+      expect(table.headings, {0});
+      expect(table.rows[0][3], '定选：YAWS-200');
+      expect(table.rows.skip(1).map((r) => (r[1], r[4])), [
+        ('', '正偏离'),
+        ('★', '正偏离'),
+        ('', '无偏离'),
+      ]);
+      expect(table.rows[2][3], '防护等级 IP66');
+      expect(table.rows[3][5], '人工判断');
+      final book = readXlsx(s.deviationXlsx(req));
+      expect(book.sheets.single.rows[3].map((c) => c.display), deviationHeader);
+
+      s.deleteSpecRequest(req);
+      expect(s.specItemsOf(req), isEmpty);
+      expect(s.specRequests(), isEmpty);
+    });
+
+    test('budget lines to be inquired become items; choosing fills them', () {
+      final s = device('A');
+      final pro = s.save('project', project('P1'));
+      final line = s.save('project_item', {
+        ...item(pro, 'material', name: '工控机', qty: '5'),
+        'notes': '要求：CPU：八核及以上；内存：DDR4 16GB；清单单位：套',
+      });
+      final p = s.save('product', product('IPC-610', unit: '件'));
+      s.save('project_item', item(pro, 'material', productId: p));
+      final drafts = s.draftsFromProject(pro);
+      expect(drafts.single.projectItemId, line);
+      expect(drafts.single.specClass, 'computer.ipc');
+      expect(drafts.single.clauses, hasLength(2));
+      final req = s.createSpecRequest('P1 技术要求', drafts, projectId: pro);
+      final rec = s.specItemsOf(req).single;
+      expect(rec.data['qty'], '5');
+      s.chooseProduct(rec.id, p);
+      expect(s.get('project_item', line)!.data['product_id'], p);
+      expect(s.specRequests(projectId: pro).single.id, req);
+    });
+
+    test('changing the class re-reads unreviewed clauses only', () {
+      final s = device('A');
+      final req = s.createSpecRequest('x', [
+        draftItem('某设备', '防护等级IP65\n防爆等级不低于ExdIIBT4'),
+      ]);
+      final rec = s.specItemsOf(req).single;
+      expect(rec.data['spec_class'], isNull);
+      final c = clausesOf(rec);
+      expect(c.every((x) => x.isText), isTrue);
+      s.saveClauses(rec.id, [
+        c[0],
+        c[1].copyWith(reviewed: true),
+      ], specClass: 'alarm.av');
+      final after = clausesOf(s.get('spec_item', rec.id)!);
+      expect(after[0].constraints.single.property, 'prot.ip');
+      expect(after[1].isText, isTrue);
+    });
+
+    test('bad clauses are refused', () {
+      final s = device('A');
+      final req = s.createSpecRequest('x', []);
+      Map<String, Object?> item(Object clause) => {
+        'request_id': req,
+        'seq': 1,
+        'name': 'x',
+        'spec_class': null,
+        'qty': null,
+        'unit': null,
+        'text': null,
+        'project_item_id': null,
+        'clauses': [clause],
+        'chosen_product_id': null,
+        'notes': null,
+      };
+      final good = parseClause('sensor.th', 1, '防护等级IP65').toJson();
+      s.save('spec_item', item(good));
+      expect(
+        () => s.save('spec_item', item({...good, 'mark': 'gold'})),
+        throwsFormatException,
+      );
+      final cs = (good['cs']! as List).single as Map;
+      expect(
+        () => s.save(
+          'spec_item',
+          item({
+            ...good,
+            'cs': [
+              {...cs, 'op': 'covers'},
+            ],
+          }),
+        ),
+        throwsFormatException,
+      );
+    });
+  });
+}

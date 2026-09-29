@@ -552,6 +552,57 @@ final _types = <ObjectType>[
       required: true,
     ),
   ]),
+  ObjectType('spec_request', '技术要求', '一份技术要求文件，通常挂在项目下', [
+    const FieldSpec('project_id', '项目', Kind.ref, '', target: 'project'),
+    const FieldSpec('title', '标题', Kind.text, '', required: true),
+    const FieldSpec('source_name', '来源', Kind.text, '文件名或"粘贴文本"'),
+    const FieldSpec('dict_version', '字典版本', Kind.integer, '', required: true),
+    _notes,
+  ]),
+  ObjectType('spec_item', '需求项', '技术要求中的一台设备及其条款；可定选物料', [
+    const FieldSpec(
+      'request_id',
+      '技术要求',
+      Kind.ref,
+      '',
+      required: true,
+      target: 'spec_request',
+    ),
+    const FieldSpec('seq', '序号', Kind.integer, '', required: true),
+    const FieldSpec('name', '设备名称', Kind.text, '', required: true),
+    const FieldSpec('spec_class', '参数模板', Kind.text, '类别代码'),
+    const FieldSpec('qty', '数量', Kind.decimal, ''),
+    const FieldSpec('unit', '单位', Kind.text, ''),
+    const FieldSpec('text', '要求原文', Kind.text, ''),
+    const FieldSpec(
+      'project_item_id',
+      '预算行',
+      Kind.ref,
+      '',
+      target: 'project_item',
+    ),
+    const FieldSpec(
+      'clauses',
+      '条款',
+      Kind.object,
+      '[{n,text,mark:star|triangle|none,cs:[{p,op,value}],reviewed,hint}]；cs 为空是文字条款',
+      required: true,
+    ),
+    const FieldSpec(
+      'chosen_product_id',
+      '定选物料',
+      Kind.ref,
+      '',
+      target: 'product',
+    ),
+    const FieldSpec(
+      'chosen_snapshot',
+      '定选快照',
+      Kind.object,
+      '逐条响应 rows:[{n,response,outcome,note}]',
+    ),
+    _notes,
+  ]),
 ];
 
 /// Object types by name, in [entityTypes] order.
