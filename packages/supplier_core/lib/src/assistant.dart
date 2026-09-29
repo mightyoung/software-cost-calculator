@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'agent_tools.dart';
@@ -71,7 +70,7 @@ extension Assistant on Store {
     void Function(String tool)? onTool,
     List<AssistantTurn> history = const [],
     AssistantCancellation? cancellation,
-    Duration timeout = const Duration(minutes: 3),
+    Duration? timeout,
   }) async => (await askWithEvidence(
     llm,
     question,
@@ -90,18 +89,30 @@ extension Assistant on Store {
     void Function(AssistantObservation observation)? onObservation,
     List<AssistantTurn> history = const [],
     AssistantCancellation? cancellation,
-    Duration timeout = const Duration(minutes: 3),
+    Duration? timeout,
   }) async {
     llm = llm.forTask(
       AiTask.conversation,
       cancellation: cancellation,
-      limits: AiLimits(timeout: timeout, maxCalls: maxToolRounds + 1),
+      limits: AiLimits(
+        timeout: timeout,
+        callTimeout: llm.config.timeout,
+        maxCalls: maxToolRounds + 1,
+      ),
     );
     question = question.trim();
     if (question.isEmpty || question.length > maxAssistantQuestionChars) {
       throw LlmException('请输入 1–$maxAssistantQuestionChars 字的问题');
     }
     final watch = Stopwatch()..start();
+    void checkDeadline() {
+      llm.run!.check();
+      if (timeout != null && watch.elapsed >= timeout) {
+        llm.run!.cancellation.cancel('查询超时，请缩小问题范围');
+        llm.run!.check();
+      }
+    }
+
     final recent = <AssistantTurn>[];
     var historyChars = 0;
     for (final turn in history.reversed.take(6)) {
@@ -121,8 +132,7 @@ extension Assistant on Store {
     final observations = <AssistantObservation>[];
     for (var round = 0; round <= maxToolRounds; round++) {
       cancellation?.check();
-      final remaining = timeout - watch.elapsed;
-      if (remaining <= Duration.zero) throw LlmException('查询超时，请缩小问题范围');
+      checkDeadline();
       // Reserve a final synthesis after the tool rounds, without offering tools.
       final finishing = round == maxToolRounds;
       if (finishing) {
@@ -134,13 +144,22 @@ extension Assistant on Store {
       if (jsonEncode(messages).length > maxAssistantContextChars) {
         throw LlmException('查询上下文过大，请按项目或物料缩小范围');
       }
-      final pending = llm
-          .complete(messages, tools: finishing ? null : agentTools)
-          .timeout(
-            remaining,
-            onTimeout: () => throw LlmException('查询超时，请缩小问题范围'),
-          );
-      final message = await (cancellation?.wait(pending) ?? pending);
+      final pending = llm.complete(
+        messages,
+        tools: finishing ? null : agentTools,
+      );
+      // A caller-supplied deadline also applies to an already scoped client;
+      // forTask deliberately preserves the existing run and its stricter policy.
+      final bounded = timeout == null
+          ? pending
+          : pending.timeout(
+              timeout - watch.elapsed,
+              onTimeout: () {
+                llm.run!.cancellation.cancel('查询超时，请缩小问题范围');
+                throw LlmException('查询超时，请缩小问题范围');
+              },
+            );
+      final message = await (cancellation?.wait(bounded) ?? bounded);
       cancellation?.check();
       messages.add(message);
       final calls = message['tool_calls'];
@@ -180,7 +199,7 @@ extension Assistant on Store {
       }
       for (final call in calls.cast<Map>()) {
         cancellation?.check();
-        if (watch.elapsed >= timeout) throw LlmException('查询超时，请缩小问题范围');
+        checkDeadline();
         toolCount++;
         final function = call['function'] as Map;
         final name = function['name'] as String;

@@ -19,6 +19,78 @@ void main() {
   setUp(() => tmp = Directory.systemTemp.createTempSync('ai_runtime'));
   tearDown(() => tmp.deleteSync(recursive: true));
 
+  test('default runs have call deadlines, not a cumulative deadline', () {
+    expect(const AiLimits().timeout, isNull);
+  });
+
+  test('legal multi-chunk imports reserve every JSON repair attempt', () async {
+    final s = device('A');
+    addTearDown(s.close);
+    // Newlines near the start of each window can create more than 12 chunks
+    // even within the supported 60000-character input.
+    final source = 'a\n' + ('b' * 6001 + '\n') * 9;
+    final chunks = chunkText(source).length;
+    expect(chunks, greaterThan(12));
+    var calls = 0;
+    final llm = LlmClient(
+      const LlmConfig(apiKey: 'test'),
+      transport: (_) async =>
+          response(++calls % 2 == 1 ? {'offers': 'invalid'} : {'offers': []}),
+    );
+    expect(await s.extractOffers(llm, source), isEmpty);
+    expect(calls, chunks * 2);
+  });
+
+  test('list planning reserves extraction plus matching repairs', () async {
+    final s = device('A');
+    addTearDown(s.close);
+    s.save('product', product('水泵'));
+    var calls = 0;
+    final llm = LlmClient(
+      const LlmConfig(apiKey: 'test'),
+      transport: (_) async {
+        calls++;
+        if (calls.isOdd) return response({'invalid': true});
+        if (calls == 2) {
+          return response({
+            'items': List.generate(200, (_) => {'name': '水泵'}),
+          });
+        }
+        return response({'matches': []});
+      },
+    );
+    expect(await s.proposeFromList(llm, '水泵清单'), hasLength(200));
+    expect(calls, 30); // one extraction + fourteen matching steps, twice each
+  });
+
+  test(
+    'each call gets a fresh deadline while cancellation still closes it',
+    () async {
+      final run = AiRun(
+        AiTask.offerExtraction,
+        limits: const AiLimits(callTimeout: Duration(milliseconds: 200)),
+      );
+      for (var i = 0; i < 3; i++) {
+        expect(
+          await run.call(() async {
+            await Future<void>.delayed(const Duration(milliseconds: 90));
+            return i;
+          }, requestChars: 1),
+          i,
+        );
+      }
+      var aborted = false;
+      run.cancellation.onCancel(() => aborted = true);
+      final pending = Completer<int>();
+      await expectLater(
+        run.call(() => pending.future, requestChars: 1),
+        throwsA(isA<LlmException>()),
+      );
+      expect(aborted, isTrue);
+      pending.complete(4);
+    },
+  );
+
   test('metadata observer failure cannot fail a valid response', () async {
     final run = AiRun(
       AiTask.clauseReading,
@@ -40,6 +112,27 @@ void main() {
       same(client),
     );
   });
+
+  test(
+    'explicit assistant deadline also applies to a pre-scoped client',
+    () async {
+      final s = device('A');
+      addTearDown(s.close);
+      final run = AiRun(AiTask.conversation);
+      final pending = Completer<Map<String, Object?>>();
+      final llm = LlmClient(
+        const LlmConfig(apiKey: 'test'),
+        run: run,
+        transport: (_) => pending.future,
+      );
+      await expectLater(
+        s.ask(llm, '查询', timeout: const Duration(milliseconds: 20)),
+        throwsA(isA<LlmException>()),
+      );
+      expect(run.cancellation.isCancelled, isTrue);
+      pending.complete(response({}));
+    },
+  );
 
   test('JSON retries consume the shared run budget', () async {
     final s = device('A');

@@ -52,12 +52,22 @@ class AiCancellation {
 class AiLimits {
   const AiLimits({
     this.maxCalls = 24,
-    this.timeout = const Duration(minutes: 3),
+    this.timeout,
+    this.callTimeout = const Duration(seconds: 120),
     this.maxRequestChars = 100000,
     this.maxResponseChars = 128000,
   });
+
+  /// A finite JSON workflow allows one repair per planned step. Time spent on
+  /// earlier successful steps must not consume the next step's request timeout.
+  factory AiLimits.jsonWorkflow(int steps, {required Duration callTimeout}) =>
+      AiLimits(maxCalls: steps * 2, callTimeout: callTimeout);
+
   final int maxCalls, maxRequestChars, maxResponseChars;
-  final Duration timeout;
+
+  /// Optional caller policy, never an implicit three-minute task deadline.
+  final Duration? timeout;
+  final Duration callTimeout;
 }
 
 /// Local metadata only: excludes prompts, outputs, API keys and hidden reasoning.
@@ -92,7 +102,7 @@ class AiRun {
 
   void check() {
     cancellation.check();
-    if (_watch.elapsed >= limits.timeout) {
+    if (limits.timeout != null && _watch.elapsed >= limits.timeout!) {
       cancellation.cancel('AI 任务超时，请分批处理或缩小范围');
       cancellation.check();
     }
@@ -108,14 +118,21 @@ class AiRun {
       throw LlmException('AI 请求过大，请缩小范围');
     final number = ++calls;
     final watch = Stopwatch()..start();
+    final remaining = limits.timeout == null
+        ? limits.callTimeout
+        : limits.timeout! - _watch.elapsed;
+    final callTimeout = remaining < limits.callTimeout
+        ? remaining
+        : limits.callTimeout;
     var received = false;
     try {
       final result = await cancellation.wait(
         send().timeout(
-          limits.timeout - _watch.elapsed,
+          callTimeout,
           onTimeout: () {
-            cancellation.cancel('AI 任务超时，请分批处理或缩小范围');
-            throw LlmException('AI 任务超时，请分批处理或缩小范围');
+            cancellation.cancel('AI 请求超时，请检查连接或重试');
+            cancellation.check();
+            throw LlmException('AI 请求超时');
           },
         ),
       );

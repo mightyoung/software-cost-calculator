@@ -32,7 +32,7 @@ class LlmClient {
   LlmClient forTask(
     AiTask task, {
     AiCancellation? cancellation,
-    AiLimits limits = const AiLimits(),
+    AiLimits? limits,
   }) {
     if (run != null) {
       if (cancellation != null && !identical(cancellation, run!.cancellation)) {
@@ -43,7 +43,11 @@ class LlmClient {
     return LlmClient(
       config,
       transport: _transport,
-      run: AiRun(task, cancellation: cancellation, limits: limits),
+      run: AiRun(
+        task,
+        cancellation: cancellation,
+        limits: limits ?? AiLimits(callTimeout: config.timeout),
+      ),
     );
   }
 

@@ -104,8 +104,15 @@ extension MaterialImport on Store {
     AiCancellation? cancellation,
   }) async {
     AiRun.validateInput(text);
-    llm = llm.forTask(AiTask.offerExtraction, cancellation: cancellation);
     final chunks = chunkText(text).toList();
+    llm = llm.forTask(
+      AiTask.offerExtraction,
+      cancellation: cancellation,
+      limits: AiLimits.jsonWorkflow(
+        chunks.length,
+        callTimeout: llm.config.timeout,
+      ),
+    );
     final offers = <Offer>[];
     for (var i = 0; i < chunks.length; i++) {
       onProgress?.call(i, chunks.length);

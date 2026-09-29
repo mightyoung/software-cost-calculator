@@ -75,9 +75,18 @@ extension ListImport on Store {
     AiCancellation? cancellation,
   }) async {
     AiRun.validateInput(text);
-    llm = llm.forTask(AiTask.listProposal, cancellation: cancellation);
     final items = <RequestedItem>[];
     final chunks = chunkText(text).toList();
+    llm = llm.forTask(
+      AiTask.listProposal,
+      cancellation: cancellation,
+      // At most 200 accepted items, matched in batches of 15. Reserve repairs
+      // for extraction and matching, rather than sharing an arbitrary 24 calls.
+      limits: AiLimits.jsonWorkflow(
+        chunks.length + (200 + _matchBatch - 1) ~/ _matchBatch,
+        callTimeout: llm.config.timeout,
+      ),
+    );
     for (var i = 0; i < chunks.length; i++) {
       onProgress?.call(ListStage.structuring, i, chunks.length);
       final rows = await llm.records(
