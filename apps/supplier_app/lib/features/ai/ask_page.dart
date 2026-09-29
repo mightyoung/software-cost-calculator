@@ -15,9 +15,11 @@ const _examples = [
 ];
 
 class _Message {
-  _Message(this.fromUser, this.text, {this.error = false});
+  _Message(this.fromUser, this.text, {this.error = false, this.evidence});
   final bool fromUser, error;
   final String text;
+  // Evidence belongs only to this page session, never to saved history.
+  final AssistantAnswer? evidence;
 }
 
 /// Questions about local data, answered through read-only tool calls.
@@ -81,6 +83,25 @@ class _AskPageState extends State<AskPage> {
     ]),
   );
 
+  void _trimMessages() {
+    if (messages.length > 100) {
+      // Drop whole question/answer pairs, including while a reply is pending.
+      final excess = messages.length - 100;
+      messages.removeRange(0, excess.isEven ? excess : excess + 1);
+    }
+    var retained = 0;
+    for (var i = messages.length - 1; i >= 0; i--) {
+      final message = messages[i];
+      if (message.evidence != null && ++retained > 6) {
+        messages[i] = _Message(
+          message.fromUser,
+          message.text,
+          error: message.error,
+        );
+      }
+    }
+  }
+
   @override
   void dispose() {
     _cancellation?.cancel();
@@ -108,6 +129,7 @@ class _AskPageState extends State<AskPage> {
     input.clear();
     setState(() {
       messages.add(_Message(true, question));
+      _trimMessages();
       busy = true;
       activity = null;
     });
@@ -123,7 +145,7 @@ class _AskPageState extends State<AskPage> {
           error: true,
         );
       } else {
-        final answer = await widget.state.store.ask(
+        final answer = await widget.state.store.askWithEvidence(
           llm,
           question,
           history: history,
@@ -132,7 +154,11 @@ class _AskPageState extends State<AskPage> {
             if (mounted) setState(() => activity = toolActivity[tool]);
           },
         );
-        reply = _Message(false, answer.isEmpty ? '没有得到回答，换个问法再试。' : answer);
+        reply = _Message(
+          false,
+          answer.text.isEmpty ? '没有得到回答，换个问法再试。' : answer.text,
+          evidence: answer,
+        );
       }
     } on LlmException catch (e) {
       reply = _Message(false, e.message, error: true);
@@ -142,6 +168,7 @@ class _AskPageState extends State<AskPage> {
     if (!mounted) return;
     setState(() {
       messages.add(reply);
+      _trimMessages();
       busy = false;
       _cancellation = null;
     });
@@ -305,36 +332,75 @@ class _AskPageState extends State<AskPage> {
             : (m.error ? Tokens.redBg : Tokens.canvas),
         borderRadius: BorderRadius.circular(Tokens.radius),
       ),
-      child: Text.rich(
-        TextSpan(
-          children: m.fromUser || m.error
-              ? [TextSpan(text: m.text)]
-              : _answerSpans(m.text),
-        ),
-        style: TextStyle(
-          height: 1.6,
-          color: m.error
-              ? Tokens.red
-              : (m.fromUser ? Tokens.accentDeep : Tokens.ink),
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text.rich(
+            TextSpan(
+              children: m.fromUser || m.error
+                  ? [TextSpan(text: m.text)]
+                  : _answerSpans(
+                      m.text,
+                      verifiedReferences: m.evidence == null
+                          ? null
+                          : {
+                              for (final ref in recordRef.allMatches(
+                                m.evidence!.text,
+                              ))
+                                '${ref[1]}:${ref[2]}': ref[3]!,
+                            },
+                    ),
+            ),
+            style: TextStyle(
+              height: 1.6,
+              color: m.error
+                  ? Tokens.red
+                  : (m.fromUser ? Tokens.accentDeep : Tokens.ink),
+            ),
+          ),
+          if (!m.fromUser && !m.error)
+            if (m.evidence case final evidence?)
+              _evidenceView(evidence)
+            else
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  '历史回答，未保留查询依据',
+                  style: TextStyle(color: Tokens.ink3),
+                ),
+              ),
+        ],
       ),
     ),
   );
 
   /// Answer text with each `[[type:id|name]]` shown as a record chip that
   /// opens the record; stray ids the model still wrote are dropped.
-  List<InlineSpan> _answerSpans(String text) {
+  List<InlineSpan> _answerSpans(
+    String text, {
+    required Map<String, String>? verifiedReferences,
+  }) {
     final spans = <InlineSpan>[];
     var at = 0;
     final clean = tidyAnswer(text);
     for (final m in recordRef.allMatches(clean)) {
       spans.add(TextSpan(text: clean.substring(at, m.start)));
       final (type, id, name) = (m[1]!, m[2]!, m[3]!);
+      // Display cleanup must never promote a malformed mark into a verified link.
+      final verifiedName = verifiedReferences?['$type:$id'];
+      if (verifiedName == null) {
+        spans.add(
+          TextSpan(text: verifiedReferences == null ? name : '$name（未核验）'),
+        );
+        at = m.end;
+        continue;
+      }
       spans.add(
         WidgetSpan(
           alignment: PlaceholderAlignment.middle,
           child: _RecordChip(
-            name: name,
+            name: verifiedName,
             onTap: () => openRecord(context, widget.state, type, id),
           ),
         ),
@@ -344,6 +410,53 @@ class _AskPageState extends State<AskPage> {
     spans.add(TextSpan(text: clean.substring(at)));
     return spans;
   }
+
+  Widget _evidenceView(AssistantAnswer evidence) => Material(
+    color: Colors.transparent,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final warning in evidence.warnings)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(warning, style: TextStyle(color: Tokens.ink2)),
+          ),
+        ExpansionTile(
+          tilePadding: EdgeInsets.zero,
+          title: Text('查询依据（${evidence.observations.length} 次）'),
+          children: [
+            const Text('引用核验仅表示记录在本次查询中出现，不等于结论正确。请核对下方原始结果；多次查询可能发生在不同时间点。'),
+            for (final observation in evidence.observations)
+              ExpansionTile(
+                title: Text(toolActivity[observation.tool] ?? observation.tool),
+                subtitle: Text(
+                  '第 ${observation.round} 轮${observation.failed ? ' · 查询失败' : ''}',
+                ),
+                children: [
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('查询参数'),
+                  ),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: SelectableText(observation.arguments),
+                  ),
+                  const SizedBox(height: 8),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('发送给 AI 的实际结果'),
+                  ),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: SelectableText(observation.result),
+                  ),
+                ],
+              ),
+          ],
+        ),
+      ],
+    ),
+  );
 }
 
 final _uuid = RegExp(
@@ -353,7 +466,9 @@ final _uuid = RegExp(
 /// Drops ids written outside record marks: "（ID 1f…）", "id：`1f…`".
 String tidyAnswer(String text) {
   final marks = <String>[];
-  final protected = text.replaceAllMapped(recordRef, (m) {
+  final protected = text.replaceAll('\u0000', '').replaceAllMapped(recordRef, (
+    m,
+  ) {
     marks.add(m[0]!);
     return '\u0000${marks.length - 1}\u0000';
   });
