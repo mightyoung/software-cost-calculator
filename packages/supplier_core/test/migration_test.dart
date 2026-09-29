@@ -65,6 +65,40 @@ void main() {
     upgraded.close();
   });
 
+  test('schema 10 requirements move from notes into their own field', () {
+    expect(splitLegacyRequirement('要求：DN100，远传；清单单位：套'), (
+      'DN100，远传',
+      '清单单位：套',
+    ));
+    expect(splitLegacyRequirement('要求：IP65；数量待确认，清单原文：若干'), (
+      'IP65',
+      '数量待确认，清单原文：若干',
+    ));
+    expect(splitLegacyRequirement('要求：A；B'), ('A；B', null));
+    expect(splitLegacyRequirement('现场自提'), (null, '现场自提'));
+
+    final a = device('A');
+    final pro = a.save('project', project('P1'));
+    final line = a.save('project_item', {
+      ...item(pro, 'material', name: '流量计'),
+      'requirement': 'DN100，远传 4-20mA',
+      'notes': '清单单位：套',
+    });
+    final path = exported(a);
+    final db = sqlite3.open(path);
+    db.execute(
+      "UPDATE project_item SET data = json_set(json_remove(data, '\$.requirement'), "
+      "'\$.notes', '要求：DN100，远传 4-20mA；清单单位：套')",
+    );
+    db.execute("UPDATE meta SET value = '10' WHERE key = 'schema_version'");
+    db.close();
+    final b = device('B');
+    b.importFrom(path);
+    final d = b.get('project_item', line)!.data;
+    expect(d['requirement'], 'DN100，远传 4-20mA');
+    expect(d['notes'], '清单单位：套');
+  });
+
   test('an older exchange file imports; the file itself is untouched', () {
     final a = seeded();
     final old = downgradeToV1(exported(a));

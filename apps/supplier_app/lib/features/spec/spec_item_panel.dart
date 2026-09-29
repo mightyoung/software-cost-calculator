@@ -69,7 +69,7 @@ class SpecItemPanel extends StatelessWidget {
               initialValue: cls,
               isExpanded: true,
               decoration: const InputDecoration(
-                labelText: '设备类别（参数模板）',
+                labelText: '设备类别',
                 helperText: '改类别后，未核对的条款会按新类别重新识别',
               ),
               items: [

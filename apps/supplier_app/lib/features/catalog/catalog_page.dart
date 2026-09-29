@@ -38,7 +38,7 @@ const _fields = <String, List<_Field>>{
     ('unit', '单位', '台 / 个 / 米 / 项'),
     ('brand', '品牌', null),
     ('model', '型号', '例如 IS80-65-160'),
-    ('specification', '规格参数', '例如 流量 100m³/h 扬程 32m 304 不锈钢'),
+    ('specification', '规格说明', '例如 流量 100m³/h 扬程 32m 304 不锈钢'),
     ('category', '类别', null),
     ('notes', '备注', null),
   ],
@@ -172,7 +172,7 @@ class _CatalogPageState extends State<CatalogPage> {
               OutlinedButton.icon(
                 onPressed: () => showParamView(context, widget.state),
                 icon: const AppIcon(Icons.table_rows_outlined, size: 18),
-                label: const Text('参数视图'),
+                label: const Text('物料参数表'),
               ),
               const SizedBox(width: 8),
               OutlinedButton.icon(

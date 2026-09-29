@@ -167,4 +167,59 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('switching data center tabs keeps the graph view alive', (
+    tester,
+  ) async {
+    final dir = Directory.systemTemp.createTempSync('ontology_keep');
+    final store = Store.open('${dir.path}/test.db', device: 'test');
+    final state = AppState.test(store, dir);
+    addTearDown(() {
+      store.close();
+      dir.deleteSync(recursive: true);
+    });
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    var created = 0;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildTheme(),
+        home: Scaffold(
+          body: DataCenterPage(
+            state: state,
+            ontologyViewBuilder: (context, config) =>
+                _CountingView(onCreate: () => created++),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(created, 1);
+    await tester.tap(find.text('数据质量'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('数据模型'));
+    await tester.pumpAndSettle();
+    expect(created, 1, reason: 'the web view is not rebuilt');
+    await tester.pumpWidget(const SizedBox());
+  });
+}
+
+class _CountingView extends StatefulWidget {
+  const _CountingView({required this.onCreate});
+  final VoidCallback onCreate;
+
+  @override
+  State<_CountingView> createState() => _CountingViewState();
+}
+
+class _CountingViewState extends State<_CountingView> {
+  @override
+  void initState() {
+    super.initState();
+    widget.onCreate();
+  }
+
+  @override
+  Widget build(BuildContext context) => const SizedBox.expand();
 }

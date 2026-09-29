@@ -203,7 +203,6 @@ extension ListImport on Store {
           : get('product', line.productId!);
       final (qty, qtyNote) = parseQty(line.item.qty);
       final notes = [
-        if (line.item.requirements != null) '要求：${line.item.requirements}',
         ?qtyNote,
         if (product != null &&
             line.item.unit != null &&
@@ -220,6 +219,7 @@ extension ListImport on Store {
         'quotation_id': product == null ? null : line.quote?.id,
         'unit_cost': product == null ? '0' : line.quote?.price ?? '0',
         'unit_price': null,
+        'requirement': _text(line.item.requirements, 2000),
         'notes': notes.isEmpty ? null : clipText(notes, 2000),
       });
     }

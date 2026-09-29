@@ -58,6 +58,8 @@ void main() {
       'unknown_tax_mode': 1,
       'undated_quotes': 1,
       'needs_inquiry': 1,
+      'spec_clauses_unreviewed': 0,
+      'spec_items_unchosen': 0,
       'products_never_quoted': 2,
       'products_unclassified': 0,
       'products_missing_key_params': 0,
@@ -80,5 +82,21 @@ void main() {
       'spec_response': 0,
     });
     expect(agentGuide(), contains('data_quality('));
+  });
+
+  test('technical requirements: unchecked clauses and unchosen items', () {
+    final s = device('A');
+    Map<String, int> issues() => {
+      for (final c in s.dataQuality())
+        if (c.area == QualityArea.requirements) c.key: c.count,
+    };
+    final req = s.createSpecRequest('泵房', [
+      draftItem('温湿度传感器', '测量范围-20~80℃；防护等级不低于IP65'),
+    ]);
+    expect(issues()['spec_clauses_unreviewed'], 2);
+    expect(issues()['spec_items_unchosen'], 1);
+    s.deleteSpecRequest(req);
+    expect(issues()['spec_clauses_unreviewed'], 0);
+    expect(issues()['spec_items_unchosen'], 0);
   });
 }

@@ -196,10 +196,10 @@
           },
           {
             "name": "specification",
-            "label": "规格/技术要求",
+            "label": "规格说明",
             "kind": "文本",
             "required": false,
-            "description": "自由文本，最长 1000 字",
+            "description": "物料自身的规格文字，最长 1000 字；项目提出的要求写在预算行的技术要求或技术要求文件里",
             "values": null,
             "target": null
           },
@@ -751,7 +751,7 @@
       "data": {
         "label": "预算行",
         "description": "项目成本预算的一行",
-        "fieldCount": 10,
+        "fieldCount": 11,
         "fields": [
           {
             "name": "project_id",
@@ -837,6 +837,15 @@
             "kind": "十进制文本",
             "required": false,
             "description": "为空时按项目加价率计算",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "requirement",
+            "label": "技术要求",
+            "kind": "文本",
+            "required": false,
+            "description": "项目对这一行提出的要求原文（来自清单或技术要求文件），最长 2000 字；不是物料参数",
             "values": null,
             "target": null
           },
@@ -1116,10 +1125,10 @@
           },
           {
             "name": "spec_class",
-            "label": "参数模板",
+            "label": "设备类别",
             "kind": "文本",
             "required": false,
-            "description": "类别代码",
+            "description": "参数字典的类别代码；决定条款能按哪些参数读成条件",
             "values": null,
             "target": null
           },

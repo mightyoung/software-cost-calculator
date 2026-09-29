@@ -190,7 +190,8 @@ void main() {
       final pro = s.save('project', project('P1'));
       final line = s.save('project_item', {
         ...item(pro, 'material', name: '工控机', qty: '5'),
-        'notes': '要求：CPU：八核及以上；内存：DDR4 16GB；清单单位：套',
+        'requirement': 'CPU：八核及以上；内存：DDR4 16GB',
+        'notes': '清单单位：套',
       });
       final p = s.save('product', product('IPC-610', unit: '件'));
       s.save('project_item', item(pro, 'material', productId: p));

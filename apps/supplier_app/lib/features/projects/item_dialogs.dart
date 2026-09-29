@@ -298,6 +298,7 @@ class _ItemEditorState extends State<_ItemEditor> {
       'unit',
       'unit_cost',
       'unit_price',
+      'requirement',
       'notes',
     ]) {
       c[k] = TextEditingController(text: data[k] as String? ?? '');
@@ -336,13 +337,17 @@ class _ItemEditorState extends State<_ItemEditor> {
       ? '有效期待确认'
       : '有效至 ${o.data['valid_until']}';
 
+  static const _numeric = {'qty', 'unit_cost', 'unit_price'};
+
   void _save() {
     final payload = {
       ...data,
       for (final e in c.entries)
         e.key: e.value.text.trim().isEmpty
             ? null
-            : e.value.text.trim().replaceAll(',', ''),
+            : _numeric.contains(e.key)
+            ? e.value.text.trim().replaceAll(',', '')
+            : e.value.text.trim(),
     };
     if (payload['product_id'] != null) payload['name'] = null;
     payload['unit_cost'] ??= '0';
@@ -381,10 +386,13 @@ class _ItemEditorState extends State<_ItemEditor> {
       String label, {
       String? hint,
       bool number = false,
+      bool multiline = false,
       ValueChanged<String>? onChanged,
     }) => TextField(
       controller: c[key],
       decoration: InputDecoration(labelText: label, hintText: hint),
+      minLines: 1,
+      maxLines: multiline ? 4 : 1,
       keyboardType: number
           ? const TextInputType.numberWithOptions(decimal: true)
           : null,
@@ -502,6 +510,15 @@ class _ItemEditorState extends State<_ItemEditor> {
                   ],
                 ),
                 const SizedBox(height: 12),
+                if ((data['category'] ?? widget.category) == 'material') ...[
+                  field(
+                    'requirement',
+                    '技术要求',
+                    hint: '项目对这一行的要求，如 DN100，远传 4-20mA',
+                    multiline: true,
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 field('notes', '备注'),
                 if (error != null) ...[
                   const SizedBox(height: 12),

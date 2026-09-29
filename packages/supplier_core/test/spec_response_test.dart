@@ -32,7 +32,8 @@ void main() {
       item.data['project_item_id']! as String,
     )!;
     expect(line.data['qty'], '25');
-    expect(line.data['notes'], startsWith('要求：（1）测量范围'));
+    expect(line.data['requirement'], startsWith('（1）测量范围'));
+    expect(line.data['notes'], isNull);
 
     final inq = s.createInquiry(
       pro,
