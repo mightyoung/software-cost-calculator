@@ -100,7 +100,7 @@ class AppState extends ChangeNotifier {
       final v = await _secure.read(key: _passName);
       return v == null || v.isEmpty ? null : v;
     } catch (_) {
-      return null; // unavailable secure storage = no passphrase set
+      throw const FormatException('无法读取系统安全存储中的交换口令；请恢复安全存储后重试');
     }
   }
 
@@ -214,11 +214,16 @@ class AppState extends ChangeNotifier {
         '${temp.path}/push-${DateTime.now().microsecondsSinceEpoch}.siq';
     try {
       final passphrase = await exchangePassphrase();
+      if (passphrase == null) return '请先在交换页面设置交换口令，再发送局域网推送';
       await store.inBackground(_shareJob(path, chosen, passphrase));
       await node.push(to, path);
       return null;
     } on LanException catch (e) {
       return e.message;
+    } on FormatException catch (e) {
+      return e.message;
+    } catch (e) {
+      return '发送失败：$e';
     } finally {
       final f = File(path);
       if (f.existsSync()) f.deleteSync();

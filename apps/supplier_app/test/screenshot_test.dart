@@ -449,6 +449,12 @@ void _conflict(Store store, Directory dir) {
 
 void main() {
   final hasFont = File(_font).existsSync();
+  TestWidgetsFlutterBinding.ensureInitialized();
+  const storage = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+  tearDown(
+    () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(storage, null),
+  );
 
   setUpAll(() async {
     if (!hasFont) return;
@@ -818,6 +824,8 @@ void main() {
   testWidgets(
     'desktop exchange with shared folder and update notice',
     (t) => shoot(t, const Size(1280, 860), 'desktop_exchange', () async {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(storage, (_) async => null);
       final state = t.widget<Shell>(find.byType(Shell)).state;
       final shared = Directory('${Directory.systemTemp.path}/siq-shot-shared');
       if (shared.existsSync()) shared.deleteSync(recursive: true);

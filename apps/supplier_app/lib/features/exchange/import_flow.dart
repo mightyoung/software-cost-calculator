@@ -42,8 +42,15 @@ Future<String?> _plain(
   Directory temp,
 ) async {
   if (!isEncryptedExchange(path)) return path;
-  var passphrase = await state.exchangePassphrase();
+  String? passphrase;
   String? problem;
+  try {
+    passphrase = await state.exchangePassphrase();
+  } on FormatException catch (e) {
+    // A manually entered password is used only for this import. Outbound
+    // operations still stop when secure storage cannot be read.
+    problem = '${e.message}。也可输入此文件的口令，仅用于本次导入，不保存。';
+  }
   while (true) {
     if (passphrase == null) {
       if (!context.mounted) return null;
@@ -56,9 +63,16 @@ Future<String?> _plain(
     }
     try {
       return await decryptExchange(path, passphrase, temp);
-    } on FormatException {
+    } on ExchangeAuthenticationException {
       problem = '口令不对，或文件已损坏。请重新输入。';
       passphrase = null;
+    } on FormatException catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(friendlyError(e.message))));
+      }
+      return null;
     }
   }
 }
@@ -75,8 +89,9 @@ Future<({bool done, String? message})> reviewAndImport(
 }) async {
   final temp = Directory('${state.dataDir.path}/tmp');
   final plain = await _plain(context, state, path, temp);
-  if (plain == null || !context.mounted) return (done: false, message: null);
+  if (plain == null) return (done: false, message: null);
   try {
+    if (!context.mounted) return (done: false, message: null);
     final Map<String, TableImport> preview;
     try {
       onBusy?.call(true);
@@ -119,8 +134,9 @@ Future<({bool done, String? message})> reviewAndRestore(
 }) async {
   final temp = Directory('${state.dataDir.path}/tmp');
   final plain = await _plain(context, state, path, temp);
-  if (plain == null || !context.mounted) return (done: false, message: null);
+  if (plain == null) return (done: false, message: null);
   try {
+    if (!context.mounted) return (done: false, message: null);
     final Map<String, int> counts;
     try {
       onBusy?.call(true);

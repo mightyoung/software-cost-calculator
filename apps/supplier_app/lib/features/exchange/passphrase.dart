@@ -111,6 +111,7 @@ class PassphraseRow extends StatefulWidget {
 
 class _PassphraseRowState extends State<PassphraseRow> {
   bool? isSet;
+  String? loadError;
 
   @override
   void initState() {
@@ -119,8 +120,22 @@ class _PassphraseRowState extends State<PassphraseRow> {
   }
 
   Future<void> _load() async {
-    final v = await widget.state.exchangePassphrase();
-    if (mounted) setState(() => isSet = v != null);
+    try {
+      final v = await widget.state.exchangePassphrase();
+      if (mounted) {
+        setState(() {
+          isSet = v != null;
+          loadError = null;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          isSet = null;
+          loadError = '$e';
+        });
+      }
+    }
   }
 
   Future<void> _set() async {
@@ -131,13 +146,21 @@ class _PassphraseRowState extends State<PassphraseRow> {
       confirm: true,
     );
     if (v == null) return;
-    await widget.state.saveExchangePassphrase(v);
-    await _load();
+    try {
+      await widget.state.saveExchangePassphrase(v);
+      await _load();
+    } catch (e) {
+      if (mounted) setState(() => loadError = '$e');
+    }
   }
 
   Future<void> _clear() async {
-    await widget.state.saveExchangePassphrase(null);
-    await _load();
+    try {
+      await widget.state.saveExchangePassphrase(null);
+      await _load();
+    } catch (e) {
+      if (mounted) setState(() => loadError = '$e');
+    }
   }
 
   @override
@@ -160,7 +183,12 @@ class _PassphraseRowState extends State<PassphraseRow> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                isSet == true ? '交换口令：已设置' : '交换口令：未设置',
+                loadError ??
+                    (isSet == null
+                        ? '正在读取交换口令…'
+                        : isSet == true
+                        ? '交换口令：已设置'
+                        : '交换口令：未设置'),
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               Text(

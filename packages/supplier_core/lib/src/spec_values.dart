@@ -100,8 +100,12 @@ Map<String, Object?> normalizeParamValue(SpecProperty p, Object? raw) {
             if (m is Map &&
                 m['group'] is String &&
                 exGroupRank(m['group'] as String) != null &&
-                (m['temp'] == null || exMaxTemp('${m['temp']}') != null) &&
-                (m['epl'] == null || exEplRank('${m['epl']}') != null))
+                (m['temp'] == null ||
+                    (m['temp'] is String &&
+                        exMaxTemp(m['temp'] as String) != null)) &&
+                (m['epl'] == null ||
+                    (m['epl'] is String &&
+                        exEplRank(m['epl'] as String) != null)))
               ExMark.fromJson(m.cast<String, Object?>()).toJson()
             else
               invalid('value.marks', 'not an explosion-protection marking'),

@@ -37,8 +37,8 @@ extension FolderSyncing on Store {
   // size); switch to per-device change files if the folder gets too large.
   ///
   /// With [passphrase], this device's file is written encrypted and
-  /// encrypted files of others are decrypted; unencrypted files are still
-  /// read, so devices can switch over one by one.
+  /// encrypted files of others are decrypted. Plain files are rejected in
+  /// this mode; legacy files can still be imported manually after review.
   Future<FolderSync> syncWithFolder(
     String dir, {
     required String ownName,
@@ -70,6 +70,10 @@ extension FolderSyncing on Store {
           }
           importFrom(await decryptExchange(f.path, passphrase, temp));
         } else {
+          if (passphrase != null) {
+            failed[name] = '已启用交换口令，自动同步不接受未加密文件；可手动预览导入';
+            continue;
+          }
           importFrom(f.path);
         }
         imported.add(name);

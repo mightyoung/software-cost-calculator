@@ -210,7 +210,12 @@ class _LanPushPageState extends State<LanPushPage> {
                     hint: Text(peers.isEmpty ? '附近没有设备' : '选择接收设备'),
                     items: [
                       for (final p in peers)
-                        DropdownMenuItem(value: p, child: Text(p.name)),
+                        DropdownMenuItem(
+                          value: p,
+                          child: Text(
+                            '${p.name} · ${p.address}:${p.port}（身份未验证）',
+                          ),
+                        ),
                     ],
                     onChanged: (p) => setState(() => target = p),
                   ),

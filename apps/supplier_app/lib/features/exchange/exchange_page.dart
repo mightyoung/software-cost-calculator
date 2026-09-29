@@ -56,32 +56,40 @@ class _ExchangePageState extends State<ExchangePage> {
           passphrase == null ? '交换文件已导出，可发送给其他设备' : '已导出加密的交换文件，对方需要设置同一个交换口令',
         );
       }
+    } catch (e) {
+      if (mounted) toast(context, '导出失败：$e');
     } finally {
       if (mounted) setState(() => busy = false);
     }
   }
 
   Future<void> _import() async {
-    final picked = await pickToTemp(['siq'], temp);
-    if (picked == null || !mounted) return;
+    String? picked;
     try {
+      picked = await pickToTemp(['siq'], temp);
+      if (picked == null || !mounted) return;
       final r = await reviewAndImport(
         context,
         state,
         picked,
-        onBusy: (b) => setState(() => busy = b),
+        onBusy: (b) {
+          if (mounted) setState(() => busy = b);
+        },
       );
       if (r.message != null && mounted) toast(context, r.message!);
+    } catch (e) {
+      if (mounted) toast(context, '导入失败：$e');
     } finally {
-      File(picked).deleteSync();
+      if (picked != null) File(picked).parent.deleteSync(recursive: true);
       if (mounted) setState(() => busy = false);
     }
   }
 
   Future<void> _restore() async {
-    final picked = await pickToTemp(['siq'], temp);
-    if (picked == null || !mounted) return;
+    String? picked;
     try {
+      picked = await pickToTemp(['siq'], temp);
+      if (picked == null || !mounted) return;
       final r = await reviewAndRestore(
         context,
         state,
@@ -91,8 +99,10 @@ class _ExchangePageState extends State<ExchangePage> {
         },
       );
       if (r.message != null && mounted) toast(context, r.message!);
+    } catch (e) {
+      if (mounted) toast(context, '恢复失败：$e');
     } finally {
-      File(picked).deleteSync();
+      if (picked != null) File(picked).parent.deleteSync(recursive: true);
       if (mounted) setState(() => busy = false);
     }
   }

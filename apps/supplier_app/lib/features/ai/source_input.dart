@@ -37,9 +37,9 @@ class SourceInput extends StatelessWidget {
   final VoidCallback onStart, onCancel;
   final Widget? extra;
 
-  Future<void> _pickExcel() async {
-    final file = await pickBytes(['xlsx']);
-    if (file == null) return;
+  Future<void> _pickExcel(BuildContext context) async {
+    final file = await pickBytesForUi(context, ['xlsx']);
+    if (file == null || !context.mounted) return;
     try {
       text.text = workbookText(readXlsx(file.bytes));
       onFile(file.name, file.bytes, null);
@@ -73,7 +73,7 @@ class SourceInput extends StatelessWidget {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             OutlinedButton.icon(
-              onPressed: progress == null ? _pickExcel : null,
+              onPressed: progress == null ? () => _pickExcel(context) : null,
               icon: const AppIcon(Icons.table_view_outlined, size: 18),
               label: const Text('选择 Excel 文件'),
             ),

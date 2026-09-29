@@ -83,7 +83,7 @@ class InquiryPage extends StatelessWidget {
   }
 
   Future<void> _import(BuildContext context, String sid) async {
-    final file = await pickBytes(['xlsx']);
+    final file = await pickBytesForUi(context, ['xlsx']);
     if (file == null || !context.mounted) return;
     final List<InquiryRowPlan> plans;
     try {

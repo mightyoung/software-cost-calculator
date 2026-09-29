@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supplier_app/app/app_state.dart';
 import 'package:supplier_core/supplier_core.dart';
@@ -16,6 +17,14 @@ Future<void> _delayedWrite(Store store) async {
 
 // Real async (not testWidgets): the work runs in another isolate.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  // These plain async integration tests use real local HTTP sockets.
+  HttpOverrides.global = null;
+  const storage = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+  final messenger =
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+  setUp(() => messenger.setMockMethodCallHandler(storage, (_) async => null));
+  tearDown(() => messenger.setMockMethodCallHandler(storage, null));
   test('restore waits for an already running background write', () async {
     final dir = Directory.systemTemp.createTempSync('restore_pending_write');
     addTearDown(() => dir.deleteSync(recursive: true));
@@ -85,6 +94,7 @@ void main() {
   });
 
   test('pushes a chosen project to a nearby device and receives one', () async {
+    messenger.setMockMethodCallHandler(storage, (_) async => 'shared password');
     final dir = Directory.systemTemp.createTempSync('lan_app_test');
     addTearDown(() => dir.deleteSync(recursive: true));
     final store = Store.open('${dir.path}/a.db', device: '甲');
@@ -123,7 +133,10 @@ void main() {
     );
     final b = Store.open('${dir.path}/b.db', device: '乙');
     addTearDown(b.close);
-    b.importFrom(got.single.path);
+    expect(isEncryptedExchange(got.single.path), isTrue);
+    b.importFrom(
+      await decryptExchange(got.single.path, 'shared password', dir),
+    );
     expect(b.get('project', pro)!.data['name'], '泵房改造');
 
     // The other way: a push lands in this device's inbox, nothing imported.

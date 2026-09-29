@@ -223,7 +223,7 @@ class _QuotesPageState extends State<QuotesPage> {
   }
 
   Future<void> _import() async {
-    final file = await pickBytes(['xlsx']);
+    final file = await pickBytesForUi(context, ['xlsx']);
     if (file == null || !mounted) return;
     List<QuoteRowPlan>? plans;
     String? problem;
