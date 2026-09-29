@@ -11,6 +11,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supplier_app/app/app_state.dart';
 import 'package:supplier_app/app/shell.dart';
+import 'package:supplier_app/features/spec/spec_match_page.dart';
+
+import 'spec_match_page_test.dart' show seedSensors;
 import 'package:supplier_app/app/theme.dart';
 import 'package:supplier_app/features/ai/list_review.dart';
 import 'package:supplier_app/features/ai/material_import_page.dart';
@@ -292,6 +295,12 @@ Widget _importScreen(String name, AppState state) {
 }
 
 /// An inquiry on the pump-room project: three lines, three suppliers.
+/// Matching page over three sample sensors.
+Widget _specMatch(Store store, AppState state) {
+  seedSensors(store);
+  return SpecMatchPage(state: state);
+}
+
 /// The workbench with an open inquiry waiting for replies.
 Shell _home(Store store, AppState state) {
   _inquiry(store);
@@ -470,6 +479,8 @@ void main() {
         theme: buildTheme(),
         home: name == 'desktop_conflicts'
             ? ConflictsPage(state: state)
+            : name == 'desktop_spec_match'
+            ? _specMatch(store, state)
             : name == 'desktop_inquiry'
             ? InquiryPage(state: state, id: _inquiry(store))
             : name.contains('import')
@@ -557,6 +568,35 @@ void main() {
         find.byType(SingleChildScrollView).last,
         const Offset(0, -260),
       );
+      await t.pumpAndSettle();
+    }),
+    skip: !hasFont,
+  );
+
+  testWidgets(
+    'desktop spec match',
+    (t) => shoot(t, const Size(1280, 900), 'desktop_spec_match', () async {
+      await t.tap(find.byType(DropdownButtonFormField<String?>));
+      await t.pumpAndSettle();
+      await t.tap(find.text('温湿度传感器').last);
+      await t.pumpAndSettle();
+      final values = find.widgetWithText(TextField, '要求值');
+      await t.enterText(values.at(0), '-20~80℃');
+      await t.enterText(values.at(2), '±0.3℃');
+      await t.enterText(values.at(4), '4-20mA或RS485');
+      await t.tap(find.text('添加条件'));
+      await t.pumpAndSettle();
+      await t.tap(
+        find.widgetWithText(DropdownButtonFormField<String>, '参数').last,
+      );
+      await t.pumpAndSettle();
+      await t.tap(find.text('防爆标志').last);
+      await t.pumpAndSettle();
+      await t.enterText(values.last, 'Ex d IIB T4 Gb');
+      await t.pumpAndSettle();
+      await t.drag(find.byType(ListView).first, const Offset(0, -420));
+      await t.pumpAndSettle();
+      await t.tap(find.text('显示不满足的 1 个物料'));
       await t.pumpAndSettle();
     }),
     skip: !hasFont,

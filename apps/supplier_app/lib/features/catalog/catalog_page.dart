@@ -8,6 +8,7 @@ import '../../platform/files.dart';
 import 'attributes_editor.dart';
 import 'catalog_import.dart';
 import 'params_editor.dart';
+import '../spec/spec_match_page.dart';
 import 'contacts.dart';
 import 'detail_panel.dart';
 import 'duplicate_hints.dart';
@@ -160,6 +161,14 @@ class _CatalogPageState extends State<CatalogPage> {
               style: TextStyle(color: Tokens.ink3),
             ),
             const Spacer(),
+            if (isProduct) ...[
+              OutlinedButton.icon(
+                onPressed: () => showSpecMatch(context, widget.state),
+                icon: const Icon(Icons.rule, size: 18),
+                label: const Text('按要求找物料'),
+              ),
+              const SizedBox(width: 8),
+            ],
             OutlinedButton.icon(
               onPressed: () =>
                   importCatalogList(context, widget.state, widget.type),
