@@ -1,0 +1,7 @@
+# Paths are relative to this configuration file. Use a stable, unique UUID v4 per center.
+center_id = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+bind = "127.0.0.1:8080"
+database = "../data/hub.sqlite"
+
+[sync]
+enabled = false

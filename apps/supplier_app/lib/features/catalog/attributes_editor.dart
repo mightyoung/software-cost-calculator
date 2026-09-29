@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/theme.dart';
 
 typedef AttributeRow = (
@@ -46,7 +47,7 @@ class AttributesEditor extends StatelessWidget {
             ),
             TextButton.icon(
               onPressed: () => onAdd(null),
-              icon: const Icon(Icons.add, size: 16),
+              icon: const AppIcon(Icons.add, size: 16),
               label: const Text('添加'),
             ),
           ],
@@ -74,7 +75,7 @@ class AttributesEditor extends StatelessWidget {
                 ),
                 IconButton(
                   tooltip: '删除',
-                  icon: const Icon(Icons.close, size: 16),
+                  icon: const AppIcon(Icons.close, size: 16),
                   onPressed: () => onRemove(i),
                 ),
               ],
@@ -89,7 +90,7 @@ class AttributesEditor extends StatelessWidget {
               Text('同类常用：', style: TextStyle(fontSize: 12, color: Tokens.ink3)),
               for (final s in open.take(6))
                 ActionChip(
-                  avatar: const Icon(Icons.add, size: 14),
+                  avatar: const AppIcon(Icons.add, size: 14),
                   label: Text(s),
                   onPressed: () => onAdd(s),
                 ),

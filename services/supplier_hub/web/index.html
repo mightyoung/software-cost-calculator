@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>公司资料中心 · 询价台账</title>
+  <link rel="stylesheet" href="/admin/styles.css">
+  <script type="module" src="/admin/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到内容</a>
+  <aside class="sidebar" aria-label="主导航">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>询价台账<small>公司资料中心</small></span></div>
+    <nav>
+      <p class="nav-group">共享资料</p>
+      <button data-page="home" aria-current="page"><span aria-hidden="true">▤</span>工作台</button>
+      <button data-page="suppliers"><span aria-hidden="true">▥</span>供应商</button>
+      <button data-page="quotes"><span aria-hidden="true">≡</span>历史报价</button>
+      <button data-page="publish"><span aria-hidden="true">＋</span>发布资料</button>
+      <p class="nav-group">中心管理</p>
+      <button data-page="sync"><span aria-hidden="true">⇄</span>同步与交换</button>
+      <button data-page="settings"><span aria-hidden="true">⚙</span>服务设置</button>
+    </nav>
+    <div class="sidebar-footer"><span class="status-dot" aria-hidden="true"></span><span id="connection-state">正在连接</span><small>本地工作 · 按需共享</small></div>
+  </aside>
+  <div class="workspace">
+    <header class="page-header">
+      <div><p class="eyebrow">询价台账 / 公司资料中心</p><h1 id="page-title">工作台</h1><p id="page-subtitle" class="muted">供应商经验与历史报价，在团队间复用。</p></div>
+      <div class="header-actions"><button id="refresh-button" class="secondary">刷新</button><button id="connection-button" class="secondary">连接管理</button></div>
+    </header>
+    <div id="notice" role="status" aria-live="polite" hidden></div>
+    <main id="main" tabindex="-1"><div class="empty-state">正在连接资料中心…</div></main>
+    <noscript>请启用浏览器 JavaScript 后使用管理端。</noscript>
+    <footer class="workspace-footer">资料以明确发布为准，个人草稿保留在本地。</footer>
+  </div>
+  <dialog id="detail-dialog" class="detail-dialog" aria-label="资料详情">
+    <div class="dialog-bar"><span class="eyebrow">共享资料 / 详情</span><button id="detail-close" class="quiet" aria-label="关闭详情">关闭 ×</button></div>
+    <div id="detail-content"></div>
+  </dialog>
+  <dialog id="connection-dialog" aria-labelledby="connection-title">
+    <form id="connection-form" class="stack">
+      <div class="panel-header"><h2 id="connection-title">连接资料中心</h2><button type="button" id="connection-close" class="quiet" aria-label="关闭连接管理">×</button></div>
+      <p class="muted">使用部署时配置的访问令牌。令牌仅在此页面内存中保留，刷新或断开后需重新输入。</p>
+      <label class="field">访问令牌<input id="api-token" type="password" autocomplete="off" spellcheck="false" placeholder="本机未配置令牌时可留空"></label>
+      <p id="connection-error" class="error" role="alert" hidden></p>
+      <div class="actions"><button type="button" id="disconnect-button" class="secondary">断开并清除页面数据</button><button id="connect-submit" class="primary" type="submit">连接</button></div>
+    </form>
+  </dialog>
+</body>
+</html>

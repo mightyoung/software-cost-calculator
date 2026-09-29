@@ -1,0 +1,8 @@
+{
+  "name": "ontology-g6-study",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Offline G6 feasibility study using the actual supplier ontology",
+  "scripts": {"test": "node --test *.test.mjs", "build": "node build-assets.mjs", "check": "node build-assets.mjs --check"},
+  "dependencies": {"@antv/g6": "5.1.1"}
+}

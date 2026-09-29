@@ -1,8 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
@@ -46,7 +49,7 @@ class _LanPanelState extends State<LanPanel> {
   }
 
   Future<void> _addByAddress() async {
-    final host = await showDialog<String>(
+    final host = await showAppDialog<String>(
       context: context,
       builder: (_) => const _AddressDialog(),
     );
@@ -64,7 +67,7 @@ class _LanPanelState extends State<LanPanel> {
       context,
       state,
       push.path,
-      title: '来自 ${push.fromName} 的推送',
+      title: '来自 ${push.fromName}（${push.address}，身份未验证）的推送',
       onBusy: (b) {
         if (mounted) setState(() => busy = b);
       },
@@ -90,7 +93,7 @@ class _LanPanelState extends State<LanPanel> {
           children: [
             Row(
               children: [
-                Icon(Icons.wifi_tethering, color: Tokens.accent),
+                AppIcon(Icons.wifi_tethering, color: Tokens.accent),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -108,7 +111,7 @@ class _LanPanelState extends State<LanPanel> {
             ),
             const SizedBox(height: 6),
             Text(
-              '同一 Wi-Fi 或办公网里、都打开了"局域网可见"的设备会互相看到。选中项目、物料或供应商推送过去，关联的预算行、报价、联系人会一起带上；对方确认后才会导入，合并方式和交换文件相同。',
+              '同一 Wi-Fi 或办公网里、都打开了"局域网可见"的设备会互相看到。推送前需要设置交换口令；对方确认后才会导入。设备名称由对方自报，身份未经验证，请核对地址；共享口令不验证单台设备身份。',
               style: TextStyle(color: Tokens.ink2, height: 1.6),
             ),
             if (state.lanError != null) ...[
@@ -118,11 +121,16 @@ class _LanPanelState extends State<LanPanel> {
             if (node != null) ...[
               FutureBuilder(
                 future: _hasPassphrase,
-                builder: (_, s) => s.data == false
+                builder: (_, s) => s.hasError
+                    ? const HintText(
+                        '无法读取交换口令，发送已暂停；请检查系统安全存储。',
+                        icon: Icons.error_outline,
+                      )
+                    : s.data == false
                     ? const Padding(
                         padding: EdgeInsets.only(top: 10),
                         child: HintText(
-                          '还没有设置交换口令：推送内容在局域网中不加密。建议在上方设置交换口令，所有设备用同一个。',
+                          '发送前需要在上方设置交换口令，所有设备使用同一个。设备名称由对方自报，身份未经验证，请核对地址。',
                           icon: Icons.lock_open,
                         ),
                       )
@@ -146,9 +154,9 @@ class _LanPanelState extends State<LanPanel> {
                     padding: const EdgeInsets.symmetric(vertical: 3),
                     child: Row(
                       children: [
-                        Icon(Icons.computer, size: 18, color: Tokens.ink2),
+                        AppIcon(Icons.computer, size: 18, color: Tokens.ink2),
                         const SizedBox(width: 8),
-                        Text(p.name),
+                        Text('${p.name}（身份未验证）'),
                         const SizedBox(width: 8),
                         Text(
                           p.address,
@@ -164,7 +172,7 @@ class _LanPanelState extends State<LanPanel> {
                 children: [
                   FilledButton.icon(
                     onPressed: busy ? null : () => showLanPush(context, state),
-                    icon: const Icon(Icons.send_outlined, size: 18),
+                    icon: const AppIcon(Icons.send_outlined, size: 18),
                     label: const Text('选择内容推送'),
                   ),
                   OutlinedButton(
@@ -184,10 +192,7 @@ class _LanPanelState extends State<LanPanel> {
                 ),
               ),
             ],
-            if (busy) ...[
-              const SizedBox(height: 10),
-              const LinearProgressIndicator(),
-            ],
+            if (busy) ...[const SizedBox(height: 10), const TaskProgress()],
           ],
         ),
       );
@@ -208,11 +213,11 @@ class _LanPanelState extends State<LanPanel> {
           ),
           child: Row(
             children: [
-              Icon(Icons.move_to_inbox, color: Tokens.accentDeep),
+              AppIcon(Icons.move_to_inbox, color: Tokens.accentDeep),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  '来自 ${p.fromName}（${p.address}）· '
+                  '来自 ${p.fromName}（${p.address}，身份未验证）· '
                   '${p.at.hour.toString().padLeft(2, '0')}:'
                   '${p.at.minute.toString().padLeft(2, '0')}',
                 ),

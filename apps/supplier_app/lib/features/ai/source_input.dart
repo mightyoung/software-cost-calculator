@@ -1,8 +1,11 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/errors.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
@@ -34,9 +37,9 @@ class SourceInput extends StatelessWidget {
   final VoidCallback onStart, onCancel;
   final Widget? extra;
 
-  Future<void> _pickExcel() async {
-    final file = await pickBytes(['xlsx']);
-    if (file == null) return;
+  Future<void> _pickExcel(BuildContext context) async {
+    final file = await pickBytesForUi(context, ['xlsx']);
+    if (file == null || !context.mounted) return;
     try {
       text.text = workbookText(readXlsx(file.bytes));
       onFile(file.name, file.bytes, null);
@@ -70,8 +73,8 @@ class SourceInput extends StatelessWidget {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             OutlinedButton.icon(
-              onPressed: progress == null ? _pickExcel : null,
-              icon: const Icon(Icons.table_view_outlined, size: 18),
+              onPressed: progress == null ? () => _pickExcel(context) : null,
+              icon: const AppIcon(Icons.table_view_outlined, size: 18),
               label: const Text('选择 Excel 文件'),
             ),
             if (fileName != null)
@@ -98,7 +101,7 @@ class SourceInput extends StatelessWidget {
         if (progress != null) ...[
           Text(progress!, style: TextStyle(color: Tokens.ink2)),
           const SizedBox(height: 6),
-          const LinearProgressIndicator(),
+          const TaskProgress(),
           const SizedBox(height: 10),
         ],
         Row(
@@ -109,7 +112,7 @@ class SourceInput extends StatelessWidget {
             else
               FilledButton.icon(
                 onPressed: onStart,
-                icon: const Icon(Icons.arrow_forward, size: 18),
+                icon: const AppIcon(Icons.arrow_forward, size: 18),
                 label: Text(startLabel),
               ),
           ],
@@ -146,7 +149,7 @@ class StepsBar extends StatelessWidget {
               ),
             ),
             child: done
-                ? const Icon(Icons.check, size: 13, color: Colors.white)
+                ? const AppIcon(Icons.check, size: 13, color: Colors.white)
                 : Text(
                     '${i + 1}',
                     style: TextStyle(

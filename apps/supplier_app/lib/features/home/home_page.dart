@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/shell.dart';
@@ -11,6 +12,7 @@ import '../ai/material_import_page.dart';
 import '../projects/project_form.dart';
 import '../quotes/quote_form.dart';
 import '../records/open_record.dart';
+import 'command_palette.dart';
 
 /// What needs a person today, across all projects: inquiries waiting for
 /// replies, lines still to be priced, quotes about to expire, conflicts.
@@ -27,28 +29,48 @@ class HomePage extends StatelessWidget {
       return ListView(
         padding: const EdgeInsets.fromLTRB(24, 18, 24, 32),
         children: [
-          Row(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Text(
-                  '工作台',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
+              Text('工作台', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 6),
               Text(
-                'Ctrl+K 搜索与命令',
-                style: TextStyle(fontSize: 12, color: Tokens.ink3),
+                '跟进询价、补齐预算，及时处理即将到期的报价。',
+                style: TextStyle(fontSize: 14, color: Tokens.ink2),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 540),
+              child: OutlinedButton(
+                onPressed: () => showCommandPalette(context, state, onGo),
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: Tokens.surface,
+                  minimumSize: const Size(double.infinity, 48),
+                  alignment: Alignment.centerLeft,
+                ),
+                child: const Row(
+                  children: [
+                    AppIcon(Icons.search, size: 20),
+                    SizedBox(width: 10),
+                    Expanded(child: Text('搜索项目、供应商或报价')),
+                    AppIcon(Icons.chevron_right, size: 18),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
               FilledButton.icon(
                 onPressed: () => showQuoteForm(context, state),
-                icon: const Icon(Icons.add, size: 18),
+                icon: const AppIcon(Icons.add, size: 18),
                 label: const Text('录报价'),
               ),
               OutlinedButton.icon(
@@ -56,7 +78,7 @@ class HomePage extends StatelessWidget {
                   final msg = await showMaterialImport(context, state);
                   if (msg != null && context.mounted) toast(context, msg);
                 },
-                icon: const Icon(Icons.auto_awesome_outlined, size: 18),
+                icon: const AppIcon(Icons.auto_awesome_outlined, size: 18),
                 label: const Text('智能导入'),
               ),
               OutlinedButton.icon(
@@ -66,7 +88,7 @@ class HomePage extends StatelessWidget {
                     await openRecord(context, state, 'project', id);
                   }
                 },
-                icon: const Icon(Icons.create_new_folder_outlined, size: 18),
+                icon: const AppIcon(Icons.create_new_folder_outlined, size: 18),
                 label: const Text('新建项目'),
               ),
             ],
@@ -115,7 +137,7 @@ class HomePage extends StatelessWidget {
                   _Line(
                     title: p.name,
                     sub: '${p.lines} 行还没有关联报价',
-                    trailing: Icon(Icons.chevron_right, color: Tokens.ink3),
+                    trailing: AppIcon(Icons.chevron_right, color: Tokens.ink3),
                     onTap: () => openRecord(context, state, 'project', p.id),
                   ),
               ],
@@ -179,13 +201,16 @@ class _Section extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 24),
+    padding: const EdgeInsets.only(top: 32),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
           children: [
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
             const SizedBox(width: 8),
             Text(
               '$count',
@@ -195,7 +220,7 @@ class _Section extends StatelessWidget {
             ?action,
           ],
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
             color: Tokens.surface,
@@ -222,31 +247,54 @@ class _Line extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => InkWell(
-    onTap: onTap,
-    child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Tokens.rule)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
+  Widget build(BuildContext context) => Material(
+    color: Tokens.surface,
+    child: InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: Tokens.rule)),
+        ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final narrow = constraints.maxWidth < 520;
+            final description = Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, overflow: TextOverflow.ellipsis),
+                Text(
+                  title,
+                  maxLines: narrow ? 2 : 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 5),
                 Text(
                   sub,
+                  maxLines: narrow ? 2 : 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 12, color: Tokens.ink3),
+                  style: TextStyle(fontSize: 13, color: Tokens.ink2),
                 ),
               ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          trailing,
-        ],
+            );
+            return narrow
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      description,
+                      const SizedBox(height: 10),
+                      trailing,
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Expanded(child: description),
+                      const SizedBox(width: 20),
+                      trailing,
+                    ],
+                  );
+          },
+        ),
       ),
     ),
   );

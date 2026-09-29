@@ -2,8 +2,11 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
@@ -220,7 +223,7 @@ class _QuotesPageState extends State<QuotesPage> {
   }
 
   Future<void> _import() async {
-    final file = await pickBytes(['xlsx']);
+    final file = await pickBytesForUi(context, ['xlsx']);
     if (file == null || !mounted) return;
     List<QuoteRowPlan>? plans;
     String? problem;
@@ -244,7 +247,7 @@ class _QuotesPageState extends State<QuotesPage> {
       if (msg != null && mounted) toast(context, msg);
       return;
     }
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (_) => _ImportPreview(name: file.name, plans: plans!),
     );
@@ -264,7 +267,7 @@ class _QuotesPageState extends State<QuotesPage> {
   Future<void> _showAttention() async {
     final details = attention;
     if (details == null) return;
-    await showDialog<void>(
+    await showAppDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('报价时效提醒'),
@@ -278,7 +281,7 @@ class _QuotesPageState extends State<QuotesPage> {
                 const ListTile(title: Text('暂无即将到期的报价')),
               for (final h in details.expiring)
                 ListTile(
-                  leading: const Icon(Icons.event_outlined),
+                  leading: const AppIcon(Icons.event_outlined),
                   title: Text(
                     '${store.get('product', h.data['product_id'] as String)?.data['name'] ?? '物料已删除'}',
                   ),
@@ -297,7 +300,7 @@ class _QuotesPageState extends State<QuotesPage> {
                 const ListTile(title: Text('暂无长期未更新的物料')),
               for (final h in details.staleProducts)
                 ListTile(
-                  leading: const Icon(Icons.history_outlined),
+                  leading: const AppIcon(Icons.history_outlined),
                   title: Text('${h.data['name']}'),
                   subtitle: Text('最近报价 ${h.data['last_quoted_on']}'),
                   onTap: () {
@@ -382,7 +385,7 @@ class _QuotesPageState extends State<QuotesPage> {
                 const SizedBox(width: 16),
                 OutlinedButton.icon(
                   onPressed: _smartImport,
-                  icon: const Icon(Icons.auto_awesome_outlined, size: 18),
+                  icon: const AppIcon(Icons.auto_awesome_outlined, size: 18),
                   label: const Text('智能导入'),
                 ),
                 OutlinedButton(onPressed: _import, child: const Text('导入报价表')),
@@ -393,7 +396,7 @@ class _QuotesPageState extends State<QuotesPage> {
                 ),
                 FilledButton.icon(
                   onPressed: () => showQuoteForm(context, widget.state),
-                  icon: const Icon(Icons.add, size: 18),
+                  icon: const AppIcon(Icons.add, size: 18),
                   label: const Text('新建报价'),
                 ),
               ],
@@ -401,7 +404,7 @@ class _QuotesPageState extends State<QuotesPage> {
             const SizedBox(height: 12),
             TextField(
               decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.search, size: 18),
+                prefixIcon: AppIcon(Icons.search, size: 18),
                 hintText: '物料、型号、供应商或拼音首字母',
               ),
               onChanged: (v) => setState(() {
@@ -458,7 +461,7 @@ class _QuotesPageState extends State<QuotesPage> {
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
                   onPressed: _loadAttention,
-                  icon: const Icon(Icons.refresh, size: 18),
+                  icon: const AppIcon(Icons.refresh, size: 18),
                   label: const Text('时效提醒暂不可用，点击重试'),
                 ),
               ),
@@ -472,7 +475,7 @@ class _QuotesPageState extends State<QuotesPage> {
                 spacing: 10,
                 runSpacing: 4,
                 children: [
-                  Icon(
+                  AppIcon(
                     Icons.notifications_active_outlined,
                     size: 18,
                     color: Tokens.accent,
@@ -498,7 +501,7 @@ class _QuotesPageState extends State<QuotesPage> {
                   Text('比价：', style: TextStyle(color: Tokens.ink2)),
                   for (final m in matches)
                     ActionChip(
-                      avatar: const Icon(Icons.compare_arrows, size: 16),
+                      avatar: const AppIcon(Icons.compare_arrows, size: 16),
                       label: Text(
                         [
                           m.data['name'],
@@ -538,7 +541,7 @@ class _QuotesPageState extends State<QuotesPage> {
                       bulkActions: (selected, clear) => [
                         TextButton.icon(
                           onPressed: () => _exportRows(selected),
-                          icon: const Icon(
+                          icon: const AppIcon(
                             Icons.file_download_outlined,
                             size: 18,
                           ),
@@ -557,7 +560,7 @@ class _QuotesPageState extends State<QuotesPage> {
                             );
                             clear();
                           },
-                          icon: const Icon(Icons.delete_outline, size: 18),
+                          icon: const AppIcon(Icons.delete_outline, size: 18),
                           label: const Text('删除'),
                         ),
                       ],
@@ -604,7 +607,7 @@ class _ImportPreview extends StatelessWidget {
                     for (final p in attention)
                       ListTile(
                         dense: true,
-                        leading: Icon(
+                        leading: AppIcon(
                           p.action == RowAction.error
                               ? Icons.error_outline
                               : Icons.history,

@@ -1,0 +1,12 @@
+{
+  "publication_id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+  "revision": 1,
+  "withdrawn": false,
+  "root": {"entity_type": "supplier", "entity_id": "11111111-1111-4111-8111-111111111111"},
+  "records": [{
+    "entity_type": "supplier",
+    "entity_id": "11111111-1111-4111-8111-111111111111",
+    "source_version": 1,
+    "data": {"name": "示例设备供应商", "aliases": [], "address": null, "categories": ["仪器仪表"], "notes": "演示资料，请替换为真实询价依据", "merged_into": null, "rating": null, "rating_note": null}
+  }]
+}

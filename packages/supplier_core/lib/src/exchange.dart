@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:sqlite3/sqlite3.dart';
 
 import 'merge.dart';
+import 'quotation.dart';
 import 'search_index.dart';
 import 'storage_codec.dart';
 import 'store.dart';
@@ -29,6 +30,74 @@ class TableImport {
 // and idempotent.
 const _wins =
     '(s.version, s.updated_at, s.updated_by) > (m.version, m.updated_at, m.updated_by)';
+
+// Exchange files carry data, not executable SQLite schema. Match the simple
+// schemas written by every supported version, including missing newer tables.
+// Looking only at table_info would overlook CHECKs and generated expressions.
+String _schemaSql(String sql) => sql
+    .toLowerCase()
+    .replaceAll(RegExp(r'\bif\s+not\s+exists\s+'), '')
+    .replaceAll(RegExp(r'\s+'), '');
+
+void _checkExchangeSchema(Database connection, String schema) {
+  final tables = {
+    'meta': 'key TEXT PRIMARY KEY, value TEXT NOT NULL',
+    for (final type in entityTypes)
+      type:
+          'id TEXT PRIMARY KEY, version INTEGER NOT NULL, '
+          'updated_at TEXT NOT NULL, updated_by TEXT NOT NULL, '
+          'deleted INTEGER NOT NULL DEFAULT 0, data TEXT NOT NULL',
+    'change_log':
+        'id TEXT PRIMARY KEY, entity TEXT NOT NULL, '
+        'entity_id TEXT NOT NULL, field TEXT NOT NULL, old TEXT, new TEXT, '
+        'device TEXT NOT NULL, at TEXT NOT NULL',
+    'attachment':
+        'id TEXT PRIMARY KEY, name TEXT NOT NULL, mime TEXT, '
+        'size INTEGER NOT NULL, data BLOB NOT NULL, added_at TEXT NOT NULL, '
+        'added_by TEXT NOT NULL',
+  };
+  final indexes = {
+    for (final (name, table, field) in const [
+      ('contact_supplier', 'contact', 'supplier_id'),
+      ('quotation_product', 'quotation', 'product_id'),
+      ('quotation_supplier', 'quotation', 'supplier_id'),
+      ('quotation_project', 'quotation', 'project_id'),
+      ('quotation_inquiry', 'quotation', 'inquiry_id'),
+      ('item_project', 'project_item', 'project_id'),
+      ('param_product', 'product_param', 'product_id'),
+      ('spec_response_item', 'spec_response', 'item_id'),
+      ('spec_item_request', 'spec_item', 'request_id'),
+    ])
+      name: "CREATE INDEX $name ON $table(json_extract(data,'\$.$field'))",
+    'change_entity': 'CREATE INDEX change_entity ON change_log(entity_id, at)',
+  };
+  final found = <String>{};
+  for (final row in connection.select(
+    'SELECT type, name, tbl_name, sql FROM $schema.sqlite_schema',
+  )) {
+    final name = row['name'];
+    final sql = row['sql'];
+    if (row['type'] == 'table' &&
+        tables.containsKey(name) &&
+        sql is String &&
+        _schemaSql(sql) == _schemaSql('CREATE TABLE $name(${tables[name]})')) {
+      found.add(name as String);
+    } else if (row['type'] == 'index' &&
+        sql == null &&
+        tables.containsKey(row['tbl_name']) &&
+        name == 'sqlite_autoindex_${row['tbl_name']}_1') {
+      // SQLite's own primary-key index, with no attacker expression.
+    } else if (row['type'] == 'index' &&
+        indexes.containsKey(name) &&
+        sql is String &&
+        _schemaSql(sql) == _schemaSql(indexes[name]!)) {
+      // Known expression indexes used by older and current exports.
+    } else {
+      invalid('file', 'unsupported exchange schema');
+    }
+  }
+  if (!found.contains('meta')) invalid('file', 'missing exchange metadata');
+}
 
 extension Exchange on Store {
   /// Writes a consistent snapshot. The same file is the weekly exchange file
@@ -113,6 +182,10 @@ extension Exchange on Store {
           invalid('backup', 'safety backup verification failed');
         }
         transaction(() {
+          // Recheck in the same snapshot used to read the source. The safety
+          // export above must run outside a transaction (VACUUM INTO).
+          _checkExchangeSchema(db, 'src');
+          _checkFormat();
           // Verify the complete backup against the locked current library,
           // including blobs and history, before deleting any live rows.
           for (final table in [...entityTypes, 'change_log', 'attachment']) {
@@ -156,7 +229,7 @@ extension Exchange on Store {
       } finally {
         db.execute('DETACH DATABASE restore_backup');
       }
-    });
+    }, transactional: false);
   }
 
   /// Merges another device's file in one transaction. Any invalid row or
@@ -246,7 +319,11 @@ extension Exchange on Store {
 
   /// Attaches [path] as `src`. A file from an older version is migrated in
   /// a temporary copy first, so the user's file is never modified.
-  T _attached<T>(String path, T Function() action) {
+  T _attached<T>(
+    String path,
+    T Function() action, {
+    bool transactional = true,
+  }) {
     if (!File(path).existsSync()) invalid('file', 'not found');
     final version = _fileVersion(path);
     if (version > schemaVersion) {
@@ -262,6 +339,12 @@ extension Exchange on Store {
         File(path).copySync(attach);
         final copy = sqlite3.open(attach);
         try {
+          // Keep the private copy locked across schema validation and the
+          // migration's own transaction.
+          copy.execute('PRAGMA locking_mode=EXCLUSIVE');
+          copy.execute('BEGIN IMMEDIATE');
+          _checkExchangeSchema(copy, 'main');
+          copy.execute('COMMIT');
           registerFunctions(copy);
           migrate(copy);
         } on StateError {
@@ -272,7 +355,17 @@ extension Exchange on Store {
       }
       db.execute('ATTACH DATABASE ? AS src', [attach]);
       attached = true;
-      _checkFormat();
+      T checkedAction() {
+        _checkExchangeSchema(db, 'src');
+        _checkFormat();
+        return action();
+      }
+
+      if (transactional) return transaction(checkedAction);
+      transaction(() {
+        _checkExchangeSchema(db, 'src');
+        _checkFormat();
+      });
       return action();
     } finally {
       try {
@@ -287,6 +380,8 @@ extension Exchange on Store {
     try {
       final file = sqlite3.open(path, mode: OpenMode.readOnly);
       try {
+        file.execute('BEGIN');
+        _checkExchangeSchema(file, 'main');
         final rows = file.select(
           "SELECT value FROM meta WHERE key='schema_version'",
         );
@@ -607,13 +702,46 @@ extension Exchange on Store {
 
   void _validateIncomingLog() {
     for (final r in db.select(
-      'SELECT id, entity, entity_id FROM src.change_log '
+      'SELECT id, entity, entity_id, field, old, new, device, at FROM src.change_log '
       'WHERE id NOT IN (SELECT id FROM main.change_log)',
     )) {
       requireUuid(r['id'], 'change_log.id');
       requireUuid(r['entity_id'], 'change_log.entity_id');
       if (!entityTypes.contains(r['entity'])) {
         invalid('change_log.entity', 'unknown entity type');
+      }
+      final field = r['field'];
+      final marker = const [
+        '(created)',
+        '(deleted)',
+        '(restored)',
+      ].contains(field);
+      if (!marker && !payloadFields(r['entity'] as String).contains(field)) {
+        invalid('change_log.field', 'unknown field');
+      }
+      normalizeText(r['device'], 'change_log.device', 100, required: true);
+      final at = r['at'];
+      final parsed = at is String ? DateTime.tryParse(at) : null;
+      if (parsed == null ||
+          parsed.year < 1 ||
+          parsed.year > 9999 ||
+          stamp(parsed) != at) {
+        invalid('change_log.at', 'expected canonical UTC timestamp');
+      }
+      for (final key in ['old', 'new']) {
+        final value = r[key];
+        if (marker) {
+          if (value != null) invalid('change_log.$key', 'marker requires null');
+        } else {
+          if (value is! String || value.length > 16 * 1024 * 1024) {
+            invalid('change_log.$key', 'expected bounded JSON text');
+          }
+          try {
+            jsonDecode(value);
+          } on FormatException {
+            invalid('change_log.$key', 'invalid JSON');
+          }
+        }
       }
     }
   }

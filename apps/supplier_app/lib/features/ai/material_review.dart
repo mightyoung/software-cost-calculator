@@ -2,8 +2,11 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
@@ -110,6 +113,8 @@ class _MaterialReviewState extends State<MaterialReview> {
   late final TextEditingController code, inquirer;
   final name = TextEditingController();
   var addToBudget = true;
+  final reviewScroll = ScrollController();
+  var showProjectSettings = false;
   String? error;
 
   Store get store => widget.state.store;
@@ -141,7 +146,7 @@ class _MaterialReviewState extends State<MaterialReview> {
     final end = at < 0
         ? (original?.length ?? 0)
         : (matchEnd + 160).clamp(0, original!.length);
-    showDialog<void>(
+    showAppDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('${offerFields[field]!.$1} · 核对原文'),
@@ -223,6 +228,7 @@ class _MaterialReviewState extends State<MaterialReview> {
 
   @override
   void dispose() {
+    reviewScroll.dispose();
     for (final c in [code, name, inquirer]) {
       c.dispose();
     }
@@ -230,7 +236,7 @@ class _MaterialReviewState extends State<MaterialReview> {
   }
 
   Future<void> _edit(_Row r) async {
-    final offer = await showDialog<Offer>(
+    final offer = await showAppDialog<Offer>(
       context: context,
       builder: (_) => _OfferForm(offer: r.offer),
     );
@@ -244,16 +250,24 @@ class _MaterialReviewState extends State<MaterialReview> {
     });
   }
 
+  void _settingsError(String message) {
+    setState(() {
+      error = message;
+      showProjectSettings = true;
+    });
+    if (reviewScroll.hasClients) reviewScroll.jumpTo(0);
+  }
+
   void _apply() {
     final ready = rows.where((r) => r.ready).toList();
     if (widget.masterData) return _applyMasterData(ready);
     final person = inquirer.text.trim();
-    if (person.isEmpty) return setState(() => error = '填写询价人');
+    if (person.isEmpty) return _settingsError('填写询价人');
     if (newProject && name.text.trim().isEmpty) {
-      return setState(() => error = '填写新项目名称');
+      return _settingsError('填写新项目名称');
     }
     if (!newProject && projectId == null) {
-      return setState(() => error = '选择一个项目');
+      return _settingsError('选择一个项目');
     }
     late ImportSummary sum;
     final err = widget.state.write(
@@ -346,16 +360,68 @@ class _MaterialReviewState extends State<MaterialReview> {
               (r.supplierId != null || r.offer['supplier'] != null),
         )
         .length;
+    final guidance = Padding(
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+      child: Text(
+        '虚线框内是 AI 整理出的内容，确认前不会写入。可以逐条修改，或改为对应本机已有的供应商和物料。',
+        style: TextStyle(color: Tokens.ink2),
+      ),
+    );
+    if (MediaQuery.sizeOf(context).width < 600) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: ListView.builder(
+              key: const ValueKey('review-content'),
+              controller: reviewScroll,
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              itemCount: rows.length + 2,
+              itemBuilder: (context, index) {
+                if (index == 0) return guidance;
+                if (index == 1) {
+                  if (!showProjectSettings) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                    child: _projectFields(compact: true),
+                  );
+                }
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 4),
+                  child: DraftFrame(
+                    child: Material(
+                      color: Tokens.surface,
+                      child: _rowView(rows[index - 2]),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          Container(
+            key: const ValueKey('review-confirmation'),
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 12),
+            decoration: BoxDecoration(
+              color: Tokens.surface,
+              border: Border(top: BorderSide(color: Tokens.rule)),
+            ),
+            child: SafeArea(
+              top: false,
+              child: _confirmation(
+                ready.length,
+                priced,
+                newSuppliers,
+                newProducts,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
-          padding: EdgeInsets.fromLTRB(20, 4, 20, 8),
-          child: Text(
-            '虚线框内是 AI 整理出的内容，确认前不会写入。可以逐条修改，或改为对应本机已有的供应商和物料。',
-            style: TextStyle(color: Tokens.ink2),
-          ),
-        ),
+        guidance,
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -387,15 +453,19 @@ class _MaterialReviewState extends State<MaterialReview> {
     ].join(' ');
     final tags = [
       if (r.plan.error != null)
-        HintTag(r.plan.error!, icon: Icons.error_outline, tone: HintTone.error)
+        _reviewHint(
+          r.plan.error!,
+          icon: Icons.error_outline,
+          tone: HintTone.error,
+        )
       else if (o['supplier'] == null && r.supplierId == null)
-        const HintTag('没有供应商，只登记物料', icon: Icons.info_outline)
+        _reviewHint('没有供应商，只登记物料', icon: Icons.info_outline)
       else if (o['price'] == null)
-        const HintTag('没有单价，只登记物料', icon: Icons.info_outline),
+        _reviewHint('没有单价，只登记物料', icon: Icons.info_outline),
       if (o['price'] != null && o['tax_mode'] == 'unknown')
-        const HintTag('含税口径未知', icon: Icons.help_outline),
+        _reviewHint('含税口径未知', icon: Icons.help_outline),
       if (r.plan.unverified.isNotEmpty)
-        HintTag(
+        _reviewHint(
           '原文中找不到：${r.plan.unverified.map((k) => offerFields[k]!.$1).join('、')}，请核对',
           icon: Icons.find_in_page_outlined,
           tone: HintTone.error,
@@ -526,8 +596,37 @@ class _MaterialReviewState extends State<MaterialReview> {
           ],
           IconButton(
             tooltip: '修改',
-            icon: const Icon(Icons.edit_outlined, size: 18),
+            icon: const AppIcon(Icons.edit_outlined, size: 18),
             onPressed: () => _edit(r),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _reviewHint(
+    String text, {
+    required IconData icon,
+    HintTone tone = HintTone.warning,
+  }) {
+    if (MediaQuery.sizeOf(context).width >= 600) {
+      return HintTag(text, icon: icon, tone: tone);
+    }
+    final isError = tone == HintTone.error;
+    final color = isError ? Tokens.red : Tokens.amber;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+      decoration: BoxDecoration(
+        color: isError ? Tokens.redBg : Tokens.amberBg,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppIcon(icon, size: 16, color: color),
+          const SizedBox(width: 5),
+          Expanded(
+            child: Text(text, style: TextStyle(fontSize: 12, color: color)),
           ),
         ],
       ),
@@ -567,15 +666,92 @@ class _MaterialReviewState extends State<MaterialReview> {
     ),
   );
 
-  Widget _footer(int ready, int priced, int newSuppliers, int newProducts) {
+  Widget _projectFields({bool compact = false}) {
     Widget field(TextEditingController c, String label, double width) =>
         SizedBox(
-          width: width,
+          width: compact ? double.infinity : width,
           child: TextField(
             controller: c,
+            onChanged: (_) => setState(() {}),
             decoration: InputDecoration(labelText: label),
           ),
         );
+    if (widget.masterData) {
+      return Text(
+        '只登记供应商、联系人和物料；表里的单价不会存为报价（报价需要所属项目和询价人，可以之后用"智能导入"导入）。',
+        style: TextStyle(fontSize: 12, color: Tokens.ink3),
+      );
+    }
+    final fields = <Widget>[
+      SegmentedButton<bool>(
+        segments: const [
+          ButtonSegment(value: false, label: Text('已有项目')),
+          ButtonSegment(value: true, label: Text('新建项目')),
+        ],
+        selected: {newProject},
+        showSelectedIcon: false,
+        onSelectionChanged: projects.isEmpty
+            ? null
+            : (v) => setState(() => newProject = v.single),
+      ),
+      if (newProject) ...[
+        field(code, '项目编号', 150),
+        field(name, '项目名称', 200),
+      ] else
+        SizedBox(
+          width: compact ? double.infinity : 260,
+          child: DropdownButtonFormField<String>(
+            initialValue: projectId,
+            isExpanded: true,
+            decoration: const InputDecoration(labelText: '报价所属项目'),
+            items: [
+              for (final p in projects)
+                DropdownMenuItem(
+                  value: p.id,
+                  child: Text(
+                    '${p.data['name']}（${p.data['code']}）',
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+            ],
+            onChanged: (v) => setState(() => projectId = v),
+          ),
+        ),
+      field(inquirer, '询价人', 120),
+      Row(
+        mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
+        children: [
+          Checkbox(
+            value: addToBudget,
+            onChanged: (v) => setState(() => addToBudget = v!),
+          ),
+          if (compact)
+            const Expanded(child: Text('同时加入项目成本预算'))
+          else
+            const Text('同时加入项目成本预算'),
+        ],
+      ),
+    ];
+    if (compact) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < fields.length; i++) ...[
+            if (i > 0) const SizedBox(height: 12),
+            fields[i],
+          ],
+        ],
+      );
+    }
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: fields,
+    );
+  }
+
+  Widget _footer(int ready, int priced, int newSuppliers, int newProducts) {
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 12, 20, 16),
       padding: const EdgeInsets.all(12),
@@ -587,117 +763,96 @@ class _MaterialReviewState extends State<MaterialReview> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (widget.masterData)
-            Text(
-              '只登记供应商、联系人和物料；表里的单价不会存为报价（报价需要所属项目和询价人，可以之后用"智能导入"导入）。',
-              style: TextStyle(fontSize: 12, color: Tokens.ink3),
-            )
-          else
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                SegmentedButton<bool>(
-                  segments: const [
-                    ButtonSegment(value: false, label: Text('已有项目')),
-                    ButtonSegment(value: true, label: Text('新建项目')),
-                  ],
-                  selected: {newProject},
-                  showSelectedIcon: false,
-                  onSelectionChanged: projects.isEmpty
-                      ? null
-                      : (v) => setState(() => newProject = v.single),
-                ),
-                if (newProject) ...[
-                  field(code, '项目编号', 150),
-                  field(name, '项目名称', 200),
-                ] else
-                  SizedBox(
-                    width: 260,
-                    child: DropdownButtonFormField<String>(
-                      initialValue: projectId,
-                      isExpanded: true,
-                      decoration: const InputDecoration(labelText: '报价所属项目'),
-                      items: [
-                        for (final p in projects)
-                          DropdownMenuItem(
-                            value: p.id,
-                            child: Text(
-                              '${p.data['name']}（${p.data['code']}）',
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                      ],
-                      onChanged: (v) => setState(() => projectId = v),
-                    ),
-                  ),
-                field(inquirer, '询价人', 120),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Checkbox(
-                      value: addToBudget,
-                      onChanged: (v) => setState(() => addToBudget = v!),
-                    ),
-                    const Text('同时加入项目成本预算'),
-                  ],
-                ),
-              ],
-            ),
+          _projectFields(),
           const SizedBox(height: 10),
-          Builder(
-            builder: (context) {
-              final summary = Text(
-                error ??
-                    [
-                      if (!widget.masterData) '$priced 条报价',
-                      '新建供应商 $newSuppliers',
-                      '新建物料 $newProducts',
-                    ].join(' · '),
-                style: TextStyle(
-                  color: error == null ? Tokens.ink2 : Tokens.red,
-                ),
-              );
-              final back = OutlinedButton(
-                onPressed: widget.onBack,
-                child: const Text('返回修改'),
-              );
-              final confirm = FilledButton.icon(
-                onPressed: ready == 0 ? null : _apply,
-                icon: const Icon(Icons.check, size: 18),
-                label: Text('确认导入（$ready 条）'),
-              );
-              // Phones: the summary gets its own line above the buttons.
-              if (MediaQuery.sizeOf(context).width < 600) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    summary,
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        back,
-                        const SizedBox(width: 8),
-                        Expanded(child: confirm),
-                      ],
-                    ),
-                  ],
-                );
-              }
-              return Row(
-                children: [
-                  Expanded(child: summary),
-                  const SizedBox(width: 10),
-                  back,
-                  const SizedBox(width: 8),
-                  confirm,
-                ],
-              );
-            },
-          ),
+          _confirmation(ready, priced, newSuppliers, newProducts),
         ],
       ),
+    );
+  }
+
+  Widget _confirmation(
+    int ready,
+    int priced,
+    int newSuppliers,
+    int newProducts,
+  ) {
+    final summary = Text(
+      error ??
+          [
+            if (!widget.masterData) '$priced 条报价',
+            '新建供应商 $newSuppliers',
+            '新建物料 $newProducts',
+          ].join(' · '),
+      style: TextStyle(color: error == null ? Tokens.ink2 : Tokens.red),
+    );
+    final back = OutlinedButton(
+      onPressed: widget.onBack,
+      child: const Text('返回修改'),
+    );
+    final confirm = FilledButton.icon(
+      onPressed: ready == 0 ? null : _apply,
+      icon: const AppIcon(Icons.check, size: 18),
+      label: Text('确认导入（$ready 条）'),
+    );
+    // Phones: the summary gets its own line above the buttons.
+    if (MediaQuery.sizeOf(context).width < 600) {
+      final destination = newProject
+          ? (name.text.trim().isEmpty ? '请填写新项目' : '新项目：${name.text.trim()}')
+          : '项目：${store.get('project', projectId ?? '')?.data['name'] ?? '请选择项目'}';
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (!widget.masterData)
+            TextButton(
+              key: const ValueKey('review-destination'),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                alignment: Alignment.centerLeft,
+              ),
+              onPressed: () {
+                setState(() => showProjectSettings = !showProjectSettings);
+                reviewScroll.jumpTo(0);
+              },
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '$destination\n${addToBudget ? '同时加入预算' : '仅登记报价'}',
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text('调整设置'),
+                  const SizedBox(width: 4),
+                  const AppIcon(Icons.expand_less, size: 18),
+                ],
+              ),
+            ),
+          if (widget.masterData)
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8),
+              child: Text('仅登记供应商、联系人和物料；不保存报价'),
+            ),
+          summary,
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(child: back),
+              const SizedBox(width: 8),
+              Expanded(flex: 2, child: confirm),
+            ],
+          ),
+        ],
+      );
+    }
+    return Row(
+      children: [
+        Expanded(child: summary),
+        const SizedBox(width: 10),
+        back,
+        const SizedBox(width: 8),
+        confirm,
+      ],
     );
   }
 }

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:flutter/services.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
@@ -80,7 +83,7 @@ class InquiryPage extends StatelessWidget {
   }
 
   Future<void> _import(BuildContext context, String sid) async {
-    final file = await pickBytes(['xlsx']);
+    final file = await pickBytesForUi(context, ['xlsx']);
     if (file == null || !context.mounted) return;
     final List<InquiryRowPlan> plans;
     try {
@@ -96,7 +99,7 @@ class InquiryPage extends StatelessWidget {
       for (final p in plans)
         if (p.error != null) p,
     ];
-    final ok = await showDialog<bool>(
+    final ok = await showAppDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('导入 ${_supplierName(sid)} 的报价'),
@@ -312,7 +315,7 @@ class InquiryPage extends StatelessWidget {
                 ),
                 PopupMenuButton<String>(
                   tooltip: '询价表',
-                  icon: const Icon(Icons.more_vert, size: 18),
+                  icon: const AppIcon(Icons.more_vert, size: 18),
                   onSelected: (v) => switch (v) {
                     'message' => _copyMessage(context, sid),
                     'export' => _export(context, title, sid),

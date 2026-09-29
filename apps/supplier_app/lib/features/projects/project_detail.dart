@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
@@ -216,9 +217,10 @@ class _Header extends StatelessWidget {
         const SizedBox(height: 4),
         Text(meta, style: TextStyle(fontSize: 13, color: Tokens.ink2)),
         const SizedBox(height: 14),
-        // Phones: the four figures in one row instead of a 2×2 block.
+        // Preserve readable amounts and warnings on touch-width screens.
         LedgerStrip(
           dense: compact,
+          columns: compact ? 2 : null,
           cells: [
             LedgerCell(
               compact ? '合同' : '合同金额',
@@ -281,24 +283,31 @@ class _Toolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget tabButton(_Tab t, String label) => InkWell(
-      onTap: () => onTab(t),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        margin: const EdgeInsets.only(right: 20),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: t == tab ? Tokens.ink : Colors.transparent,
-              width: 2,
+    Widget tabButton(_Tab t, String label) => Semantics(
+      selected: t == tab,
+      button: true,
+      child: InkWell(
+        onTap: () => onTab(t),
+        focusColor: Tokens.accentTint,
+        child: Container(
+          constraints: BoxConstraints(minHeight: compact ? 48 : 40),
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          margin: const EdgeInsets.only(right: 20),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: t == tab ? Tokens.accent : Colors.transparent,
+                width: 2,
+              ),
             ),
           ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: t == tab ? Tokens.ink : Tokens.ink2,
-            fontWeight: t == tab ? FontWeight.w600 : FontWeight.w400,
+          child: Text(
+            label,
+            style: TextStyle(
+              color: t == tab ? Tokens.accentDeep : Tokens.ink2,
+              fontWeight: t == tab ? FontWeight.w600 : FontWeight.w400,
+            ),
           ),
         ),
       ),
@@ -323,7 +332,7 @@ class _Toolbar extends StatelessWidget {
           ),
           PopupMenuButton<String>(
             tooltip: '更多操作',
-            icon: const Icon(Icons.more_vert),
+            icon: const AppIcon(Icons.more_vert),
             onSelected: (v) => switch (v) {
               'edit' => onEdit(),
               'list' => onFromList(),
@@ -362,24 +371,24 @@ class _Toolbar extends StatelessWidget {
             children: [
               OutlinedButton.icon(
                 onPressed: onImport,
-                icon: const Icon(Icons.auto_awesome_outlined, size: 18),
+                icon: const AppIcon(Icons.auto_awesome_outlined, size: 18),
                 label: const Text('导入报价或粘贴 Excel'),
               ),
               OutlinedButton.icon(
                 onPressed: onRefresh,
-                icon: const Icon(Icons.price_change_outlined, size: 18),
+                icon: const AppIcon(Icons.price_change_outlined, size: 18),
                 label: const Text('刷新价格'),
               ),
               MenuAnchor(
                 menuChildren: [
                   MenuItemButton(
                     onPressed: onEdit,
-                    leadingIcon: const Icon(Icons.edit_outlined, size: 18),
+                    leadingIcon: const AppIcon(Icons.edit_outlined, size: 18),
                     child: const Text('编辑项目'),
                   ),
                   MenuItemButton(
                     onPressed: onPush,
-                    leadingIcon: const Icon(Icons.send_outlined, size: 18),
+                    leadingIcon: const AppIcon(Icons.send_outlined, size: 18),
                     child: const Text('推送到局域网设备'),
                   ),
                   const Divider(height: 8),
@@ -393,13 +402,13 @@ class _Toolbar extends StatelessWidget {
                   onPressed: () => controller.isOpen
                       ? controller.close()
                       : controller.open(),
-                  icon: const Icon(Icons.more_horiz, size: 18),
+                  icon: const AppIcon(Icons.more_horiz, size: 18),
                   label: const Text('更多'),
                 ),
               ),
               FilledButton.icon(
                 onPressed: onAdd,
-                icon: const Icon(Icons.add, size: 18),
+                icon: const AppIcon(Icons.add, size: 18),
                 label: const Text('添加物料'),
               ),
             ],

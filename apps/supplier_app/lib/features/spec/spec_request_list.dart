@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../widgets/ledger.dart';
@@ -38,7 +39,7 @@ class SpecRequestList extends StatelessWidget {
       final requests = store.specRequests(projectId: projectId);
       final add = FilledButton.icon(
         onPressed: () => showSpecImport(context, state, projectId: projectId),
-        icon: const Icon(Icons.upload_file, size: 18),
+        icon: const AppIcon(Icons.upload_file, size: 18),
         label: const Text('导入技术要求'),
       );
       if (requests.isEmpty) {
@@ -82,7 +83,7 @@ class SpecRequestList extends StatelessWidget {
                     ].join(' · '),
                     style: TextStyle(color: Tokens.ink3),
                   ),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const AppIcon(Icons.chevron_right),
                   onTap: () => showSpecRequest(context, state, r.id),
                 ),
               );

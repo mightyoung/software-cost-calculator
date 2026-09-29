@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
+import '../../widgets/material_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../widgets/ledger.dart';
@@ -151,7 +155,10 @@ class _CatalogPageState extends State<CatalogPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             Text(noun, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(width: 10),
@@ -161,17 +168,16 @@ class _CatalogPageState extends State<CatalogPage> {
                   : '找到 ${rows.length} 个',
               style: TextStyle(color: Tokens.ink3),
             ),
-            const Spacer(),
             if (isProduct) ...[
               OutlinedButton.icon(
                 onPressed: () => showParamView(context, widget.state),
-                icon: const Icon(Icons.table_rows_outlined, size: 18),
+                icon: const AppIcon(Icons.table_rows_outlined, size: 18),
                 label: const Text('参数视图'),
               ),
               const SizedBox(width: 8),
               OutlinedButton.icon(
                 onPressed: () => showSpecMatch(context, widget.state),
-                icon: const Icon(Icons.rule, size: 18),
+                icon: const AppIcon(Icons.rule, size: 18),
                 label: const Text('按要求找物料'),
               ),
               const SizedBox(width: 8),
@@ -179,38 +185,49 @@ class _CatalogPageState extends State<CatalogPage> {
             OutlinedButton.icon(
               onPressed: () =>
                   importCatalogList(context, widget.state, widget.type),
-              icon: const Icon(Icons.file_upload_outlined, size: 18),
+              icon: const AppIcon(Icons.file_upload_outlined, size: 18),
               label: const Text('导入'),
             ),
             const SizedBox(width: 8),
             OutlinedButton.icon(
               onPressed: rows.isEmpty ? null : () => _export(columns, rows),
-              icon: const Icon(Icons.file_download_outlined, size: 18),
+              icon: const AppIcon(Icons.file_download_outlined, size: 18),
               label: const Text('导出'),
             ),
             const SizedBox(width: 8),
             FilledButton.icon(
               onPressed: () =>
                   showCatalogForm(context, widget.state, widget.type),
-              icon: const Icon(Icons.add, size: 18),
+              icon: const AppIcon(Icons.add, size: 18),
               label: Text('新建$noun'),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.search, size: 18),
-                  hintText: isProduct ? '型号、名称、品牌、规格或拼音首字母' : '名称、别名或拼音首字母',
+        LayoutBuilder(
+          builder: (context, size) => Wrap(
+            spacing: 10,
+            runSpacing: 8,
+            children: [
+              SizedBox(
+                width: filters != null && size.maxWidth >= 600
+                    ? size.maxWidth - 250
+                    : size.maxWidth,
+                child: TextField(
+                  decoration: InputDecoration(
+                    prefixIcon: const AppIcon(Icons.search, size: 18),
+                    hintText: isProduct ? '型号、名称、品牌、规格或拼音首字母' : '名称、别名或拼音首字母',
+                  ),
+                  onChanged: (v) => setState(() => query = v.trim()),
                 ),
-                onChanged: (v) => setState(() => query = v.trim()),
               ),
-            ),
-            if (filters != null) ...[const SizedBox(width: 10), filters],
-          ],
+              if (filters != null)
+                SizedBox(
+                  width: size.maxWidth < 600 ? size.maxWidth : 240,
+                  child: filters,
+                ),
+            ],
+          ),
         ),
         const SizedBox(height: 12),
         Expanded(
@@ -279,7 +296,7 @@ class _CatalogPageState extends State<CatalogPage> {
               bulkActions: (picked, clear) => [
                 TextButton.icon(
                   onPressed: () => _export(columns, picked),
-                  icon: const Icon(Icons.file_download_outlined, size: 18),
+                  icon: const AppIcon(Icons.file_download_outlined, size: 18),
                   label: const Text('导出选中'),
                 ),
                 TextButton.icon(
@@ -293,7 +310,7 @@ class _CatalogPageState extends State<CatalogPage> {
                     );
                     clear();
                   },
-                  icon: const Icon(Icons.delete_outline, size: 18),
+                  icon: const AppIcon(Icons.delete_outline, size: 18),
                   label: const Text('删除'),
                 ),
               ],
@@ -362,6 +379,7 @@ class _CatalogPageState extends State<CatalogPage> {
       filters: categories.isEmpty
           ? null
           : DropdownButton<String?>(
+              isExpanded: true,
               value: category,
               hint: const Text('全部类别'),
               items: [
@@ -376,10 +394,25 @@ class _CatalogPageState extends State<CatalogPage> {
           '名称 / 型号',
           flex: 3,
           value: (r) => r.data['name'] as String?,
-          cell: (r) => _twoLines(
-            r.data['name']! as String,
-            [r.data['brand'], r.data['model']].whereType<String>().join(' · '),
-            mono: true,
+          cell: (r) => Row(
+            children: [
+              MaterialIcon(
+                category: r.data['category'] as String?,
+                name: r.data['name'] as String?,
+                color: Tokens.ink2,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _twoLines(
+                  r.data['name']! as String,
+                  [
+                    r.data['brand'],
+                    r.data['model'],
+                  ].whereType<String>().join(' · '),
+                  mono: true,
+                ),
+              ),
+            ],
           ),
         ),
         GridColumn(
@@ -448,7 +481,7 @@ Future<String?> showCatalogForm(
   AppState state,
   String type, {
   String? id,
-}) => showDialog<String>(
+}) => showAppDialog<String>(
   context: context,
   builder: (_) => _CatalogForm(state: state, type: type, id: id),
 );
@@ -514,7 +547,7 @@ class _CatalogFormState extends State<_CatalogForm> {
   }
 
   Future<void> _merge(Duplicate d) async {
-    final ok = await showDialog<bool>(
+    final ok = await showAppDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('合并到「${duplicateLabel(d.hit.data)}」？'),
@@ -551,7 +584,7 @@ class _CatalogFormState extends State<_CatalogForm> {
         if (d.level == Similarity.same) d,
     ];
     if (widget.id != null || same.isEmpty) return true;
-    final create = await showDialog<bool>(
+    final create = await showAppDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('已有相同的$noun'),
@@ -815,7 +848,7 @@ class _CatalogFormState extends State<_CatalogForm> {
                             TextEditingController(),
                           )),
                         ),
-                        icon: const Icon(Icons.add, size: 16),
+                        icon: const AppIcon(Icons.add, size: 16),
                         label: const Text('添加单位'),
                       ),
                     ],
@@ -855,7 +888,7 @@ class _CatalogFormState extends State<_CatalogForm> {
                           ),
                           IconButton(
                             tooltip: '删除单位换算',
-                            icon: const Icon(Icons.close, size: 16),
+                            icon: const AppIcon(Icons.close, size: 16),
                             onPressed: () => setState(() {
                               final (source, factor) = unitConversions.removeAt(
                                 i,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/theme.dart';
 
 typedef TierRow = (TextEditingController qty, TextEditingController price);
@@ -32,7 +33,7 @@ class TiersEditor extends StatelessWidget {
           ),
           TextButton.icon(
             onPressed: rows.length >= 10 ? null : onAdd,
-            icon: const Icon(Icons.add, size: 16),
+            icon: const AppIcon(Icons.add, size: 16),
             label: const Text('添加一档'),
           ),
         ],
@@ -63,7 +64,7 @@ class TiersEditor extends StatelessWidget {
               ),
               IconButton(
                 tooltip: '删除这一档',
-                icon: const Icon(Icons.close, size: 16),
+                icon: const AppIcon(Icons.close, size: 16),
                 onPressed: () => onRemove(i),
               ),
             ],

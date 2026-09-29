@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../app/version.dart';
@@ -74,7 +75,7 @@ class _FolderSyncPanelState extends State<FolderSyncPanel> {
         children: [
           Row(
             children: [
-              Icon(Icons.folder_shared_outlined, color: Tokens.accent),
+              AppIcon(Icons.folder_shared_outlined, color: Tokens.accent),
               const SizedBox(width: 10),
               Text('共享文件夹同步', style: Theme.of(context).textTheme.titleMedium),
             ],
@@ -145,7 +146,7 @@ class _FolderSyncPanelState extends State<FolderSyncPanel> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.system_update_alt, color: Tokens.accentDeep),
+                    AppIcon(Icons.system_update_alt, color: Tokens.accentDeep),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 import '../app/app_state.dart';
@@ -15,7 +16,7 @@ Future<bool> confirmDelete(
 }) async {
   final label = ontology[type]!.label;
   final refs = describeReferences(state.store.referencesTo(type, id));
-  final sure = await showDialog<bool>(
+  final sure = await showAppDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
       title: Text('删除$label「$name」？'),
@@ -100,7 +101,7 @@ Future<void> deleteManyWithUndo(
   required List<String> ids,
 }) async {
   final label = ontology[type]!.label;
-  final sure = await showDialog<bool>(
+  final sure = await showAppDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
       title: Text('删除选中的 ${ids.length} 个$label？'),

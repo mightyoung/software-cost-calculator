@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-29T00:00:00+08:00",
+  "title": "Design System: 询价台账",
+  "extensions": {
+    "colorMeta": {
+      "primary": { "role": "primary", "displayName": "操作蓝" },
+      "canvas": { "role": "neutral", "displayName": "工作区浅灰" },
+      "navigation": { "role": "neutral", "displayName": "导航灰" }
+    },
+    "typographyMeta": {
+      "title": { "displayName": "页面标题", "purpose": "Flutter titleLarge" },
+      "body": { "displayName": "正文", "purpose": "Flutter bodyLarge；紧凑内容另用 bodyMedium" }
+    },
+    "breakpoints": [
+      { "name": "project-list-detail-available-width", "value": "1000px" },
+      { "name": "work-queue-inline-status-available-width", "value": "520px" }
+    ],
+    "notes": [
+      "适用于 codex-ui。颜色、字号与圆角原语见 DESIGN.md；Flutter 运行时来源为 theme.dart。",
+      "HTML/CSS 是浅色组件外观示意，不模拟 Flutter 全部平台状态。焦点与 hover 样式用于面板预览，不是运行时验证。",
+      "px 对应逻辑像素；断点指组件可用宽度。未生成代码中不存在的色阶、动画或阴影。",
+      "记录日为 2026-09-29；generatedAt 的时间部分为文档日期标记，不是构建或验收时间。"
+    ]
+  },
+  "components": [
+    {
+      "name": "主操作",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "FilledButton 浅色外观示意。",
+      "html": "<button class=\"ds-primary\">新建项目</button>",
+      "css": ".ds-primary{background:#2458D3;color:#fff;border:0;border-radius:8px;padding:12px 14px;font:600 14px system-ui;cursor:pointer}.ds-primary:hover{background:#1B47C2}.ds-primary:focus-visible{outline:2px solid #2458D3;outline-offset:3px}.ds-primary:disabled{opacity:.5;cursor:default}"
+    },
+    {
+      "name": "次要操作",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "OutlinedButton 浅色外观示意。",
+      "html": "<button class=\"ds-secondary\">从清单生成</button>",
+      "css": ".ds-secondary{background:#fff;color:#111827;border:1px solid #C3CAD6;border-radius:8px;padding:12px;font:600 14px system-ui;cursor:pointer}.ds-secondary:hover{background:#F1F3F6}.ds-secondary:focus-visible{outline:2px solid #2458D3;outline-offset:3px}.ds-secondary:disabled{opacity:.5;cursor:default}"
+    },
+    {
+      "name": "搜索字段",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "TextField 边框与焦点外观示意。",
+      "html": "<input class=\"ds-input\" aria-label=\"搜索项目或编号\" placeholder=\"搜索项目或编号\">",
+      "css": ".ds-input{background:#fff;color:#111827;border:1px solid #C3CAD6;border-radius:8px;padding:10px;font:14px system-ui}.ds-input::placeholder{color:#636C7E}.ds-input:hover{border-color:#4B5565}.ds-input:focus-visible{outline:2px solid #2458D3;outline-offset:-2px}"
+    },
+    {
+      "name": "项目筛选",
+      "kind": "chip",
+      "refersTo": "filter-selected",
+      "description": "选中状态和 48 逻辑像素触达区域示意。",
+      "html": "<button class=\"ds-filter\" aria-pressed=\"true\">进行中</button>",
+      "css": ".ds-filter{min-height:48px;min-width:48px;padding:10px;background:#E8EFFF;color:#1B47C2;border:1px solid #2458D3;border-radius:8px;font:600 13px system-ui;cursor:pointer}.ds-filter:hover{background:#E2E8F2}.ds-filter:focus-visible{outline:2px solid #2458D3;outline-offset:3px}"
+    },
+    {
+      "name": "浅色导航",
+      "kind": "nav",
+      "description": "桌面侧栏的浅中性色与选择层次示意；实际路由由 Flutter shell.dart 提供。",
+      "html": "<nav class=\"ds-nav\" aria-label=\"工作区\"><button class=\"ds-nav-item\" aria-current=\"page\">工作台</button><button class=\"ds-nav-item\">项目</button></nav>",
+      "css": ".ds-nav{width:200px;background:#EEF1F5;padding:12px}.ds-nav-item{display:block;width:100%;padding:12px;border:0;border-radius:8px;text-align:left;background:transparent;color:#374357;font:14px system-ui;cursor:pointer}.ds-nav-item[aria-current]{background:#E8EFFF;color:#1B47C2;font-weight:600}.ds-nav-item:hover{background:#E2E8F2}.ds-nav-item:focus-visible{outline:2px solid #2458D3;outline-offset:1px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "清晰的业务工作区",
+    "overview": "这是 `codex-ui` 分支改版实现的视觉记录。用户授权整体 UI 优化，具体方案由本次实现提出，不能称为用户批准或真机验收。产品事实见 `PRODUCT.md`。\n\n浅中性色导航退到背景，白色工作面承载记录和预算。克制的蓝色标识主操作、当前选择与可交互内容；数据、标题与状态通过层级和空间组织。",
+    "keyCharacteristics": [
+      "清晰的标题与任务入口。",
+      "可扫描的数据与可辨识的状态。",
+      "浅导航、白色工作面与克制蓝色。",
+      "保留精确数字与平台字体。"
+    ],
+    "rules": [],
+    "dos": [
+      "**Do** 使用语义 token，同时保留浅色与深色实现。",
+      "**Do** 保持金额精度、数据状态和真实交互。",
+      "**Do** 根据组件实际可用宽度组织布局。"
+    ],
+    "donts": [
+      "**Don't** 添加装饰性指标卡片或虚构业务数据。",
+      "**Don't** 以粗彩色边条、渐变或发光替代信息层级。",
+      "**Don't** 将自动测试或桌面截图描述为跨平台真机验收。"
+    ]
+  }
+}

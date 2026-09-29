@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import 'spec_widgets.dart';
@@ -110,7 +111,7 @@ class _SpecMatchPageState extends State<SpecMatchPage> {
               child: TextButton.icon(
                 onPressed: () =>
                     setState(() => rows.add(ConstraintDraft(null, null))),
-                icon: const Icon(Icons.add, size: 18),
+                icon: const AppIcon(Icons.add, size: 18),
                 label: const Text('添加条件'),
               ),
             ),

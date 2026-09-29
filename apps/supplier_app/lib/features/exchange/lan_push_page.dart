@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
@@ -116,7 +117,7 @@ class _LanPushPageState extends State<LanPushPage> {
               child: TextField(
                 controller: query,
                 decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.search),
+                  prefixIcon: AppIcon(Icons.search),
                   hintText: '搜索名称、型号或拼音首字母',
                 ),
                 onChanged: (_) => setState(() {}),
@@ -209,7 +210,12 @@ class _LanPushPageState extends State<LanPushPage> {
                     hint: Text(peers.isEmpty ? '附近没有设备' : '选择接收设备'),
                     items: [
                       for (final p in peers)
-                        DropdownMenuItem(value: p, child: Text(p.name)),
+                        DropdownMenuItem(
+                          value: p,
+                          child: Text(
+                            '${p.name} · ${p.address}:${p.port}（身份未验证）',
+                          ),
+                        ),
                     ],
                     onChanged: (p) => setState(() => target = p),
                   ),
@@ -218,7 +224,7 @@ class _LanPushPageState extends State<LanPushPage> {
                   onPressed: sending || closure == null || current == null
                       ? null
                       : _send,
-                  icon: const Icon(Icons.send, size: 18),
+                  icon: const AppIcon(Icons.send, size: 18),
                   label: Text(sending ? '正在发送…' : '推送'),
                 ),
               ],

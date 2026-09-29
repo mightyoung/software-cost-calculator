@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../widgets/ledger.dart';
@@ -40,7 +41,7 @@ class ProjectInquiries extends StatelessWidget {
             const SizedBox(width: 12),
             FilledButton.icon(
               onPressed: () => _create(context),
-              icon: const Icon(Icons.send_outlined, size: 18),
+              icon: const AppIcon(Icons.send_outlined, size: 18),
               label: const Text('发起询价'),
             ),
           ],
@@ -75,7 +76,7 @@ class ProjectInquiries extends StatelessWidget {
                                 if (inq.data['status'] == 'closed') '已结束',
                               ].join(' · '),
                             ),
-                            trailing: const Icon(Icons.chevron_right),
+                            trailing: const AppIcon(Icons.chevron_right),
                             onTap: () => openInquiry(context, state, inq.id),
                           ),
                         );

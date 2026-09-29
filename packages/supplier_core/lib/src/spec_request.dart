@@ -190,6 +190,7 @@ final class SpecItem extends EntityPayload {
         (snapshot is! Map || jsonEncode(snapshot).length > 100000)) {
       invalid('chosen_snapshot', 'expected object');
     }
+    if (snapshot is Map) _validateSnapshot(snapshot);
     return SpecItem._({
       'request_id': requireUuid(v['request_id'], 'request_id'),
       'seq': requireSafeInteger(v['seq'], 'seq', min: 1, max: 9999),
@@ -213,6 +214,66 @@ final class SpecItem extends EntityPayload {
       'chosen_snapshot': snapshot,
       'notes': normalizeText(v['notes'], 'notes', 2000),
     });
+  }
+}
+
+/// A chosen snapshot is historical evidence, not a live recomputation. Check
+/// its shape without rewriting text, timestamps, outcomes or product identity.
+void _validateSnapshot(Map raw) {
+  final m = raw.cast<String, Object?>();
+  exactKeys(m, const [
+    'product_id',
+    'name',
+    'brand',
+    'model',
+    'at',
+    'dict_version',
+    'rows',
+  ]);
+  requireUuid(m['product_id'], 'chosen_snapshot.product_id');
+  for (final field in ['name', 'brand', 'model']) {
+    if (m[field] != null && m[field] is! String) {
+      invalid('chosen_snapshot.$field', 'expected text');
+    }
+  }
+  final at = m['at'];
+  if (at is! String || DateTime.tryParse(at) == null) {
+    invalid('chosen_snapshot.at', 'expected timestamp');
+  }
+  requireSafeInteger(
+    m['dict_version'],
+    'chosen_snapshot.dict_version',
+    min: 1,
+    max: 9999,
+  );
+  final rows = m['rows'];
+  if (rows is! List || rows.length > 300) {
+    invalid('chosen_snapshot.rows', 'expected at most 300 rows');
+  }
+  final seen = <int>{};
+  for (final row in rows) {
+    if (row is! Map) invalid('chosen_snapshot.rows', 'expected objects');
+    final r = row.cast<String, Object?>();
+    exactKeys(r, const ['n', 'response', 'outcome', 'note', 'manual']);
+    final n = requireSafeInteger(
+      r['n'],
+      'chosen_snapshot.rows.n',
+      min: 1,
+      max: 9999,
+    );
+    if (!seen.add(n)) invalid('chosen_snapshot.rows.n', 'duplicate clause');
+    for (final field in ['response', 'note']) {
+      if (r[field] != null && r[field] is! String) {
+        invalid('chosen_snapshot.rows.$field', 'expected text');
+      }
+    }
+    if (r['outcome'] != null &&
+        (r['outcome'] is! String ||
+            !Outcome.values.asNameMap().containsKey(r['outcome']))) {
+      invalid('chosen_snapshot.rows.outcome', 'unknown outcome');
+    }
+    if (r['manual'] is! bool)
+      invalid('chosen_snapshot.rows.manual', 'expected boolean');
   }
 }
 

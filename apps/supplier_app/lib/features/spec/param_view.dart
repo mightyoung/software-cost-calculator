@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
@@ -64,7 +67,7 @@ class _ParamViewPageState extends State<ParamViewPage> {
   }
 
   Future<void> _edit(String productId, SpecProperty p, Record? current) async {
-    final result = await showDialog<Object>(
+    final result = await showAppDialog<Object>(
       context: context,
       builder: (_) => _EditDialog(property: p, current: current),
     );
@@ -224,7 +227,7 @@ class _ParamViewPageState extends State<ParamViewPage> {
                 if (rows.any((r) => open(r.$2[p.code])))
                   IconButton(
                     tooltip: '确认本列未确认的值',
-                    icon: const Icon(Icons.done_all, size: 16),
+                    icon: const AppIcon(Icons.done_all, size: 16),
                     onPressed: () => state.write((s) {
                       for (final (r, _) in rows) {
                         s.confirmParams(r.id, [p.code]);

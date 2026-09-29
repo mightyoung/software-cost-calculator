@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:flutter/services.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/shell.dart';
 import '../../app/theme.dart';
@@ -31,7 +34,7 @@ Future<void> showCommandPalette(
   AppState state,
   ValueChanged<Section> onGo,
 ) async {
-  final picked = await showDialog<_Entry>(
+  final picked = await showAppDialog<_Entry>(
     context: context,
     barrierColor: Colors.black26,
     builder: (_) => _Palette(state: state, onGo: onGo),
@@ -169,7 +172,7 @@ class _PaletteState extends State<_Palette> {
                   autofocus: true,
                   decoration: const InputDecoration(
                     hintText: '搜索项目、供应商、物料（支持拼音首字母），或输入命令',
-                    prefixIcon: Icon(Icons.search),
+                    prefixIcon: AppIcon(Icons.search),
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
@@ -198,7 +201,7 @@ class _PaletteState extends State<_Palette> {
                             dense: true,
                             selected: i == index,
                             selectedTileColor: Tokens.accentTint,
-                            leading: Icon(e.icon, size: 18),
+                            leading: AppIcon(e.icon, size: 18),
                             title: Text(
                               e.label,
                               overflow: TextOverflow.ellipsis,
@@ -252,7 +255,7 @@ const shortcutList = [
   ('Ctrl+/', '快捷键一览'),
 ];
 
-Future<void> showShortcutHelp(BuildContext context) => showDialog<void>(
+Future<void> showShortcutHelp(BuildContext context) => showAppDialog<void>(
   context: context,
   builder: (context) => AlertDialog(
     title: const Text('快捷键'),

@@ -1,0 +1,1510 @@
+{
+  "schemaVersion": 1,
+  "nodes": [
+    {
+      "id": "supplier",
+      "data": {
+        "label": "供应商",
+        "description": "提供物料或服务的单位",
+        "fieldCount": 8,
+        "fields": [
+          {
+            "name": "name",
+            "label": "名称",
+            "kind": "文本",
+            "required": true,
+            "description": "全称，最长 200 字",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "aliases",
+            "label": "别名",
+            "kind": "文本列表",
+            "required": false,
+            "description": "简称、曾用名，最多 20 个",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "address",
+            "label": "地址",
+            "kind": "文本",
+            "required": false,
+            "description": "最长 500 字",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "categories",
+            "label": "经营类别",
+            "kind": "文本列表",
+            "required": false,
+            "description": "如\"水泵\"\"阀门\"",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "notes",
+            "label": "备注",
+            "kind": "文本",
+            "required": false,
+            "description": "自由文本，最长 2000 字",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "merged_into",
+            "label": "已合并到",
+            "kind": "引用",
+            "required": false,
+            "description": "不为空表示这是被合并掉的重复记录，应改用目标记录；查询默认已排除",
+            "values": null,
+            "target": "supplier"
+          },
+          {
+            "name": "rating",
+            "label": "评价",
+            "kind": "枚举",
+            "required": false,
+            "description": "采购方自己的判断；停用的供应商其报价不算有效、不参与最低价",
+            "values": {
+              "preferred": "推荐",
+              "caution": "慎用",
+              "disabled": "停用"
+            },
+            "target": null
+          },
+          {
+            "name": "rating_note",
+            "label": "评价说明",
+            "kind": "文本",
+            "required": false,
+            "description": "为什么这样评价，最长 500 字",
+            "values": null,
+            "target": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "contact",
+      "data": {
+        "label": "联系人",
+        "description": "供应商的联系人，至少有一种联系方式",
+        "fieldCount": 6,
+        "fields": [
+          {
+            "name": "supplier_id",
+            "label": "供应商",
+            "kind": "引用",
+            "required": true,
+            "description": "所属供应商",
+            "values": null,
+            "target": "supplier"
+          },
+          {
+            "name": "name",
+            "label": "姓名",
+            "kind": "文本",
+            "required": true,
+            "description": "最长 200 字",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "phone",
+            "label": "电话",
+            "kind": "文本",
+            "required": false,
+            "description": "电话、微信、邮箱至少填一项",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "wechat",
+            "label": "微信",
+            "kind": "文本",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "email",
+            "label": "邮箱",
+            "kind": "文本",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "notes",
+            "label": "备注",
+            "kind": "文本",
+            "required": false,
+            "description": "自由文本，最长 2000 字",
+            "values": null,
+            "target": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "product",
+      "data": {
+        "label": "物料",
+        "description": "可询价的设备、材料或服务，一条物料可有多家供应商的报价",
+        "fieldCount": 11,
+        "fields": [
+          {
+            "name": "name",
+            "label": "名称",
+            "kind": "文本",
+            "required": true,
+            "description": "通用名，如\"离心水泵\"",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "unit",
+            "label": "单位",
+            "kind": "文本",
+            "required": true,
+            "description": "计量单位，如 台、米、套",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "brand",
+            "label": "品牌",
+            "kind": "文本",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "model",
+            "label": "型号",
+            "kind": "文本",
+            "required": false,
+            "description": "最能区分物料的信息",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "specification",
+            "label": "规格/技术要求",
+            "kind": "文本",
+            "required": false,
+            "description": "自由文本，最长 1000 字",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "category",
+            "label": "类别",
+            "kind": "文本",
+            "required": false,
+            "description": "如\"水泵\"\"电缆\"",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "notes",
+            "label": "备注",
+            "kind": "文本",
+            "required": false,
+            "description": "自由文本，最长 2000 字",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "merged_into",
+            "label": "已合并到",
+            "kind": "引用",
+            "required": false,
+            "description": "不为空表示这是被合并掉的重复记录，应改用目标记录；查询默认已排除",
+            "values": null,
+            "target": "product"
+          },
+          {
+            "name": "attributes",
+            "label": "关键参数",
+            "kind": "对象",
+            "required": false,
+            "description": "参数名 → 参数值，如 {\"流量\": \"50m³/h\"}，最多 12 项，顺序有意义",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "unit_conversions",
+            "label": "报价单位换算",
+            "kind": "对象",
+            "required": false,
+            "description": "报价单位 → 每 1 个报价单位包含的本物料基准单位数量，例如 {\"千米\": \"1000\"} 表示 1 千米 = 1000 米",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "spec_class",
+            "label": "参数模板",
+            "kind": "文本",
+            "required": false,
+            "description": "参数字典中的类别代码，如 sensor.th（温湿度传感器）；决定有哪些结构化参数",
+            "values": null,
+            "target": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "project",
+      "data": {
+        "label": "项目",
+        "description": "一次成本测算或采购任务，含预算行、报价和询价单",
+        "fieldCount": 16,
+        "fields": [
+          {
+            "name": "code",
+            "label": "编号",
+            "kind": "文本",
+            "required": true,
+            "description": "项目编号，如 2026-WH01-015",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "name",
+            "label": "名称",
+            "kind": "文本",
+            "required": true,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "status",
+            "label": "状态",
+            "kind": "枚举",
+            "required": true,
+            "description": "",
+            "values": {
+              "planning": "筹备",
+              "active": "进行中",
+              "done": "已完成",
+              "cancelled": "已取消"
+            },
+            "target": null
+          },
+          {
+            "name": "type",
+            "label": "类型",
+            "kind": "枚举",
+            "required": false,
+            "description": "",
+            "values": {
+              "market": "市场项目（对外）",
+              "internal": "内部项目"
+            },
+            "target": null
+          },
+          {
+            "name": "level",
+            "label": "级别",
+            "kind": "枚举",
+            "required": false,
+            "description": "",
+            "values": {
+              "A": "A 级",
+              "B": "B 级",
+              "C": "C 级"
+            },
+            "target": null
+          },
+          {
+            "name": "customer",
+            "label": "客户",
+            "kind": "文本",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "contract_no",
+            "label": "合同号",
+            "kind": "文本",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "contract_amount",
+            "label": "合同金额",
+            "kind": "十进制文本",
+            "required": false,
+            "description": "成本达到合同金额的 90% 时预算会提示",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "department",
+            "label": "部门",
+            "kind": "文本",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "leader",
+            "label": "负责人",
+            "kind": "文本",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "start_date",
+            "label": "开始日期",
+            "kind": "日期 YYYY-MM-DD",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "end_date",
+            "label": "结束日期",
+            "kind": "日期 YYYY-MM-DD",
+            "required": false,
+            "description": "不早于开始日期",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "currency",
+            "label": "币种",
+            "kind": "文本",
+            "required": true,
+            "description": "ISO 4217 三位大写字母，如 CNY、USD",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "tax_mode",
+            "label": "含税口径",
+            "kind": "枚举",
+            "required": true,
+            "description": "预算按此口径计算；只选用口径相同的报价",
+            "values": {
+              "included": "含税",
+              "excluded": "不含税"
+            },
+            "target": null
+          },
+          {
+            "name": "markup_rate",
+            "label": "加价率",
+            "kind": "十进制文本",
+            "required": true,
+            "description": "百分数，如 \"15\" 表示 15%；预算行未填销售单价时，销售单价 = 成本单价 × (1 + 加价率/100)",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "notes",
+            "label": "备注",
+            "kind": "文本",
+            "required": false,
+            "description": "自由文本，最长 2000 字",
+            "values": null,
+            "target": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "quotation",
+      "data": {
+        "label": "报价",
+        "description": "一家供应商对一个物料的一次报价，可属于某个项目和询价单",
+        "fieldCount": 32,
+        "fields": [
+          {
+            "name": "supplier_id",
+            "label": "供应商",
+            "kind": "引用",
+            "required": true,
+            "description": "",
+            "values": null,
+            "target": "supplier"
+          },
+          {
+            "name": "product_id",
+            "label": "物料",
+            "kind": "引用",
+            "required": true,
+            "description": "",
+            "values": null,
+            "target": "product"
+          },
+          {
+            "name": "price",
+            "label": "单价",
+            "kind": "十进制文本",
+            "required": true,
+            "description": "报价单价；已定标时实际成交按 deal_price",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "currency",
+            "label": "币种",
+            "kind": "文本",
+            "required": true,
+            "description": "ISO 4217 三位大写字母，如 CNY、USD",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "tax_mode",
+            "label": "含税口径",
+            "kind": "枚举",
+            "required": true,
+            "description": "",
+            "values": {
+              "included": "含税价",
+              "excluded": "不含税价",
+              "unknown": "含税口径未知（不参与比价）"
+            },
+            "target": null
+          },
+          {
+            "name": "unit_snapshot",
+            "label": "单位",
+            "kind": "文本",
+            "required": true,
+            "description": "报价时的计量单位；单位不同的报价不能直接比较",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "min_qty",
+            "label": "起订量",
+            "kind": "十进制文本",
+            "required": true,
+            "description": "需求数量低于起订量时，这条报价不可用",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "quoted_on",
+            "label": "报价日期",
+            "kind": "日期 YYYY-MM-DD",
+            "required": false,
+            "description": "供应商给出报价的日期",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "contact_id",
+            "label": "联系人",
+            "kind": "引用",
+            "required": false,
+            "description": "报价的联系人",
+            "values": null,
+            "target": "contact"
+          },
+          {
+            "name": "contact_snapshot",
+            "label": "联系人快照",
+            "kind": "对象",
+            "required": false,
+            "description": "报价时联系人的 {name, phone, wechat, email}，联系人以后改了也不变",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "tax_rate",
+            "label": "税率",
+            "kind": "十进制文本",
+            "required": false,
+            "description": "百分数，如 \"13\"",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "lead_time_days",
+            "label": "交期（天）",
+            "kind": "整数",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "valid_until",
+            "label": "有效期至",
+            "kind": "日期 YYYY-MM-DD",
+            "required": false,
+            "description": "过期后报价不可用；未填时报价日期起 90 天内视为有效",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "notes",
+            "label": "备注",
+            "kind": "文本",
+            "required": false,
+            "description": "自由文本，最长 2000 字",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "project_id",
+            "label": "项目",
+            "kind": "引用",
+            "required": false,
+            "description": "为哪个项目询的价；为空表示通用报价",
+            "values": null,
+            "target": "project"
+          },
+          {
+            "name": "inquiry_location",
+            "label": "询价地点",
+            "kind": "文本",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "inquirer_name",
+            "label": "询价人",
+            "kind": "文本",
+            "required": false,
+            "description": "本公司询价的人",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "inquiry_precision",
+            "label": "询价时间精度",
+            "kind": "枚举",
+            "required": false,
+            "description": "",
+            "values": {
+              "date": "只知道日期（inquiry_date）",
+              "instant": "精确到时刻（inquired_at）",
+              "unknown": "不知道（仅历史资料）"
+            },
+            "target": null
+          },
+          {
+            "name": "inquiry_date",
+            "label": "询价日期",
+            "kind": "日期 YYYY-MM-DD",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "inquired_at",
+            "label": "询价时刻",
+            "kind": "时间点 ISO 8601",
+            "required": false,
+            "description": "UTC 时间",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "inquiry_utc_offset_minutes",
+            "label": "询价时区",
+            "kind": "整数",
+            "required": false,
+            "description": "询价时刻所在时区相对 UTC 的分钟数，如 480 表示东八区",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "capture_mode",
+            "label": "录入方式",
+            "kind": "枚举",
+            "required": true,
+            "description": "",
+            "values": {
+              "standard": "标准记录：必须有项目、询价人、询价日期、报价日期",
+              "historical": "历史资料补录，信息可不全"
+            },
+            "target": null
+          },
+          {
+            "name": "includes",
+            "label": "价格包含",
+            "kind": "文本列表",
+            "required": false,
+            "description": "为空表示未说明，[] 表示都不含",
+            "values": {
+              "freight": "运费",
+              "installation": "安装",
+              "commissioning": "调试",
+              "training": "培训"
+            },
+            "target": null
+          },
+          {
+            "name": "warranty_months",
+            "label": "质保（月）",
+            "kind": "整数",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "extra_cost",
+            "label": "附加费用",
+            "kind": "十进制文本",
+            "required": false,
+            "description": "整单另收的费用（运费、包装等），摊到单价：有效单价 = 单价 + 附加费用 ÷ 数量",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "deal_price",
+            "label": "成交单价",
+            "kind": "十进制文本",
+            "required": false,
+            "description": "定标后谈定的单价，定标时必填",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "awarded_on",
+            "label": "定标日期",
+            "kind": "日期 YYYY-MM-DD",
+            "required": false,
+            "description": "不为空表示这条报价已中标",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "award_note",
+            "label": "定标说明",
+            "kind": "文本",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "inquiry_id",
+            "label": "询价单",
+            "kind": "引用",
+            "required": false,
+            "description": "回复的是哪张询价单",
+            "values": null,
+            "target": "inquiry"
+          },
+          {
+            "name": "attachment_ids",
+            "label": "附件",
+            "kind": "引用列表",
+            "required": false,
+            "description": "报价单原件等附件的 id（附件内容不通过工具提供）",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "price_basis",
+            "label": "价格性质",
+            "kind": "枚举",
+            "required": false,
+            "description": "为空表示正式书面报价；口头价和参考价只作参考，不用于预算和最低价",
+            "values": {
+              "verbal": "口头报价",
+              "reference": "参考价（网价、往年价等）"
+            },
+            "target": null
+          },
+          {
+            "name": "price_tiers",
+            "label": "阶梯价",
+            "kind": "对象",
+            "required": false,
+            "description": "[{min_qty, price}]，按报价单位：需求数量达到 min_qty 时单价为 price；数量递增且都大于起订量，最多 10 档。已定标的按成交价，不看阶梯",
+            "values": null,
+            "target": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "project_item",
+      "data": {
+        "label": "预算行",
+        "description": "项目成本预算的一行",
+        "fieldCount": 10,
+        "fields": [
+          {
+            "name": "project_id",
+            "label": "项目",
+            "kind": "引用",
+            "required": true,
+            "description": "",
+            "values": null,
+            "target": "project"
+          },
+          {
+            "name": "category",
+            "label": "成本类别",
+            "kind": "枚举",
+            "required": true,
+            "description": "",
+            "values": {
+              "material": "材料设备（可关联物料和报价）",
+              "outsourcing": "外包",
+              "labor": "人工",
+              "overhead": "管理费用",
+              "other": "其他"
+            },
+            "target": null
+          },
+          {
+            "name": "product_id",
+            "label": "物料",
+            "kind": "引用",
+            "required": false,
+            "description": "只有材料设备行可关联；材料行没有物料表示\"待询价\"",
+            "values": null,
+            "target": "product"
+          },
+          {
+            "name": "name",
+            "label": "名称",
+            "kind": "文本",
+            "required": false,
+            "description": "未关联物料时必填",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "qty",
+            "label": "数量",
+            "kind": "十进制文本",
+            "required": true,
+            "description": "大于 0",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "unit",
+            "label": "单位",
+            "kind": "文本",
+            "required": true,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "quotation_id",
+            "label": "采用的报价",
+            "kind": "引用",
+            "required": false,
+            "description": "成本单价取自这条报价（需先关联物料）",
+            "values": null,
+            "target": "quotation"
+          },
+          {
+            "name": "unit_cost",
+            "label": "成本单价",
+            "kind": "十进制文本",
+            "required": true,
+            "description": "采用报价时的价格快照，或手填；报价变化不会自动改它，需\"按最优价刷新\"",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "unit_price",
+            "label": "销售单价",
+            "kind": "十进制文本",
+            "required": false,
+            "description": "为空时按项目加价率计算",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "notes",
+            "label": "备注",
+            "kind": "文本",
+            "required": false,
+            "description": "自由文本，最长 2000 字",
+            "values": null,
+            "target": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "inquiry",
+      "data": {
+        "label": "询价单",
+        "description": "把一个项目的若干预算行发给若干供应商询价",
+        "fieldCount": 7,
+        "fields": [
+          {
+            "name": "project_id",
+            "label": "项目",
+            "kind": "引用",
+            "required": true,
+            "description": "",
+            "values": null,
+            "target": "project"
+          },
+          {
+            "name": "title",
+            "label": "标题",
+            "kind": "文本",
+            "required": true,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "item_ids",
+            "label": "询价的预算行",
+            "kind": "引用列表",
+            "required": true,
+            "description": "顺序即询价单上的行序，最多 500 行",
+            "values": null,
+            "target": "project_item"
+          },
+          {
+            "name": "supplier_ids",
+            "label": "询价的供应商",
+            "kind": "引用列表",
+            "required": true,
+            "description": "最多 50 家",
+            "values": null,
+            "target": "supplier"
+          },
+          {
+            "name": "due_date",
+            "label": "截止日期",
+            "kind": "日期 YYYY-MM-DD",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "status",
+            "label": "状态",
+            "kind": "枚举",
+            "required": true,
+            "description": "",
+            "values": {
+              "open": "进行中",
+              "closed": "已结束"
+            },
+            "target": null
+          },
+          {
+            "name": "notes",
+            "label": "备注",
+            "kind": "文本",
+            "required": false,
+            "description": "自由文本，最长 2000 字",
+            "values": null,
+            "target": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "product_param",
+      "data": {
+        "label": "物料参数",
+        "description": "物料的一项结构化参数（有类型、单位，可比较）；每个物料每个参数一条",
+        "fieldCount": 9,
+        "fields": [
+          {
+            "name": "product_id",
+            "label": "物料",
+            "kind": "引用",
+            "required": true,
+            "description": "",
+            "values": null,
+            "target": "product"
+          },
+          {
+            "name": "property",
+            "label": "参数",
+            "kind": "文本",
+            "required": true,
+            "description": "参数字典代码，如 cpu.cores（物理核数）、prot.ip（防护等级）",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "value",
+            "label": "取值",
+            "kind": "对象",
+            "required": true,
+            "description": "按参数类型：数值 {v,u}、范围 {min,max,u}、精度 {v,u} 或 {v,basis:FS|RD}、单选 {v}、多选 {vs}、是否 {v}、IP {codes}、防爆 {marks:[{types,group,temp,epl}]}、目录 {entries:[{name,batch,level,valid_until}]}；u 为单位代码",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "cond",
+            "label": "条件",
+            "kind": "文本",
+            "required": false,
+            "description": "取值的条件说明，如\"25℃ 时\"",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "source",
+            "label": "来源",
+            "kind": "枚举",
+            "required": true,
+            "description": "",
+            "values": {
+              "manual": "手填",
+              "rule": "规则抽取",
+              "ai": "AI 抽取",
+              "import": "导入",
+              "decoder": "型号解码"
+            },
+            "target": null
+          },
+          {
+            "name": "evidence",
+            "label": "依据",
+            "kind": "文本",
+            "required": false,
+            "description": "依据原文，如说明书中的一句",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "attachment_id",
+            "label": "依据文件",
+            "kind": "引用",
+            "required": false,
+            "description": "附件 id",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "confirmed",
+            "label": "已确认",
+            "kind": "是/否",
+            "required": true,
+            "description": "人工核对过；未确认的值只作参考",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "dict_version",
+            "label": "字典版本",
+            "kind": "整数",
+            "required": true,
+            "description": "写入时的参数字典版本",
+            "values": null,
+            "target": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "spec_request",
+      "data": {
+        "label": "技术要求",
+        "description": "一份技术要求文件，通常挂在项目下",
+        "fieldCount": 5,
+        "fields": [
+          {
+            "name": "project_id",
+            "label": "项目",
+            "kind": "引用",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": "project"
+          },
+          {
+            "name": "title",
+            "label": "标题",
+            "kind": "文本",
+            "required": true,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "source_name",
+            "label": "来源",
+            "kind": "文本",
+            "required": false,
+            "description": "文件名或\"粘贴文本\"",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "dict_version",
+            "label": "字典版本",
+            "kind": "整数",
+            "required": true,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "notes",
+            "label": "备注",
+            "kind": "文本",
+            "required": false,
+            "description": "自由文本，最长 2000 字",
+            "values": null,
+            "target": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "spec_item",
+      "data": {
+        "label": "需求项",
+        "description": "技术要求中的一台设备及其条款；可定选物料",
+        "fieldCount": 12,
+        "fields": [
+          {
+            "name": "request_id",
+            "label": "技术要求",
+            "kind": "引用",
+            "required": true,
+            "description": "",
+            "values": null,
+            "target": "spec_request"
+          },
+          {
+            "name": "seq",
+            "label": "序号",
+            "kind": "整数",
+            "required": true,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "name",
+            "label": "设备名称",
+            "kind": "文本",
+            "required": true,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "spec_class",
+            "label": "参数模板",
+            "kind": "文本",
+            "required": false,
+            "description": "类别代码",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "qty",
+            "label": "数量",
+            "kind": "十进制文本",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "unit",
+            "label": "单位",
+            "kind": "文本",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "text",
+            "label": "要求原文",
+            "kind": "文本",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "project_item_id",
+            "label": "预算行",
+            "kind": "引用",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": "project_item"
+          },
+          {
+            "name": "clauses",
+            "label": "条款",
+            "kind": "对象",
+            "required": true,
+            "description": "[{n,text,mark:star|triangle|none,cs:[{p,op,value}],reviewed,hint}]；cs 为空是文字条款",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "chosen_product_id",
+            "label": "定选物料",
+            "kind": "引用",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": "product"
+          },
+          {
+            "name": "chosen_snapshot",
+            "label": "定选快照",
+            "kind": "对象",
+            "required": false,
+            "description": "逐条响应 rows:[{n,response,outcome,note}]",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "notes",
+            "label": "备注",
+            "kind": "文本",
+            "required": false,
+            "description": "自由文本，最长 2000 字",
+            "values": null,
+            "target": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "spec_response",
+      "data": {
+        "label": "技术响应",
+        "description": "一家供应商对一个需求项逐条填写的保证值和偏离",
+        "fieldCount": 6,
+        "fields": [
+          {
+            "name": "item_id",
+            "label": "需求项",
+            "kind": "引用",
+            "required": true,
+            "description": "",
+            "values": null,
+            "target": "spec_item"
+          },
+          {
+            "name": "supplier_id",
+            "label": "供应商",
+            "kind": "引用",
+            "required": true,
+            "description": "",
+            "values": null,
+            "target": "supplier"
+          },
+          {
+            "name": "inquiry_id",
+            "label": "询价单",
+            "kind": "引用",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": "inquiry"
+          },
+          {
+            "name": "rows",
+            "label": "逐条响应",
+            "kind": "对象",
+            "required": true,
+            "description": "[{n 条款号, response 保证值, stated 供应商声明的偏离 exact|better|worse|unknown, note}]",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "received_on",
+            "label": "收到日期",
+            "kind": "日期 YYYY-MM-DD",
+            "required": false,
+            "description": "",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "notes",
+            "label": "备注",
+            "kind": "文本",
+            "required": false,
+            "description": "自由文本，最长 2000 字",
+            "values": null,
+            "target": null
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "supplier.merged_into",
+      "source": "supplier",
+      "target": "supplier",
+      "data": {
+        "field": "merged_into",
+        "label": "已合并到",
+        "meaning": "供应商.已合并到 → 供应商",
+        "many": false
+      }
+    },
+    {
+      "id": "product.merged_into",
+      "source": "product",
+      "target": "product",
+      "data": {
+        "field": "merged_into",
+        "label": "已合并到",
+        "meaning": "物料.已合并到 → 物料",
+        "many": false
+      }
+    },
+    {
+      "id": "contact.supplier_id",
+      "source": "contact",
+      "target": "supplier",
+      "data": {
+        "field": "supplier_id",
+        "label": "供应商",
+        "meaning": "联系人.供应商 → 供应商",
+        "many": false
+      }
+    },
+    {
+      "id": "quotation.supplier_id",
+      "source": "quotation",
+      "target": "supplier",
+      "data": {
+        "field": "supplier_id",
+        "label": "供应商",
+        "meaning": "报价.供应商 → 供应商",
+        "many": false
+      }
+    },
+    {
+      "id": "quotation.product_id",
+      "source": "quotation",
+      "target": "product",
+      "data": {
+        "field": "product_id",
+        "label": "物料",
+        "meaning": "报价.物料 → 物料",
+        "many": false
+      }
+    },
+    {
+      "id": "quotation.contact_id",
+      "source": "quotation",
+      "target": "contact",
+      "data": {
+        "field": "contact_id",
+        "label": "联系人",
+        "meaning": "报价.联系人 → 联系人",
+        "many": false
+      }
+    },
+    {
+      "id": "quotation.project_id",
+      "source": "quotation",
+      "target": "project",
+      "data": {
+        "field": "project_id",
+        "label": "项目",
+        "meaning": "报价.项目 → 项目",
+        "many": false
+      }
+    },
+    {
+      "id": "quotation.inquiry_id",
+      "source": "quotation",
+      "target": "inquiry",
+      "data": {
+        "field": "inquiry_id",
+        "label": "询价单",
+        "meaning": "报价.询价单 → 询价单",
+        "many": false
+      }
+    },
+    {
+      "id": "inquiry.project_id",
+      "source": "inquiry",
+      "target": "project",
+      "data": {
+        "field": "project_id",
+        "label": "项目",
+        "meaning": "询价单.项目 → 项目",
+        "many": false
+      }
+    },
+    {
+      "id": "product_param.product_id",
+      "source": "product_param",
+      "target": "product",
+      "data": {
+        "field": "product_id",
+        "label": "物料",
+        "meaning": "物料参数.物料 → 物料",
+        "many": false
+      }
+    },
+    {
+      "id": "spec_request.project_id",
+      "source": "spec_request",
+      "target": "project",
+      "data": {
+        "field": "project_id",
+        "label": "项目",
+        "meaning": "技术要求.项目 → 项目",
+        "many": false
+      }
+    },
+    {
+      "id": "spec_item.request_id",
+      "source": "spec_item",
+      "target": "spec_request",
+      "data": {
+        "field": "request_id",
+        "label": "技术要求",
+        "meaning": "需求项.技术要求 → 技术要求",
+        "many": false
+      }
+    },
+    {
+      "id": "spec_item.project_item_id",
+      "source": "spec_item",
+      "target": "project_item",
+      "data": {
+        "field": "project_item_id",
+        "label": "预算行",
+        "meaning": "需求项.预算行 → 预算行",
+        "many": false
+      }
+    },
+    {
+      "id": "spec_item.chosen_product_id",
+      "source": "spec_item",
+      "target": "product",
+      "data": {
+        "field": "chosen_product_id",
+        "label": "定选物料",
+        "meaning": "需求项.定选物料 → 物料",
+        "many": false
+      }
+    },
+    {
+      "id": "spec_response.item_id",
+      "source": "spec_response",
+      "target": "spec_item",
+      "data": {
+        "field": "item_id",
+        "label": "需求项",
+        "meaning": "技术响应.需求项 → 需求项",
+        "many": false
+      }
+    },
+    {
+      "id": "spec_response.supplier_id",
+      "source": "spec_response",
+      "target": "supplier",
+      "data": {
+        "field": "supplier_id",
+        "label": "供应商",
+        "meaning": "技术响应.供应商 → 供应商",
+        "many": false
+      }
+    },
+    {
+      "id": "spec_response.inquiry_id",
+      "source": "spec_response",
+      "target": "inquiry",
+      "data": {
+        "field": "inquiry_id",
+        "label": "询价单",
+        "meaning": "技术响应.询价单 → 询价单",
+        "many": false
+      }
+    },
+    {
+      "id": "project_item.project_id",
+      "source": "project_item",
+      "target": "project",
+      "data": {
+        "field": "project_id",
+        "label": "项目",
+        "meaning": "预算行.项目 → 项目",
+        "many": false
+      }
+    },
+    {
+      "id": "project_item.product_id",
+      "source": "project_item",
+      "target": "product",
+      "data": {
+        "field": "product_id",
+        "label": "物料",
+        "meaning": "预算行.物料 → 物料",
+        "many": false
+      }
+    },
+    {
+      "id": "project_item.quotation_id",
+      "source": "project_item",
+      "target": "quotation",
+      "data": {
+        "field": "quotation_id",
+        "label": "采用的报价",
+        "meaning": "预算行.采用的报价 → 报价",
+        "many": false
+      }
+    },
+    {
+      "id": "inquiry.item_ids",
+      "source": "inquiry",
+      "target": "project_item",
+      "data": {
+        "field": "item_ids",
+        "label": "询价的预算行",
+        "meaning": "询价单.询价的预算行 → 预算行",
+        "many": true
+      }
+    },
+    {
+      "id": "inquiry.supplier_ids",
+      "source": "inquiry",
+      "target": "supplier",
+      "data": {
+        "field": "supplier_ids",
+        "label": "询价的供应商",
+        "meaning": "询价单.询价的供应商 → 供应商",
+        "many": true
+      }
+    }
+  ]
+}

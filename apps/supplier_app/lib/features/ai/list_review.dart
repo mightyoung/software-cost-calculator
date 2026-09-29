@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
@@ -357,7 +358,7 @@ class _ListReviewState extends State<ListReview> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(confIcon, size: 14, color: confColor),
+            AppIcon(confIcon, size: 14, color: confColor),
             const SizedBox(width: 4),
             Text(confText, style: TextStyle(fontSize: 12, color: confColor)),
           ],
@@ -489,7 +490,7 @@ class _ListReviewState extends State<ListReview> {
           OutlinedButton(onPressed: widget.onBack, child: const Text('返回修改清单')),
           FilledButton.icon(
             onPressed: _generate,
-            icon: const Icon(Icons.check, size: 18),
+            icon: const AppIcon(Icons.check, size: 18),
             label: Text('生成项目（${rows.length} 项）'),
           ),
         ],

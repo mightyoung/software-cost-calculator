@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:flutter/services.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
@@ -32,7 +35,7 @@ class SupplierContacts extends StatelessWidget {
               const Spacer(),
               TextButton.icon(
                 onPressed: () => showContactForm(context, state, supplierId),
-                icon: const Icon(Icons.person_add_alt, size: 18),
+                icon: const AppIcon(Icons.person_add_alt, size: 18),
                 label: const Text('添加联系人'),
               ),
             ],
@@ -50,7 +53,7 @@ class SupplierContacts extends StatelessWidget {
               subtitle: Text(contactLine(c.data)),
               trailing: IconButton(
                 tooltip: '复制联系方式',
-                icon: const Icon(Icons.copy, size: 16),
+                icon: const AppIcon(Icons.copy, size: 16),
                 onPressed: () {
                   Clipboard.setData(
                     ClipboardData(
@@ -80,7 +83,7 @@ Future<void> showContactForm(
   AppState state,
   String supplierId, {
   String? id,
-}) => showDialog(
+}) => showAppDialog(
   context: context,
   builder: (_) => _ContactForm(state: state, supplierId: supplierId, id: id),
 );

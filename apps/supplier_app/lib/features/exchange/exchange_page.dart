@@ -1,8 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
@@ -53,32 +56,40 @@ class _ExchangePageState extends State<ExchangePage> {
           passphrase == null ? '交换文件已导出，可发送给其他设备' : '已导出加密的交换文件，对方需要设置同一个交换口令',
         );
       }
+    } catch (e) {
+      if (mounted) toast(context, '导出失败：$e');
     } finally {
       if (mounted) setState(() => busy = false);
     }
   }
 
   Future<void> _import() async {
-    final picked = await pickToTemp(['siq'], temp);
-    if (picked == null || !mounted) return;
+    String? picked;
     try {
+      picked = await pickToTemp(['siq'], temp);
+      if (picked == null || !mounted) return;
       final r = await reviewAndImport(
         context,
         state,
         picked,
-        onBusy: (b) => setState(() => busy = b),
+        onBusy: (b) {
+          if (mounted) setState(() => busy = b);
+        },
       );
       if (r.message != null && mounted) toast(context, r.message!);
+    } catch (e) {
+      if (mounted) toast(context, '导入失败：$e');
     } finally {
-      File(picked).deleteSync();
+      if (picked != null) File(picked).parent.deleteSync(recursive: true);
       if (mounted) setState(() => busy = false);
     }
   }
 
   Future<void> _restore() async {
-    final picked = await pickToTemp(['siq'], temp);
-    if (picked == null || !mounted) return;
+    String? picked;
     try {
+      picked = await pickToTemp(['siq'], temp);
+      if (picked == null || !mounted) return;
       final r = await reviewAndRestore(
         context,
         state,
@@ -88,8 +99,10 @@ class _ExchangePageState extends State<ExchangePage> {
         },
       );
       if (r.message != null && mounted) toast(context, r.message!);
+    } catch (e) {
+      if (mounted) toast(context, '恢复失败：$e');
     } finally {
-      File(picked).deleteSync();
+      if (picked != null) File(picked).parent.deleteSync(recursive: true);
       if (mounted) setState(() => busy = false);
     }
   }
@@ -108,7 +121,7 @@ class _ExchangePageState extends State<ExchangePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(icon, color: Tokens.accent),
+                AppIcon(icon, color: Tokens.accent),
                 const SizedBox(height: 10),
                 Text(title, style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 6),
@@ -168,10 +181,7 @@ class _ExchangePageState extends State<ExchangePage> {
         ],
         const SizedBox(height: 12),
         Row(children: [panels[2]]),
-        if (busy) ...[
-          const SizedBox(height: 16),
-          const LinearProgressIndicator(),
-        ],
+        if (busy) ...[const SizedBox(height: 16), const TaskProgress()],
         const SizedBox(height: 16),
         PassphraseRow(state: state),
         const SizedBox(height: 16),
@@ -195,7 +205,7 @@ class _ExchangePageState extends State<ExchangePage> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.call_split, color: Tokens.amber),
+                    AppIcon(Icons.call_split, color: Tokens.amber),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(

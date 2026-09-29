@@ -3,9 +3,9 @@ name: build
 on:
   push:
     branches: [main, 'claude/**']
-    paths-ignore: ['docs/**', '**/*.md', '.impeccable.md']
+    paths-ignore: ['**/*.md', '.impeccable.md']
   pull_request:
-    paths-ignore: ['docs/**', '**/*.md', '.impeccable.md']
+    paths-ignore: ['**/*.md', '.impeccable.md']
   workflow_dispatch:
 
 concurrency:
@@ -17,6 +17,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: docs/design/g6/package-lock.json
+      - name: Offline ontology graph tests and packaged asset consistency
+        working-directory: docs/design/g6
+        run: |
+          npm ci --ignore-scripts
+          npm test
+          npm run check
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -45,6 +56,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: NuGet/setup-nuget@v3
       - uses: subosito/flutter-action@v2
         with:
           channel: stable

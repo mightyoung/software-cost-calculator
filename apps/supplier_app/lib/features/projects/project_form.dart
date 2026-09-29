@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 import '../../app/app_state.dart';
@@ -32,7 +34,7 @@ Future<String?> showProjectForm(
   BuildContext context,
   AppState state, {
   String? id,
-}) => showDialog<String>(
+}) => showAppDialog<String>(
   context: context,
   builder: (_) => _ProjectForm(state: state, id: id),
 );
@@ -111,7 +113,7 @@ class _ProjectFormState extends State<_ProjectForm> {
   }
 
   Future<void> _delete() async {
-    final sure = await showDialog<bool>(
+    final sure = await showAppDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('删除这个项目？'),
