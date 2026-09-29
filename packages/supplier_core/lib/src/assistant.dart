@@ -192,15 +192,20 @@ extension Assistant on Store {
               },
             );
       final message = await (cancellation?.wait(bounded) ?? bounded);
+      Never rejectMessage(String reason) {
+        llm.checkpoint?.rejectLast();
+        throw LlmException(reason);
+      }
+
       cancellation?.check();
       context.markSent();
       final calls = message['tool_calls'];
       if (calls != null && calls is! List) {
-        throw LlmException('模型返回了无效的工具调用');
+        rejectMessage('模型返回了无效的工具调用');
       }
       if (calls == null || (calls as List).isEmpty) {
         final answer = (message['content'] as String?)?.trim() ?? '';
-        if (answer.isEmpty) throw LlmException('模型没有返回回答，请重试');
+        if (answer.isEmpty) rejectMessage('模型没有返回回答，请重试');
         return AssistantAnswer.fromRun(
           answer,
           observations,
@@ -212,7 +217,7 @@ extension Assistant on Store {
         );
       }
       if (finishing) {
-        throw LlmException('查询工具次数过多，请把问题说得更具体一些');
+        rejectMessage('查询工具次数过多，请把问题说得更具体一些');
       }
       // Validate the whole batch before executing any calls, preserving pairing.
       final ids = <String>{};
@@ -223,24 +228,24 @@ extension Assistant on Store {
             !ids.add(call['id'] as String) ||
             call['type'] != 'function' ||
             call['function'] is! Map) {
-          throw LlmException('模型返回了无效的工具调用');
+          rejectMessage('模型返回了无效的工具调用');
         }
         final function = call['function'] as Map;
         if (function['name'] is! String ||
             (function['name'] as String).isEmpty ||
             function['arguments'] is! String) {
-          throw LlmException('模型返回了无效的工具参数');
+          rejectMessage('模型返回了无效的工具参数');
         }
       }
       final recalls = calls
           .where((call) => call['function']['name'] == 'recall_context')
           .length;
       if (recovering && recalls != calls.length) {
-        throw LlmException('整理后的收尾阶段只允许回查已有结果');
+        rejectMessage('整理后的收尾阶段只允许回查已有结果');
       }
       if (toolCount + calls.length - recalls > maxAssistantToolCalls ||
           recallCount + recalls > maxContextRecallCalls) {
-        throw LlmException('查询工具次数过多，请把问题说得更具体一些');
+        rejectMessage('查询工具次数过多，请把问题说得更具体一些');
       }
       if (recalls == calls.length) recallOnlyRounds++;
       final batch = <Map<String, Object?>>[message];

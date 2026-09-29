@@ -236,6 +236,7 @@ Future<({bool done, String? message})> reviewAndRestore(
     } on Object catch (e) {
       return (done: true, message: '恢复失败：$e');
     } finally {
+      state.finishRestore();
       if (progressRoute.isActive) navigator.removeRoute(progressRoute);
       await progress;
       onBusy?.call(false);

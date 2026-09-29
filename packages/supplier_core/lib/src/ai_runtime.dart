@@ -15,6 +15,14 @@ enum AiTask {
   parameterExtraction,
 }
 
+/// Local durable step journal. Only successfully decoded model messages are
+/// recorded; domain validators run again when a workflow is resumed.
+abstract class AiCheckpoint {
+  Map<String, Object?>? restore(Map<String, Object?> request);
+  void record(Map<String, Object?> request, Map<String, Object?> message);
+  void rejectLast();
+}
+
 /// Cancellation belongs to a whole business task, including retries and batches.
 class AiCancellation {
   final _done = Completer<void>();

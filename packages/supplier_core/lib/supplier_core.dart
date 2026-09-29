@@ -1,4 +1,5 @@
 export 'src/agent_tools.dart';
+export 'src/ai_jobs.dart';
 export 'src/assistant.dart';
 export 'src/attachments.dart';
 export 'src/background.dart';

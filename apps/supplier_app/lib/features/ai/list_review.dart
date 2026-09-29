@@ -56,8 +56,10 @@ class ListReview extends StatefulWidget {
     required this.currency,
     required this.taxMode,
     required this.onBack,
+    this.aiTaskId,
   });
   final AppState state;
+  final String? aiTaskId;
   final String source;
   final String? sourceName;
   final List<ProposedLine> lines;
@@ -123,16 +125,21 @@ class _ListReviewState extends State<ListReview> {
     ];
     late String id;
     final err = widget.state.write(
-      (s) => id = s.createProjectFromProposal({
-        for (final f in Project.fields) f: null,
-        'code': code.text.trim(),
-        'name': name.text.trim(),
-        'customer': customer.text.trim().isEmpty ? null : customer.text.trim(),
-        'status': 'active',
-        'currency': widget.currency,
-        'tax_mode': widget.taxMode,
-        'markup_rate': markup.text.trim().isEmpty ? '0' : markup.text.trim(),
-      }, lines),
+      (_) => widget.state.commitAiTask(
+        widget.aiTaskId,
+        (s) => id = s.createProjectFromProposal({
+          for (final f in Project.fields) f: null,
+          'code': code.text.trim(),
+          'name': name.text.trim(),
+          'customer': customer.text.trim().isEmpty
+              ? null
+              : customer.text.trim(),
+          'status': 'active',
+          'currency': widget.currency,
+          'tax_mode': widget.taxMode,
+          'markup_rate': markup.text.trim().isEmpty ? '0' : markup.text.trim(),
+        }, lines),
+      ),
     );
     if (err != null) return setState(() => error = err);
     Navigator.of(context).pop(id);

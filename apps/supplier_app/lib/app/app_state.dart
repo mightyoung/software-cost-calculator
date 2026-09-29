@@ -26,6 +26,124 @@ class AppState extends ChangeNotifier {
   final Store store;
   final Directory dataDir;
   final Map<String, Object?> _settings;
+  AiJobStore? _aiJobs;
+  bool _restoring = false;
+  bool _disposed = false;
+
+  AiJobStore get _jobs =>
+      _aiJobs ??= AiJobStore.open('${dataDir.path}/ai-jobs.sqlite');
+
+  List<AiJob> get aiTasks {
+    final jobs = _jobs.jobs;
+    for (final job in jobs) {
+      if (job.status == 'ready' &&
+          job.epoch == _jobs.epoch &&
+          _hasAiReceipt(job.id)) {
+        _jobs.finish(job.id);
+      }
+    }
+    return _jobs.jobs;
+  }
+
+  AiJob aiTask(String id) => _jobs.get(id);
+  bool _hasAiReceipt(String id) => store.db.select(
+    'SELECT 1 FROM meta WHERE key=?',
+    ['ai_applied:$id'],
+  ).isNotEmpty;
+
+  Future<T> runAiTask<T>(
+    AiTask task,
+    Map<String, Object?> input,
+    Future<T> Function(LlmClient) action, {
+    String? resumeId,
+    AiCancellation? cancellation,
+    void Function(String)? onCreated,
+  }) async {
+    if (_disposed || _restoring) throw LlmException('资料库当前不可用，请稍后开始AI任务');
+    final client = await llm();
+    cancellation?.check();
+    if (_disposed || _restoring) throw LlmException('资料库当前不可用，请稍后开始AI任务');
+    if (client == null) throw LlmException('还没有配置 AI 服务，请在设置中填写 API Key');
+    final job = resumeId == null
+        ? _jobs.create(task, input)
+        : _jobs.get(resumeId);
+    if (job.task != task || jsonEncode(job.input) != jsonEncode(input)) {
+      throw LlmException('任务输入已变化，请以新输入开始，不可套用旧检查点');
+    }
+    if (_hasAiReceipt(job.id)) throw LlmException('此任务已经确认入库，不能重复执行');
+    final session = _jobs.start(job.id, cancellation: cancellation);
+    try {
+      onCreated?.call(job.id);
+      notifyListeners();
+      final result = await action(client.withCheckpoint(session));
+      session.check();
+      session.ready();
+      return result;
+    } catch (_) {
+      // Provider errors may contain private request text: retain a generic state,
+      // while the page reports the original actionable error for this attempt.
+      session.pause('任务未完成，已保存成功步骤；可继续');
+      rethrow;
+    } finally {
+      if (!_disposed) notifyListeners();
+    }
+  }
+
+  void validateAiTask(String id) {
+    if (_restoring) throw LlmException('资料库正在恢复，旧AI结果不能应用');
+    if (_hasAiReceipt(id)) throw LlmException('此任务已经确认入库');
+    _jobs.validate(id);
+  }
+
+  void finishAiTask(String id) {
+    _jobs.finish(id);
+    notifyListeners();
+  }
+
+  void discardAiTask(String id) {
+    _jobs.discard(id);
+    notifyListeners();
+  }
+
+  /// Business changes and the opaque apply receipt commit in one transaction.
+  /// A crash before the local task status update cannot apply the draft twice.
+  void commitAiTask(String? id, void Function(Store) action) {
+    if (id == null) {
+      action(store);
+      return;
+    }
+    try {
+      validateAiTask(id);
+    } on LlmException catch (e) {
+      throw FormatException(e.message);
+    }
+    store.transaction(() {
+      if (_hasAiReceipt(id)) throw const FormatException('该任务已经确认，请查看现有记录');
+      action(store);
+      store.db.execute('INSERT INTO meta(key,value) VALUES(?,?)', [
+        'ai_applied:$id',
+        _jobs.epoch,
+      ]);
+    });
+    try {
+      _jobs.finish(id);
+    } catch (_) {
+      // The business receipt is authoritative. aiTasks reconciles this after a
+      // restart; never replay a successful write because task storage failed.
+    }
+  }
+
+  void finishRestore() {
+    _restoring = false;
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    _aiJobs?.close();
+    super.dispose();
+  }
 
   static Future<AppState> open() async {
     final dir = await getApplicationSupportDirectory();
@@ -123,6 +241,8 @@ class AppState extends ChangeNotifier {
   /// Stop folder sync before replacing the library. A sync already in flight
   /// must finish first, or it could merge newer records into the restored DB.
   Future<void> suspendSyncForRestore() async {
+    _restoring = true;
+    _jobs.invalidateAll();
     saveSetting('sync_dir', null);
     await _syncing;
     await Future.wait(_pendingBackgroundWrites.toList());

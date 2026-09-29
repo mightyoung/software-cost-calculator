@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
@@ -13,8 +16,9 @@ Future<String?> showListToProject(BuildContext context, AppState state) =>
     );
 
 class ListToProjectPage extends StatefulWidget {
-  const ListToProjectPage({super.key, required this.state});
+  const ListToProjectPage({super.key, required this.state, this.resumeJobId});
   final AppState state;
+  final String? resumeJobId;
 
   @override
   State<ListToProjectPage> createState() => _ListToProjectPageState();
@@ -27,11 +31,37 @@ class _ListToProjectPageState extends State<ListToProjectPage> {
   List<ProposedLine>? lines;
   var run = 0; // bumps on cancel so late replies are ignored
   AiCancellation? _cancellation;
+  String? _jobId, fileText;
+  Uint8List? fileBytes;
+  Map<String, Object?>? _jobInput;
   String currency = 'CNY', taxMode = 'included';
 
   @override
   void initState() {
     super.initState();
+    if (widget.resumeJobId case final id?) {
+      try {
+        final job = widget.state.aiTask(id);
+        if (job.task == AiTask.listProposal) {
+          _jobId = id;
+          _jobInput = job.input;
+          text.text = job.input['source'] as String;
+          fileName = job.input['fileName'] as String?;
+          final bytes = job.input['fileBytes'] as String?;
+          fileBytes = bytes == null ? null : base64Decode(bytes);
+          fileText = fileBytes == null ? null : text.text;
+          currency = job.input['currency'] as String;
+          taxMode = job.input['taxMode'] as String;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _start();
+          });
+        } else {
+          error = '无法恢复这项清单任务';
+        }
+      } catch (e) {
+        error = '任务读取失败：${friendlyError('$e')}';
+      }
+    }
     widget.state.hasAiKey().then((v) {
       if (mounted) setState(() => hasKey = v);
     });
@@ -52,33 +82,50 @@ class _ListToProjectPageState extends State<ListToProjectPage> {
     final mine = ++run;
     final cancellation = _cancellation = AiCancellation();
     final source = text.text;
+    final input = <String, Object?>{
+      'source': source,
+      'fileName': fileName,
+      'fileBytes': fileBytes != null && source == fileText
+          ? base64Encode(fileBytes!)
+          : null,
+      'currency': currency,
+      'taxMode': taxMode,
+    };
+    final resumeId = mapEquals(input, _jobInput) ? _jobId : null;
     setState(() {
       error = null;
       progress = '正在整理清单…';
     });
     try {
-      final llm = await widget.state.llm();
-      if (!mounted || mine != run) return;
-      cancellation.check();
-      if (llm == null) throw LlmException('还没有配置 AI 服务，请在设置中填写 API Key');
-      final result = await widget.state.store.proposeFromList(
-        llm,
-        source,
+      final result = await widget.state.runAiTask<List<ProposedLine>>(
+        AiTask.listProposal,
+        input,
+        (llm) => widget.state.store.proposeFromList(
+          llm,
+          source,
+          cancellation: cancellation,
+          currency: input['currency']! as String,
+          taxMode: input['taxMode']! as String,
+          onProgress: (stage, done, total) {
+            if (!mounted || mine != run) return;
+            setState(
+              () => progress = switch (stage) {
+                ListStage.structuring =>
+                  total > 1 ? '正在整理清单（第 ${done + 1}/$total 段）' : '正在整理清单…',
+                ListStage.matching => '正在匹配物料（$done/$total）',
+              },
+            );
+          },
+        ),
+        resumeId: resumeId,
         cancellation: cancellation,
-        currency: currency,
-        taxMode: taxMode,
-        onProgress: (stage, done, total) {
-          if (!mounted || mine != run) return;
-          setState(
-            () => progress = switch (stage) {
-              ListStage.structuring =>
-                total > 1 ? '正在整理清单（第 ${done + 1}/$total 段）' : '正在整理清单…',
-              ListStage.matching => '正在匹配物料（$done/$total）',
-            },
-          );
+        onCreated: (id) {
+          _jobId = id;
+          _jobInput = input;
         },
       );
       if (!mounted || mine != run) return;
+      widget.state.validateAiTask(_jobId!);
       setState(() {
         progress = null;
         if (result.isEmpty) {
@@ -92,6 +139,13 @@ class _ListToProjectPageState extends State<ListToProjectPage> {
         setState(() {
           progress = null;
           error = e.message;
+        });
+      }
+    } catch (e) {
+      if (mounted && mine == run) {
+        setState(() {
+          progress = null;
+          error = friendlyError('$e');
         });
       }
     }
@@ -122,6 +176,7 @@ class _ListToProjectPageState extends State<ListToProjectPage> {
     body: lines != null
         ? ListReview(
             state: widget.state,
+            aiTaskId: _jobId,
             source: text.text,
             sourceName: fileName,
             lines: lines!,
@@ -145,8 +200,10 @@ class _ListToProjectPageState extends State<ListToProjectPage> {
     fileName: fileName,
     error: error,
     progress: progress,
-    onFile: (name, _, err) => setState(() {
+    onFile: (name, bytes, err) => setState(() {
       fileName = name;
+      fileBytes = err == null ? bytes : null;
+      fileText = err == null ? text.text : null;
       error = err;
     }),
     onStart: _start,
@@ -158,10 +215,12 @@ class _ListToProjectPageState extends State<ListToProjectPage> {
         DropdownMenuItem(value: 'CNY|included', child: Text('参考报价：人民币 含税')),
         DropdownMenuItem(value: 'CNY|excluded', child: Text('参考报价：人民币 不含税')),
       ],
-      onChanged: (v) => setState(() {
-        currency = v!.split('|').first;
-        taxMode = v.split('|').last;
-      }),
+      onChanged: progress != null
+          ? null
+          : (v) => setState(() {
+              currency = v!.split('|').first;
+              taxMode = v.split('|').last;
+            }),
     ),
   );
 }

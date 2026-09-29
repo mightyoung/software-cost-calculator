@@ -23,11 +23,15 @@ typedef Transport =
     Future<Map<String, Object?>> Function(Map<String, Object?> body);
 
 class LlmClient {
-  LlmClient(this.config, {Transport? transport, this.run})
+  LlmClient(this.config, {Transport? transport, this.run, this.checkpoint})
     : _transport = transport;
   final LlmConfig config;
   final Transport? _transport;
   final AiRun? run;
+  final AiCheckpoint? checkpoint;
+
+  LlmClient withCheckpoint(AiCheckpoint journal) =>
+      LlmClient(config, transport: _transport, run: run, checkpoint: journal);
 
   LlmClient forTask(
     AiTask task, {
@@ -43,6 +47,7 @@ class LlmClient {
     return LlmClient(
       config,
       transport: _transport,
+      checkpoint: checkpoint,
       run: AiRun(
         task,
         cancellation: cancellation,
@@ -65,6 +70,11 @@ class LlmClient {
       'tools': ?tools,
       if (json) 'response_format': {'type': 'json_object'},
     };
+    run?.check();
+    // Endpoint identity is part of replay but API credentials are never stored.
+    final replayRequest = {...body, '_endpoint': config.baseUrl};
+    final saved = checkpoint?.restore(replayRequest);
+    if (saved != null) return saved;
     Future<Map<String, Object?>> send() async {
       final result = await (_transport ?? _http(config, run))(body);
       if (jsonEncode(result).length >
@@ -91,6 +101,7 @@ class LlmClient {
     if (message['content'] != null && message['content'] is! String) {
       throw LlmException('响应 content 格式无效');
     }
+    checkpoint?.record(replayRequest, message);
     return message;
   }
 
@@ -117,6 +128,8 @@ class LlmClient {
           // retry below
         }
       }
+      // Invalid structured output must not poison every future resume attempt.
+      checkpoint?.rejectLast();
     }
     throw LlmException('模型未返回符合任务结构的 JSON，请重试或缩小范围');
   }

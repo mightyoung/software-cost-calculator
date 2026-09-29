@@ -24,8 +24,9 @@ class _Message {
 
 /// Questions about local data, answered through read-only tool calls.
 class AskPage extends StatefulWidget {
-  const AskPage({super.key, required this.state});
+  const AskPage({super.key, required this.state, this.resumeJobId});
   final AppState state;
+  final String? resumeJobId;
 
   @override
   State<AskPage> createState() => _AskPageState();
@@ -71,6 +72,26 @@ class _AskPageState extends State<AskPage> {
       // A damaged history is simply dropped.
     }
     if (messages.isNotEmpty) _scrollDown(animate: false);
+    if (widget.resumeJobId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _resume();
+      });
+    }
+  }
+
+  void _resume() {
+    try {
+      final job = widget.state.aiTask(widget.resumeJobId!);
+      final history = [
+        for (final pair in job.input['history'] as List)
+          AssistantTurn(pair[0] as String, pair[1] as String),
+      ];
+      _send(job.input['question'] as String, history, job.id);
+    } catch (_) {
+      setState(
+        () => messages.add(_Message(false, '任务无法恢复，请从任务列表重新开始。', error: true)),
+      );
+    }
   }
 
   void _saveHistory() => widget.state.saveSetting(
@@ -110,11 +131,15 @@ class _AskPageState extends State<AskPage> {
     super.dispose();
   }
 
-  Future<void> _send([String? preset]) async {
+  Future<void> _send([
+    String? preset,
+    List<AssistantTurn>? resumedHistory,
+    String? resumeId,
+  ]) async {
     final question = (preset ?? input.text).trim();
     if (question.isEmpty || busy) return;
-    final history = <AssistantTurn>[];
-    if (_includeHistory) {
+    final history = resumedHistory ?? <AssistantTurn>[];
+    if (resumedHistory == null && _includeHistory) {
       for (var i = 1; i < messages.length; i++) {
         final question = messages[i - 1], answer = messages[i];
         if (question.fromUser &&
@@ -135,17 +160,17 @@ class _AskPageState extends State<AskPage> {
     });
     _scrollDown();
     _Message reply;
+    String? jobId;
     try {
-      final llm = await widget.state.llm();
-      cancellation.check();
-      if (llm == null) {
-        reply = _Message(
-          false,
-          '还没有配置 AI 服务。在 设置 › AI 接入 中填写 API Key 后再试。',
-          error: true,
-        );
-      } else {
-        final answer = await widget.state.store.askWithEvidence(
+      final answer = await widget.state.runAiTask(
+        AiTask.conversation,
+        {
+          'question': question,
+          'history': [
+            for (final t in history) [t.question, t.answer],
+          ],
+        },
+        (llm) => widget.state.store.askWithEvidence(
           llm,
           question,
           history: history,
@@ -156,13 +181,17 @@ class _AskPageState extends State<AskPage> {
           onTool: (tool) {
             if (mounted) setState(() => activity = toolActivity[tool]);
           },
-        );
-        reply = _Message(
-          false,
-          answer.text.isEmpty ? '没有得到回答，换个问法再试。' : answer.text,
-          evidence: answer,
-        );
-      }
+        ),
+        resumeId: resumeId,
+        cancellation: cancellation,
+        onCreated: (id) => jobId = id,
+      );
+      widget.state.validateAiTask(jobId!);
+      reply = _Message(
+        false,
+        answer.text.isEmpty ? '没有得到回答，换个问法再试。' : answer.text,
+        evidence: answer,
+      );
     } on LlmException catch (e) {
       reply = _Message(false, e.message, error: true);
     } catch (e) {
@@ -176,6 +205,7 @@ class _AskPageState extends State<AskPage> {
       _cancellation = null;
     });
     _saveHistory();
+    if (!reply.error && jobId != null) widget.state.finishAiTask(jobId!);
     _scrollDown();
   }
 

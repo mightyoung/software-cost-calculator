@@ -41,6 +41,7 @@ extension Exchange on Store {
     final copy = sqlite3.open(part);
     try {
       dropSearchIndex(copy);
+      copy.execute("DELETE FROM meta WHERE key LIKE 'ai_applied:%'");
       copy.execute('VACUUM');
     } finally {
       copy.close();
