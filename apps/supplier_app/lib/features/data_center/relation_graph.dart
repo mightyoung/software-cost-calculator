@@ -11,13 +11,14 @@ const _at = {
   'supplier': Offset(.12, .15),
   'quotation': Offset(.5, .15),
   'product': Offset(.88, .15),
-  'contact': Offset(.12, .52),
+  'contact': Offset(.06, .5),
   'project_item': Offset(.88, .52),
   'inquiry': Offset(.3, .87),
   'project': Offset(.7, .87),
   'product_param': Offset(.7, .5),
   'spec_item': Offset(.29, .6),
   'spec_request': Offset(.45, .66),
+  'spec_response': Offset(.15, .82),
 };
 const _box = Size(116, 46);
 

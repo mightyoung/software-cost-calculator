@@ -229,10 +229,14 @@ class MatchMatrix extends StatefulWidget {
     required this.cs,
     this.onChoose,
     this.chosenId,
+    this.chosenBefore = const {},
   });
   final AppState state;
   final MatchResult result;
   final List<SpecConstraint> cs;
+
+  /// Times each material was chosen for requirements of this class.
+  final Map<String, int> chosenBefore;
   final ValueChanged<Candidate>? onChoose;
   final String? chosenId;
 
@@ -350,6 +354,8 @@ class _MatchMatrixState extends State<MatchMatrix> {
           overflow: TextOverflow.ellipsis,
         ),
         if (c.data['model'] case final String m) MonoText(m),
+        if (widget.chosenBefore[c.id] case final n?)
+          Text('曾定选 $n 次', style: TextStyle(fontSize: 12, color: Tokens.ink3)),
       ],
     ),
   );

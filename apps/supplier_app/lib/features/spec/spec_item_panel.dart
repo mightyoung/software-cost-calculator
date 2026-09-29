@@ -6,6 +6,7 @@ import '../../app/theme.dart';
 import '../../platform/files.dart';
 import '../../widgets/ledger.dart';
 import 'spec_widgets.dart';
+import 'supplier_responses.dart';
 
 /// One requirement item: class, clauses to review (② 核对), the match
 /// (③ 匹配) and the choice with answers to text clauses (④ 定选).
@@ -125,6 +126,13 @@ class SpecItemPanel extends StatelessWidget {
           Text('匹配与定选', style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 8),
           _Match(state: state, item: item, clauses: clauses, open: open),
+          if (state.store.responsesOf(itemId) case final rs
+              when rs.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            Text('供应商响应', style: Theme.of(context).textTheme.titleSmall),
+            const SizedBox(height: 8),
+            SupplierResponses(state: state, item: item, responses: rs),
+          ],
         ],
       );
     },
@@ -265,6 +273,7 @@ class _Match extends StatelessWidget {
                   result: result,
                   cs: cs,
                   chosenId: chosen,
+                  chosenBefore: state.store.chosenCounts(cls),
                   onChoose: (c) {
                     final problem = state.write(
                       (s) => s.chooseProduct(item.id, c.id),
