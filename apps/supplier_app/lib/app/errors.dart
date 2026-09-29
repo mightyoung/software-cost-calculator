@@ -10,6 +10,14 @@ const _reasons = {
   'expected unsigned decimal text': '应为不带符号的数字',
   'decimal text required': '应为数字',
   'expected a number': '应为数字',
+  'expected a boolean': '应为“是”或“否”',
+  'expected a positive decimal': '应为大于 0 的数字',
+  'expected a non-negative integer': '应为不小于 0 的整数',
+  'must be non-negative': '不能小于 0',
+  'expected a non-empty string': '应为非空文字',
+  'data changed; restart from offset 0': '数据已变化，请从第一页重新查询',
+  'data changed during query; restart from offset 0': '查询期间数据已变化，请从第一页重新查询',
+  'required for pagination; restart from offset 0': '缺少查询版本，请从第一页重新查询',
   'must be positive': '必须大于 0',
   'must be at most 100': '不能超过 100',
   'must be at most 1000 percent': '不能超过 1000%',
@@ -154,6 +162,9 @@ const _extraLabels = {
   'snapshotSourceItemId': '复制来源',
   'contact_snapshot': '联系人',
   'project': '项目',
+  'offset': '分页位置',
+  'limit': '返回条数',
+  'snapshot': '查询版本',
 };
 
 String _type(String name) =>

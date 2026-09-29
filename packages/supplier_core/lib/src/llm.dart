@@ -50,8 +50,16 @@ class LlmClient {
     if (choices is! List || choices.isEmpty) {
       throw LlmException('响应缺少 choices');
     }
-    final message = (choices.first as Map)['message'];
+    final choice = choices.first;
+    if (choice is! Map) throw LlmException('响应 choices 格式无效');
+    if (choice['finish_reason'] == 'length') {
+      throw LlmException('模型输出被长度限制截断，请缩小输入范围后重试');
+    }
+    final message = choice['message'];
     if (message is! Map<String, Object?>) throw LlmException('响应缺少 message');
+    if (message['content'] != null && message['content'] is! String) {
+      throw LlmException('响应 content 格式无效');
+    }
     return message;
   }
 
@@ -112,6 +120,8 @@ Transport _http(LlmConfig config) => (body) async {
     throw LlmException('网络不可用：${e.message}');
   } on HandshakeException catch (e) {
     throw LlmException('TLS 握手失败：${e.message}');
+  } on FormatException {
+    throw LlmException('AI 服务返回了无效的 JSON');
   } finally {
     client.close(force: true);
   }

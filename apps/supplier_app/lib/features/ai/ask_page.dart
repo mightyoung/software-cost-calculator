@@ -34,6 +34,9 @@ class _AskPageState extends State<AskPage> {
   final scroll = ScrollController();
   final messages = <_Message>[];
   var busy = false;
+  AssistantCancellation? _cancellation;
+  // Local history stays local unless the user opts in for this page session.
+  var _includeHistory = false;
 
   /// What the assistant is doing right now (the tool it called last).
   String? activity;
@@ -47,8 +50,20 @@ class _AskPageState extends State<AskPage> {
     super.initState();
     try {
       final saved = jsonDecode(widget.state.setting(_historyKey) ?? '[]');
-      for (final m in (saved as List).whereType<List>()) {
-        messages.add(_Message(m[0] == true, '${m[1]}', error: m[2] == true));
+      if (saved is List) {
+        for (final m in saved.skip(
+          saved.length > 100 ? saved.length - 100 : 0,
+        )) {
+          if (m is List &&
+              m.length == 3 &&
+              m[0] is bool &&
+              m[1] is String &&
+              m[2] is bool) {
+            messages.add(
+              _Message(m[0] as bool, m[1] as String, error: m[2] as bool),
+            );
+          }
+        }
       }
     } on FormatException {
       // A damaged history is simply dropped.
@@ -68,6 +83,7 @@ class _AskPageState extends State<AskPage> {
 
   @override
   void dispose() {
+    _cancellation?.cancel();
     input.dispose();
     scroll.dispose();
     super.dispose();
@@ -76,6 +92,19 @@ class _AskPageState extends State<AskPage> {
   Future<void> _send([String? preset]) async {
     final question = (preset ?? input.text).trim();
     if (question.isEmpty || busy) return;
+    final history = <AssistantTurn>[];
+    if (_includeHistory) {
+      for (var i = 1; i < messages.length; i++) {
+        final question = messages[i - 1], answer = messages[i];
+        if (question.fromUser &&
+            !question.error &&
+            !answer.fromUser &&
+            !answer.error) {
+          history.add(AssistantTurn(question.text, answer.text));
+        }
+      }
+    }
+    final cancellation = _cancellation = AssistantCancellation();
     input.clear();
     setState(() {
       messages.add(_Message(true, question));
@@ -86,6 +115,7 @@ class _AskPageState extends State<AskPage> {
     _Message reply;
     try {
       final llm = await widget.state.llm();
+      cancellation.check();
       if (llm == null) {
         reply = _Message(
           false,
@@ -96,6 +126,8 @@ class _AskPageState extends State<AskPage> {
         final answer = await widget.state.store.ask(
           llm,
           question,
+          history: history,
+          cancellation: cancellation,
           onTool: (tool) {
             if (mounted) setState(() => activity = toolActivity[tool]);
           },
@@ -103,12 +135,15 @@ class _AskPageState extends State<AskPage> {
         reply = _Message(false, answer.isEmpty ? '没有得到回答，换个问法再试。' : answer);
       }
     } on LlmException catch (e) {
-      reply = _Message(false, '连接 AI 服务失败：${e.message}。检查网络后重试。', error: true);
+      reply = _Message(false, e.message, error: true);
+    } catch (e) {
+      reply = _Message(false, '查询未完成：${friendlyError('$e')}', error: true);
     }
     if (!mounted) return;
     setState(() {
       messages.add(reply);
       busy = false;
+      _cancellation = null;
     });
     _saveHistory();
     _scrollDown();
@@ -151,7 +186,7 @@ class _AskPageState extends State<AskPage> {
         ),
         const SizedBox(height: 4),
         Text(
-          'AI 只能查询本机数据，不会修改任何记录。回答中的金额来自数据库原值。问答记录只保存在本机。',
+          'AI 只能查询，不会修改记录。问题和所需查询结果会发送给你配置的 AI 服务；历史问答默认只保存在本机。',
           style: TextStyle(color: Tokens.ink2),
         ),
         const SizedBox(height: 12),
@@ -193,6 +228,17 @@ class _AskPageState extends State<AskPage> {
           ),
         ),
         const SizedBox(height: 12),
+        CheckboxListTile(
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          controlAffinity: ListTileControlAffinity.leading,
+          value: _includeHistory,
+          onChanged: busy
+              ? null
+              : (value) => setState(() => _includeHistory = value ?? false),
+          title: const Text('使用近期对话'),
+          subtitle: const Text('开启后，追问时会向配置的 AI 服务发送最近最多 6 轮完整问答。'),
+        ),
         Row(
           children: [
             Expanded(
@@ -208,8 +254,8 @@ class _AskPageState extends State<AskPage> {
             ),
             const SizedBox(width: 8),
             FilledButton(
-              onPressed: busy ? null : _send,
-              child: const Text('发送'),
+              onPressed: busy ? () => _cancellation?.cancel() : _send,
+              child: Text(busy ? '停止' : '发送'),
             ),
           ],
         ),

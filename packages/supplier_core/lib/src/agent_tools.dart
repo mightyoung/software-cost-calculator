@@ -37,6 +37,16 @@ Map<String, Object?> _tool(
 
 const _str = {'type': 'string'};
 const _limit = {'type': 'integer', 'description': '最多返回条数，默认 20，上限 50'};
+const _offset = {
+  'type': 'integer',
+  'minimum': 0,
+  'description': '跳过条数，默认 0；用 next_offset 继续读取',
+};
+const _snapshot = {
+  'type': 'string',
+  'description':
+      '首次查询返回的 snapshot；offset > 0 时必填，并保持原筛选与排序。数据变化时报错，须从 offset 0 重查',
+};
 final _type = {'type': 'string', 'enum': entityTypes};
 
 /// Read-only tools over the local data, described by the [ontology]. The
@@ -70,7 +80,7 @@ final agentTools = [
   _tool(
     'query',
     '按字段条件筛选一类记录并计数。字段名见 describe；十进制按数值比较；列表字段任一元素满足即可；'
-        '已删除和已合并的记录不返回。返回 total（总数）和 rows',
+        '已删除和已合并的记录不返回。返回 total、returned、offset、has_more、next_offset、snapshot 和 rows；后续页须带 snapshot，数据变化则从头重查',
     {
       'type': _type,
       'where': {
@@ -88,13 +98,15 @@ final agentTools = [
       'order_by': {'type': 'string', 'description': '排序字段，默认按最近修改'},
       'descending': {'type': 'boolean'},
       'limit': _limit,
+      'offset': _offset,
+      'snapshot': _snapshot,
     },
     ['type'],
   ),
   _tool(
     'related',
     '沿关系找引用了某条记录的记录，例如 link=quotation.supplier_id 取某供应商的报价，'
-        'link=project_item.project_id 取某项目的预算行',
+        'link=project_item.project_id 取某项目的预算行；后续页须带 snapshot，数据变化则从头重查',
     {
       'link': {
         'type': 'string',
@@ -102,27 +114,29 @@ final agentTools = [
       },
       'id': {'type': 'string', 'description': '被引用记录的 id'},
       'limit': _limit,
+      'offset': _offset,
+      'snapshot': _snapshot,
     },
     ['link', 'id'],
   ),
   _tool(
     'compare_quotes',
     '某物料的全部报价按可比口径（币种+含税口径+单位）分组比价：每条是否可用及原因、最低可用价、'
-        '是否定标，以及该口径的历史最低/平均/最高/最近成交价',
-    {'product_id': _str},
+        '是否定标，以及该口径的历史最低/平均/最高/最近成交价。limit 控制每组条数，total/returned/truncated 标明完整性；完整明细用 query/related 带 snapshot 分页',
+    {'product_id': _str, 'limit': _limit},
     ['product_id'],
   ),
   _tool(
     'quote_options',
     '为某项目的某物料选价：该项目币种和含税口径下的可用报价，可用的在前、有效单价从低到高；'
-        '给出需求数量 qty 时计入起订量和附加费用分摊',
-    {'project_id': _str, 'product_id': _str, 'qty': _str},
+        '给出需求数量 qty 时计入起订量和附加费用分摊。limit 控制条数，每项 total/returned/truncated 标明列表完整性；完整原始明细用 query/related 带 snapshot 分页',
+    {'project_id': _str, 'product_id': _str, 'qty': _str, 'limit': _limit},
     ['project_id', 'product_id'],
   ),
   _tool(
     'project_budget',
-    '项目成本预算：各行数量、成本单价、销售单价、金额和提示，分类小计、成本合计、销售合计、毛利',
-    {'project_id': _str},
+    '项目成本预算：各行数量、成本单价、销售单价、金额和提示，分类小计、成本合计、销售合计、毛利。汇总覆盖全部行，limit 控制明细行数，见 total/returned/truncated；完整原始明细用 related 带 snapshot 分页',
+    {'project_id': _str, 'limit': _limit},
     ['project_id'],
   ),
   _tool('data_quality', '数据质量体检：各类记录数，以及冲突、重复、口径未知、待询价等需要处理的问题数量和处理位置', {}),
@@ -139,8 +153,8 @@ final agentTools = [
   ),
   _tool(
     'inquiry_matrix',
-    '询价单的比价矩阵：每个预算行 × 每家供应商的报价（有效单价、是否可用、是否最低、偏离历史均价百分比），及各供应商已回复行数',
-    {'inquiry_id': _str},
+    '询价单的比价矩阵：每个预算行 × 每家供应商的报价（有效单价、是否可用、是否最低、偏离历史均价百分比），及各供应商已回复行数。limit 控制明细行数，见 total/returned/truncated；完整原始明细用 query/related 带 snapshot 分页',
+    {'inquiry_id': _str, 'limit': _limit},
     ['inquiry_id'],
   ),
 ];
@@ -166,19 +180,28 @@ extension AgentTools on Store {
             orderBy: a['order_by'] as String?,
             descending: a['descending'] == true,
             limit: limit,
+            offset: _offsetValue(a),
+            expectedSnapshot: _snapshotValue(a),
           ),
         ),
         'related' => _result(
-          relatedRecords(_s(a, 'link'), _s(a, 'id'), limit: limit),
+          relatedRecords(
+            _s(a, 'link'),
+            _s(a, 'id'),
+            limit: limit,
+            offset: _offsetValue(a),
+            expectedSnapshot: _snapshotValue(a),
+          ),
         ),
-        'compare_quotes' => _compare(_s(a, 'product_id')),
+        'compare_quotes' => _compare(_s(a, 'product_id'), limit),
         'quote_options' => _options(
           _s(a, 'project_id'),
           _s(a, 'product_id'),
           a['qty']?.toString(),
+          limit,
         ),
-        'project_budget' => _budget(_s(a, 'project_id')),
-        'inquiry_matrix' => _matrix(_s(a, 'inquiry_id')),
+        'project_budget' => _budget(_s(a, 'project_id'), limit),
+        'inquiry_matrix' => _matrix(_s(a, 'inquiry_id'), limit),
         'spec_classes' => _specClasses(a['class'] as String?),
         'match_item' => _matchItem(a, limit),
         'data_quality' => {
@@ -248,6 +271,7 @@ extension AgentTools on Store {
           if (c.isText) c.text,
       ],
       'counts': {for (final g in MatchGroup.values) g.name: r.size(g)},
+      ..._bounds(r.candidates.length, limit),
       'candidates': [
         for (final c in r.candidates.take(limit))
           {
@@ -338,18 +362,26 @@ extension AgentTools on Store {
 
   Map<String, Object?> _result(QueryResult r) => {
     'total': r.total,
+    'returned': r.rows.length,
+    'offset': r.offset,
+    'snapshot': r.snapshot,
+    'has_more': r.offset + r.rows.length < r.total,
+    'next_offset': r.offset + r.rows.length < r.total
+        ? r.offset + r.rows.length
+        : null,
     'rows': r.rows,
   };
 
   String? _name(String type, Object? id) =>
       id is String ? get(type, id)?.data['name'] as String? : null;
 
-  List<Map<String, Object?>> _compare(String productId) => [
+  List<Map<String, Object?>> _compare(String productId, int limit) => [
     for (final g in compareQuotes(productId))
       {
         'currency': g.currency,
         'tax_mode': g.taxMode,
         'unit': g.unit,
+        ..._bounds(g.rows.length, limit),
         if (priceHistory(
               productId,
               currency: g.currency,
@@ -366,7 +398,7 @@ extension AgentTools on Store {
             'last_deal': ?h.lastDeal,
           },
         'quotes': [
-          for (final r in g.rows.take(maxToolRows))
+          for (final r in g.rows.take(limit))
             {
               'id': r.id,
               'supplier': _name('supplier', r.data['supplier_id']),
@@ -400,37 +432,43 @@ extension AgentTools on Store {
     String projectId,
     String productId,
     String? qty,
-  ) => [
-    for (final o in quoteOptions(
-      projectId,
-      productId,
-      qty: qty == null ? null : tryDecimal(qty, positive: true),
-    ).take(maxToolRows))
-      {
-        'id': o.id,
-        'supplier': _name('supplier', o.data['supplier_id']),
-        'usable': o.valid,
-        'effective_price': o.effectivePrice,
-        'price': o.price,
-        if (!o.dateValid) 'date_valid': false,
-        if (!o.meetsMinQty) 'meets_min_qty': false,
-        if (!o.formal) 'price_basis': o.data['price_basis'],
-        if (o.awarded) 'awarded_on': o.data['awarded_on'],
-        for (final k in ['quoted_on', 'valid_until', 'min_qty', 'extra_cost'])
-          if (o.data[k] != null) k: o.data[k],
-      },
-  ];
+    int limit,
+  ) {
+    final quantity = qty == null
+        ? null
+        : tryDecimal(qty, positive: true) ??
+              invalid('qty', 'expected a positive decimal');
+    final options = quoteOptions(projectId, productId, qty: quantity);
+    return [
+      for (final o in options.take(limit))
+        {
+          ..._bounds(options.length, limit),
+          'id': o.id,
+          'supplier': _name('supplier', o.data['supplier_id']),
+          'usable': o.valid,
+          'effective_price': o.effectivePrice,
+          'price': o.price,
+          if (!o.dateValid) 'date_valid': false,
+          if (!o.meetsMinQty) 'meets_min_qty': false,
+          if (!o.formal) 'price_basis': o.data['price_basis'],
+          if (o.awarded) 'awarded_on': o.data['awarded_on'],
+          for (final k in ['quoted_on', 'valid_until', 'min_qty', 'extra_cost'])
+            if (o.data[k] != null) k: o.data[k],
+        },
+    ];
+  }
 
-  Map<String, Object?> _budget(String projectId) {
+  Map<String, Object?> _budget(String projectId, int limit) {
     final b = budget(projectId);
     return {
       'cost': b.cost,
       'price': b.price,
       'margin': b.margin,
       'cost_by_category': b.costByCategory,
+      ..._bounds(b.lines.length, limit),
       if (b.contractWarning) 'contract_warning': true,
       'lines': [
-        for (final l in b.lines.take(maxToolRows))
+        for (final l in b.lines.take(limit))
           {
             'id': l.id,
             'name': l.data['name'] ?? _name('product', l.data['product_id']),
@@ -452,17 +490,18 @@ extension AgentTools on Store {
     };
   }
 
-  Map<String, Object?> _matrix(String inquiryId) {
+  Map<String, Object?> _matrix(String inquiryId, int limit) {
     final m = inquiryMatrix(inquiryId);
     return {
       'title': m.inquiry['title'],
       'status': m.inquiry['status'],
+      ..._bounds(m.rows.length, limit),
       'suppliers': [
         for (final s in m.suppliers)
           {'id': s, 'name': _name('supplier', s), 'answered': m.answered[s]},
       ],
       'rows': [
-        for (final r in m.rows.take(maxToolRows))
+        for (final r in m.rows.take(limit))
           {
             'item_id': r.itemId,
             'name': r.item['name'] ?? _name('product', r.item['product_id']),
@@ -486,6 +525,30 @@ extension AgentTools on Store {
       ],
     };
   }
+}
+
+Map<String, Object?> _bounds(int total, int limit) => {
+  'total': total,
+  'returned': total < limit ? total : limit,
+  'truncated': total > limit,
+};
+
+int _offsetValue(Map<String, Object?> a) {
+  final offset = a['offset'] ?? 0;
+  if (offset is! int || offset < 0)
+    invalid('offset', 'expected a non-negative integer');
+  return offset;
+}
+
+String? _snapshotValue(Map<String, Object?> a) {
+  final snapshot = a['snapshot'];
+  if (snapshot != null && (snapshot is! String || snapshot.isEmpty)) {
+    invalid('snapshot', 'expected a non-empty string');
+  }
+  if (_offsetValue(a) > 0 && snapshot == null) {
+    invalid('snapshot', 'required for pagination; restart from offset 0');
+  }
+  return snapshot as String?;
 }
 
 String _s(Map<String, Object?> a, String key) {
