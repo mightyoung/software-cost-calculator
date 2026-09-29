@@ -232,7 +232,7 @@
           },
           {
             "name": "attributes",
-            "label": "关键参数",
+            "label": "关键属性",
             "kind": "对象",
             "required": false,
             "description": "参数名 → 参数值，如 {\"流量\": \"50m³/h\"}，最多 12 项，顺序有意义",

@@ -158,7 +158,7 @@ class _QualityTabState extends State<QualityTab> {
     if (shown.isEmpty && !tools) return const [];
     return [
       const SizedBox(height: 24),
-      Text(area.label, style: Theme.of(context).textTheme.titleSmall),
+      Text(area.label, style: Theme.of(context).textTheme.titleMedium),
       const SizedBox(height: 8),
       dataCenterCard(
         context,
@@ -254,10 +254,10 @@ class _QualityTabState extends State<QualityTab> {
                 ),
               ),
               Tooltip(
-                message: '把自由填写的关键参数（如"温度范围：-40~85℃"）转成有类型、有单位的参数',
+                message: '把自由填写的关键属性（如"温度范围：-40~85℃"）转成有类型、有单位的物料参数',
                 child: OutlinedButton(
                   onPressed: () => showParamMigration(context, state),
-                  child: const Text('关键参数转结构化'),
+                  child: const Text('关键属性转物料参数'),
                 ),
               ),
             ],

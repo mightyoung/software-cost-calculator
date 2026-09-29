@@ -223,7 +223,7 @@ class CompareView extends StatelessWidget {
                     style: TextStyle(
                       fontFeatures: tabular,
                       fontWeight: FontWeight.w600,
-                      fontSize: 15,
+                      fontSize: 16,
                       color: r.lowest ? Tokens.green : ink,
                       decoration: muted ? TextDecoration.lineThrough : null,
                     ),

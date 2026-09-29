@@ -105,7 +105,7 @@ class _HubSettingsState extends State<HubSettings> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('公司资料中心', style: TextStyle(fontWeight: FontWeight.w600)),
+        Text('公司资料中心', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 4),
         Text(
           '可选。连接后可在"公司资料"里查同事共享的供应商和历史报价，'

@@ -9,8 +9,10 @@ window.addEventListener('pagehide',()=>{disposed=true;},{once:true});
 const notify=(name,...args)=>window.flutter_inappwebview?.callHandler(name,...args);
 const quiet=()=>hostQuiet || pendingQuiet || media.matches || $('quiet').checked;
 const duration=()=>quiet()?false:{duration:240};
-const colors=()=>dark?{surface:'#20201e',ink:'#ecece6',muted:'#aaa9a2',line:'#565650',accent:'#deded5'}:
-  {surface:'#ffffff',ink:'#202b3b',muted:'#6a7688',line:'#bbc4d1',accent:'#315efb'};
+// Canvas colours follow the app tokens (ink, ink3, ruleStrong, accent); dark
+// nodes sit one step above the surface and the selection is light grey.
+const colors=()=>dark?{surface:'#20201e',ink:'#eeedea',muted:'#aaa7a3',line:'#565650',accent:'#deded5'}:
+  {surface:'#ffffff',ink:'#111827',muted:'#636c7e',line:'#c3cad6',accent:'#2458d3'};
 const iconIds={supplier:'supplier',contact:'contact',product:'material',product_param:'match',quotation:'quotation',project:'project',project_item:'workspace',inquiry:'inquiry',spec_request:'review',spec_item:'match',spec_response:'review'};
 function el(tag,text,className){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e;}
 function icon(id){const path=catalog.find(c=>c.id===iconIds[id])?.path || '';return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="${path}" fill="none" stroke="${colors().ink}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`);}

@@ -7,7 +7,6 @@ import 'ai_tab.dart';
 import 'model_tab.dart';
 import 'ontology_graph_host.dart';
 import 'quality_tab.dart';
-import 'relation_graph.dart';
 
 /// The data model, data quality and what AI agents get, in one place.
 class DataCenterPage extends StatefulWidget {
@@ -56,84 +55,62 @@ class _DataCenterPageState extends State<DataCenterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final p = RelationGraphPalette.of(context);
-    final base = Theme.of(context);
-    return Theme(
-      data: base.copyWith(
-        colorScheme: base.colorScheme.copyWith(
-          primary: p.accent,
-          onPrimary: p.surface,
-          surface: p.surface,
-          onSurface: p.ink,
-          onSurfaceVariant: p.muted,
-          outline: p.border,
-          outlineVariant: p.border,
-          secondaryContainer: p.tint,
-          onSecondaryContainer: p.ink,
-        ),
-        textTheme: base.textTheme.apply(bodyColor: p.ink, displayColor: p.ink),
-        scaffoldBackgroundColor: p.canvas,
-        inputDecorationTheme: base.inputDecorationTheme.copyWith(
-          fillColor: p.surface,
-        ),
-      ),
-      child: Material(
-        color: p.canvas,
-        child: DefaultTabController(
-          length: 3,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 18, 24, 0),
-                child: Text(
-                  '数据中心',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+    return Material(
+      color: Tokens.canvas,
+      child: DefaultTabController(
+        length: 3,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 18, 24, 0),
+              child: Text(
+                '数据中心',
+                style: Theme.of(context).textTheme.titleLarge,
               ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(24, 4, 24, 0),
-                child: Text(
-                  '软件里有哪些数据、它们怎样关联、质量如何，以及 AI 能读到什么。',
-                  style: TextStyle(color: p.muted),
-                ),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(24, 4, 24, 0),
+              child: Text(
+                '软件里有哪些数据、它们怎样关联、质量如何，以及 AI 能读到什么。',
+                style: TextStyle(color: Tokens.ink3),
               ),
-              const TabBar(
-                isScrollable: true,
-                tabAlignment: TabAlignment.start,
-                padding: EdgeInsets.symmetric(horizontal: 12),
-                tabs: [
-                  Tab(text: '数据模型'),
-                  Tab(text: '数据质量'),
-                  Tab(text: 'AI 接入'),
-                ],
-              ),
-              Expanded(
-                child: TabBarView(
-                  // Horizontal gestures belong to the graph and data tables.
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: [
-                    // Switching tabs must not reload the web view.
-                    _KeepAlive(
-                      child: OntologyGraphHost(
+            ),
+            const TabBar(
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              tabs: [
+                Tab(text: '数据模型'),
+                Tab(text: '数据质量'),
+                Tab(text: 'AI 接入'),
+              ],
+            ),
+            Expanded(
+              child: TabBarView(
+                // Horizontal gestures belong to the graph and data tables.
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  // Switching tabs must not reload the web view.
+                  _KeepAlive(
+                    child: OntologyGraphHost(
+                      counts: counts,
+                      selected: selected,
+                      onSelect: (t) => setState(() => selected = t),
+                      viewBuilder: widget.ontologyViewBuilder,
+                      fallback: OntologyModelTab(
                         counts: counts,
                         selected: selected,
                         onSelect: (t) => setState(() => selected = t),
-                        viewBuilder: widget.ontologyViewBuilder,
-                        fallback: OntologyModelTab(
-                          counts: counts,
-                          selected: selected,
-                          onSelect: (t) => setState(() => selected = t),
-                        ),
                       ),
                     ),
-                    QualityTab(state: widget.state),
-                    AiAccessTab(state: widget.state),
-                  ],
-                ),
+                  ),
+                  QualityTab(state: widget.state),
+                  AiAccessTab(state: widget.state),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -146,9 +123,10 @@ Widget dataCenterCard(
   EdgeInsets? padding,
 }) => Container(
   padding: padding ?? const EdgeInsets.all(16),
+  clipBehavior: Clip.antiAlias,
   decoration: BoxDecoration(
-    color: RelationGraphPalette.of(context).surface,
-    border: Border.all(color: RelationGraphPalette.of(context).border),
+    color: Tokens.surface,
+    border: Border.all(color: Tokens.rule),
     borderRadius: BorderRadius.circular(Tokens.radius),
   ),
   child: child,

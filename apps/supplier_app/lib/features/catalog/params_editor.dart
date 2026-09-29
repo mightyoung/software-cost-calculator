@@ -190,7 +190,7 @@ class ParamsEditor extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Text('结构化参数', style: TextStyle(fontWeight: FontWeight.w600)),
+            const Text('物料参数', style: TextStyle(fontWeight: FontWeight.w600)),
             const SizedBox(width: 8),
             if (keys.isNotEmpty)
               Text(

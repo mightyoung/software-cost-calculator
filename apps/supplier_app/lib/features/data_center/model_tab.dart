@@ -20,103 +20,72 @@ class OntologyModelTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final p = RelationGraphPalette.of(context);
-    final base = Theme.of(context);
-    return Theme(
-      data: base.copyWith(
-        colorScheme: base.colorScheme.copyWith(
-          primary: p.accent,
-          onPrimary: p.surface,
-          secondaryContainer: p.tint,
-          onSecondaryContainer: p.ink,
-          surface: p.surface,
-          onSurface: p.ink,
-          onSurfaceVariant: p.muted,
-          outline: p.border,
-          outlineVariant: p.border,
-        ),
-        textTheme: base.textTheme.apply(bodyColor: p.ink, displayColor: p.ink),
-        chipTheme: base.chipTheme.copyWith(
-          backgroundColor: p.surface,
-          selectedColor: p.tint,
-          labelStyle: base.textTheme.labelLarge?.copyWith(color: p.ink),
-          secondaryLabelStyle: base.textTheme.labelLarge?.copyWith(
-            color: p.ink,
-          ),
-          checkmarkColor: p.accent,
-          side: BorderSide(color: p.border),
-        ),
-        inputDecorationTheme: base.inputDecorationTheme.copyWith(
-          fillColor: p.surface,
-        ),
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final largeText = MediaQuery.textScalerOf(context).scale(14) > 18;
-          final sideBySide =
-              constraints.maxWidth >= 1060 &&
-              constraints.maxHeight >= 560 &&
-              !largeText;
-          final details = _ObjectDetails(
-            type: ontology[selected]!,
-            count: counts[selected] ?? 0,
-            onSelect: onSelect,
-          );
-          if (sideBySide) {
-            return Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
-                    child: LayoutBuilder(
-                      builder: (context, size) => RelationGraph(
-                        counts: counts,
-                        selected: selected,
-                        onSelect: onSelect,
-                        height: size.maxHeight,
-                      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final largeText = MediaQuery.textScalerOf(context).scale(14) > 18;
+        final sideBySide =
+            constraints.maxWidth >= 1060 &&
+            constraints.maxHeight >= 560 &&
+            !largeText;
+        final details = _ObjectDetails(
+          type: ontology[selected]!,
+          count: counts[selected] ?? 0,
+          onSelect: onSelect,
+        );
+        if (sideBySide) {
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, size) => RelationGraph(
+                      counts: counts,
+                      selected: selected,
+                      onSelect: onSelect,
+                      height: size.maxHeight,
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  SizedBox(
-                    key: const ValueKey('ontology-inspector'),
-                    width: 360,
-                    child: SingleChildScrollView(child: details),
-                  ),
+                ),
+                const SizedBox(width: 16),
+                SizedBox(
+                  key: const ValueKey('ontology-inspector'),
+                  width: 360,
+                  child: SingleChildScrollView(child: details),
+                ),
+              ],
+            ),
+          );
+        }
+        return ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            if (constraints.maxWidth >= 680)
+              RelationGraph(
+                counts: counts,
+                selected: selected,
+                onSelect: onSelect,
+                height: largeText ? 680 : 560,
+              )
+            else
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final t in ontology.values)
+                    ChoiceChip(
+                      label: Text('${t.label} ${counts[t.name] ?? 0}'),
+                      selected: t.name == selected,
+                      onSelected: (_) => onSelect(t.name),
+                    ),
                 ],
               ),
-            );
-          }
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              if (constraints.maxWidth >= 680)
-                RelationGraph(
-                  counts: counts,
-                  selected: selected,
-                  onSelect: onSelect,
-                  height: largeText ? 680 : 560,
-                )
-              else
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    for (final t in ontology.values)
-                      ChoiceChip(
-                        label: Text('${t.label} ${counts[t.name] ?? 0}'),
-                        selected: t.name == selected,
-                        onSelected: (_) => onSelect(t.name),
-                      ),
-                  ],
-                ),
-              const SizedBox(height: 16),
-              details,
-            ],
-          );
-        },
-      ),
+            const SizedBox(height: 16),
+            details,
+          ],
+        );
+      },
     );
   }
 }

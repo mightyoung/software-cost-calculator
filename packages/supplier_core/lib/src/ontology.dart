@@ -177,7 +177,7 @@ final _types = <ObjectType>[
     _merged('product'),
     const FieldSpec(
       'attributes',
-      '关键参数',
+      '关键属性',
       Kind.object,
       '参数名 → 参数值，如 {"流量": "50m³/h"}，最多 12 项，顺序有意义',
     ),

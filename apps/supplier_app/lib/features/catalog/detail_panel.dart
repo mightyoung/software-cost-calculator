@@ -301,7 +301,7 @@ class CatalogDetail extends StatelessWidget {
     return [
       _section(
         [
-          '参数',
+          '物料参数',
           if (cls != null) specClass(cls)?.label ?? cls,
           if (done.total > 0) '关键参数 ${done.filled}/${done.total}',
         ].join(' · '),
@@ -354,7 +354,7 @@ class CatalogDetail extends StatelessWidget {
                 Text(
                   value,
                   style: const TextStyle(
-                    fontSize: 15,
+                    fontSize: 16,
                     fontWeight: FontWeight.w600,
                     fontFeatures: tabular,
                   ),

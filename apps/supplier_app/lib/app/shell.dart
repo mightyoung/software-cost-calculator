@@ -264,7 +264,7 @@ class _Sidebar extends StatelessWidget {
                   '询价台账',
                   style: TextStyle(
                     color: Tokens.ink,
-                    fontSize: 17,
+                    fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

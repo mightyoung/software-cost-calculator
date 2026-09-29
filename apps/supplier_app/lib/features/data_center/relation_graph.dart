@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 import '../../widgets/app_icon.dart';
 
-/// Immutable, theme-local colours; painters never consult mutable global tokens.
+/// Immutable colours for the graph painters, the global design tokens
+/// (DESIGN.md §3) resolved once per brightness. In the dark theme the
+/// selected object is marked light grey; page actions stay blue.
 class RelationGraphPalette {
   const RelationGraphPalette(
     this.canvas,
@@ -26,13 +28,13 @@ class RelationGraphPalette {
           Color(0xFF302E2B),
         )
       : const RelationGraphPalette(
-          Color(0xFFF2F4F7),
-          Colors.white,
-          Color(0xFF101828),
-          Color(0xFF596274),
-          Color(0xFFCCD2DC),
-          Color(0xFF0033FF),
-          Color(0xFFEDF2FF),
+          Color(0xFFF7F8FA),
+          Color(0xFFFFFFFF),
+          Color(0xFF111827),
+          Color(0xFF636C7E),
+          Color(0xFFC3CAD6),
+          Color(0xFF2458D3),
+          Color(0xFFE8EFFF),
         );
   final Color canvas, surface, ink, muted, border, accent, tint;
 }
