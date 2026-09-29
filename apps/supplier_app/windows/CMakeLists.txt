@@ -55,6 +55,9 @@ add_subdirectory("runner")
 
 # Generated plugin build rules, which manage building the plugins and adding
 # them to the application.
+# flutter_inappwebview_windows 0.6.0 includes <experimental/coroutine>, which
+# newer MSVC turns into error STL1011. Remove once the plugin moves to C++20.
+add_compile_definitions(_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS)
 include(flutter/generated_plugins.cmake)
 
 
