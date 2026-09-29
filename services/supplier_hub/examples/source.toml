@@ -1,0 +1,12 @@
+center_id = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+bind = "127.0.0.1:8080"
+database = "../data/source.sqlite"
+
+[sync]
+enabled = true
+role = "export"
+directory = "../data/outbox"
+interval_seconds = 30
+resend_seconds = 86400
+max_files_per_tick = 50
+# HUB_SYNC_KEY must be supplied through the environment (at least 32 bytes).
