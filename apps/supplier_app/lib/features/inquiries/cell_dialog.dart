@@ -145,12 +145,20 @@ class _CellDialogState extends State<_CellDialog> {
     );
     Widget pair(Widget a, Widget b) => Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          Expanded(child: a),
-          const SizedBox(width: 12),
-          Expanded(child: b),
-        ],
+      child: LayoutBuilder(
+        builder: (context, size) =>
+            size.maxWidth < 440 * MediaQuery.textScalerOf(context).scale(1)
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [a, const SizedBox(height: 12), b],
+              )
+            : Row(
+                children: [
+                  Expanded(child: a),
+                  const SizedBox(width: 12),
+                  Expanded(child: b),
+                ],
+              ),
       ),
     );
     return AlertDialog(
@@ -165,6 +173,7 @@ class _CellDialogState extends State<_CellDialog> {
               pair(
                 field('price', '单价（每${item['unit']}）'),
                 DropdownButtonFormField<String>(
+                  isExpanded: true,
                   initialValue: taxMode,
                   decoration: const InputDecoration(labelText: '价格口径'),
                   items: [

@@ -911,22 +911,21 @@ class _CatalogFormState extends State<_CatalogForm> {
                   const SizedBox(height: 12),
                 ],
                 if (widget.type == 'supplier') ...[
-                  Row(
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Text('评价', style: TextStyle(color: Tokens.ink2)),
-                      const SizedBox(width: 12),
-                      SegmentedButton<String>(
-                        segments: [
-                          const ButtonSegment(value: '', label: Text('未评价')),
-                          for (final e in supplierRatings.entries)
-                            ButtonSegment(value: e.key, label: Text(e.value)),
-                        ],
-                        selected: {rating ?? ''},
-                        showSelectedIcon: false,
-                        onSelectionChanged: (v) => setState(
-                          () => rating = v.single.isEmpty ? null : v.single,
+                      for (final e in {'': '未评价', ...supplierRatings}.entries)
+                        ChoiceChip(
+                          label: Text(e.value),
+                          selected: (rating ?? '') == e.key,
+                          showCheckmark: false,
+                          onSelected: (_) => setState(
+                            () => rating = e.key.isEmpty ? null : e.key,
+                          ),
                         ),
-                      ),
                     ],
                   ),
                   if (rating == 'disabled')

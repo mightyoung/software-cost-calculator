@@ -8,6 +8,7 @@ import 'package:supplier_core/supplier_core.dart';
 import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
+import '../../app/motion.dart';
 import '../../platform/files.dart';
 import '../../widgets/ledger.dart';
 import '../spec/param_view.dart';
@@ -841,6 +842,7 @@ class _AiTab extends StatefulWidget {
 
 class _AiTabState extends State<_AiTab> {
   String query = '';
+  bool mcpExpanded = false, rulesExpanded = false;
   AppState get state => widget.state;
   @override
   Widget build(BuildContext context) {
@@ -870,6 +872,7 @@ class _AiTabState extends State<_AiTab> {
               const SizedBox(height: 12),
               Wrap(
                 spacing: 12,
+                runSpacing: 8,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   FilledButton.icon(
@@ -896,9 +899,11 @@ class _AiTabState extends State<_AiTab> {
           const SizedBox(height: 16),
           ExpansionTile(
             title: const Text('接入其他 AI 工具（MCP）'),
-            trailing: const RotatedBox(
-              quarterTurns: 1,
-              child: AppIcon(Icons.chevron_right),
+            onExpansionChanged: (value) => setState(() => mcpExpanded = value),
+            trailing: AnimatedRotation(
+              turns: mcpExpanded ? .25 : 0,
+              duration: AppMotion.duration(context),
+              child: const AppIcon(Icons.chevron_right),
             ),
             children: [
               _McpCard(
@@ -984,9 +989,11 @@ class _AiTabState extends State<_AiTab> {
         const SizedBox(height: 16),
         ExpansionTile(
           title: const Text('AI 需要遵守的规则'),
-          trailing: const RotatedBox(
-            quarterTurns: 1,
-            child: AppIcon(Icons.chevron_right),
+          onExpansionChanged: (value) => setState(() => rulesExpanded = value),
+          trailing: AnimatedRotation(
+            turns: rulesExpanded ? .25 : 0,
+            duration: AppMotion.duration(context),
+            child: const AppIcon(Icons.chevron_right),
           ),
           children: [
             _card(

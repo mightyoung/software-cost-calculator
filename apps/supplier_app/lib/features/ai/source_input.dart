@@ -129,61 +129,75 @@ class StepsBar extends StatelessWidget {
   final int current;
 
   @override
-  Widget build(BuildContext context) {
-    Widget step(int i, String label) {
-      final done = i < current, on = i == current;
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 20,
-            height: 20,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: done ? Tokens.accent : Colors.transparent,
-              border: Border.all(
-                color: done
-                    ? Tokens.accent
-                    : (on ? Tokens.ink : Tokens.ruleStrong),
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, bounds) {
+      final compact =
+          bounds.maxWidth / MediaQuery.textScalerOf(context).scale(1) < 420;
+      Widget step(int i, String label) {
+        final done = i < current, on = i == current;
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 20,
+              height: 20,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: done ? Tokens.accent : Colors.transparent,
+                border: Border.all(
+                  color: done
+                      ? Tokens.accent
+                      : (on ? Tokens.ink : Tokens.ruleStrong),
+                ),
               ),
-            ),
-            child: done
-                ? const AppIcon(Icons.check, size: 13, color: Colors.white)
-                : Text(
-                    '${i + 1}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: on ? Tokens.ink : Tokens.ink3,
+              child: done
+                  ? AppIcon(
+                      Icons.check,
+                      size: 13,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    )
+                  : Text(
+                      '${i + 1}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: on ? Tokens.ink : Tokens.ink3,
+                      ),
                     ),
-                  ),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              color: on ? Tokens.ink : Tokens.ink3,
-              fontWeight: on ? FontWeight.w600 : FontWeight.w400,
             ),
-          ),
+            if (!compact || on) ...[
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: on ? Tokens.ink : Tokens.ink3,
+                  fontWeight: on ? FontWeight.w600 : FontWeight.w400,
+                ),
+              ),
+            ],
+          ],
+        );
+      }
+
+      return Row(
+        children: [
+          for (var i = 0; i < labels.length; i++) ...[
+            if (i > 0)
+              Container(
+                width: 28,
+                height: 1,
+                margin: const EdgeInsets.symmetric(horizontal: 10),
+                color: Tokens.ruleStrong,
+              ),
+            Semantics(
+              label: '第 ${i + 1} 步，${labels[i]}',
+              selected: i == current,
+              child: Tooltip(message: labels[i], child: step(i, labels[i])),
+            ),
+          ],
         ],
       );
-    }
-
-    return Row(
-      children: [
-        for (var i = 0; i < labels.length; i++) ...[
-          if (i > 0)
-            Container(
-              width: 28,
-              height: 1,
-              margin: const EdgeInsets.symmetric(horizontal: 10),
-              color: Tokens.ruleStrong,
-            ),
-          step(i, labels[i]),
-        ],
-      ],
-    );
-  }
+    },
+  );
 }

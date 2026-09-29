@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 import '../../app/app_state.dart';
+import '../../widgets/app_icon.dart';
 import '../../platform/files.dart';
 import '../spec/spec_item_panel.dart';
 import 'ask_page.dart';
@@ -121,7 +122,7 @@ class AiTasksPage extends StatelessWidget {
                       ),
                     IconButton(
                       tooltip: '删除任务记录',
-                      icon: const Icon(Icons.delete_outline),
+                      icon: const AppIcon(Icons.delete_outline),
                       onPressed: () {
                         try {
                           state.discardAiTask(job.id);

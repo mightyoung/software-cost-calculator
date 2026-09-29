@@ -575,9 +575,7 @@ class _MaterialReviewState extends State<MaterialReview> {
     );
     return Container(
       decoration: BoxDecoration(
-        border: r.plan.error != null
-            ? Border(left: BorderSide(color: Tokens.red, width: 3))
-            : null,
+        color: r.plan.error != null ? Tokens.redBg : null,
       ),
       padding: const EdgeInsets.fromLTRB(4, 10, 8, 10),
       child: Row(

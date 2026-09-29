@@ -146,96 +146,106 @@ class _PaletteState extends State<_Palette> {
     index = index.clamp(0, list.isEmpty ? 0 : list.length - 1);
     void move(int by) =>
         setState(() => index = list.isEmpty ? 0 : (index + by) % list.length);
-    return Align(
-      alignment: const Alignment(0, -0.6),
-      child: Material(
-        color: Tokens.surface,
-        shape: RoundedRectangleBorder(
-          side: BorderSide(color: Tokens.ruleStrong),
-          borderRadius: BorderRadius.circular(Tokens.radius + 2),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: SizedBox(
-          width: 560,
-          height: 420,
-          child: Column(
-            children: [
-              CallbackShortcuts(
-                bindings: {
-                  const SingleActivator(LogicalKeyboardKey.arrowDown): () =>
-                      move(1),
-                  const SingleActivator(LogicalKeyboardKey.arrowUp): () =>
-                      move(-1),
-                },
-                child: TextField(
-                  controller: query,
-                  autofocus: true,
-                  decoration: const InputDecoration(
-                    hintText: '搜索项目、供应商、物料（支持拼音首字母），或输入命令',
-                    prefixIcon: AppIcon(Icons.search),
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    filled: false,
-                  ),
-                  onChanged: (_) => setState(() => index = 0),
-                  onSubmitted: (_) {
-                    if (list.isNotEmpty) Navigator.pop(context, list[index]);
-                  },
-                ),
-              ),
-              const Divider(height: 1),
-              Expanded(
-                child: list.isEmpty
-                    ? Center(
-                        child: Text(
-                          '没有找到',
-                          style: TextStyle(color: Tokens.ink3),
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: list.length,
-                        itemBuilder: (context, i) {
-                          final e = list[i];
-                          return ListTile(
-                            dense: true,
-                            selected: i == index,
-                            selectedTileColor: Tokens.accentTint,
-                            leading: AppIcon(e.icon, size: 18),
-                            title: Text(
-                              e.label,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            subtitle: e.sub == null || e.sub!.isEmpty
-                                ? null
-                                : Text(e.sub!, overflow: TextOverflow.ellipsis),
-                            trailing: e.keys == null
-                                ? null
-                                : Text(
-                                    e.keys!,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Tokens.ink3,
-                                    ),
-                                  ),
-                            onTap: () => Navigator.pop(context, e),
-                          );
-                        },
+    return Padding(
+      padding: MediaQuery.viewInsetsOf(context) + const EdgeInsets.all(12),
+      child: SafeArea(
+        child: Align(
+          alignment: const Alignment(0, -0.6),
+          child: Material(
+            color: Tokens.surface,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(color: Tokens.ruleStrong),
+              borderRadius: BorderRadius.circular(Tokens.radius + 2),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: SizedBox(
+              width: 560,
+              height: 420,
+              child: Column(
+                children: [
+                  CallbackShortcuts(
+                    bindings: {
+                      const SingleActivator(LogicalKeyboardKey.arrowDown): () =>
+                          move(1),
+                      const SingleActivator(LogicalKeyboardKey.arrowUp): () =>
+                          move(-1),
+                    },
+                    child: TextField(
+                      controller: query,
+                      autofocus: true,
+                      decoration: const InputDecoration(
+                        hintText: '搜索项目、供应商、物料（支持拼音首字母），或输入命令',
+                        prefixIcon: AppIcon(Icons.search),
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        filled: false,
                       ),
+                      onChanged: (_) => setState(() => index = 0),
+                      onSubmitted: (_) {
+                        if (list.isNotEmpty) {
+                          Navigator.pop(context, list[index]);
+                        }
+                      },
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  Expanded(
+                    child: list.isEmpty
+                        ? Center(
+                            child: Text(
+                              '没有找到',
+                              style: TextStyle(color: Tokens.ink3),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: list.length,
+                            itemBuilder: (context, i) {
+                              final e = list[i];
+                              return ListTile(
+                                dense: true,
+                                selected: i == index,
+                                selectedTileColor: Tokens.accentTint,
+                                leading: AppIcon(e.icon, size: 18),
+                                title: Text(
+                                  e.label,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                subtitle: e.sub == null || e.sub!.isEmpty
+                                    ? null
+                                    : Text(
+                                        e.sub!,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                trailing: e.keys == null
+                                    ? null
+                                    : Text(
+                                        e.keys!,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Tokens.ink3,
+                                        ),
+                                      ),
+                                onTap: () => Navigator.pop(context, e),
+                              );
+                            },
+                          ),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    color: Tokens.sunken,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 6,
+                    ),
+                    child: Text(
+                      '↑↓ 选择 · Enter 打开 · Esc 关闭',
+                      style: TextStyle(fontSize: 12, color: Tokens.ink3),
+                    ),
+                  ),
+                ],
               ),
-              Container(
-                width: double.infinity,
-                color: Tokens.sunken,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 6,
-                ),
-                child: Text(
-                  '↑↓ 选择 · Enter 打开 · Esc 关闭',
-                  style: TextStyle(fontSize: 12, color: Tokens.ink3),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -258,6 +268,7 @@ const shortcutList = [
 Future<void> showShortcutHelp(BuildContext context) => showAppDialog<void>(
   context: context,
   builder: (context) => AlertDialog(
+    scrollable: true,
     title: const Text('快捷键'),
     content: SizedBox(
       width: 360,
@@ -267,20 +278,33 @@ Future<void> showShortcutHelp(BuildContext context) => showAppDialog<void>(
           for (final (keys, what) in shortcutList)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 5),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 130,
-                    child: Text(
-                      keys,
-                      style: const TextStyle(
-                        fontFamily: monoFamily,
-                        fontFamilyFallback: monoFallback,
-                      ),
+              child: Builder(
+                builder: (context) {
+                  final keyLabel = Text(
+                    keys,
+                    style: const TextStyle(
+                      fontFamily: monoFamily,
+                      fontFamilyFallback: monoFallback,
                     ),
-                  ),
-                  Expanded(child: Text(what)),
-                ],
+                  );
+                  if (MediaQuery.sizeOf(context).width < 520 ||
+                      MediaQuery.textScalerOf(context).scale(1) > 1.2) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        keyLabel,
+                        const SizedBox(height: 4),
+                        Text(what),
+                      ],
+                    );
+                  }
+                  return Row(
+                    children: [
+                      SizedBox(width: 130, child: keyLabel),
+                      Expanded(child: Text(what)),
+                    ],
+                  );
+                },
               ),
             ),
           const SizedBox(height: 6),

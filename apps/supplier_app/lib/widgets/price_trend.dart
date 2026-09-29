@@ -63,9 +63,15 @@ class PriceTrend extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(sorted.first.day, style: label),
+                    Flexible(child: Text(sorted.first.day, style: label)),
                     if (sorted.last.day != sorted.first.day)
-                      Text(sorted.last.day, style: label),
+                      Flexible(
+                        child: Text(
+                          sorted.last.day,
+                          style: label,
+                          textAlign: TextAlign.end,
+                        ),
+                      ),
                   ],
                 ),
               ],

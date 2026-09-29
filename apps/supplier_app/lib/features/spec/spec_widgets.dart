@@ -124,10 +124,11 @@ class ConstraintFields extends StatelessWidget {
           ),
         ),
         SizedBox(
-          width: 120,
+          width: 120 * MediaQuery.textScalerOf(context).scale(1),
           child: DropdownButtonFormField<String>(
             key: ValueKey('o-${r.hashCode}-${r.property}'),
             initialValue: r.op,
+            isExpanded: true,
             decoration: const InputDecoration(labelText: '比较'),
             items: [
               if (p != null)

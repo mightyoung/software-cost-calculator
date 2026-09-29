@@ -83,6 +83,29 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('没有匹配的只读工具'), findsNothing);
+      await tester.scrollUntilVisible(
+        find.text('AI 需要遵守的规则'),
+        200,
+        scrollable: find
+            .descendant(
+              of: find.byType(ListView).last,
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+      final rulesTile = find.ancestor(
+        of: find.text('AI 需要遵守的规则'),
+        matching: find.byType(ExpansionTile),
+      );
+      final arrow = find.descendant(
+        of: rulesTile,
+        matching: find.byType(AnimatedRotation),
+      );
+      expect(tester.widget<AnimatedRotation>(arrow).turns, 0);
+      expect(tester.widget<AnimatedRotation>(arrow).duration, Duration.zero);
+      await tester.tap(find.text('AI 需要遵守的规则'));
+      await tester.pumpAndSettle();
+      expect(tester.widget<AnimatedRotation>(arrow).turns, .25);
       expect(store.recordCounts(), counts);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox());

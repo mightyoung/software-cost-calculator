@@ -447,11 +447,7 @@ class _ListReviewState extends State<ListReview> {
     return InkWell(
       onTap: () => setState(() => focused = i),
       child: Container(
-        decoration: BoxDecoration(
-          border: r.attention
-              ? Border(left: BorderSide(color: Tokens.amber, width: 3))
-              : null,
-        ),
+        decoration: BoxDecoration(color: r.attention ? Tokens.amberBg : null),
         padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
         child: body,
       ),

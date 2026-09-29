@@ -152,6 +152,7 @@ class _ProjectFormState extends State<_ProjectForm> {
 
   Widget _dropdown(String key, String label, Map<String?, String> options) =>
       DropdownButtonFormField<String?>(
+        isExpanded: true,
         initialValue: data[key] as String?,
         decoration: InputDecoration(labelText: label),
         items: [
@@ -173,6 +174,27 @@ class _ProjectFormState extends State<_ProjectForm> {
       autofocus: key == 'name',
       onSubmitted: (_) => _save(),
     );
+    Widget fields(List<Widget> children) => LayoutBuilder(
+      builder: (context, size) =>
+          size.maxWidth < 440 * MediaQuery.textScalerOf(context).scale(1)
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final (i, child) in children.indexed) ...[
+                  if (i > 0) const SizedBox(height: 12),
+                  child,
+                ],
+              ],
+            )
+          : Row(
+              children: [
+                for (final (i, child) in children.indexed) ...[
+                  if (i > 0) const SizedBox(width: 12),
+                  Expanded(child: child),
+                ],
+              ],
+            ),
+    );
     return SaveKeys(
       onSave: _save,
       child: AlertDialog(
@@ -189,56 +211,38 @@ class _ProjectFormState extends State<_ProjectForm> {
                   [('contract_amount', '合同金额'), ('markup_rate', '加价率 %')],
                   [('leader', '负责人'), ('department', '部门')],
                 ]) ...[
-                  Row(
-                    children: [
-                      Expanded(child: field(pair[0].$1, pair[0].$2)),
-                      const SizedBox(width: 12),
-                      Expanded(child: field(pair[1].$1, pair[1].$2)),
-                    ],
-                  ),
+                  fields([
+                    field(pair[0].$1, pair[0].$2),
+                    field(pair[1].$1, pair[1].$2),
+                  ]),
                   const SizedBox(height: 12),
                 ],
-                Row(
-                  children: [
-                    Expanded(child: _dropdown('status', '状态', statusLabels)),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _dropdown('type', '类型', {
-                        null: '未指定',
-                        'market': '市场订单',
-                        'internal': '内部研发',
-                      }),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _dropdown('level', '级别', {
-                        null: '未指定',
-                        'A': 'A',
-                        'B': 'B',
-                        'C': 'C',
-                      }),
-                    ),
-                  ],
-                ),
+                fields([
+                  _dropdown('status', '状态', statusLabels),
+                  _dropdown('type', '类型', {
+                    null: '未指定',
+                    'market': '市场订单',
+                    'internal': '内部研发',
+                  }),
+                  _dropdown('level', '级别', {
+                    null: '未指定',
+                    'A': 'A',
+                    'B': 'B',
+                    'C': 'C',
+                  }),
+                ]),
                 const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _dropdown('tax_mode', '价格口径', {
-                        'included': '含税',
-                        'excluded': '不含税',
-                      }),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _dropdown('currency', '币种', {
-                        'CNY': 'CNY 人民币',
-                        'USD': 'USD 美元',
-                        'EUR': 'EUR 欧元',
-                      }),
-                    ),
-                  ],
-                ),
+                fields([
+                  _dropdown('tax_mode', '价格口径', {
+                    'included': '含税',
+                    'excluded': '不含税',
+                  }),
+                  _dropdown('currency', '币种', {
+                    'CNY': 'CNY 人民币',
+                    'USD': 'USD 美元',
+                    'EUR': 'EUR 欧元',
+                  }),
+                ]),
                 if (creating && others.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String?>(

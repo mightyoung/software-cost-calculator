@@ -196,38 +196,50 @@ class _LanPushPageState extends State<LanPushPage> {
               closure == null ? '勾选要推送的内容' : '将发送 ${_summary(closure)}（含关联记录）',
               style: TextStyle(color: Tokens.ink2),
             ),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (widget.state.lan == null)
-                  TextButton(
-                    onPressed: () => widget.state.setLanVisible(true),
-                    child: const Text('打开"局域网可见"'),
-                  )
-                else
-                  DropdownButton<LanPeer>(
-                    value: current,
-                    hint: Text(peers.isEmpty ? '附近没有设备' : '选择接收设备'),
-                    items: [
-                      for (final p in peers)
-                        DropdownMenuItem(
-                          value: p,
-                          child: Text(
-                            '${p.name} · ${p.address}:${p.port}（身份未验证）',
+            LayoutBuilder(
+              builder: (context, size) => Wrap(
+                spacing: 12,
+                runSpacing: 10,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  SizedBox(
+                    width: size.maxWidth < 600 ? size.maxWidth : 440,
+                    child: widget.state.lan == null
+                        ? TextButton(
+                            onPressed: () => widget.state.setLanVisible(true),
+                            child: const Text('打开"局域网可见"'),
+                          )
+                        : DropdownButton<LanPeer>(
+                            isExpanded: true,
+                            value: current,
+                            hint: Text(peers.isEmpty ? '附近没有设备' : '选择接收设备'),
+                            items: [
+                              for (final p in peers)
+                                DropdownMenuItem(
+                                  value: p,
+                                  child: Tooltip(
+                                    message:
+                                        '${p.name} · ${p.address}:${p.port}（身份未验证）',
+                                    child: Text(
+                                      '${p.name} · ${p.address}:${p.port}（身份未验证）',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                            onChanged: (p) => setState(() => target = p),
                           ),
-                        ),
-                    ],
-                    onChanged: (p) => setState(() => target = p),
                   ),
-                const SizedBox(width: 12),
-                FilledButton.icon(
-                  onPressed: sending || closure == null || current == null
-                      ? null
-                      : _send,
-                  icon: const AppIcon(Icons.send, size: 18),
-                  label: Text(sending ? '正在发送…' : '推送'),
-                ),
-              ],
+                  FilledButton.icon(
+                    onPressed: sending || closure == null || current == null
+                        ? null
+                        : _send,
+                    icon: const AppIcon(Icons.send, size: 18),
+                    label: Text(sending ? '正在发送…' : '推送'),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

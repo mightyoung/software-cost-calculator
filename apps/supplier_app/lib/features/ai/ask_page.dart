@@ -214,7 +214,8 @@ class _AskPageState extends State<AskPage> {
 
   void _scrollDown({bool animate = true}) =>
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (scroll.hasClients && !animate) {
+        if (!mounted) return;
+        if (scroll.hasClients && (!animate || AppMotion.reduced(context))) {
           scroll.jumpTo(scroll.position.maxScrollExtent);
         } else if (scroll.hasClients) {
           scroll.animateTo(
@@ -280,9 +281,13 @@ class _AskPageState extends State<AskPage> {
                                   ),
                                 ),
                                 const SizedBox(width: 10),
-                                Text(
-                                  activity == null ? '正在理解问题…' : '正在$activity…',
-                                  style: TextStyle(color: Tokens.ink3),
+                                Expanded(
+                                  child: Text(
+                                    activity == null
+                                        ? '正在理解问题…'
+                                        : '正在$activity…',
+                                    style: TextStyle(color: Tokens.ink3),
+                                  ),
                                 ),
                               ],
                             ),

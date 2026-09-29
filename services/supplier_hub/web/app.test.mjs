@@ -1,6 +1,29 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { exactPrice, changedVisibility, toDraft, parseReport, displayField, resolveReference } from './app.js';
+
+test('admin navigation uses the same local icon geometry as the application', async () => {
+  const html = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const catalog = JSON.parse(await readFile(new URL('../../../docs/design/icons/catalog.json', import.meta.url), 'utf8'));
+  for (const id of ['workspace','supplier','quotation','upload','exchange','settings','refresh','close']) {
+    const icon = catalog.find(entry => entry.id === id);
+    assert.ok(html.includes(`data-icon="${id}"`), `missing ${id}`);
+    assert.ok(html.includes(`d="${icon.path}"`), `geometry drift: ${id}`);
+  }
+  assert.doesNotMatch(html, /[▤▥≡⇄⚙]/u);
+});
+
+test('admin surfaces expose neutral themes, scaling, local table scroll and reduced motion', async () => {
+  const css = await readFile(new URL('./styles.css', import.meta.url), 'utf8');
+  assert.match(css, /--canvas:#f7f8fa/i);
+  assert.match(css, /--canvas:#131211/i);
+  assert.match(css, /data-theme=dark/);
+  assert.match(css, /data-theme=light/);
+  assert.match(css, /font:0\.875rem/);
+  assert.match(css, /prefers-reduced-motion/);
+  assert.match(css, /\.table-wrap\{overflow:auto/);
+});
 
 test('preserves decimal price without binary floating point conversion', () => {
   assert.equal(exactPrice({price:'123456789012.123456',currency:'CNY',unit_snapshot:'台'}),'CNY 123456789012.123456 / 台');

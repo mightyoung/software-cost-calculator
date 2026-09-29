@@ -89,6 +89,7 @@ class _AwardDialogState extends State<_AwardDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
+    scrollable: true,
     title: const Text('定标'),
     content: SizedBox(
       width: 460,

@@ -90,7 +90,12 @@ List<Widget> dialogActions({
       style: TextButton.styleFrom(foregroundColor: Tokens.red),
       child: Text(deleteLabel),
     ),
-  Row(mainAxisSize: MainAxisSize.min, spacing: 8, children: actions),
+  Wrap(
+    spacing: 8,
+    runSpacing: 8,
+    alignment: WrapAlignment.end,
+    children: actions,
+  ),
 ];
 
 /// Deletes several records at once after asking; one undo restores all.

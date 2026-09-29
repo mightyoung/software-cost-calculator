@@ -42,6 +42,12 @@ if (typeof document !== 'undefined') startAdmin();
 
 function startAdmin() {
   const $ = (selector) => document.querySelector(selector);
+  // Appearance remains page-local, just like the connection controls.
+  $('#appearance').addEventListener('change', event => {
+    const theme = event.target.value;
+    if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+    else delete document.documentElement.dataset.theme;
+  });
   const main = $('#main');
   const detail = $('#detail-dialog');
   const connect = $('#connection-dialog');
@@ -194,7 +200,7 @@ function startAdmin() {
         const cells=kind==='supplier'?[name,el('td',{},translated(c.rating)),el('td',{},text(c.rating_note)),el('td',{},source(item.origin)),el('td',{},el('span',{class:`badge ${item.withdrawn?'warning':'blue'}`},item.withdrawn?'已撤回':'已共享'))]:[name,el('td',{class:'number'},el('div',{class:'price'},exactPrice(c))),el('td',{},translated(c.tax_mode),el('div',{class:'muted'},`起订量 ${text(c.min_qty)} · 有效期 ${text(c.valid_until)}`)),el('td',{},text(c.quoted_on||c.inquiry_date)),el('td',{},source(item.origin))];
         tbody.append(el('tr',{},...cells));
       }
-      results.replaceChildren(el('div',{class:'table-wrap'},el('table',{class:'data-table'},el('thead',{},el('tr',{},...headings.map((label,index)=>el('th',{scope:'col',class:kind==='quotation'&&index===1?'number':''},label)))),tbody)),pager(filter.offset,items.length,offset=>{filter.offset=offset;navigate(page);}));
+      results.replaceChildren(el('div',{class:'table-wrap',tabindex:'0',role:'region','aria-label':`${PAGE[page][0]}列表，可横向滚动`},el('table',{class:'data-table'},el('thead',{},el('tr',{},...headings.map((label,index)=>el('th',{scope:'col',class:kind==='quotation'&&index===1?'number':''},label)))),tbody)),pager(filter.offset,items.length,offset=>{filter.offset=offset;navigate(page);}));
     }catch(error){if(run===state.pageRun)showError(results,error,()=>navigate(page));}
   }
   async function openDetail(item, revision=null) {

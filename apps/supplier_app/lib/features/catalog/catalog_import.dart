@@ -65,6 +65,7 @@ class _SupplierPreview extends StatelessWidget {
         .where((p) => p.error == null && p.contact != null)
         .length;
     return AlertDialog(
+      scrollable: true,
       title: Text('导入供应商：$name'),
       content: SizedBox(
         width: 480,

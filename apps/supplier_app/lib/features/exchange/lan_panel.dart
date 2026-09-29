@@ -156,11 +156,20 @@ class _LanPanelState extends State<LanPanel> {
                       children: [
                         AppIcon(Icons.computer, size: 18, color: Tokens.ink2),
                         const SizedBox(width: 8),
-                        Text('${p.name}（身份未验证）'),
-                        const SizedBox(width: 8),
-                        Text(
-                          p.address,
-                          style: TextStyle(fontSize: 12, color: Tokens.ink3),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('${p.name}（身份未验证）'),
+                              Text(
+                                p.address,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Tokens.ink3,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),

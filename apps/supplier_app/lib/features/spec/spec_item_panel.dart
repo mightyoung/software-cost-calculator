@@ -84,7 +84,10 @@ class SpecItemPanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               Text('条款', style: Theme.of(context).textTheme.titleSmall),
               const SizedBox(width: 8),
@@ -94,7 +97,6 @@ class SpecItemPanel extends StatelessWidget {
                   color: open == 0 ? Tokens.green : Tokens.amber,
                 ),
               ),
-              const Spacer(),
               if (state.specAi &&
                   cls != null &&
                   clauses.any(

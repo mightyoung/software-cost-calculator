@@ -69,24 +69,35 @@ class CompareView extends StatelessWidget {
         Expanded(
           child: groups.isEmpty
               ? const EmptyState(title: '这个物料还没有报价', body: '录入或导入报价后即可比价。')
-              : ListView(
-                  children: [
-                    for (final g in groups) ...[
-                      _GroupHeader(
-                        group: g,
-                        history: store.priceHistory(
-                          productId,
-                          currency: g.currency,
-                          taxMode: g.taxMode,
-                          unit: g.unit,
-                          forCompareGroup: true,
-                        ),
+              : LayoutBuilder(
+                  builder: (context, size) => SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SizedBox(
+                      width: size.maxWidth.clamp(
+                        1120 * MediaQuery.textScalerOf(context).scale(1),
+                        double.infinity,
                       ),
-                      _columnsHeader(),
-                      for (final r in g.rows) _row(context, r, g),
-                      const SizedBox(height: 16),
-                    ],
-                  ],
+                      child: ListView(
+                        children: [
+                          for (final g in groups) ...[
+                            _GroupHeader(
+                              group: g,
+                              history: store.priceHistory(
+                                productId,
+                                currency: g.currency,
+                                taxMode: g.taxMode,
+                                unit: g.unit,
+                                forCompareGroup: true,
+                              ),
+                            ),
+                            _columnsHeader(),
+                            for (final r in g.rows) _row(context, r, g),
+                            const SizedBox(height: 16),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
         ),
       ],

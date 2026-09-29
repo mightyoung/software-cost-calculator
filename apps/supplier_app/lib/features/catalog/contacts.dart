@@ -150,6 +150,7 @@ class _ContactFormState extends State<_ContactForm> {
   Widget build(BuildContext context) => SaveKeys(
     onSave: _save,
     child: AlertDialog(
+      scrollable: true,
       title: Text(widget.id == null ? '添加联系人' : '编辑联系人'),
       content: SizedBox(
         width: 400,

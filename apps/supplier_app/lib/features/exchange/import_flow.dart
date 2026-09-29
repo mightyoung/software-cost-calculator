@@ -155,6 +155,7 @@ Future<({bool done, String? message})> reviewAndRestore(
     final previewed = await showAppDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
+        scrollable: true,
         title: const Text('整库恢复预览'),
         content: SizedBox(
           width: 440,
@@ -194,6 +195,7 @@ Future<({bool done, String? message})> reviewAndRestore(
     final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
+        scrollable: true,
         title: const Text('确认替换整个资料库？'),
         content: const SizedBox(
           width: 440,
@@ -278,6 +280,7 @@ class _Preview extends StatelessWidget {
     );
     final conflicts = preview.values.fold(0, (n, t) => n + t.conflicts.length);
     return AlertDialog(
+      scrollable: true,
       title: Text(title),
       content: SizedBox(
         width: 440,

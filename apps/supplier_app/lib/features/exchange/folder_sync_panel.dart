@@ -77,7 +77,12 @@ class _FolderSyncPanelState extends State<FolderSyncPanel> {
             children: [
               AppIcon(Icons.folder_shared_outlined, color: Tokens.accent),
               const SizedBox(width: 10),
-              Text('共享文件夹同步', style: Theme.of(context).textTheme.titleMedium),
+              Expanded(
+                child: Text(
+                  '共享文件夹同步',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 6),
@@ -98,6 +103,7 @@ class _FolderSyncPanelState extends State<FolderSyncPanel> {
             const SizedBox(height: 10),
             Wrap(
               spacing: 8,
+              runSpacing: 8,
               children: [
                 FilledButton(
                   onPressed: busy ? null : _sync,

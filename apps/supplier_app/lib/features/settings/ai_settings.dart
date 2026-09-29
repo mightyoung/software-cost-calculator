@@ -38,6 +38,7 @@ class _AiSettingsState extends State<AiSettings> {
   }
 
   Future<void> _save() async {
+    if (busy) return;
     final url = base.text.trim().replaceFirst(RegExp(r'/+$'), '');
     if (!url.startsWith('https://')) {
       return setState(() {
@@ -51,29 +52,39 @@ class _AiSettingsState extends State<AiSettings> {
         statusOk = false;
       });
     }
+    setState(() {
+      busy = true;
+      status = '正在保存…';
+      statusOk = true;
+    });
     try {
       await widget.state.saveAi(
         baseUrl: url,
         model: model.text.trim(),
         apiKey: key.text.trim().isEmpty ? null : key.text.trim(),
       );
-    } catch (e) {
-      return setState(() {
-        status = '无法写入系统安全存储：$e';
-        statusOk = false;
-      });
-    }
-    key.clear();
-    hasKey = await widget.state.hasAiKey();
-    if (mounted) {
+      if (!mounted) return;
+      key.clear();
+      final savedKey = await widget.state.hasAiKey();
+      if (!mounted) return;
       setState(() {
+        hasKey = savedKey;
         status = '已保存';
         statusOk = true;
       });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        status = '无法写入系统安全存储：$e';
+        statusOk = false;
+      });
+    } finally {
+      if (mounted) setState(() => busy = false);
     }
   }
 
   Future<void> _test() async {
+    if (busy) return;
     setState(() {
       busy = true;
       status = '正在连接…';
@@ -84,11 +95,13 @@ class _AiSettingsState extends State<AiSettings> {
       if (llm == null) throw LlmException('还没有保存 API Key');
       final reply = await llm.json('只输出 json。', '请原样返回这个 json：{"ok": true}');
       if (reply['ok'] != true) throw LlmException('模型回复内容异常');
+      if (!mounted) return;
       setState(() {
         status = '连接正常：${widget.state.aiModel}';
         statusOk = true;
       });
     } on LlmException catch (e) {
+      if (!mounted) return;
       setState(() {
         status = '连接失败：${e.message}';
         statusOk = false;
@@ -99,17 +112,36 @@ class _AiSettingsState extends State<AiSettings> {
   }
 
   Future<void> _clearKey() async {
-    await widget.state.saveAi(
-      baseUrl: widget.state.aiBaseUrl,
-      model: widget.state.aiModel,
-      apiKey: '',
-    );
+    if (busy) return;
     setState(() {
-      hasKey = false;
-      status = '已删除本机保存的 API Key';
+      busy = true;
+      status = '正在删除…';
       statusOk = true;
     });
-    if (mounted) toast(context, '已删除 API Key');
+    try {
+      await widget.state.saveAi(
+        baseUrl: widget.state.aiBaseUrl,
+        model: widget.state.aiModel,
+        apiKey: '',
+      );
+      if (!mounted) return;
+      key.clear();
+      setState(() {
+        hasKey = false;
+        status = '已删除本机保存的 API Key';
+        statusOk = true;
+      });
+      toast(context, '已删除 API Key');
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          status = '无法删除系统安全存储中的 API Key：$e';
+          statusOk = false;
+        });
+      }
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
   }
 
   @override
