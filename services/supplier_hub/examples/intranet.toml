@@ -1,0 +1,13 @@
+center_id = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
+bind = "127.0.0.1:8081"
+database = "../data/intranet.sqlite"
+
+[sync]
+enabled = true
+role = "import"
+directory = "../data/inbox"
+trusted_origin = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+interval_seconds = 30
+resend_seconds = 86400
+max_files_per_tick = 50
+# Pre-create the inbox. It belongs to the external file-transfer mechanism.
