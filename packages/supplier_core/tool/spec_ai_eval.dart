@@ -41,9 +41,13 @@ Future<void> main(List<String> args) async {
       return got.length == exp.length && got.containsAll(exp);
     }
 
-    rules += [
-      for (final (i, c) in clauses.indexed) ok(c, i),
-    ].where((x) => x).length;
+    for (final (i, c) in clauses.indexed) {
+      if (ok(c, i)) {
+        rules++;
+      } else {
+        stdout.writeln('规则✗ $name「${c.text}」 ${c.hint ?? ''}');
+      }
+    }
     if (item.specClass != null) {
       final r = await aiReadClauses(llm, item.specClass!, clauses);
       clauses = r.clauses;
@@ -60,7 +64,7 @@ Future<void> main(List<String> args) async {
       } else {
         if (c.hint == null && c.constraints.isNotEmpty) silent++;
         stdout.writeln(
-          '✗ $name「${c.text}」 ${[for (final k in c.constraints) k.describe()]}',
+          'AI后✗ $name「${c.text}」 ${[for (final k in c.constraints) k.describe()]}',
         );
       }
     }

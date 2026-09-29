@@ -371,6 +371,10 @@ class _ClauseReader {
             final list = bySpan[at] ??= [];
             if (!list.any((o) => o.$1 == p)) list.add((p, v.code));
           }
+          for (final at in _sharedPrefix(s)) {
+            final list = bySpan[at] ??= [];
+            if (!list.any((o) => o.$1 == p)) list.add((p, v.code));
+          }
         }
       }
     }
@@ -378,6 +382,22 @@ class _ClauseReader {
       for (final MapEntry(:key, :value) in bySpan.entries)
         _Hit(key.$1, key.$2, 'choice', value),
     ];
+  }
+
+  /// "OPC DA/UA": the part after the slash is "OPC UA" with the shared
+  /// prefix left out. Yields the span of that suffix for a two-word spelling.
+  Iterable<(int, int)> _sharedPrefix(String spelling) sync* {
+    final parts = RegExp(
+      r'^([A-Za-z]+)[ -]([A-Za-z0-9]+)$',
+    ).firstMatch(spelling);
+    if (parts == null) return;
+    final tail = RegExp.escape(parts[2]!);
+    for (final m in RegExp(
+      '(?<![A-Za-z])${RegExp.escape(parts[1]!)}[ -]?[A-Za-z0-9]+/$tail(?![A-Za-z0-9])',
+      caseSensitive: false,
+    ).allMatches(t)) {
+      yield (m.end - parts[2]!.length, m.end);
+    }
   }
 
   Iterable<_Hit> _mentions() {
