@@ -4,6 +4,7 @@ import 'package:window_manager/window_manager.dart';
 
 import '../widgets/app_icon.dart';
 import '../features/ai/ask_page.dart';
+import '../features/ai/ai_tasks_page.dart';
 import '../features/catalog/catalog_page.dart';
 import '../features/data_center/data_center_page.dart';
 import '../features/exchange/exchange_page.dart';
@@ -28,7 +29,8 @@ enum Section {
   ask('问数据', Icons.forum_outlined),
   exchange('同步与交换', Icons.sync_alt),
   data('数据中心', Icons.hub_outlined),
-  settings('设置', Icons.settings_outlined);
+  settings('设置', Icons.settings_outlined),
+  aiTasks('AI 任务', Icons.history_outlined);
 
   const Section(this.label, this.icon);
   final String label;
@@ -56,6 +58,7 @@ class _ShellState extends State<Shell> {
     Section.projects => ProjectsPage(state: widget.state),
     Section.quotes => QuotesPage(state: widget.state),
     Section.ask => AskPage(state: widget.state),
+    Section.aiTasks => AiTasksPage(state: widget.state),
     Section.suppliers => CatalogPage(state: widget.state, type: 'supplier'),
     Section.products => CatalogPage(state: widget.state, type: 'product'),
     Section.exchange => ExchangePage(state: widget.state),
@@ -277,6 +280,7 @@ class _Sidebar extends StatelessWidget {
                   item(s),
                 group('辅助工具'),
                 item(Section.ask),
+                item(Section.aiTasks),
                 item(Section.exchange),
                 item(Section.data),
               ],
@@ -335,6 +339,7 @@ class _BottomNav extends StatelessWidget {
                     Section.products,
                     Section.suppliers,
                     Section.ask,
+                    Section.aiTasks,
                     Section.exchange,
                     Section.data,
                     Section.settings,

@@ -53,7 +53,10 @@ Future<void> main(List<String> args) async {
       '${missing.isEmpty ? '' : '\n   缺少：${missing.join('、')}'}',
     );
   }
-  stdout.writeln('\n得分 $passed/${cases.length}，用时 ${sw.elapsed.inSeconds} 秒');
+  stdout.writeln(
+    '\n关键词命中 $passed/${cases.length}（不是语义正确率），用时 ${sw.elapsed.inSeconds} 秒',
+  );
+  if (passed != cases.length) exitCode = 1;
   s.close();
   dir.deleteSync(recursive: true);
 }

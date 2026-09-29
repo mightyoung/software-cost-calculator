@@ -128,10 +128,24 @@ extension DataQuality on Store {
 
   /// Design §9.5: materials that could have a parameter template but do
   /// not, that miss key parameters, or whose parameters nobody checked.
-  // ponytail: one completeness query per classified material; fine for
-  // thousands, batch it if the catalogue grows much larger.
   List<QualityCheck> _paramChecks() {
     var unclassified = 0, incomplete = 0;
+    // Read only property codes, once for the whole live classified catalogue.
+    // Values and record histories are irrelevant to completeness.
+    final properties = <String, Set<String>>{};
+    for (final r in db.select(
+      "SELECT json_extract(pp.data,'\$.product_id') AS product_id, "
+      "json_extract(pp.data,'\$.property') AS property "
+      'FROM product_param pp JOIN product p '
+      "ON p.id = json_extract(pp.data,'\$.product_id') "
+      'WHERE pp.deleted = 0 AND p.deleted = 0 '
+      "AND json_extract(p.data,'\$.merged_into') IS NULL "
+      "AND json_extract(p.data,'\$.spec_class') IS NOT NULL",
+    )) {
+      (properties[r['product_id'] as String] ??= {}).add(
+        r['property'] as String,
+      );
+    }
     for (final r in db.select('SELECT id, data FROM product WHERE $_live')) {
       final d = jsonDecode(r['data'] as String) as Map<String, Object?>;
       if (d['spec_class'] == null) {
@@ -141,7 +155,10 @@ extension DataQuality on Store {
         }
         continue;
       }
-      final c = paramCompleteness(r['id'] as String);
+      final c = completenessForParams(
+        d['spec_class'] as String,
+        properties[r['id']] ?? const <String>{},
+      );
       if (c.filled < c.total) incomplete++;
     }
     final unconfirmed =

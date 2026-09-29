@@ -110,6 +110,7 @@ extension Exchange on Store {
     final copy = sqlite3.open(part);
     try {
       dropSearchIndex(copy);
+      copy.execute("DELETE FROM meta WHERE key LIKE 'ai_applied:%'");
       copy.execute('VACUUM');
     } finally {
       copy.close();
@@ -295,6 +296,14 @@ extension Exchange on Store {
     );
     if (orphan.isNotEmpty) {
       invalid('quotation.attachment_ids', 'missing attachment');
+    }
+    final parameterOrphan = db.select(
+      "SELECT id FROM main.product_param WHERE json_extract(data,'\$.attachment_id') "
+      "IS NOT NULL AND json_extract(data,'\$.attachment_id') NOT IN "
+      '(SELECT id FROM main.attachment) LIMIT 1',
+    );
+    if (parameterOrphan.isNotEmpty) {
+      invalid('product_param.attachment_id', 'missing attachment');
     }
     for (final MapEntry(key: type, value: fields) in references.entries) {
       for (final MapEntry(key: field, value: target) in fields.entries) {

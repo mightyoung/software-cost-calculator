@@ -101,18 +101,33 @@ extension MaterialImport on Store {
     LlmClient llm,
     String text, {
     void Function(int done, int total)? onProgress,
+    AiCancellation? cancellation,
   }) async {
+    AiRun.validateInput(text);
     final chunks = chunkText(text).toList();
+    llm = llm.forTask(
+      AiTask.offerExtraction,
+      cancellation: cancellation,
+      limits: AiLimits.jsonWorkflow(
+        chunks.length,
+        callTimeout: llm.config.timeout,
+      ),
+    );
     final offers = <Offer>[];
     for (var i = 0; i < chunks.length; i++) {
       onProgress?.call(i, chunks.length);
-      final reply = await llm.json(_extractSystem, chunks[i]);
-      for (final m
-          in (reply['offers'] is List ? reply['offers'] as List : const [])
-              .whereType<Map>()) {
-        final offer = cleanOffer(m.cast<String, Object?>());
+      final rows = await llm.records(
+        _extractSystem,
+        chunks[i],
+        key: 'offers',
+        validate: (row) =>
+            row['name'] is String && (row['name'] as String).trim().isNotEmpty,
+      );
+      for (final m in rows) {
+        final offer = cleanOffer(m);
         if (offer['name'] != null) offers.add(offer);
       }
+      if (offers.length > 200) throw LlmException('一次最多核对 200 条报价，请分批导入');
     }
     return offers;
   }

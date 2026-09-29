@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 import '../../app/app_state.dart';
@@ -35,10 +35,12 @@ class MaterialImportPage extends StatefulWidget {
     this.projectId,
     this.table,
     this.masterData = false,
+    this.resumeJobId,
   });
   final AppState state;
   final bool masterData;
   final String? projectId;
+  final String? resumeJobId;
 
   /// A table already read without AI: opens straight at the review step.
   final ({String name, Uint8List bytes, List<Offer> offers})? table;
@@ -54,13 +56,43 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
   bool? hasKey;
   List<OfferPlan>? plans;
   var run = 0; // bumps on cancel so late replies are ignored
+  AiCancellation? _cancellation;
+  String? _jobId, _projectId;
+  late bool _masterData;
+  Map<String, Object?>? _jobInput;
 
   @override
   void initState() {
     super.initState();
+    _projectId = widget.projectId;
+    _masterData = widget.masterData;
+    if (widget.resumeJobId case final id?) {
+      try {
+        final job = widget.state.aiTask(id);
+        if (job.task == AiTask.offerExtraction) {
+          _jobId = id;
+          _jobInput = job.input;
+          text.text = job.input['source'] as String;
+          fileName = job.input['fileName'] as String?;
+          final bytes = job.input['fileBytes'] as String?;
+          fileBytes = bytes == null ? null : base64Decode(bytes);
+          fileText = fileBytes == null ? null : text.text;
+          _projectId = job.input['projectId'] as String?;
+          _masterData = job.input['masterData'] == true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _start();
+          });
+        } else {
+          error = '无法恢复这项导入任务';
+        }
+      } catch (e) {
+        error = '任务读取失败：${friendlyError('$e')}';
+      }
+    }
     if (widget.table case final t?) {
       fileName = t.name;
       fileBytes = t.bytes;
+      fileText = text.text;
       plans = [for (final o in t.offers) widget.state.store.planOffer(o)];
     }
     widget.state.hasAiKey().then((v) {
@@ -70,11 +102,13 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
 
   @override
   void dispose() {
+    _cancellation?.cancel();
     text.dispose();
     super.dispose();
   }
 
   Future<void> _start() async {
+    if (progress != null) return;
     if (text.text.trim().isEmpty) {
       return setState(() => error = '先粘贴报价信息，或选择一个 Excel 文件');
     }
@@ -91,52 +125,72 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
         final store = widget.state.store;
         return setState(() {
           error = null;
+          _jobId = null;
+          _jobInput = null;
           plans = [for (final o in offers) store.planOffer(o)];
         });
       }
     }
-    final LlmClient? llm;
-    try {
-      llm = await widget.state.llm();
-    } on LlmException catch (e) {
-      return setState(() => error = e.message);
-    }
-    if (llm == null) {
-      return setState(
-        () => error = '还没有配置 AI 服务。在 设置 › AI 接入 中填写 API Key 后再试。',
-      );
-    }
     final mine = ++run;
+    final cancellation = _cancellation = AiCancellation();
+    final source = text.text;
+    final input = <String, Object?>{
+      'source': source,
+      'fileName': fileBytes != null && source == fileText ? fileName : null,
+      'fileBytes': fileBytes != null && source == fileText
+          ? base64Encode(fileBytes!)
+          : null,
+      'projectId': _projectId,
+      'masterData': _masterData,
+    };
+    final resumeId = mapEquals(input, _jobInput) ? _jobId : null;
     setState(() {
       error = null;
       progress = '正在分析报价信息…';
     });
     try {
       final store = widget.state.store;
-      final offers = await store.extractOffers(
-        llm,
-        text.text,
-        onProgress: (done, total) {
-          if (!mounted || mine != run || total < 2) return;
-          setState(() => progress = '正在分析报价信息（第 ${done + 1}/$total 段）');
+      final offers = await widget.state.runAiTask<List<Offer>>(
+        AiTask.offerExtraction,
+        input,
+        (llm) => store.extractOffers(
+          llm,
+          source,
+          cancellation: cancellation,
+          onProgress: (done, total) {
+            if (!mounted || mine != run || total < 2) return;
+            setState(() => progress = '正在分析报价信息（第 ${done + 1}/$total 段）');
+          },
+        ),
+        resumeId: resumeId,
+        cancellation: cancellation,
+        onCreated: (id) {
+          _jobId = id;
+          _jobInput = input;
         },
       );
       if (!mounted || mine != run) return;
+      widget.state.validateAiTask(_jobId!);
       setState(() {
         progress = null;
         if (offers.isEmpty) {
           error = '没有识别出产品报价，检查内容后重试。';
         } else {
-          plans = [
-            for (final o in offers) store.planOffer(o, source: text.text),
-          ];
+          plans = [for (final o in offers) store.planOffer(o, source: source)];
         }
       });
     } on LlmException catch (e) {
       if (mounted && mine == run) {
         setState(() {
           progress = null;
-          error = '连接 AI 服务失败：${e.message}。检查网络和 API Key 后重试。';
+          error = e.message;
+        });
+      }
+    } catch (e) {
+      if (mounted && mine == run) {
+        setState(() {
+          progress = null;
+          error = friendlyError('$e');
         });
       }
     }
@@ -146,7 +200,7 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       backgroundColor: Tokens.canvas,
-      title: Text(widget.masterData ? '导入物料清单' : '智能导入报价'),
+      title: Text(_masterData ? '导入物料清单' : '智能导入报价'),
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(36),
         child: Padding(
@@ -162,11 +216,12 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
         ? MaterialReview(
             state: widget.state,
             plans: plans!,
-            projectId: widget.projectId,
-            masterData: widget.masterData,
+            projectId: _projectId,
+            masterData: _masterData,
+            aiTaskId: _jobId,
             // Evidence kept on every new quotation: the original file when
             // one was chosen and not edited since, else the pasted text.
-            source: fileBytes != null
+            source: fileBytes != null && text.text == fileText
                 ? (name: fileName!, bytes: fileBytes!)
                 : (
                     name: '报价信息-${localDay(DateTime.now())}.txt',
@@ -199,6 +254,7 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
             }),
             onStart: _start,
             onCancel: () => setState(() {
+              _cancellation?.cancel();
               run++;
               progress = null;
             }),

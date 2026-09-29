@@ -18,15 +18,18 @@ const _examples = [
 ];
 
 class _Message {
-  _Message(this.fromUser, this.text, {this.error = false});
+  _Message(this.fromUser, this.text, {this.error = false, this.evidence});
   final bool fromUser, error;
   final String text;
+  // Evidence belongs only to this page session, never to saved history.
+  final AssistantAnswer? evidence;
 }
 
 /// Questions about local data, answered through read-only tool calls.
 class AskPage extends StatefulWidget {
-  const AskPage({super.key, required this.state});
+  const AskPage({super.key, required this.state, this.resumeJobId});
   final AppState state;
+  final String? resumeJobId;
 
   @override
   State<AskPage> createState() => _AskPageState();
@@ -37,6 +40,9 @@ class _AskPageState extends State<AskPage> {
   final scroll = ScrollController();
   final messages = <_Message>[];
   var busy = false;
+  AssistantCancellation? _cancellation;
+  // Local history stays local unless the user opts in for this page session.
+  var _includeHistory = false;
 
   /// What the assistant is doing right now (the tool it called last).
   String? activity;
@@ -50,13 +56,45 @@ class _AskPageState extends State<AskPage> {
     super.initState();
     try {
       final saved = jsonDecode(widget.state.setting(_historyKey) ?? '[]');
-      for (final m in (saved as List).whereType<List>()) {
-        messages.add(_Message(m[0] == true, '${m[1]}', error: m[2] == true));
+      if (saved is List) {
+        for (final m in saved.skip(
+          saved.length > 100 ? saved.length - 100 : 0,
+        )) {
+          if (m is List &&
+              m.length == 3 &&
+              m[0] is bool &&
+              m[1] is String &&
+              m[2] is bool) {
+            messages.add(
+              _Message(m[0] as bool, m[1] as String, error: m[2] as bool),
+            );
+          }
+        }
       }
     } on FormatException {
       // A damaged history is simply dropped.
     }
     if (messages.isNotEmpty) _scrollDown(animate: false);
+    if (widget.resumeJobId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _resume();
+      });
+    }
+  }
+
+  void _resume() {
+    try {
+      final job = widget.state.aiTask(widget.resumeJobId!);
+      final history = [
+        for (final pair in job.input['history'] as List)
+          AssistantTurn(pair[0] as String, pair[1] as String),
+      ];
+      _send(job.input['question'] as String, history, job.id);
+    } catch (_) {
+      setState(
+        () => messages.add(_Message(false, '任务无法恢复，请从任务列表重新开始。', error: true)),
+      );
+    }
   }
 
   void _saveHistory() => widget.state.saveSetting(
@@ -69,51 +107,108 @@ class _AskPageState extends State<AskPage> {
     ]),
   );
 
+  void _trimMessages() {
+    if (messages.length > 100) {
+      // Drop whole question/answer pairs, including while a reply is pending.
+      final excess = messages.length - 100;
+      messages.removeRange(0, excess.isEven ? excess : excess + 1);
+    }
+    var retained = 0;
+    for (var i = messages.length - 1; i >= 0; i--) {
+      final message = messages[i];
+      if (message.evidence != null && ++retained > 6) {
+        messages[i] = _Message(
+          message.fromUser,
+          message.text,
+          error: message.error,
+        );
+      }
+    }
+  }
+
   @override
   void dispose() {
+    _cancellation?.cancel();
     input.dispose();
     scroll.dispose();
     super.dispose();
   }
 
-  Future<void> _send([String? preset]) async {
+  Future<void> _send([
+    String? preset,
+    List<AssistantTurn>? resumedHistory,
+    String? resumeId,
+  ]) async {
     final question = (preset ?? input.text).trim();
     if (question.isEmpty || busy) return;
+    final history = resumedHistory ?? <AssistantTurn>[];
+    if (resumedHistory == null && _includeHistory) {
+      for (var i = 1; i < messages.length; i++) {
+        final question = messages[i - 1], answer = messages[i];
+        if (question.fromUser &&
+            !question.error &&
+            !answer.fromUser &&
+            !answer.error) {
+          history.add(AssistantTurn(question.text, answer.text));
+        }
+      }
+    }
+    final cancellation = _cancellation = AssistantCancellation();
     input.clear();
     setState(() {
       messages.add(_Message(true, question));
+      _trimMessages();
       busy = true;
       activity = null;
     });
     _scrollDown();
     _Message reply;
+    String? jobId;
     try {
-      final llm = await widget.state.llm();
-      if (llm == null) {
-        reply = _Message(
-          false,
-          '还没有配置 AI 服务。在 设置 › AI 接入 中填写 API Key 后再试。',
-          error: true,
-        );
-      } else {
-        final answer = await widget.state.store.ask(
+      final answer = await widget.state.runAiTask(
+        AiTask.conversation,
+        {
+          'question': question,
+          'history': [
+            for (final t in history) [t.question, t.answer],
+          ],
+        },
+        (llm) => widget.state.store.askWithEvidence(
           llm,
           question,
+          history: history,
+          cancellation: cancellation,
+          onCompact: () {
+            if (mounted) setState(() => activity = '整理对话上下文');
+          },
           onTool: (tool) {
             if (mounted) setState(() => activity = toolActivity[tool]);
           },
-        );
-        reply = _Message(false, answer.isEmpty ? '没有得到回答，换个问法再试。' : answer);
-      }
+        ),
+        resumeId: resumeId,
+        cancellation: cancellation,
+        onCreated: (id) => jobId = id,
+      );
+      widget.state.validateAiTask(jobId!);
+      reply = _Message(
+        false,
+        answer.text.isEmpty ? '没有得到回答，换个问法再试。' : answer.text,
+        evidence: answer,
+      );
     } on LlmException catch (e) {
-      reply = _Message(false, '连接 AI 服务失败：${e.message}。检查网络后重试。', error: true);
+      reply = _Message(false, e.message, error: true);
+    } catch (e) {
+      reply = _Message(false, '查询未完成：${friendlyError('$e')}', error: true);
     }
     if (!mounted) return;
     setState(() {
       messages.add(reply);
+      _trimMessages();
       busy = false;
+      _cancellation = null;
     });
     _saveHistory();
+    if (!reply.error && jobId != null) widget.state.finishAiTask(jobId!);
     _scrollDown();
   }
 
@@ -154,7 +249,7 @@ class _AskPageState extends State<AskPage> {
         ),
         const SizedBox(height: 4),
         Text(
-          'AI 只能查询本机数据，不会修改任何记录。回答中的金额来自数据库原值。问答记录只保存在本机。',
+          'AI 只能查询，不会修改记录。问题和所需查询结果会发送给你配置的 AI 服务；历史问答默认只保存在本机。',
           style: TextStyle(color: Tokens.ink2),
         ),
         const SizedBox(height: 12),
@@ -197,6 +292,17 @@ class _AskPageState extends State<AskPage> {
           ),
         ),
         const SizedBox(height: 12),
+        CheckboxListTile(
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          controlAffinity: ListTileControlAffinity.leading,
+          value: _includeHistory,
+          onChanged: busy
+              ? null
+              : (value) => setState(() => _includeHistory = value ?? false),
+          title: const Text('使用近期对话'),
+          subtitle: const Text('开启后，会向配置的 AI 服务发送所需历史上下文；较长对话会自动整理，并可按需回查原文。'),
+        ),
         Row(
           children: [
             Expanded(
@@ -212,8 +318,8 @@ class _AskPageState extends State<AskPage> {
             ),
             const SizedBox(width: 8),
             FilledButton(
-              onPressed: busy ? null : _send,
-              child: const Text('发送'),
+              onPressed: busy ? () => _cancellation?.cancel() : _send,
+              child: Text(busy ? '停止' : '发送'),
             ),
           ],
         ),
@@ -263,36 +369,75 @@ class _AskPageState extends State<AskPage> {
             : (m.error ? Tokens.redBg : Tokens.canvas),
         borderRadius: BorderRadius.circular(Tokens.radius),
       ),
-      child: Text.rich(
-        TextSpan(
-          children: m.fromUser || m.error
-              ? [TextSpan(text: m.text)]
-              : _answerSpans(m.text),
-        ),
-        style: TextStyle(
-          height: 1.6,
-          color: m.error
-              ? Tokens.red
-              : (m.fromUser ? Tokens.accentDeep : Tokens.ink),
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text.rich(
+            TextSpan(
+              children: m.fromUser || m.error
+                  ? [TextSpan(text: m.text)]
+                  : _answerSpans(
+                      m.text,
+                      verifiedReferences: m.evidence == null
+                          ? null
+                          : {
+                              for (final ref in recordRef.allMatches(
+                                m.evidence!.text,
+                              ))
+                                '${ref[1]}:${ref[2]}': ref[3]!,
+                            },
+                    ),
+            ),
+            style: TextStyle(
+              height: 1.6,
+              color: m.error
+                  ? Tokens.red
+                  : (m.fromUser ? Tokens.accentDeep : Tokens.ink),
+            ),
+          ),
+          if (!m.fromUser && !m.error)
+            if (m.evidence case final evidence?)
+              _evidenceView(evidence)
+            else
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  '历史回答，未保留查询依据',
+                  style: TextStyle(color: Tokens.ink3),
+                ),
+              ),
+        ],
       ),
     ),
   );
 
   /// Answer text with each `[[type:id|name]]` shown as a record chip that
   /// opens the record; stray ids the model still wrote are dropped.
-  List<InlineSpan> _answerSpans(String text) {
+  List<InlineSpan> _answerSpans(
+    String text, {
+    required Map<String, String>? verifiedReferences,
+  }) {
     final spans = <InlineSpan>[];
     var at = 0;
     final clean = tidyAnswer(text);
     for (final m in recordRef.allMatches(clean)) {
       spans.add(TextSpan(text: clean.substring(at, m.start)));
       final (type, id, name) = (m[1]!, m[2]!, m[3]!);
+      // Display cleanup must never promote a malformed mark into a verified link.
+      final verifiedName = verifiedReferences?['$type:$id'];
+      if (verifiedName == null) {
+        spans.add(
+          TextSpan(text: verifiedReferences == null ? name : '$name（未核验）'),
+        );
+        at = m.end;
+        continue;
+      }
       spans.add(
         WidgetSpan(
           alignment: PlaceholderAlignment.middle,
           child: _RecordChip(
-            name: name,
+            name: verifiedName,
             onTap: () => openRecord(context, widget.state, type, id),
           ),
         ),
@@ -302,6 +447,53 @@ class _AskPageState extends State<AskPage> {
     spans.add(TextSpan(text: clean.substring(at)));
     return spans;
   }
+
+  Widget _evidenceView(AssistantAnswer evidence) => Material(
+    color: Colors.transparent,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final warning in evidence.warnings)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(warning, style: TextStyle(color: Tokens.ink2)),
+          ),
+        ExpansionTile(
+          tilePadding: EdgeInsets.zero,
+          title: Text('查询依据（${evidence.observations.length} 次）'),
+          children: [
+            const Text('引用核验仅表示记录在本次查询中出现，不等于结论正确。请核对下方原始结果；多次查询可能发生在不同时间点。'),
+            for (final observation in evidence.observations)
+              ExpansionTile(
+                title: Text(toolActivity[observation.tool] ?? observation.tool),
+                subtitle: Text(
+                  '第 ${observation.round} 轮${observation.failed ? ' · 查询失败' : ''}',
+                ),
+                children: [
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('查询参数'),
+                  ),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: SelectableText(observation.arguments),
+                  ),
+                  const SizedBox(height: 8),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('发送给 AI 的实际结果'),
+                  ),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: SelectableText(observation.result),
+                  ),
+                ],
+              ),
+          ],
+        ),
+      ],
+    ),
+  );
 }
 
 final _uuid = RegExp(
@@ -311,7 +503,9 @@ final _uuid = RegExp(
 /// Drops ids written outside record marks: "（ID 1f…）", "id：`1f…`".
 String tidyAnswer(String text) {
   final marks = <String>[];
-  final protected = text.replaceAllMapped(recordRef, (m) {
+  final protected = text.replaceAll('\u0000', '').replaceAllMapped(recordRef, (
+    m,
+  ) {
     marks.add(m[0]!);
     return '\u0000${marks.length - 1}\u0000';
   });

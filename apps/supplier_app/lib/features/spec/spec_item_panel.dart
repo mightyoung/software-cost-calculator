@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import '../../app/motion.dart';
@@ -14,9 +16,15 @@ import 'supplier_responses.dart';
 /// One requirement item: class, clauses to review (② 核对), the match
 /// (③ 匹配) and the choice with answers to text clauses (④ 定选).
 class SpecItemPanel extends StatelessWidget {
-  const SpecItemPanel({super.key, required this.state, required this.itemId});
+  const SpecItemPanel({
+    super.key,
+    required this.state,
+    required this.itemId,
+    this.resumeJobId,
+  });
   final AppState state;
   final String itemId;
+  final String? resumeJobId;
 
   /// Saves clauses; a chosen material is judged again so the deviation
   /// table always matches the clauses.
@@ -96,7 +104,8 @@ class SpecItemPanel extends StatelessWidget {
                   state: state,
                   classCode: cls,
                   clauses: clauses,
-                  onDone: (next) => _save(context, next),
+                  itemId: itemId,
+                  resumeJobId: resumeJobId,
                 ),
               if (open > 0)
                 TextButton.icon(
@@ -149,12 +158,14 @@ class _AiButton extends StatefulWidget {
     required this.state,
     required this.classCode,
     required this.clauses,
-    required this.onDone,
+    required this.itemId,
+    this.resumeJobId,
   });
   final AppState state;
   final String classCode;
   final List<SpecClause> clauses;
-  final ValueChanged<List<SpecClause>> onDone;
+  final String itemId;
+  final String? resumeJobId;
 
   @override
   State<_AiButton> createState() => _AiButtonState();
@@ -162,18 +173,73 @@ class _AiButton extends StatefulWidget {
 
 class _AiButtonState extends State<_AiButton> {
   var busy = false;
+  AiCancellation? _cancellation;
+  String? _resumeId;
+
+  @override
+  void initState() {
+    super.initState();
+    _resumeId = widget.resumeJobId;
+    if (_resumeId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _run();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _cancellation?.cancel();
+    super.dispose();
+  }
 
   Future<void> _run() async {
+    if (busy) return;
+    final cancellation = _cancellation = AiCancellation();
+    final classCode = widget.classCode;
+    final clauses = widget.clauses;
+    final snapshot = jsonEncode([for (final c in clauses) c.toJson()]);
     setState(() => busy = true);
     try {
-      final llm = await widget.state.llm();
-      if (llm == null) {
-        if (mounted) toast(context, '还没有配置 AI 服务：在 设置 › AI 接入 中填写');
+      String? jobId;
+      final resumeId = _resumeId;
+      _resumeId = null;
+      final r = await widget.state.runAiTask(
+        AiTask.clauseReading,
+        {
+          'itemId': widget.itemId,
+          'classCode': classCode,
+          'clauses': [for (final c in clauses) c.toJson()],
+        },
+        (llm) =>
+            aiReadClauses(llm, classCode, clauses, cancellation: cancellation),
+        resumeId: resumeId,
+        cancellation: cancellation,
+        onCreated: (id) => jobId = id,
+      );
+      if (!mounted) return;
+      final current = widget.state.store.get('spec_item', widget.itemId);
+      if (current == null ||
+          current.deleted ||
+          current.data['spec_class'] != classCode ||
+          jsonEncode([for (final c in clausesOf(current)) c.toJson()]) !=
+              snapshot) {
+        toast(context, '条款已修改，本次 AI 结果未覆盖你的修改，请重新解析');
         return;
       }
-      final r = await aiReadClauses(llm, widget.classCode, widget.clauses);
-      if (!mounted) return;
-      widget.onDone(r.clauses);
+      final problem = widget.state.write(
+        (_) => widget.state.commitAiTask(jobId, (s) {
+          s.saveClauses(widget.itemId, r.clauses);
+          final chosen = s
+              .get('spec_item', widget.itemId)!
+              .data['chosen_product_id'];
+          if (chosen != null) s.chooseProduct(widget.itemId, chosen as String);
+        }),
+      );
+      if (problem != null) {
+        toast(context, problem);
+        return;
+      }
       toast(
         context,
         r.added == 0 && r.dropped == 0
@@ -182,6 +248,8 @@ class _AiButtonState extends State<_AiButton> {
       );
     } on LlmException catch (e) {
       if (mounted) toast(context, 'AI 解析失败：${e.message}');
+    } catch (e) {
+      if (mounted) toast(context, 'AI 解析未完成：${friendlyError('$e')}');
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -189,14 +257,14 @@ class _AiButtonState extends State<_AiButton> {
 
   @override
   Widget build(BuildContext context) => TextButton.icon(
-    onPressed: busy ? null : _run,
+    onPressed: busy ? () => _cancellation?.cancel() : _run,
     icon: busy
         ? const SizedBox.square(
             dimension: 16,
             child: TaskProgress(compact: true, strokeWidth: 2),
           )
         : const AppIcon(Icons.auto_awesome_outlined, size: 18),
-    label: const Text('用 AI 读未识别的条款'),
+    label: Text(busy ? '停止解析' : '用 AI 读未识别的条款'),
   );
 }
 

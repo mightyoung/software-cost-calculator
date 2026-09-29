@@ -95,6 +95,21 @@ String derivedUuid(String seed) {
       '${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}';
 }
 
+/// Counts key parameters from already-loaded property codes. Shared by the
+/// individual material view and the catalogue-wide data-quality check.
+({int filled, int total}) completenessForParams(
+  String? specClass,
+  Iterable<String> properties,
+) {
+  if (specClass == null) return (filled: 0, total: 0);
+  final keys = [
+    for (final p in classParams(specClass))
+      if (p.key) p.property,
+  ];
+  final have = properties.toSet();
+  return (filled: keys.where(have.contains).length, total: keys.length);
+}
+
 extension ProductParams on Store {
   /// Live parameters of a material, by property code.
   Map<String, Record> paramsOf(String productId) => {
@@ -167,11 +182,6 @@ extension ProductParams on Store {
   ({int filled, int total}) paramCompleteness(String productId) {
     final cls = get('product', productId)?.data['spec_class'] as String?;
     if (cls == null) return (filled: 0, total: 0);
-    final keys = [
-      for (final p in classParams(cls))
-        if (p.key) p.property,
-    ];
-    final have = paramsOf(productId).keys.toSet();
-    return (filled: keys.where(have.contains).length, total: keys.length);
+    return completenessForParams(cls, paramsOf(productId).keys);
   }
 }

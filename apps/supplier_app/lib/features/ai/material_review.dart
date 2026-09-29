@@ -85,8 +85,10 @@ class MaterialReview extends StatefulWidget {
     this.projectId,
     this.source,
     this.masterData = false,
+    this.aiTaskId,
   });
   final AppState state;
+  final String? aiTaskId;
 
   /// Importing a material list: only suppliers, contacts and materials are
   /// created, so no project or inquirer is asked for.
@@ -269,33 +271,36 @@ class _MaterialReviewState extends State<MaterialReview> {
     }
     late ImportSummary sum;
     final err = widget.state.write(
-      (s) => s.transaction(() {
-        final pid = newProject
-            ? s.save('project', {
-                for (final f in Project.fields) f: null,
-                'code': code.text.trim(),
-                'name': name.text.trim(),
-                'status': 'active',
-                'currency': 'CNY',
-                'tax_mode': 'included',
-                'markup_rate': '0',
-              })
-            : projectId!;
-        sum = s.applyOffers(
-          [
-            for (final r in ready)
-              (
-                offer: r.offer,
-                supplierId: r.supplierId,
-                productId: r.productId,
-              ),
-          ],
-          projectId: pid,
-          inquirer: person,
-          addToBudget: addToBudget,
-          source: widget.source,
-        );
-      }),
+      (_) => widget.state.commitAiTask(
+        widget.aiTaskId,
+        (s) => s.transaction(() {
+          final pid = newProject
+              ? s.save('project', {
+                  for (final f in Project.fields) f: null,
+                  'code': code.text.trim(),
+                  'name': name.text.trim(),
+                  'status': 'active',
+                  'currency': 'CNY',
+                  'tax_mode': 'included',
+                  'markup_rate': '0',
+                })
+              : projectId!;
+          sum = s.applyOffers(
+            [
+              for (final r in ready)
+                (
+                  offer: r.offer,
+                  supplierId: r.supplierId,
+                  productId: r.productId,
+                ),
+            ],
+            projectId: pid,
+            inquirer: person,
+            addToBudget: addToBudget,
+            source: widget.source,
+          );
+        }),
+      ),
     );
     if (err != null) return setState(() => error = err);
     widget.state.saveSetting('inquirer', person);
@@ -314,13 +319,20 @@ class _MaterialReviewState extends State<MaterialReview> {
   void _applyMasterData(List<_Row> ready) {
     late ImportSummary sum;
     final err = widget.state.write(
-      (s) => sum = s.applyOffers(
-        [
-          for (final r in ready)
-            (offer: r.offer, supplierId: r.supplierId, productId: r.productId),
-        ],
-        projectId: null,
-        inquirer: widget.state.deviceName,
+      (_) => widget.state.commitAiTask(
+        widget.aiTaskId,
+        (s) => sum = s.applyOffers(
+          [
+            for (final r in ready)
+              (
+                offer: r.offer,
+                supplierId: r.supplierId,
+                productId: r.productId,
+              ),
+          ],
+          projectId: null,
+          inquirer: widget.state.deviceName,
+        ),
       ),
     );
     if (err != null) return setState(() => error = err);

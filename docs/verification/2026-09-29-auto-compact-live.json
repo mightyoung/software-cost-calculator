@@ -1,0 +1,31 @@
+{
+  "provider": "DeepSeek",
+  "model": "deepseek-flash",
+  "synthetic_only": true,
+  "checks": {
+    "automatically_compacted": true,
+    "recalled_original": true,
+    "delivery_code": true,
+    "latest_quantity": true,
+    "no_business_observations": true,
+    "no_product_writes": true
+  },
+  "passed": true,
+  "tools": [
+    "recall_context",
+    "recall_context",
+    "recall_context"
+  ],
+  "answer": {
+    "text": "据此前上下文（c1）回查结果：\n\n- **交付代号：CMP741**（这是历史回复中「交付说明」部分的记录，原文除此之外基本是“一般背景资料”的填充内容，没有其他交付约定细节可读）。\n- **最新采购数量：3 台**——这是你刚才的修正，覆盖了历史里的“初始采购数量 2 台”。\n\n以上仅是复述历史约定与你最新的数量修正，未查本机物料库，也未做任何推断。这些约定是否仍适用于当前本机数据，需要另外查询核对。",
+    "observations": [],
+    "warnings": [
+      "本次回答没有查询本机数据，业务结论尚无查询依据。"
+    ],
+    "unverified_references": 0,
+    "model_calls": 3,
+    "elapsed_ms": 9224,
+    "context_compactions": 1
+  },
+  "manual_review_required": true
+}

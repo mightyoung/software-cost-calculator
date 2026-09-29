@@ -1,0 +1,9 @@
+{
+  "mode": "live_model",
+  "model": "deepseek-flash",
+  "total": 69,
+  "rules_correct": 67,
+  "rules_plus_ai_correct": 66,
+  "silent_errors": 0,
+  "output": "✗ 数据分流装置「直接安装在西门子PLC的DP接口方式获取数据，并通过以太网分流转发」 [下行接口 具备其一 PROFIBUS-DP, 上行接口 具备其一 以太网]\n✗ 网关「支持Modbus TCP、OPC DA/UA、Siemens S7、TCP/UDP自定义协议、HTTP/HTTPS等协议，配套网线等设备」 [通信协议 全部具备 Modbus TCP、OPC DA、Siemens S7、TCP/UDP 自定义、HTTP、HTTPS]\n✗ 显示器「长宽比优先选择16:9，尺寸不小于27英寸（要求显示器与现有操作台适配），最佳固有分辨率不小于2K，响应时间小于1ms，刷新频率大于等于60HZ，内置电源，HDMI接口」 [长宽比 等于 16:9, 显示器接口 全部具备 HDMI, 屏幕尺寸 不低于 27 英寸, 响应时间 低于 1 ms, 刷新率 不低于 60 Hz, 内置电源 为 是]\n\n条款 69：规则 67 条正确；规则 + AI 66 条正确（95.7%），静默错误 0；AI 采纳 2 个条件、丢弃 6 个\n"
+}

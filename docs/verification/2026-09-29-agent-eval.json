@@ -1,0 +1,140 @@
+{
+  "mode": "scripted_contract",
+  "replay_only": true,
+  "live_model_evaluated": false,
+  "scope": "Synthetic SQLite + scripted model replies through askWithEvidence; checks contracts and selected answer tokens, not real model accuracy or unrestricted natural-language correctness.",
+  "pass": true,
+  "passed": 8,
+  "total": 8,
+  "cases": [
+    {
+      "id": "exact_decimal",
+      "pass": true,
+      "checks": {
+        "tool_selection": true,
+        "key_arguments": true,
+        "result_fields": true,
+        "references": true,
+        "completion": true,
+        "read_only": true,
+        "evidence_matches_model_input": true
+      },
+      "model_calls": 2,
+      "warnings": []
+    },
+    {
+      "id": "full_budget_bounded_details",
+      "pass": true,
+      "checks": {
+        "tool_selection": true,
+        "key_arguments": true,
+        "result_fields": true,
+        "references": true,
+        "completion": true,
+        "read_only": true,
+        "evidence_matches_model_input": true
+      },
+      "model_calls": 2,
+      "warnings": []
+    },
+    {
+      "id": "boolean_filter",
+      "pass": true,
+      "checks": {
+        "tool_selection": true,
+        "key_arguments": true,
+        "result_fields": true,
+        "references": true,
+        "completion": true,
+        "read_only": true,
+        "evidence_matches_model_input": true
+      },
+      "model_calls": 2,
+      "warnings": []
+    },
+    {
+      "id": "invalid_argument_recovery",
+      "pass": true,
+      "checks": {
+        "tool_selection": true,
+        "key_arguments": true,
+        "result_fields": true,
+        "references": true,
+        "completion": true,
+        "read_only": true,
+        "evidence_matches_model_input": true
+      },
+      "model_calls": 3,
+      "warnings": [
+        "执行中有工具查询失败，请展开查询依据核对。"
+      ]
+    },
+    {
+      "id": "unsupported_reference",
+      "pass": true,
+      "checks": {
+        "tool_selection": true,
+        "key_arguments": true,
+        "result_fields": true,
+        "references": true,
+        "completion": true,
+        "read_only": true,
+        "evidence_matches_model_input": true
+      },
+      "model_calls": 1,
+      "warnings": [
+        "本次回答没有查询本机数据，业务结论尚无查询依据。",
+        "1 处记录引用未出现在本次查询结果中，已取消链接，请核对。"
+      ]
+    },
+    {
+      "id": "budget_failure_disclosed",
+      "pass": true,
+      "checks": {
+        "tool_selection": true,
+        "key_arguments": true,
+        "result_fields": true,
+        "references": true,
+        "completion": true,
+        "read_only": true,
+        "evidence_matches_model_input": true
+      },
+      "model_calls": 2,
+      "warnings": [
+        "执行中有工具查询失败，请展开查询依据核对。"
+      ]
+    },
+    {
+      "id": "empty_results",
+      "pass": true,
+      "checks": {
+        "tool_selection": true,
+        "key_arguments": true,
+        "result_fields": true,
+        "references": true,
+        "completion": true,
+        "read_only": true,
+        "evidence_matches_model_input": true
+      },
+      "model_calls": 2,
+      "warnings": []
+    },
+    {
+      "id": "write_tool_rejected",
+      "pass": true,
+      "checks": {
+        "tool_selection": true,
+        "key_arguments": true,
+        "result_fields": true,
+        "references": true,
+        "completion": true,
+        "read_only": true,
+        "evidence_matches_model_input": true
+      },
+      "model_calls": 2,
+      "warnings": [
+        "执行中有工具查询失败，请展开查询依据核对。"
+      ]
+    }
+  ]
+}

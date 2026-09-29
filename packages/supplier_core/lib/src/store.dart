@@ -607,6 +607,13 @@ class Store {
         }
       }
     }
+    if (type == 'product_param' && data['attachment_id'] != null) {
+      if (db.select('SELECT 1 FROM attachment WHERE id=?', [
+        data['attachment_id'],
+      ]).isEmpty) {
+        invalid('attachment_id', 'unknown attachment');
+      }
+    }
   }
 
   void _type(String type) {

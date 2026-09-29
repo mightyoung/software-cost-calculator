@@ -1,0 +1,8 @@
+{
+  "mode": "live_model",
+  "model": "deepseek-flash",
+  "dataset": "synthetic",
+  "phase": "initial_run_before_live_findings_fixes",
+  "semantic_accuracy_measured": false,
+  "output": "proposal in 8956 ms\n不锈钢离心泵 | 2 台 -> IS80-65-160 (high) 流量100m³/h、扬程32m且材质为不锈钢304，符合需求\n闸阀 | 4  -> Z41H-16C DN100 (high) 闸阀，DN100、PN16，型号参数一致\n动力电缆 | 约300 m -> YJV-4x25 (high) 型号YJV-4x25与需求YJV 4*25一致\n变频控制柜 | 1 面 -> 待询价 (low) \nask in 25471 ms: 库里目前只有 **1 台不锈钢（304）水泵**：\n\n| 物料 | 型号 | 规格/技术要求 | 单位 |\n|---|---|---|---|\n| [[product:4536f489-f1e7-4867-99c9-3e5bdd86249b\\|离心水泵]] | IS80-65-160 | 流量100m³/h 扬程32m 不锈钢304 | 台 |\n\n说明：\n- 这是按名称、型号、别名关键词及规格文本检索后唯一的匹配结果。\n- 库里另有同名的 [[product:6605a1a5-1d18-4928-ad54-1c34377e0705|离心水泵]]（型号 IS65-50-160，流量50m³/h 扬程32m），但材质是**铸铁**，并非不锈钢，故未计入。\n- 该物料没有登记结构化参数（product_param），也没有品牌、类别等字段信息，规格描述中的“不锈钢304”来自其规格文本。\n\n如果需要，我可以进一步查它的报价情况（各供应商报价、最低可用价）。\n"
+}

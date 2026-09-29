@@ -129,7 +129,9 @@ void main() {
       expect(toolMessages[0], contains('IS65-50-160'));
       expect(toolMessages[1], contains('未知工具'));
       expect(toolMessages[2], contains('error'));
-      expect(model.requests[0]['tools'], hasLength(agentTools.length));
+      final tools = model.requests[0]['tools'] as List;
+      expect(tools, hasLength(agentTools.length + 1));
+      expect(tools.last['function']['name'], 'recall_context');
     },
   );
 
