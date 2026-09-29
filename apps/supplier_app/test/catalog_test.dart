@@ -97,6 +97,54 @@ void main() {
     expect((d['rating'], d['rating_note']), ('disabled', '交货屡次延期'));
   });
 
+  testWidgets('a material gets typed parameters from a template', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 2400);
+    await open(tester, type: 'product');
+    await tester.enterText(find.widgetWithText(TextField, '物料名称'), '温湿度变送器');
+    await tester.enterText(find.widgetWithText(TextField, '单位'), '个');
+    await tester.pumpAndSettle();
+    // The template is recognized from the name and offered.
+    await tester.tap(find.text('用「温湿度传感器」'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.widgetWithText(TextField, '温度测量范围 ·关键'),
+      '-40~85℃',
+    );
+    await tester.enterText(find.widgetWithText(TextField, '温度精度 ·关键'), '±0.2');
+    await tester.enterText(find.widgetWithText(TextField, '防护等级'), 'IP6');
+    await tester.pumpAndSettle();
+    expect(find.textContaining('无法识别'), findsOneWidget);
+    await tester.tap(find.text('保存'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('「防护等级」无法识别'), findsOneWidget);
+
+    await tester.enterText(find.widgetWithText(TextField, '防护等级'), 'IP66/67');
+    await tester.ensureVisible(find.text('RS485'));
+    await tester.tap(find.text('RS485'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('保存'));
+    await tester.pumpAndSettle();
+    final id = state.store.searchByName('product', '温湿度变送器').single.id;
+    expect(state.store.get('product', id)!.data['spec_class'], 'sensor.th');
+    final params = {
+      for (final e in state.store.paramsOf(id).entries)
+        e.key: e.value.data['value'],
+    };
+    expect(params, {
+      'th.temp_range': {'min': '-40', 'max': '85', 'u': 'Cel'},
+      'th.temp_accuracy': {'v': '0.2', 'u': 'Cel'},
+      'prot.ip': {
+        'codes': ['IP66', 'IP67'],
+      },
+      'io.output': {
+        'vs': ['RS485'],
+      },
+    });
+    expect(state.store.paramCompleteness(id), (filled: 3, total: 5));
+  });
+
   testWidgets('product form saves a configurable quote unit', (tester) async {
     await open(tester, type: 'product');
     await tester.enterText(find.widgetWithText(TextField, '物料名称'), '动力电缆');

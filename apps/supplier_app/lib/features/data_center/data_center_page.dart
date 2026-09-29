@@ -9,6 +9,7 @@ import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
 import '../../widgets/ledger.dart';
+import 'param_migration.dart';
 import 'relation_graph.dart';
 
 /// The data model, data quality and what AI agents get, in one place.
@@ -60,7 +61,7 @@ class _DataCenterPageState extends State<DataCenterPage> {
                   selected: selected,
                   onSelect: (t) => setState(() => selected = t),
                 ),
-                _QualityTab(store: widget.state.store),
+                _QualityTab(state: widget.state),
                 _AiTab(state: widget.state),
               ],
             ),
@@ -372,11 +373,12 @@ class _ValueTag extends StatelessWidget {
 }
 
 class _QualityTab extends StatelessWidget {
-  const _QualityTab({required this.store});
-  final Store store;
+  const _QualityTab({required this.state});
+  final AppState state;
 
   @override
   Widget build(BuildContext context) {
+    final store = state.store;
     final checks = store.dataQuality();
     final open = checks.where((c) => c.count > 0).length;
     return ListView(
@@ -439,6 +441,31 @@ class _QualityTab extends StatelessWidget {
                     ],
                   ),
                 ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        _card(
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('关键属性转结构化参数'),
+                    Text(
+                      '把物料里自由填写的关键属性（如"温度范围：-40~85℃"）转成有类型、有单位的参数，'
+                      '并按名称识别参数模板，之后才能按技术要求自动比对。先预览，确认后写入。',
+                      style: TextStyle(fontSize: 12, color: Tokens.ink3),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              OutlinedButton(
+                onPressed: () => showParamMigration(context, state),
+                child: const Text('预览转换'),
+              ),
             ],
           ),
         ),

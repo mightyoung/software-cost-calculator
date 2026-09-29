@@ -535,6 +535,34 @@ void main() {
   }
 
   testWidgets(
+    'desktop material form with typed parameters',
+    (t) => shoot(t, const Size(1280, 1000), 'desktop_params_form', () async {
+      await t.tap(find.text('物料').first);
+      await t.pumpAndSettle();
+      await t.tap(find.text('新建物料'));
+      await t.pumpAndSettle();
+      await t.enterText(find.widgetWithText(TextField, '物料名称'), '温湿度变送器');
+      await t.enterText(find.widgetWithText(TextField, '单位'), '个');
+      await t.pumpAndSettle();
+      await t.tap(find.text('用「温湿度传感器」'));
+      await t.pumpAndSettle();
+      await t.enterText(
+        find.widgetWithText(TextField, '温度测量范围 ·关键'),
+        '-40~85℃',
+      );
+      await t.enterText(find.widgetWithText(TextField, '温度精度 ·关键'), '±0.2');
+      await t.enterText(find.widgetWithText(TextField, '温度分辨率'), '0.1');
+      await t.pumpAndSettle();
+      await t.drag(
+        find.byType(SingleChildScrollView).last,
+        const Offset(0, -260),
+      );
+      await t.pumpAndSettle();
+    }),
+    skip: !hasFont,
+  );
+
+  testWidgets(
     'desktop home',
     (t) => shoot(t, const Size(1280, 800), 'desktop_home'),
     skip: !hasFont,
