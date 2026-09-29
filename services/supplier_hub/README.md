@@ -2,7 +2,7 @@
 
 首批 Rust 中心端：明确发布供应商和历史报价，查询来源与版本，按配置将全部已发布资料通过指定目录单向投递到内网。客户端的本地数据库和现有交换方式保持独立。
 
-当前提供 HTTP API、CLI 和目录后台任务；尚无 Flutter 中心资料页或 Web 管理界面。技术要求自主选型、附件交换和项目成果专用发布是后续范围。
+提供内嵌 Web 管理端、HTTP API、CLI 和目录后台任务。管理页面沿用现有询价台账的颜色、侧栏、表格与详情模式，支持桌面和窄屏、系统深浅色。无需 Node 或独立前端服务即可部署。Flutter 中心资料页、技术要求自主选型、附件交换和项目成果专用发布是后续范围。
 
 ## 本机运行
 
@@ -12,6 +12,18 @@
 cargo build --locked
 cargo run --locked -- serve examples/local.toml
 ```
+
+浏览器打开 `http://127.0.0.1:8080/admin/`（根路径也可进入）。配置访问令牌时在页面连接框输入；令牌只保留在当前页面内存中，刷新或断开后清除，不存入浏览器持久存储。
+
+### 管理端页面
+
+- **工作台**：共享资料、保留版本和交换记录统计，以及常用入口。
+- **供应商 / 历史报价**：关键词检索、分页、包含已撤回筛选；报价保留精确金额字符串、供应商、型号与询价条件。详情可查看完整关联资料和发布历史。本中心当前版本可经确认撤回或恢复；历史版本和外部中心资料只读。
+- **发布资料**：选择 Dart 桥接工具生成的 JSON，服务端仅校验预览；查看正文与关联范围并明确勾选后，点击确认发布才写库。失败重试复用原发布身份，避免重复创建。
+- **同步与交换**：实际配置和最近一次本地任务结果；不把投递计数当作远端接收确认。
+- **服务设置**：只读查看当前配置、连接和诊断信息。交换开关与目录仍通过 TOML 修改并重启，不提供假开关。
+
+前端文件位于 `web/`，通过 `include_str!` 编入可执行文件；修改后重新构建、重启服务并刷新浏览器。公开静态页面不含业务数据；所有业务接口仍使用原有令牌鉴权。页面禁用内联脚本与外部资源，业务内容作为文本呈现。
 
 另一个终端发布示例资料并检索：
 
@@ -86,7 +98,8 @@ mkdir -p data/inbox
 | 接口 | 行为 |
 | --- | --- |
 | `POST /v1/publications` | 接收一个 `PublicationDraft`，来源由服务端中心 ID 赋值；新版本 201，相同重试 200，不同内容或跳版本 409 |
-| `GET /v1/publications` | 当前未撤回版本列表，支持 `q`、`kind=supplier\|quotation`、`supplier_id`、`limit`、`offset` |
+| `POST /v1/publications/preview` | 验证完整合同并返回规范化草稿、标题与记录数；不写数据库 |
+| `GET /v1/publications` | 当前版本列表，默认隐藏已撤回；支持 `q`、`kind=supplier\|quotation`、`supplier_id`、`limit`、`offset`、`include_withdrawn=true` |
 | `GET /v1/publications/{origin}/{id}` | 完整当前快照；`?revision=N` 获取指定历史版本 |
 | `GET /v1/publications/{origin}/{id}/history` | 分页历史版本摘要 |
 | `GET /v1/status` | 本地存储统计和目录任务结果；不包含密钥或远端回执 |
@@ -136,6 +149,8 @@ cargo test --locked
 cargo build --locked
 python3 tool/smoke_test.py target/debug/supplier-hub
 ```
+
+管理端开发检查（Node 22，仅测试需要）：`node --check web/app.js`、`node --experimental-default-type=module --test web/app.test.mjs`。页面设计和浏览器验收记录见 `docs/design/2026-09-29-hub-admin-ui.md`。
 
 跨语言测试：先运行 Dart 的 `test/hub_export_test.dart`，设置 `HUB_EXPORT_FIXTURE=/tmp/hub-quote.json`；再给烟测加 `--quote-json /tmp/hub-quote.json`。烟测使用临时数据库、随机测试凭据和本机端口，验证两进程目录传输、半文件、重复导入、强制重启、关闭再开启补投、备份恢复和原始报价精度。
 

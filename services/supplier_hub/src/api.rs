@@ -17,7 +17,7 @@ use uuid::Uuid;
 use crate::{
     config::Config,
     error::{HubError, Result},
-    model::PublicationDraft,
+    model::{Publication, PublicationDraft},
     store::{SearchQuery, Store},
 };
 
@@ -62,12 +62,14 @@ impl AppState {
 pub fn router(state: AppState) -> Router {
     let protected = Router::new()
         .route("/v1/publications", post(publish).get(search))
+        .route("/v1/publications/preview", post(preview))
         .route("/v1/publications/{origin}/{id}", get(publication))
         .route("/v1/publications/{origin}/{id}/history", get(history))
         .route("/v1/status", get(status))
         .route_layer(middleware::from_fn_with_state(state.clone(), authenticate));
     Router::new()
         .route("/healthz", get(|| async { Json(json!({"status":"ok"})) }))
+        .merge(crate::web::router())
         .merge(protected)
         .layer(DefaultBodyLimit::max(1024 * 1024))
         .layer(middleware::from_fn(no_cache))
@@ -153,6 +155,34 @@ async fn publish(
         .into_response())
 }
 
+async fn preview(
+    State(state): State<AppState>,
+    body: std::result::Result<Json<PublicationDraft>, axum::extract::rejection::JsonRejection>,
+) -> Result<Response> {
+    let Json(mut draft) = match body {
+        Ok(value) => value,
+        Err(rejection) => {
+            return Ok((
+                rejection.status(),
+                Json(json!({"error":"invalid_publication_body"})),
+            )
+                .into_response());
+        }
+    };
+    draft.normalize();
+    let publication = Publication {
+        origin: state.config.center_id,
+        draft,
+    };
+    publication.validate()?;
+    Ok(Json(json!({
+        "title": publication.draft.title(),
+        "record_count": publication.draft.records.len(),
+        "draft": publication.draft,
+    }))
+    .into_response())
+}
+
 async fn search(
     State(state): State<AppState>,
     Query(query): Query<SearchQuery>,
@@ -211,7 +241,13 @@ async fn status(State(state): State<AppState>) -> Result<Response> {
     let data = state.database(|db| db.status()).await?;
     Ok(Json(
         json!({"center_id":state.config.center_id,"sync_enabled":state.config.sync.enabled,
-        "sync_role":state.config.sync.role,"remote_receipt_available":false,"store":data}),
+        "sync_role":state.config.sync.role,
+        "sync_interval_seconds":state.config.sync.interval_seconds,
+        "resend_seconds":state.config.sync.resend_seconds,
+        "max_files_per_tick":state.config.sync.max_files_per_tick,
+        "trusted_origin":state.config.sync.trusted_origin,
+        "authentication_required":state.token_hash.is_some(),
+        "remote_receipt_available":false,"store":data}),
     )
     .into_response())
 }

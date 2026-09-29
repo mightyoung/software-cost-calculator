@@ -124,6 +124,25 @@ fn immutable_retry_reopen_withdrawal_and_backup() {
     draft.withdrawn = true;
     store.publish(origin, draft.clone()).unwrap();
     assert!(store.search(&SearchQuery::default()).unwrap().is_empty());
+    let withdrawn = store
+        .search(&SearchQuery {
+            include_withdrawn: true,
+            ..Default::default()
+        })
+        .unwrap();
+    assert_eq!(withdrawn.len(), 1);
+    assert_eq!(withdrawn[0].revision, 2);
+    assert!(withdrawn[0].withdrawn);
+    assert!(
+        store
+            .search(&SearchQuery {
+                include_withdrawn: true,
+                q: "missing".into(),
+                ..Default::default()
+            })
+            .unwrap()
+            .is_empty()
+    );
     assert_eq!(
         store
             .history(origin, draft.publication_id, 20, 0)

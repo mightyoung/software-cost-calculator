@@ -29,6 +29,13 @@ jobs:
       - run: cargo +1.93.1 clippy --locked --all-targets -- -D warnings
       - run: cargo +1.93.1 test --locked
       - run: cargo +1.93.1 build --locked
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Admin frontend checks
+        run: |
+          node --check web/app.js
+          node --experimental-default-type=module --test web/app.test.mjs
       - uses: subosito/flutter-action@v2
         if: runner.os == 'Linux'
         with:

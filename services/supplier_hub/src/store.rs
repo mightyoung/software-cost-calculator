@@ -14,6 +14,7 @@ pub struct SearchQuery {
     pub q: String,
     pub kind: Option<String>,
     pub supplier_id: Option<Uuid>,
+    pub include_withdrawn: bool,
     pub limit: u32,
     pub offset: u32,
 }
@@ -23,6 +24,7 @@ impl Default for SearchQuery {
             q: String::new(),
             kind: None,
             supplier_id: None,
+            include_withdrawn: false,
             limit: 20,
             offset: 0,
         }
@@ -237,10 +239,11 @@ impl Store {
                 .replace('%', "!%")
                 .replace('_', "!_")
         );
-        let mut stmt=self.connection.prepare("SELECT p.payload FROM publications p WHERE p.withdrawn=0 AND p.revision=(SELECT MAX(n.revision) FROM publications n WHERE n.origin=p.origin AND n.id=p.id) AND (? IS NULL OR p.kind=?) AND (? IS NULL OR p.supplier_id=?) AND p.search_text LIKE ? ESCAPE '!' ORDER BY p.title,p.origin,p.id LIMIT ? OFFSET ?")?;
+        let mut stmt=self.connection.prepare("SELECT p.payload FROM publications p WHERE (? OR p.withdrawn=0) AND p.revision=(SELECT MAX(n.revision) FROM publications n WHERE n.origin=p.origin AND n.id=p.id) AND (? IS NULL OR p.kind=?) AND (? IS NULL OR p.supplier_id=?) AND p.search_text LIKE ? ESCAPE '!' ORDER BY p.title,p.origin,p.id LIMIT ? OFFSET ?")?;
         let supplier = query.supplier_id.map(|s| s.to_string());
         let rows = stmt.query_map(
             params![
+                query.include_withdrawn,
                 query.kind,
                 query.kind,
                 supplier,
@@ -458,6 +461,29 @@ fn summary(p: Publication) -> Result<PublicationSummary> {
             context.insert(key.into(), v.clone());
         }
     }
+    if root.entity_type == "quotation" {
+        for (reference, kind, field, key) in [
+            ("supplier_id", "supplier", "name", "supplier_name"),
+            ("product_id", "product", "model", "product_model"),
+            ("product_id", "product", "brand", "product_brand"),
+            ("project_id", "project", "name", "project_name"),
+        ] {
+            let related_id = root
+                .data
+                .get(reference)
+                .and_then(Value::as_str)
+                .and_then(|value| Uuid::parse_str(value).ok());
+            if let Some(value) = p
+                .draft
+                .records
+                .iter()
+                .find(|record| record.entity_type == kind && Some(record.entity_id) == related_id)
+                .and_then(|record| record.data.get(field))
+            {
+                context.insert(key.into(), value.clone());
+            }
+        }
+    }
     Ok(PublicationSummary {
         origin: p.origin,
         publication_id: p.draft.publication_id,
@@ -468,4 +494,98 @@ fn summary(p: Publication) -> Result<PublicationSummary> {
         root_id: p.draft.root.entity_id,
         context,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+    use super::*;
+    use crate::model::{RecordKey, RecordSnapshot};
+    use serde_json::json;
+
+    #[test]
+    fn quotation_summary_resolves_contained_references_without_changing_payload() {
+        let mut draft: PublicationDraft =
+            serde_json::from_str(include_str!("../examples/supplier.json")).unwrap();
+        let supplier_id = draft.root.entity_id;
+        let product_id = Uuid::new_v4();
+        let old_product_id = Uuid::new_v4();
+        let project_id = Uuid::new_v4();
+        let quotation_id = Uuid::new_v4();
+        draft.root = RecordKey {
+            entity_type: "quotation".into(),
+            entity_id: quotation_id,
+        };
+        for (kind, id, data) in [
+            (
+                "product",
+                old_product_id,
+                json!({"name":"Old product", "unit":"set", "brand":"Wrong brand", "model":"Wrong model"}),
+            ),
+            (
+                "product",
+                product_id,
+                json!({"name":"Valve", "unit":"set", "brand":"Valve brand", "model":"DN50", "merged_into":old_product_id}),
+            ),
+            (
+                "project",
+                project_id,
+                json!({"name":"Factory retrofit", "currency":"CNY", "tax_mode":"included", "markup_rate":"0", "status":"active"}),
+            ),
+            (
+                "quotation",
+                quotation_id,
+                json!({"supplier_id":supplier_id, "product_id":product_id, "project_id":project_id, "price":"12.345", "min_qty":"1", "currency":"CNY", "tax_mode":"included", "unit_snapshot":"set", "capture_mode":"historical"}),
+            ),
+        ] {
+            draft.records.push(RecordSnapshot {
+                entity_type: kind.into(),
+                entity_id: id,
+                source_version: 1,
+                data: serde_json::from_value(data).unwrap(),
+            });
+        }
+        let mut store = Store::open(":memory:").unwrap();
+        let origin = Uuid::new_v4();
+        store.publish(origin, draft.clone()).unwrap();
+        let summaries = store.search(&SearchQuery::default()).unwrap();
+        let context = &summaries[0].context;
+        assert_eq!(context["supplier_name"], "示例设备供应商");
+        assert_eq!(context["product_brand"], "Valve brand");
+        assert_eq!(context["product_model"], "DN50");
+        assert_eq!(context["project_name"], "Factory retrofit");
+        assert_eq!(context["price"], "12.345");
+        assert_eq!(context["supplier_id"], json!(supplier_id));
+        assert_eq!(
+            store.history(origin, draft.publication_id, 20, 0).unwrap()[0].context,
+            *context
+        );
+        draft.normalize();
+        assert_eq!(
+            store.get(origin, draft.publication_id, None).unwrap().draft,
+            draft
+        );
+        // Optional project and product labels remain absent when the snapshot omits them.
+        let mut minimal = draft.clone();
+        minimal
+            .records
+            .retain(|record| record.entity_type != "project");
+        for record in &mut minimal.records {
+            record.data.remove("project_id");
+            if record.entity_id == product_id {
+                record.data.remove("brand");
+                record.data.remove("model");
+            }
+        }
+        let context = summary(Publication {
+            origin,
+            draft: minimal,
+        })
+        .unwrap()
+        .context;
+        for key in ["project_name", "product_brand", "product_model"] {
+            assert!(!context.contains_key(key));
+        }
+        assert_eq!(context["supplier_name"], "示例设备供应商");
+    }
 }
