@@ -7,6 +7,11 @@ import 'inquiries.dart';
 import 'ontology.dart';
 import 'record_query.dart';
 import 'search.dart';
+import 'spec_constraint.dart';
+import 'spec_dictionary.dart';
+import 'spec_match.dart';
+import 'spec_parse.dart';
+import 'spec_request.dart';
 import 'store.dart';
 import 'values.dart';
 
@@ -122,6 +127,17 @@ final agentTools = [
   ),
   _tool('data_quality', '数据质量体检：各类记录数，以及冲突、重复、口径未知、待询价等需要处理的问题数量和处理位置', {}),
   _tool(
+    'spec_classes',
+    '参数字典：不带 class 列出设备类别模板；带 class 列出该类别的参数（代码、名称、类型、单位、比较方式、可选值）',
+    {'class': _str},
+  ),
+  _tool(
+    'match_item',
+    '按技术要求匹配物料：给 item_id（技术要求中的需求项），或给 class（类别代码）和 requirement（要求原文）。'
+        '返回读出的条件、每个候选物料的结论（完全满足/基本满足/不满足）、最低有效报价和逐条判定',
+    {'item_id': _str, 'class': _str, 'requirement': _str, 'limit': _limit},
+  ),
+  _tool(
     'inquiry_matrix',
     '询价单的比价矩阵：每个预算行 × 每家供应商的报价（有效单价、是否可用、是否最低、偏离历史均价百分比），及各供应商已回复行数',
     {'inquiry_id': _str},
@@ -163,6 +179,8 @@ extension AgentTools on Store {
         ),
         'project_budget' => _budget(_s(a, 'project_id')),
         'inquiry_matrix' => _matrix(_s(a, 'inquiry_id')),
+        'spec_classes' => _specClasses(a['class'] as String?),
+        'match_item' => _matchItem(a, limit),
         'data_quality' => {
           'record_counts': recordCounts(),
           'issues': [
@@ -176,6 +194,74 @@ extension AgentTools on Store {
     } catch (e) {
       return jsonEncode({'error': '$e'});
     }
+  }
+
+  Object? _specClasses(String? code) {
+    if (code == null) {
+      return [
+        for (final c in specClasses)
+          {'class': c.code, 'label': c.label, 'parent': c.parent},
+      ];
+    }
+    if (specClass(code) == null) invalid('class', 'unknown value');
+    return [
+      for (final cp in classParams(code))
+        if (specProperty(cp.property) case final p?)
+          {
+            'code': p.code,
+            'label': p.label,
+            'type': p.type.name,
+            'key': cp.key,
+            'unit': ?p.unit,
+            'ops': opsFor(p),
+            if (p.values.isNotEmpty)
+              'values': [for (final v in p.values) v.code],
+          },
+    ];
+  }
+
+  Map<String, Object?> _matchItem(Map<String, Object?> a, int limit) {
+    final String cls;
+    final List<SpecClause> clauses;
+    if (a['item_id'] case final String id) {
+      final item =
+          get('spec_item', id) ?? invalid('item_id', 'record does not exist');
+      cls = item.data['spec_class'] as String? ?? invalid('class', 'required');
+      clauses = clausesOf(item);
+    } else {
+      cls = _s(a, 'class');
+      if (specClass(cls) == null) invalid('class', 'unknown value');
+      clauses = draftItem('', _s(a, 'requirement'), specClass: cls).clauses;
+    }
+    final cs = constraintsOf(clauses);
+    final r = matchSpec(cls, cs);
+    return {
+      'class': cls,
+      'conditions': [for (final c in cs) c.describe()],
+      'text_clauses': [
+        for (final c in clauses)
+          if (c.isText) c.text,
+      ],
+      'counts': {for (final g in MatchGroup.values) g.name: r.size(g)},
+      'candidates': [
+        for (final c in r.candidates.take(limit))
+          {
+            'product_id': c.id,
+            'name': c.data['name'],
+            'model': c.data['model'],
+            'group': matchGroupLabels[c.group],
+            'price': c.price,
+            'results': [
+              for (final x in c.results)
+                {
+                  'condition': x.constraint.describe(),
+                  'outcome': deviationLabels[x.verdict.outcome],
+                  'note': ?x.verdict.note,
+                },
+            ],
+          },
+      ],
+    };
   }
 
   Map<String, Object?> _describe(String? type) {

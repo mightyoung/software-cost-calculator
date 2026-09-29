@@ -59,6 +59,9 @@ void main() {
       'undated_quotes': 1,
       'needs_inquiry': 1,
       'products_never_quoted': 2,
+      'products_unclassified': 0,
+      'products_missing_key_params': 0,
+      'products_unconfirmed_params': 0,
       'suppliers_without_contact': 2,
     });
     s.mergeInto('product', twin, pump);
