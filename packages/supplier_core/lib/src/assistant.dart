@@ -23,23 +23,10 @@ class AssistantTurn {
   final String question, answer;
 }
 
-/// Cancels local waiting and prevents further tools/model calls. An in-flight
-/// provider request may still finish (and be billed) before its own timeout.
-class AssistantCancellation {
-  final _cancelled = Completer<void>();
-  bool get isCancelled => _cancelled.isCompleted;
-  void cancel() {
-    if (!isCancelled) _cancelled.complete();
-  }
-
-  void check() {
-    if (isCancelled) throw LlmException('已停止查询');
-  }
-
-  Future<T> wait<T>(Future<T> work) => Future.any([
-    work,
-    _cancelled.future.then<T>((_) => throw LlmException('已停止查询')),
-  ]);
+/// Compatibility name; every AI task now uses the same cancellation contract.
+class AssistantCancellation extends AiCancellation {
+  @override
+  void cancel([String reason = '已停止查询']) => super.cancel(reason);
 }
 
 /// What each tool is doing, for progress shown while the assistant works.
@@ -105,6 +92,11 @@ extension Assistant on Store {
     AssistantCancellation? cancellation,
     Duration timeout = const Duration(minutes: 3),
   }) async {
+    llm = llm.forTask(
+      AiTask.conversation,
+      cancellation: cancellation,
+      limits: AiLimits(timeout: timeout, maxCalls: maxToolRounds + 1),
+    );
     question = question.trim();
     if (question.isEmpty || question.length > maxAssistantQuestionChars) {
       throw LlmException('请输入 1–$maxAssistantQuestionChars 字的问题');

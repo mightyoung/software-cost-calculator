@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
@@ -159,8 +161,20 @@ class _AiButton extends StatefulWidget {
 
 class _AiButtonState extends State<_AiButton> {
   var busy = false;
+  AiCancellation? _cancellation;
+
+  @override
+  void dispose() {
+    _cancellation?.cancel();
+    super.dispose();
+  }
 
   Future<void> _run() async {
+    if (busy) return;
+    final cancellation = _cancellation = AiCancellation();
+    final classCode = widget.classCode;
+    final clauses = widget.clauses;
+    final snapshot = jsonEncode([for (final c in clauses) c.toJson()]);
     setState(() => busy = true);
     try {
       final llm = await widget.state.llm();
@@ -168,8 +182,20 @@ class _AiButtonState extends State<_AiButton> {
         if (mounted) toast(context, '还没有配置 AI 服务：在 设置 › AI 接入 中填写');
         return;
       }
-      final r = await aiReadClauses(llm, widget.classCode, widget.clauses);
+      cancellation.check();
+      final r = await aiReadClauses(
+        llm,
+        classCode,
+        clauses,
+        cancellation: cancellation,
+      );
       if (!mounted) return;
+      if (widget.classCode != classCode ||
+          jsonEncode([for (final c in widget.clauses) c.toJson()]) !=
+              snapshot) {
+        toast(context, '条款已修改，本次 AI 结果未覆盖你的修改，请重新解析');
+        return;
+      }
       widget.onDone(r.clauses);
       toast(
         context,
@@ -186,14 +212,14 @@ class _AiButtonState extends State<_AiButton> {
 
   @override
   Widget build(BuildContext context) => TextButton.icon(
-    onPressed: busy ? null : _run,
+    onPressed: busy ? () => _cancellation?.cancel() : _run,
     icon: busy
         ? const SizedBox.square(
             dimension: 16,
             child: CircularProgressIndicator(strokeWidth: 2),
           )
         : const Icon(Icons.auto_awesome_outlined, size: 18),
-    label: const Text('用 AI 读未识别的条款'),
+    label: Text(busy ? '停止解析' : '用 AI 读未识别的条款'),
   );
 }
 

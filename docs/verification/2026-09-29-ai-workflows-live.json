@@ -1,0 +1,198 @@
+{
+  "mode": "live_model",
+  "model": "deepseek-flash",
+  "synthetic_data_only": true,
+  "manual_review_required": true,
+  "scope": "Small workflow smoke, not accuracy or productivity certification.",
+  "pass": true,
+  "passed": 5,
+  "total": 5,
+  "cases": [
+    {
+      "task": "conversation",
+      "pass": true,
+      "expected_fields": true,
+      "read_only": true,
+      "events": [
+        {
+          "task": "conversation",
+          "call": 1,
+          "elapsed_ms": 2971,
+          "received_response": true
+        },
+        {
+          "task": "conversation",
+          "call": 2,
+          "elapsed_ms": 2901,
+          "received_response": true
+        }
+      ],
+      "output": {
+        "text": "本机共有 **1** 条物料记录。\n\n（这是物料记录条数，不是库存数量。）\n\n明细：[[product:3a75f7d7-76e6-4cbc-892a-0899bc5153d5|离心水泵]]，单位 台，型号 ZX729，规格：流量10m³/h，扬程20m。",
+        "observations": [
+          {
+            "call_id": "call_00_X5Juxqe012GpLDaUK1770039",
+            "tool": "query",
+            "arguments": "{\"type\": \"product\"}",
+            "result": "{\"total\":1,\"returned\":1,\"offset\":0,\"snapshot\":\"Ge8JN3qkNSTOQ3dngNjmFw==:20:2\",\"has_more\":false,\"next_offset\":null,\"rows\":[{\"id\":\"3a75f7d7-76e6-4cbc-892a-0899bc5153d5\",\"name\":\"离心水泵\",\"unit\":\"台\",\"model\":\"ZX729\",\"specification\":\"流量10m³/h，扬程20m\",\"updated_at\":\"2026-09-29T14:08:32.100067Z\",\"updated_by\":\"workflow-eval\"}]}",
+            "round": 1,
+            "failed": false
+          }
+        ],
+        "warnings": [],
+        "unverified_references": 0,
+        "model_calls": 2,
+        "elapsed_ms": 5917
+      }
+    },
+    {
+      "task": "offerExtraction",
+      "pass": true,
+      "expected_fields": true,
+      "read_only": true,
+      "events": [
+        {
+          "task": "offerExtraction",
+          "call": 1,
+          "elapsed_ms": 3555,
+          "received_response": true
+        }
+      ],
+      "output": {
+        "source": "在线甲供应商，离心水泵ZX729，2台，单价1234.56元，含税13%，报价日期2026-09-29。",
+        "offers": [
+          {
+            "supplier": "在线甲供应商",
+            "contact_name": null,
+            "phone": null,
+            "wechat": null,
+            "email": null,
+            "name": "离心水泵",
+            "category": null,
+            "brand": null,
+            "model": "ZX729",
+            "specification": null,
+            "unit": "台",
+            "price": "1234.56",
+            "currency": "CNY",
+            "tax_mode": "included",
+            "tax_rate": "13",
+            "qty": "2",
+            "quoted_on": "2026-09-29",
+            "valid_until": null,
+            "lead_time_days": null,
+            "notes": null
+          }
+        ],
+        "unverified_fields": [
+          []
+        ]
+      }
+    },
+    {
+      "task": "listProposal",
+      "pass": true,
+      "expected_fields": true,
+      "read_only": true,
+      "events": [
+        {
+          "task": "listProposal",
+          "call": 1,
+          "elapsed_ms": 3300,
+          "received_response": true
+        },
+        {
+          "task": "listProposal",
+          "call": 2,
+          "elapsed_ms": 2385,
+          "received_response": true
+        }
+      ],
+      "output": {
+        "source": "1. 离心水泵，型号ZX729，流量10m³/h，扬程20m，2台\n2. 变频控制柜，1面",
+        "lines": [
+          {
+            "name": "离心水泵",
+            "qty": "2",
+            "product_id": "3a75f7d7-76e6-4cbc-892a-0899bc5153d5",
+            "confidence": "high",
+            "reason": "型号ZX729与流量10m³/h、扬程20m参数一致"
+          },
+          {
+            "name": "变频控制柜",
+            "qty": "1",
+            "product_id": null,
+            "confidence": "low",
+            "reason": null
+          }
+        ]
+      }
+    },
+    {
+      "task": "clauseReading",
+      "pass": true,
+      "expected_fields": true,
+      "read_only": true,
+      "events": [
+        {
+          "task": "clauseReading",
+          "call": 1,
+          "elapsed_ms": 2337,
+          "received_response": true
+        }
+      ],
+      "output": {
+        "clauses": [
+          {
+            "n": 1,
+            "text": "显存不小于2GB",
+            "mark": "none",
+            "cs": [
+              {
+                "p": "gpu.mem",
+                "op": "ge",
+                "value": {
+                  "v": "2",
+                  "u": "GiB"
+                },
+                "mark": "none",
+                "weight": 1,
+                "text": "显存不小于2GB"
+              }
+            ],
+            "by": "ai",
+            "reviewed": false,
+            "hint": "AI 补充了 1 个条件，请对照原文核对；待核对"
+          }
+        ],
+        "added": 1,
+        "dropped": 0
+      }
+    },
+    {
+      "task": "parameterExtraction",
+      "pass": true,
+      "expected_fields": true,
+      "read_only": true,
+      "events": [
+        {
+          "task": "parameterExtraction",
+          "call": 1,
+          "elapsed_ms": 2173,
+          "received_response": true
+        }
+      ],
+      "output": [
+        {
+          "property": "gpu.mem",
+          "value": {
+            "v": "2",
+            "u": "GiB"
+          },
+          "evidence": "显存不小于2GB",
+          "source": "ai"
+        }
+      ]
+    }
+  ]
+}

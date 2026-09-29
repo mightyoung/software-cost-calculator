@@ -26,6 +26,7 @@ class _ListToProjectPageState extends State<ListToProjectPage> {
   bool? hasKey;
   List<ProposedLine>? lines;
   var run = 0; // bumps on cancel so late replies are ignored
+  AiCancellation? _cancellation;
   String currency = 'CNY', taxMode = 'included';
 
   @override
@@ -38,29 +39,32 @@ class _ListToProjectPageState extends State<ListToProjectPage> {
 
   @override
   void dispose() {
+    _cancellation?.cancel();
     text.dispose();
     super.dispose();
   }
 
   Future<void> _start() async {
+    if (progress != null) return;
     if (text.text.trim().isEmpty) {
       return setState(() => error = '先粘贴清单内容，或选择一个 Excel 文件');
     }
-    final llm = await widget.state.llm();
-    if (llm == null) {
-      return setState(
-        () => error = '还没有配置 AI 服务。在 设置 › AI 接入 中填写 API Key 后再试。',
-      );
-    }
     final mine = ++run;
+    final cancellation = _cancellation = AiCancellation();
+    final source = text.text;
     setState(() {
       error = null;
       progress = '正在整理清单…';
     });
     try {
+      final llm = await widget.state.llm();
+      if (!mounted || mine != run) return;
+      cancellation.check();
+      if (llm == null) throw LlmException('还没有配置 AI 服务，请在设置中填写 API Key');
       final result = await widget.state.store.proposeFromList(
         llm,
-        text.text,
+        source,
+        cancellation: cancellation,
         currency: currency,
         taxMode: taxMode,
         onProgress: (stage, done, total) {
@@ -87,13 +91,14 @@ class _ListToProjectPageState extends State<ListToProjectPage> {
       if (mounted && mine == run) {
         setState(() {
           progress = null;
-          error = '连接 AI 服务失败：${e.message}。检查网络和 API Key 后重试。';
+          error = e.message;
         });
       }
     }
   }
 
   void _cancel() => setState(() {
+    _cancellation?.cancel();
     run++;
     progress = null;
   });
@@ -131,7 +136,8 @@ class _ListToProjectPageState extends State<ListToProjectPage> {
     text: text,
     intro:
         '粘贴客户的建设清单或询价清单，格式不限（表格、编号列表或文字都可以），也可以直接选择 Excel 文件。'
-        'AI 会整理出其中的设备与材料，并在物料库中找出最合适的物料。确认前不会写入任何数据。',
+        'AI 会整理设备与材料并建议候选物料；匹配把握不代表技术符合，请核对参数。'
+        '清单及候选物料的名称、型号和规格会发送给已配置的 AI 服务，价格仍在本机计算。确认前不会写入任何数据。',
     example:
         '例如：\n1. 不锈钢离心泵，Q=100m3/h，H=32m，2台\n2. 闸阀 DN100 PN16 ×4\n3. 动力电缆 YJV 4*25，约 300m',
     startLabel: '开始匹配',

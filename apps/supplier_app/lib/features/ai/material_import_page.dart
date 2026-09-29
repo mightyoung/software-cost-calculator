@@ -54,6 +54,7 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
   bool? hasKey;
   List<OfferPlan>? plans;
   var run = 0; // bumps on cancel so late replies are ignored
+  AiCancellation? _cancellation;
 
   @override
   void initState() {
@@ -61,6 +62,7 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
     if (widget.table case final t?) {
       fileName = t.name;
       fileBytes = t.bytes;
+      fileText = text.text;
       plans = [for (final o in t.offers) widget.state.store.planOffer(o)];
     }
     widget.state.hasAiKey().then((v) {
@@ -70,11 +72,13 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
 
   @override
   void dispose() {
+    _cancellation?.cancel();
     text.dispose();
     super.dispose();
   }
 
   Future<void> _start() async {
+    if (progress != null) return;
     if (text.text.trim().isEmpty) {
       return setState(() => error = '先粘贴报价信息，或选择一个 Excel 文件');
     }
@@ -95,27 +99,23 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
         });
       }
     }
-    final LlmClient? llm;
-    try {
-      llm = await widget.state.llm();
-    } on LlmException catch (e) {
-      return setState(() => error = e.message);
-    }
-    if (llm == null) {
-      return setState(
-        () => error = '还没有配置 AI 服务。在 设置 › AI 接入 中填写 API Key 后再试。',
-      );
-    }
     final mine = ++run;
+    final cancellation = _cancellation = AiCancellation();
+    final source = text.text;
     setState(() {
       error = null;
       progress = '正在分析报价信息…';
     });
     try {
+      final llm = await widget.state.llm();
+      if (!mounted || mine != run) return;
+      cancellation.check();
+      if (llm == null) throw LlmException('还没有配置 AI 服务，请在设置中填写 API Key');
       final store = widget.state.store;
       final offers = await store.extractOffers(
         llm,
-        text.text,
+        source,
+        cancellation: cancellation,
         onProgress: (done, total) {
           if (!mounted || mine != run || total < 2) return;
           setState(() => progress = '正在分析报价信息（第 ${done + 1}/$total 段）');
@@ -127,16 +127,14 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
         if (offers.isEmpty) {
           error = '没有识别出产品报价，检查内容后重试。';
         } else {
-          plans = [
-            for (final o in offers) store.planOffer(o, source: text.text),
-          ];
+          plans = [for (final o in offers) store.planOffer(o, source: source)];
         }
       });
     } on LlmException catch (e) {
       if (mounted && mine == run) {
         setState(() {
           progress = null;
-          error = '连接 AI 服务失败：${e.message}。检查网络和 API Key 后重试。';
+          error = e.message;
         });
       }
     }
@@ -166,7 +164,7 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
             masterData: widget.masterData,
             // Evidence kept on every new quotation: the original file when
             // one was chosen and not edited since, else the pasted text.
-            source: fileBytes != null
+            source: fileBytes != null && text.text == fileText
                 ? (name: fileName!, bytes: fileBytes!)
                 : (
                     name: '报价信息-${localDay(DateTime.now())}.txt',
@@ -199,6 +197,7 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
             }),
             onStart: _start,
             onCancel: () => setState(() {
+              _cancellation?.cancel();
               run++;
               progress = null;
             }),

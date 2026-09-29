@@ -72,13 +72,23 @@ extension ListImport on Store {
     String taxMode = 'included',
     DateTime? asOf,
     void Function(ListStage stage, int done, int total)? onProgress,
+    AiCancellation? cancellation,
   }) async {
+    AiRun.validateInput(text);
+    llm = llm.forTask(AiTask.listProposal, cancellation: cancellation);
     final items = <RequestedItem>[];
     final chunks = chunkText(text).toList();
     for (var i = 0; i < chunks.length; i++) {
       onProgress?.call(ListStage.structuring, i, chunks.length);
-      final reply = await llm.json(_extractSystem, chunks[i]);
-      items.addAll(_items(reply['items']));
+      final rows = await llm.records(
+        _extractSystem,
+        chunks[i],
+        key: 'items',
+        validate: (row) =>
+            row['name'] is String && (row['name'] as String).trim().isNotEmpty,
+      );
+      items.addAll(_items(rows));
+      if (items.length > 200) throw LlmException('一次最多核对 200 项清单，请分批导入');
     }
     final candidates = [
       for (final item in items)
@@ -92,7 +102,7 @@ extension ListImport on Store {
     for (var start = 0; start < pending.length; start += _matchBatch) {
       onProgress?.call(ListStage.matching, start, pending.length);
       final batch = pending.skip(start).take(_matchBatch).toList();
-      final reply = await llm.json(
+      final matches = await llm.records(
         _matchSystem,
         jsonEncode([
           for (final i in batch)
@@ -118,9 +128,13 @@ extension ListImport on Store {
               ],
             },
         ]),
+        key: 'matches',
+        validate: (row) =>
+            row['index'] is int &&
+            (row['product_id'] == null || row['product_id'] is String),
+        maxRecords: _matchBatch,
       );
-      for (final m
-          in (reply['matches'] as List? ?? const []).whereType<Map>()) {
+      for (final m in matches) {
         final index = m['index'];
         if (index is int && batch.contains(index)) {
           picks[index] = m.cast<String, Object?>();
@@ -205,15 +219,19 @@ extension ListImport on Store {
 }
 
 Iterable<String> chunkText(String text) sync* {
-  final buffer = StringBuffer();
-  for (final line in const LineSplitter().convert(text)) {
-    if (buffer.length + line.length > _chunkChars && buffer.isNotEmpty) {
-      yield buffer.toString();
-      buffer.clear();
+  var start = 0;
+  while (start < text.length) {
+    var end = (start + _chunkChars).clamp(0, text.length);
+    if (end < text.length) {
+      final newline = text.lastIndexOf('\n', end - 1);
+      if (newline >= start) end = newline + 1;
+      final last = text.codeUnitAt(end - 1);
+      if (last >= 0xd800 && last <= 0xdbff) end--;
     }
-    buffer.writeln(line);
+    final chunk = text.substring(start, end);
+    if (chunk.trim().isNotEmpty) yield chunk;
+    start = end;
   }
-  if (buffer.toString().trim().isNotEmpty) yield buffer.toString();
 }
 
 List<RequestedItem> _items(Object? raw) => [

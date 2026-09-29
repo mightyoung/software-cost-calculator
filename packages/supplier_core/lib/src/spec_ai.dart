@@ -68,22 +68,27 @@ class AiReading {
 Future<AiReading> aiReadClauses(
   LlmClient llm,
   String classCode,
-  List<SpecClause> clauses,
-) async {
+  List<SpecClause> clauses, {
+  AiCancellation? cancellation,
+}) async {
   final open = [
     for (final c in clauses)
       if (!c.reviewed && (c.isText || c.hint != null)) c,
   ];
   if (open.isEmpty) return AiReading(clauses, added: 0, dropped: 0);
-  final reply = await llm.json(
+  AiRun.validateInput(open.map((c) => c.text).join('\n'));
+  llm = llm.forTask(AiTask.clauseReading, cancellation: cancellation);
+  final rows = await llm.records(
     _system,
     '设备类别：${specClass(classCode)?.label ?? classCode}\n'
     '参数清单（代码 | 名称 | 类型 | 单位 | 比较方式 | 可选值）：\n${dictionaryCard(classCode)}\n\n'
     '条款：\n${[for (final c in open) '[${c.n}] ${c.text}'].join('\n')}',
+    key: 'clauses',
+    validate: (row) => row['n'] is int && row['constraints'] is List,
   );
   final byN = <int, List<Object?>>{};
-  for (final x in reply['clauses'] as List? ?? const []) {
-    if (x is Map && x['n'] is int && x['constraints'] is List) {
+  for (final x in rows) {
+    if (x['n'] is int && x['constraints'] is List) {
       byN[x['n']! as int] = x['constraints']! as List;
     }
   }
@@ -127,8 +132,11 @@ Future<AiReading> aiReadClauses(
 Future<List<ParamGuess>> aiExtractParams(
   LlmClient llm,
   String classCode,
-  String text,
-) async {
+  String text, {
+  AiCancellation? cancellation,
+}) async {
+  AiRun.validateInput(text);
+  llm = llm.forTask(AiTask.parameterExtraction, cancellation: cancellation);
   final clauses = [
     for (final (i, c) in splitClauses(text).indexed)
       SpecClause(i + 1, c, hint: '待读'),
@@ -172,6 +180,10 @@ SpecConstraint? verifyAiConstraint(
   if (p == null || !opsFor(p).contains(op)) return null;
   final ev = _flat(evidence);
   if (ev.isEmpty || !_flat(clause.text).contains(ev)) return null;
+  // Evidence containing the right number is insufficient if the model reverses
+  // the comparison. Deterministic readings take precedence over AI additions.
+  final known = parseClause(classCode, clause.n, evidence).constraints;
+  if (known.any((k) => k.property == code && k.op != op)) return null;
   final parsed = parseParamText(p, value);
   if (parsed == null) return null;
   final Map<String, Object?> v;
