@@ -2,6 +2,7 @@ import 'budget.dart';
 import 'compare.dart';
 import 'entities.dart';
 import 'inquiry.dart';
+import 'product_params.dart';
 import 'project.dart';
 import 'quotation.dart';
 import 'store.dart';
@@ -16,6 +17,7 @@ enum Kind {
   textList('文本列表'),
   decimal('十进制文本'),
   integer('整数'),
+  boolean('是/否'),
   date('日期 YYYY-MM-DD'),
   instant('时间点 ISO 8601'),
   enumeration('枚举'),
@@ -179,6 +181,12 @@ final _types = <ObjectType>[
       '报价单位换算',
       Kind.object,
       '报价单位 → 每 1 个报价单位包含的本物料基准单位数量，例如 {"千米": "1000"} 表示 1 千米 = 1000 米',
+    ),
+    const FieldSpec(
+      'spec_class',
+      '参数模板',
+      Kind.text,
+      '参数字典中的类别代码，如 sensor.th（温湿度传感器）；决定有哪些结构化参数',
     ),
   ]),
   ObjectType('project', '项目', '一次成本测算或采购任务，含预算行、报价和询价单', [
@@ -487,6 +495,63 @@ final _types = <ObjectType>[
     ),
     _notes,
   ]),
+  ObjectType('product_param', '物料参数', '物料的一项结构化参数（有类型、单位，可比较）；每个物料每个参数一条', [
+    const FieldSpec(
+      'product_id',
+      '物料',
+      Kind.ref,
+      '',
+      required: true,
+      target: 'product',
+    ),
+    const FieldSpec(
+      'property',
+      '参数',
+      Kind.text,
+      '参数字典代码，如 cpu.cores（物理核数）、prot.ip（防护等级）',
+      required: true,
+    ),
+    const FieldSpec(
+      'value',
+      '取值',
+      Kind.object,
+      '按参数类型：数值 {v,u}、范围 {min,max,u}、精度 {v,u} 或 {v,basis:FS|RD}、'
+          '单选 {v}、多选 {vs}、是否 {v}、IP {codes}、防爆 {marks:[{types,group,temp,epl}]}、'
+          '目录 {entries:[{name,batch,level,valid_until}]}；u 为单位代码',
+      required: true,
+    ),
+    const FieldSpec('cond', '条件', Kind.text, '取值的条件说明，如"25℃ 时"'),
+    FieldSpec(
+      'source',
+      '来源',
+      Kind.enumeration,
+      '',
+      required: true,
+      values: {
+        'manual': '手填',
+        'rule': '规则抽取',
+        'ai': 'AI 抽取',
+        'import': '导入',
+        'decoder': '型号解码',
+      },
+    ),
+    const FieldSpec('evidence', '依据', Kind.text, '依据原文，如说明书中的一句'),
+    const FieldSpec('attachment_id', '依据文件', Kind.ref, '附件 id'),
+    const FieldSpec(
+      'confirmed',
+      '已确认',
+      Kind.boolean,
+      '人工核对过；未确认的值只作参考',
+      required: true,
+    ),
+    const FieldSpec(
+      'dict_version',
+      '字典版本',
+      Kind.integer,
+      '写入时的参数字典版本',
+      required: true,
+    ),
+  ]),
 ];
 
 /// Object types by name, in [entityTypes] order.
@@ -574,6 +639,7 @@ Map<String, List<String>> get validatorEnums => {
   'project_item.category': costCategories,
   'quotation.includes': quoteIncludes,
   'quotation.price_basis': priceBases,
+  'product_param.source': paramSources,
   'supplier.rating': supplierRatings.keys.toList(),
   'inquiry.status': inquiryStatuses,
 };

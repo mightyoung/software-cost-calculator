@@ -86,6 +86,17 @@ void main() {
           'status': 'open',
           'notes': null,
         },
+        'product_param': {
+          'product_id': prod,
+          'property': 'cpu.cores',
+          'value': {'v': '8'},
+          'cond': null,
+          'source': 'manual',
+          'evidence': null,
+          'attachment_id': null,
+          'confirmed': true,
+          'dict_version': 1,
+        },
       };
       for (final t in ontology.values) {
         validatePayload(t.name, samples[t.name]!); // the sample is valid

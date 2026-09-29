@@ -71,6 +71,7 @@ void main() {
       'quotation': 2,
       'project_item': 1,
       'inquiry': 0,
+      'product_param': 0,
     });
     expect(agentGuide(), contains('data_quality('));
   });
