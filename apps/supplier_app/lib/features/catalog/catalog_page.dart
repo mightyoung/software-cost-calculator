@@ -8,6 +8,7 @@ import '../../platform/files.dart';
 import 'attributes_editor.dart';
 import 'catalog_import.dart';
 import 'params_editor.dart';
+import '../spec/param_view.dart';
 import '../spec/spec_match_page.dart';
 import 'contacts.dart';
 import 'detail_panel.dart';
@@ -162,6 +163,12 @@ class _CatalogPageState extends State<CatalogPage> {
             ),
             const Spacer(),
             if (isProduct) ...[
+              OutlinedButton.icon(
+                onPressed: () => showParamView(context, widget.state),
+                icon: const Icon(Icons.table_rows_outlined, size: 18),
+                label: const Text('参数视图'),
+              ),
+              const SizedBox(width: 8),
               OutlinedButton.icon(
                 onPressed: () => showSpecMatch(context, widget.state),
                 icon: const Icon(Icons.rule, size: 18),

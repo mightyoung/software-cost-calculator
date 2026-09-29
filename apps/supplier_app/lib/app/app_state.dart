@@ -244,6 +244,11 @@ class AppState extends ChangeNotifier {
   String get aiBaseUrl => setting('ai_base_url') ?? 'https://api.deepseek.com';
   String get aiModel => setting('ai_model') ?? 'deepseek-flash';
 
+  /// Technical requirements may be sent to the AI service (off by default:
+  /// requirements can be confidential; a local model is an option).
+  bool get specAi => setting('spec_ai') == '1';
+  set specAi(bool on) => saveSetting('spec_ai', on ? '1' : null);
+
   Future<bool> hasAiKey() async {
     try {
       return (await _secure.read(key: _keyName))?.isNotEmpty ?? false;

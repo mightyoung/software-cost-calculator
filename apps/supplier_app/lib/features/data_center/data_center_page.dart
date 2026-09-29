@@ -9,6 +9,7 @@ import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
 import '../../widgets/ledger.dart';
+import '../spec/param_view.dart';
 import 'param_migration.dart';
 import 'relation_graph.dart';
 
@@ -444,31 +445,50 @@ class _QualityTab extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        _card(
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('关键属性转结构化参数'),
-                    Text(
-                      '把物料里自由填写的关键属性（如"温度范围：-40~85℃"）转成有类型、有单位的参数，'
-                      '并按名称识别参数模板，之后才能按技术要求自动比对。先预览，确认后写入。',
-                      style: TextStyle(fontSize: 12, color: Tokens.ink3),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12),
-              OutlinedButton(
-                onPressed: () => showParamMigration(context, state),
-                child: const Text('预览转换'),
-              ),
-            ],
+        for (final (title, body, button, action) in [
+          (
+            '参数视图',
+            '按类别看物料的关键参数：筛选、逐格修改，逐行或整列确认未确认的值。',
+            '打开',
+            () => showParamView(context, state),
           ),
-        ),
+          (
+            '从型号和规格文字补全参数',
+            '电缆按型号解码（如 ZR-KVVP-4×1.5），其他物料从规格和备注里读出参数；'
+                '没有参数模板的按名称识别。已有的值不覆盖，先预览，确认后写入（未确认）。',
+            '预览补全',
+            () => showParamFill(context, state),
+          ),
+          (
+            '关键属性转结构化参数',
+            '把物料里自由填写的关键属性（如"温度范围：-40~85℃"）转成有类型、有单位的参数，'
+                '并按名称识别参数模板，之后才能按技术要求自动比对。先预览，确认后写入。',
+            '预览转换',
+            () => showParamMigration(context, state),
+          ),
+        ]) ...[
+          const SizedBox(height: 16),
+          _card(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title),
+                      Text(
+                        body,
+                        style: TextStyle(fontSize: 12, color: Tokens.ink3),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                OutlinedButton(onPressed: action, child: Text(button)),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }

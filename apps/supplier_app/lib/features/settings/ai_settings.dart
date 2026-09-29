@@ -154,6 +154,20 @@ class _AiSettingsState extends State<AiSettings> {
           ],
         ),
       ),
+      const SizedBox(height: 4),
+      ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 560),
+        child: SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          value: widget.state.specAi,
+          onChanged: (v) => setState(() => widget.state.specAi = v),
+          title: const Text('技术要求使用 AI 解析'),
+          subtitle: const Text(
+            '规则读不准的条款交给 AI 再读一遍。只发送条款原文和参数清单，不发送本机数据；'
+            '技术要求涉密时请保持关闭，或把服务地址改成本机部署的模型。',
+          ),
+        ),
+      ),
       const SizedBox(height: 12),
       Wrap(
         spacing: 8,
@@ -191,6 +205,7 @@ class _AiSettingsState extends State<AiSettings> {
           '· 按清单建项目：你提供的清单文本，以及候选物料的名称、品牌、型号、规格和单位（不含价格和供应商）。\n'
           '· 智能导入报价：只发送你粘贴的报价信息，不发送本机数据；与已有供应商和物料的对应在本机完成。\n'
           '· 问数据：你的问题，以及为回答问题查到的记录（可能包含价格和供应商）。\n'
+          '· 技术要求（打开上面的开关后）：规则读不准的条款原文和该类别的参数清单，不含本机物料和价格。\n'
           'API Key 只保存在本机的系统安全存储中，不会写入数据库，也不会随交换文件传到其他设备。',
           style: TextStyle(fontSize: 12, color: Tokens.ink2, height: 1.6),
         ),

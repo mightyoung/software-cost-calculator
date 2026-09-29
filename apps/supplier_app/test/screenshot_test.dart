@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supplier_app/app/app_state.dart';
 import 'package:supplier_app/app/shell.dart';
+import 'package:supplier_app/features/spec/param_view.dart';
 import 'package:supplier_app/features/spec/spec_match_page.dart';
 import 'package:supplier_app/features/spec/spec_request_page.dart';
 
@@ -321,6 +322,19 @@ Widget _specRequest(Store store, AppState state) {
   return SpecRequestPage(state: state, requestId: req);
 }
 
+Widget _paramView(Store store, AppState state) {
+  seedSensors(store);
+  final id = store.save('product', {
+    for (final f in Product.fields) f: null,
+    'name': '温湿度变送器',
+    'unit': '个',
+    'model': 'THT-3',
+    'specification': '测量范围-30~70℃；湿度0~100%RH；精度±0.3℃；RS485输出；IP65',
+  });
+  store.applyParamFill(store.planParamFill(productIds: [id]));
+  return ParamViewPage(state: state);
+}
+
 /// The workbench with an open inquiry waiting for replies.
 Shell _home(Store store, AppState state) {
   _inquiry(store);
@@ -503,6 +517,8 @@ void main() {
             ? _specMatch(store, state)
             : name == 'desktop_spec_request'
             ? _specRequest(store, state)
+            : name == 'desktop_param_view'
+            ? _paramView(store, state)
             : name == 'desktop_inquiry'
             ? InquiryPage(state: state, id: _inquiry(store))
             : name.contains('import')
@@ -590,6 +606,17 @@ void main() {
         find.byType(SingleChildScrollView).last,
         const Offset(0, -260),
       );
+      await t.pumpAndSettle();
+    }),
+    skip: !hasFont,
+  );
+
+  testWidgets(
+    'desktop param view',
+    (t) => shoot(t, const Size(1280, 800), 'desktop_param_view', () async {
+      await t.tap(find.byType(DropdownButtonFormField<String>));
+      await t.pumpAndSettle();
+      await t.tap(find.text('温湿度传感器').last);
       await t.pumpAndSettle();
     }),
     skip: !hasFont,

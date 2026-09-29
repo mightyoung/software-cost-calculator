@@ -83,6 +83,17 @@ class SpecItemPanel extends StatelessWidget {
                 ),
               ),
               const Spacer(),
+              if (state.specAi &&
+                  cls != null &&
+                  clauses.any(
+                    (c) => !c.reviewed && (c.isText || c.hint != null),
+                  ))
+                _AiButton(
+                  state: state,
+                  classCode: cls,
+                  clauses: clauses,
+                  onDone: (next) => _save(context, next),
+                ),
               if (open > 0)
                 TextButton.icon(
                   onPressed: () => _save(context, [
@@ -117,6 +128,64 @@ class SpecItemPanel extends StatelessWidget {
         ],
       );
     },
+  );
+}
+
+/// 用 AI 读未识别的条款: the open clauses go to the model; what passes the
+/// checks comes back unreviewed, marked as AI's.
+class _AiButton extends StatefulWidget {
+  const _AiButton({
+    required this.state,
+    required this.classCode,
+    required this.clauses,
+    required this.onDone,
+  });
+  final AppState state;
+  final String classCode;
+  final List<SpecClause> clauses;
+  final ValueChanged<List<SpecClause>> onDone;
+
+  @override
+  State<_AiButton> createState() => _AiButtonState();
+}
+
+class _AiButtonState extends State<_AiButton> {
+  var busy = false;
+
+  Future<void> _run() async {
+    setState(() => busy = true);
+    try {
+      final llm = await widget.state.llm();
+      if (llm == null) {
+        if (mounted) toast(context, '还没有配置 AI 服务：在 设置 › AI 接入 中填写');
+        return;
+      }
+      final r = await aiReadClauses(llm, widget.classCode, widget.clauses);
+      if (!mounted) return;
+      widget.onDone(r.clauses);
+      toast(
+        context,
+        r.added == 0 && r.dropped == 0
+            ? 'AI 没有读出新的条件'
+            : 'AI 补充了 ${r.added} 个条件${r.dropped > 0 ? '，${r.dropped} 个与原文对不上已丢弃' : ''}，请逐条核对',
+      );
+    } on LlmException catch (e) {
+      if (mounted) toast(context, 'AI 解析失败：${e.message}');
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => TextButton.icon(
+    onPressed: busy ? null : _run,
+    icon: busy
+        ? const SizedBox.square(
+            dimension: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        : const Icon(Icons.auto_awesome_outlined, size: 18),
+    label: const Text('用 AI 读未识别的条款'),
   );
 }
 
