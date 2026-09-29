@@ -25,6 +25,7 @@ Future<void> main(List<String> args) async {
       ('电缆', 'YJV-4x25', '0.6/1kV 铜芯', '米'),
     ])
       model: s.save('product', {
+        for (final field in Product.fields) field: null,
         'name': name,
         'unit': unit,
         'brand': null,

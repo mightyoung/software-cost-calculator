@@ -30,6 +30,9 @@ Future<void> main(List<String> args) async {
   for (final (name, text, want) in sample) {
     final item = draftItem(name, text);
     var clauses = item.clauses;
+    if (clauses.length != want.length) {
+      throw StateError('$name 条款数与标注不一致：${clauses.length}/${want.length}');
+    }
     bool ok(SpecClause c, int i) {
       final got = {
         for (final x in c.constraints) sampleKey(x.property, x.op, x.value),
@@ -46,6 +49,9 @@ Future<void> main(List<String> args) async {
       clauses = r.clauses;
       added += r.added;
       dropped += r.dropped;
+    }
+    if (clauses.length != want.length) {
+      throw StateError('$name AI 返回条款数与标注不一致：${clauses.length}/${want.length}');
     }
     for (final (i, c) in clauses.indexed) {
       total++;
@@ -64,4 +70,5 @@ Future<void> main(List<String> args) async {
     '（${(right * 100 / total).toStringAsFixed(1)}%），静默错误 $silent；'
     'AI 采纳 $added 个条件、丢弃 $dropped 个',
   );
+  if (total == 0 || right * 10 < total * 9 || silent > 0) exitCode = 1;
 }

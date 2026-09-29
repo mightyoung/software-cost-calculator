@@ -25,6 +25,56 @@ void main() {
   setUp(() => tmp = Directory.systemTemp.createTempSync('assistant_evidence'));
   tearDown(() => tmp.deleteSync(recursive: true));
 
+  for (final source in ['queried', 'unqueried', 'notes']) {
+    test(
+      'table escaped references retain provenance checks: $source',
+      () async {
+        final s = device('A');
+        addTearDown(s.close);
+        final id = s.save('product', product('真实水泵'));
+        final escaped = '[[product:$id\\|模型标签]]';
+        expect(recordRef.hasMatch(escaped), isFalse);
+        final messages = <Map<String, Object?>>[];
+        if (source == 'queried') {
+          messages.add(call('get', {'type': 'product', 'id': id}));
+        } else if (source == 'notes') {
+          final other = s.save('supplier', {
+            ...supplier('供应商'),
+            'notes': escaped,
+          });
+          messages.add(call('get', {'type': 'supplier', 'id': other}));
+        }
+        messages.add(answer('| 产品 |\n| --- |\n| $escaped |'));
+        final result = await s.askWithEvidence(
+          FakeModel(messages).client,
+          '查水泵',
+        );
+        if (source == 'queried') {
+          expect(result.text, contains('[[product:$id|真实水泵]]'));
+          expect(result.unverifiedReferences, 0);
+        } else {
+          expect(recordRef.hasMatch(result.text), isFalse);
+          expect(result.text, contains('模型标签（未核验）'));
+          expect(result.unverifiedReferences, 1);
+        }
+        expect(result.text, isNot(contains(escaped)));
+      },
+    );
+  }
+
+  test('only a single table delimiter escape is normalized', () {
+    const id = '546aff01-c05c-4e08-ac41-09ffc126235a';
+    final escaped = '[[product:$id\\\\|模型标签]]';
+    final result = AssistantAnswer.fromRun(
+      escaped,
+      const [],
+      modelCalls: 1,
+      elapsed: Duration.zero,
+    );
+    expect(result.text, escaped);
+    expect(recordRef.hasMatch(result.text), isFalse);
+  });
+
   test('existing but unqueried records never become verified links', () async {
     final s = device('A');
     addTearDown(s.close);

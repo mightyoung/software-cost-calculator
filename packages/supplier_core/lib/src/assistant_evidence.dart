@@ -7,6 +7,12 @@ final recordRef = RegExp(
   r'\[\[(\w+):([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\|([^\]]+)\]\]',
 );
 
+// Models may escape the delimiter inside Markdown table cells. Accept exactly
+// one backslash here, before provenance checks; public recordRef stays strict.
+final _tableRecordRef = RegExp(
+  r'\[\[(\w+):([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\\\|([^\]]+)\]\]',
+);
+
 /// A bounded tool observation actually supplied to the model, not reasoning.
 class AssistantObservation {
   const AssistantObservation({
@@ -56,7 +62,11 @@ class AssistantAnswer {
       _collectRecords(observation, records);
     }
     var unsupported = 0;
-    final text = answer.replaceAllMapped(recordRef, (match) {
+    final normalized = answer.replaceAllMapped(
+      _tableRecordRef,
+      (match) => '[[${match[1]}:${match[2]}|${match[3]}]]',
+    );
+    final text = normalized.replaceAllMapped(recordRef, (match) {
       final name = records['${match[1]}:${match[2]}'];
       if (name == null) {
         unsupported++;
