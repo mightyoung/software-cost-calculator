@@ -10,6 +10,7 @@ import '../quotes/quote_form.dart';
 import '../records/open_record.dart';
 import 'catalog_page.dart';
 import 'contacts.dart';
+import 'params_editor.dart';
 
 /// Side panel (or full page on phones) about one supplier or material:
 /// what it is, its quotations and where it is used.
@@ -212,6 +213,7 @@ class CatalogDetail extends StatelessWidget {
       ],
       const SizedBox(height: 12),
       _actions(context, {'product_id': id, 'unit_snapshot': d['unit']}),
+      ..._params(d),
       if (main != null) ...[
         _section(
           '价格走势 · ${main.currency} ${taxModeLabels[main.taxMode] ?? main.taxMode} · 每${main.unit}',
@@ -280,6 +282,43 @@ class CatalogDetail extends StatelessWidget {
               openRecord(context, state, 'project', u['project_id']! as String),
         ),
       if (uses.rows.isEmpty) _empty('还没有项目用到'),
+    ];
+  }
+
+  List<Widget> _params(Map<String, Object?> d) {
+    final lines = paramLines(state.store, id);
+    final cls = d['spec_class'] as String?;
+    final done = state.store.paramCompleteness(id);
+    return [
+      _section(
+        [
+          '参数',
+          if (cls != null) specClass(cls)?.label ?? cls,
+          if (done.total > 0) '关键参数 ${done.filled}/${done.total}',
+        ].join(' · '),
+      ),
+      for (final l in lines)
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 3),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 108,
+                child: Text(
+                  l.label,
+                  style: TextStyle(fontSize: 13, color: Tokens.ink2),
+                ),
+              ),
+              Expanded(
+                child: Text(l.value, style: const TextStyle(fontSize: 13)),
+              ),
+              if (!l.confirmed) const HintTag('未确认', icon: Icons.help_outline),
+            ],
+          ),
+        ),
+      if (lines.isEmpty)
+        _empty(cls == null ? '还没有参数：编辑物料，选择参数模板后填写' : '还没有填写参数'),
     ];
   }
 

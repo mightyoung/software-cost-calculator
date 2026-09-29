@@ -7,6 +7,8 @@ import '../../widgets/ledger.dart';
 import '../../platform/files.dart';
 import 'attributes_editor.dart';
 import 'catalog_import.dart';
+import 'params_editor.dart';
+import '../spec/spec_match_page.dart';
 import 'contacts.dart';
 import 'detail_panel.dart';
 import 'duplicate_hints.dart';
@@ -159,6 +161,14 @@ class _CatalogPageState extends State<CatalogPage> {
               style: TextStyle(color: Tokens.ink3),
             ),
             const Spacer(),
+            if (isProduct) ...[
+              OutlinedButton.icon(
+                onPressed: () => showSpecMatch(context, widget.state),
+                icon: const Icon(Icons.rule, size: 18),
+                label: const Text('按要求找物料'),
+              ),
+              const SizedBox(width: 8),
+            ],
             OutlinedButton.icon(
               onPressed: () =>
                   importCatalogList(context, widget.state, widget.type),
@@ -452,6 +462,9 @@ class _CatalogFormState extends State<_CatalogForm> {
 
   /// Supplier rating: null (not rated), preferred, caution or disabled.
   String? rating;
+
+  /// Typed parameters of a material, written with it on save.
+  late final ParamsDraft params;
   final unitConversions = <AttributeRow>[];
   String? error;
   List<Duplicate> dups = const [];
@@ -568,6 +581,13 @@ class _CatalogFormState extends State<_CatalogForm> {
       );
     }
     rating = data?['rating'] as String?;
+    params = ParamsDraft(
+      widget.state.store,
+      widget.type == 'product' ? widget.id : null,
+      classCode: widget.type == 'product'
+          ? (data?['spec_class'] as String?)
+          : null,
+    );
     final a = data?['attributes'];
     if (a is Map) {
       for (final e in a.entries) {
@@ -591,6 +611,7 @@ class _CatalogFormState extends State<_CatalogForm> {
 
   @override
   void dispose() {
+    params.dispose();
     for (final x in [
       ...c.values,
       for (final (k, v) in attrs) ...[k, v],
@@ -641,10 +662,16 @@ class _CatalogFormState extends State<_CatalogForm> {
         units[name] = value;
       }
       payload['unit_conversions'] = units.isEmpty ? null : units;
+      final problem = params.check();
+      if (problem != null) return setState(() => error = problem);
+      payload['spec_class'] = params.classCode;
     }
     late String id;
     final err = widget.state.write(
-      (s) => id = s.save(widget.type, payload, id: widget.id),
+      (s) => s.transaction(() {
+        id = s.save(widget.type, payload, id: widget.id);
+        if (widget.type == 'product') params.apply(s, id);
+      }),
     );
     if (err != null) return setState(() => error = err);
     Navigator.pop(context, id);
@@ -742,6 +769,15 @@ class _CatalogFormState extends State<_CatalogForm> {
                 ],
                 if (widget.type == 'product') ...[
                   _categoryChips(),
+                  ParamsEditor(
+                    draft: params,
+                    suggestion: guessSpecClass([
+                      c['name']!.text,
+                      c['category']!.text,
+                    ]),
+                    onChanged: () => setState(() {}),
+                  ),
+                  const SizedBox(height: 16),
                   AttributesEditor(
                     rows: attrs,
                     suggestions: widget.state.store.categoryAttributes(

@@ -5,6 +5,7 @@ import 'package:pdf/widgets.dart' as pw;
 
 import 'budget.dart';
 import 'project_export.dart';
+import 'spec_deviation.dart';
 import 'store.dart';
 import 'values.dart';
 
@@ -199,6 +200,35 @@ extension ProjectPdf on Store {
         ('毛利', pdfMoney(b.margin)),
         if (b.contractWarning) ('提示', '成本已达合同金额 90%'),
       ],
+    );
+  }
+
+  /// The technical deviation table of a requirement as PDF.
+  Future<Uint8List> deviationPdf(
+    String requestId,
+    Uint8List font, {
+    DateTime? asOf,
+  }) {
+    final req = get('spec_request', requestId)!.data;
+    final project = req['project_id'] == null
+        ? null
+        : get('project', req['project_id']! as String)?.data;
+    final t = deviationTable(this, requestId);
+    return _document(
+      font,
+      title: '技术偏离表',
+      landscape: true,
+      meta: [
+        '技术要求：${req['title']}',
+        if (project != null) '项目：${project['name']}（${project['code']}）',
+        '日期：${localDay(asOf ?? clock())}',
+      ],
+      header: deviationHeader,
+      widths: const [0.7, 0.5, 4, 3, 0.8, 2.4],
+      numeric: const {},
+      rows: t.rows,
+      boldRows: t.headings,
+      totals: const [],
     );
   }
 

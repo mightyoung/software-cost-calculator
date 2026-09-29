@@ -11,6 +11,8 @@ import '../catalog/catalog_page.dart';
 import '../projects/project_form.dart';
 import '../quotes/quote_form.dart';
 import '../records/open_record.dart';
+import '../spec/spec_match_page.dart';
+import '../spec/spec_request_list.dart';
 
 /// One entry of the palette: an action, a page or a record.
 class _Entry {
@@ -66,6 +68,12 @@ class _PaletteState extends State<_Palette> {
         await openRecord(c, widget.state, 'project', id);
       }
     }),
+    _Entry('按要求找物料', Icons.rule, (c) => showSpecMatch(c, widget.state)),
+    _Entry(
+      '技术要求选型（导入要求、定选、偏离表）',
+      Icons.fact_check_outlined,
+      (c) => showSpecRequests(c, widget.state),
+    ),
     _Entry(
       '新建供应商',
       Icons.factory_outlined,

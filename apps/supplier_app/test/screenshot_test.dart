@@ -11,6 +11,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supplier_app/app/app_state.dart';
 import 'package:supplier_app/app/shell.dart';
+import 'package:supplier_app/features/spec/spec_match_page.dart';
+import 'package:supplier_app/features/spec/spec_request_page.dart';
+
+import 'spec_match_page_test.dart' show seedSensors;
 import 'package:supplier_app/app/theme.dart';
 import 'package:supplier_app/features/ai/list_review.dart';
 import 'package:supplier_app/features/ai/material_import_page.dart';
@@ -292,6 +296,31 @@ Widget _importScreen(String name, AppState state) {
 }
 
 /// An inquiry on the pump-room project: three lines, three suppliers.
+/// Matching page over three sample sensors.
+Widget _specMatch(Store store, AppState state) {
+  seedSensors(store);
+  return SpecMatchPage(state: state);
+}
+
+Widget _specRequest(Store store, AppState state) {
+  seedSensors(store);
+  final req = store.createSpecRequest('泵房监控系统技术要求', [
+    draftItem(
+      '温湿度传感器',
+      '（1）测量范围，温度-20℃~+80℃；相对湿度：0%~+100%RH。\n'
+          '（2）测量精度要求：温度优于±0.3℃，相对湿度优于±3%。\n'
+          '（3）输出信号4-20mA或RS485标准工业信号，与温湿度监控系统控制器或采集器适配。\n'
+          '★（4）防护等级不低于IP65。\n'
+          '（5）防爆等级不低于EX d IIBT4 Gb。',
+      qty: '25',
+      unit: '个',
+    ),
+    draftItem('工控机', 'CPU：八核及以上，主频2.3GHz及以上；内存：DDR4 16GB', qty: '5', unit: '台'),
+    draftItem('显示器', '尺寸不小于27英寸，最佳固有分辨率不小于2K', qty: '7', unit: '台'),
+  ]);
+  return SpecRequestPage(state: state, requestId: req);
+}
+
 /// The workbench with an open inquiry waiting for replies.
 Shell _home(Store store, AppState state) {
   _inquiry(store);
@@ -470,6 +499,10 @@ void main() {
         theme: buildTheme(),
         home: name == 'desktop_conflicts'
             ? ConflictsPage(state: state)
+            : name == 'desktop_spec_match'
+            ? _specMatch(store, state)
+            : name == 'desktop_spec_request'
+            ? _specRequest(store, state)
             : name == 'desktop_inquiry'
             ? InquiryPage(state: state, id: _inquiry(store))
             : name.contains('import')
@@ -533,6 +566,69 @@ void main() {
       skip: !hasFont,
     );
   }
+
+  testWidgets(
+    'desktop material form with typed parameters',
+    (t) => shoot(t, const Size(1280, 1000), 'desktop_params_form', () async {
+      await t.tap(find.text('物料').first);
+      await t.pumpAndSettle();
+      await t.tap(find.text('新建物料'));
+      await t.pumpAndSettle();
+      await t.enterText(find.widgetWithText(TextField, '物料名称'), '温湿度变送器');
+      await t.enterText(find.widgetWithText(TextField, '单位'), '个');
+      await t.pumpAndSettle();
+      await t.tap(find.text('用「温湿度传感器」'));
+      await t.pumpAndSettle();
+      await t.enterText(
+        find.widgetWithText(TextField, '温度测量范围 ·关键'),
+        '-40~85℃',
+      );
+      await t.enterText(find.widgetWithText(TextField, '温度精度 ·关键'), '±0.2');
+      await t.enterText(find.widgetWithText(TextField, '温度分辨率'), '0.1');
+      await t.pumpAndSettle();
+      await t.drag(
+        find.byType(SingleChildScrollView).last,
+        const Offset(0, -260),
+      );
+      await t.pumpAndSettle();
+    }),
+    skip: !hasFont,
+  );
+
+  testWidgets(
+    'desktop spec request',
+    (t) => shoot(t, const Size(1280, 900), 'desktop_spec_request'),
+    skip: !hasFont,
+  );
+
+  testWidgets(
+    'desktop spec match',
+    (t) => shoot(t, const Size(1280, 900), 'desktop_spec_match', () async {
+      await t.tap(find.byType(DropdownButtonFormField<String?>));
+      await t.pumpAndSettle();
+      await t.tap(find.text('温湿度传感器').last);
+      await t.pumpAndSettle();
+      final values = find.widgetWithText(TextField, '要求值');
+      await t.enterText(values.at(0), '-20~80℃');
+      await t.enterText(values.at(2), '±0.3℃');
+      await t.enterText(values.at(4), '4-20mA或RS485');
+      await t.tap(find.text('添加条件'));
+      await t.pumpAndSettle();
+      await t.tap(
+        find.widgetWithText(DropdownButtonFormField<String>, '参数').last,
+      );
+      await t.pumpAndSettle();
+      await t.tap(find.text('防爆标志').last);
+      await t.pumpAndSettle();
+      await t.enterText(values.last, 'Ex d IIB T4 Gb');
+      await t.pumpAndSettle();
+      await t.drag(find.byType(ListView).first, const Offset(0, -420));
+      await t.pumpAndSettle();
+      await t.tap(find.text('显示不满足的 1 个物料'));
+      await t.pumpAndSettle();
+    }),
+    skip: !hasFont,
+  );
 
   testWidgets(
     'desktop home',

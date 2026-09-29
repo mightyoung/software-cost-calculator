@@ -126,6 +126,55 @@ List<Offer> _offers(
   return [for (final r in raws) cleanOffer(r)];
 }
 
+/// Rows of a requirement sheet: name, qty, unit and requirement text
+/// (merged continuation rows joined). Needs a name and a requirement
+/// column; null otherwise.
+List<Map<String, String?>>? requirementRows(XWorkbook book) {
+  for (final sheet in book.sheets) {
+    for (var h = 0; h < sheet.rows.length && h < 10; h++) {
+      final col = <String, int>{};
+      for (final (i, c) in sheet.rows[h].indexed) {
+        final n = _norm(c.display.trim());
+        for (final k in ['name', 'specification', 'qty', 'unit']) {
+          if (_headers[k]!.contains(n) && !col.containsKey(k)) col[k] = i;
+        }
+      }
+      if (!col.containsKey('name') || !col.containsKey('specification')) {
+        continue;
+      }
+      final out = <Map<String, String?>>[];
+      for (final row in sheet.rows.skip(h + 1)) {
+        String? at(String key) {
+          final i = col[key];
+          if (i == null || i >= row.length || row[i].isBlank) return null;
+          return row[i].display.trim();
+        }
+
+        final name = at('name');
+        if (name == null) {
+          final more = at('specification');
+          if (out.isNotEmpty && more != null) {
+            out.last['specification'] = [
+              ?out.last['specification'],
+              more,
+            ].join('\n');
+          }
+          continue;
+        }
+        if (RegExp(r'^(合计|小计|总计)').hasMatch(name)) continue;
+        out.add({
+          'name': name,
+          'specification': at('specification'),
+          'qty': at('qty'),
+          'unit': at('unit'),
+        });
+      }
+      return out;
+    }
+  }
+  return null;
+}
+
 /// Cells copied from Excel arrive as tab-separated lines; a cell holding
 /// line breaks or tabs is quoted with doubled inner quotes. Returns null
 /// for text without tabs.

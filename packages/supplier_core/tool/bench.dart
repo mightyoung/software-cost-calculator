@@ -146,6 +146,36 @@ void main() {
     1500,
     () => b.quoteRows(filter: QuoteFilter.usable, sort: QuoteSort.price),
   );
+  // Matching: one class of 2,000 materials with typed parameters.
+  b.transaction(() {
+    for (var i = 0; i < 2000; i++) {
+      final id = b.save('product', {
+        'name': '工控机$i',
+        'unit': '台',
+        'brand': null,
+        'model': 'IPC-$i',
+        'specification': null,
+        'category': null,
+        'notes': null,
+        'merged_into': null,
+        'attributes': null,
+        'unit_conversions': null,
+        'spec_class': 'computer.ipc',
+      });
+      b.setParam(id, 'cpu.cores', {'v': '${4 + i % 16}'});
+      b.setParam(id, 'cpu.base_freq', {'v': '2.${i % 9}', 'u': 'GHz'});
+      b.setParam(id, 'mem.total', {'v': '${8 * (1 + i % 4)}', 'u': 'GiB'});
+    }
+  });
+  timed(
+    'match 2,000 materials of a class',
+    1500,
+    () => b.matchSpec('computer.ipc', const [
+      SpecConstraint('cpu.cores', 'ge', {'v': '8'}),
+      SpecConstraint('cpu.base_freq', 'ge', {'v': '2.3', 'u': 'GHz'}),
+      SpecConstraint('mem.total', 'ge', {'v': '16', 'u': 'GiB'}),
+    ]),
+  );
   print('rss ${ProcessInfo.maxRss ~/ 1048576} MiB');
   if (failures.isNotEmpty) {
     print('BENCHMARK FAILED: ${failures.join(', ')}');

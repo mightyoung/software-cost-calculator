@@ -17,7 +17,9 @@ import 'values.dart';
 /// 5: quotation storage omits top-level null fields.
 /// 6: products gain `unit_conversions` (quote unit → base units).
 /// 7: supplier `rating`/`rating_note`, quotation `price_tiers`.
-const schemaVersion = 7;
+/// 8: product `spec_class`; typed parameter records `product_param`.
+/// 9: technical requirements `spec_request` and their items `spec_item`.
+const schemaVersion = 9;
 const fileFormat = 'supplier-inquiry';
 
 /// Merge order matters only for the reference check at the end of an import;
@@ -30,6 +32,9 @@ const entityTypes = [
   'quotation',
   'project_item',
   'inquiry',
+  'product_param',
+  'spec_request',
+  'spec_item',
 ];
 
 /// Reference columns checked after every write and every import.
@@ -45,6 +50,13 @@ const references = {
     'inquiry_id': 'inquiry',
   },
   'inquiry': {'project_id': 'project'},
+  'product_param': {'product_id': 'product'},
+  'spec_request': {'project_id': 'project'},
+  'spec_item': {
+    'request_id': 'spec_request',
+    'project_item_id': 'project_item',
+    'chosen_product_id': 'product',
+  },
   'project_item': {
     'project_id': 'project',
     'product_id': 'product',
@@ -67,6 +79,8 @@ const _indexes = [
   "CREATE INDEX IF NOT EXISTS quotation_project ON quotation(json_extract(data,'\$.project_id'))",
   "CREATE INDEX IF NOT EXISTS quotation_inquiry ON quotation(json_extract(data,'\$.inquiry_id'))",
   "CREATE INDEX IF NOT EXISTS item_project ON project_item(json_extract(data,'\$.project_id'))",
+  "CREATE INDEX IF NOT EXISTS param_product ON product_param(json_extract(data,'\$.product_id'))",
+  "CREATE INDEX IF NOT EXISTS spec_item_request ON spec_item(json_extract(data,'\$.request_id'))",
   'CREATE INDEX IF NOT EXISTS change_entity ON change_log(entity_id, at)',
 ];
 
@@ -311,9 +325,14 @@ class Store {
     String type,
     Map<String, Object?> payload, {
     String? id,
+    String? newId,
     bool allowClear = false,
     String? snapshotSourceItemId,
   }) => transaction(() {
+    // newId: create under a derived id (parameter records); it must be free.
+    if (newId != null && (id != null || get(type, newId) != null)) {
+      invalid('id', 'record already exists');
+    }
     final data = validatePayload(type, payload);
     final previous = id == null ? null : get(type, id);
     if (id != null && (previous == null || previous.deleted)) {
@@ -359,7 +378,7 @@ class Store {
       );
     }
     _checkReferences(type, data, previous);
-    final key = id ?? newUuid();
+    final key = id ?? newId ?? newUuid();
     _write(type, key, (previous?.version ?? 0) + 1, false, data);
     _log(type, key, previous?.data, data);
     return key;

@@ -38,6 +38,7 @@ Map<String, Object?> product(String name, {String unit = '件'}) => {
   'merged_into': null,
   'attributes': null,
   'unit_conversions': null,
+  'spec_class': null,
 };
 
 Map<String, Object?> project(
