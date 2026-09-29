@@ -88,7 +88,7 @@ class AttachmentsField extends StatelessWidget {
   final ValueChanged<List<String>> onChanged;
 
   Future<void> _add(BuildContext context) async {
-    final file = await pickBytes(const []);
+    final file = await pickBytesForUi(context, const []);
     if (file == null) return;
     String? id;
     final err = state.write((s) => id = s.addAttachment(file.name, file.bytes));

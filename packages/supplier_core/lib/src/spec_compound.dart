@@ -77,7 +77,7 @@ class ExMark {
   };
 
   static ExMark fromJson(Map<String, Object?> m) => ExMark(
-    types: [for (final t in (m['types'] as List? ?? const [])) '$t'],
+    types: validatedExTypes(m['types']),
     group: m['group'] as String?,
     temp: m['temp'] as String?,
     epl: m['epl'] as String?,
@@ -100,6 +100,17 @@ const _exTypes = [
   'na', 'nc', 'nr', 'ob', 'oc', 'px', 'py', 'pz', 'qb', 'ta', 'tb', 'tc', //
   'op', 'd', 'e', 'i', 'm', 'n', 'o', 'p', 'q', 's', 't',
 ];
+
+/// Keep absent concepts (group-only markings) but never coerce unknown values.
+List<String> validatedExTypes(Object? raw) {
+  if (raw == null) return const [];
+  if (raw is! List ||
+      raw.length > 12 ||
+      raw.any((t) => t is! String || !_exTypes.contains(t))) {
+    throw const FormatException('value.marks.types: invalid protection types');
+  }
+  return raw.cast<String>();
+}
 
 List<String>? _splitTypes(String s) {
   final out = <String>[];
@@ -238,4 +249,8 @@ String? exImpliedEpl(List<String> types) {
 }
 
 /// Protection concept regardless of level: d / db / dc → d; ia / ib → i.
-String exFamily(String type) => type.startsWith('op') ? 'op' : type[0];
+String exFamily(String type) => type.startsWith('op')
+    ? 'op'
+    : type.isEmpty
+    ? ''
+    : type[0];

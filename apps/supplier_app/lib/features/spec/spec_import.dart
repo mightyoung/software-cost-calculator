@@ -51,8 +51,8 @@ class _SpecImportDialogState extends State<_SpecImportDialog> {
   }
 
   Future<void> _pickExcel() async {
-    final file = await pickBytes(['xlsx']);
-    if (file == null) return;
+    final file = await pickBytesForUi(context, ['xlsx']);
+    if (file == null || !mounted) return;
     setState(() {
       text.clear();
       try {

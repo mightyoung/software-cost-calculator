@@ -17,6 +17,35 @@ import 'values.dart';
 final _magic = utf8.encode('SIQE1\n');
 const _saltLength = 16, _nonceLength = 12, _tagLength = 16;
 const _iterations = 150000;
+// SIQE1 uses whole-message AES-GCM. Bound its buffers before key derivation.
+const maxEncryptedExchangeBytes = 128 * 1024 * 1024;
+const _envelopeBytes = 6 + _saltLength + _nonceLength + _tagLength;
+
+/// Only authentication failures can be retried with a different password.
+class ExchangeAuthenticationException extends FormatException {
+  const ExchangeAuthenticationException() : super('file: 口令不对，或文件已损坏');
+}
+
+Uint8List _readBounded(String path, int limit) {
+  final file = File(path).openSync();
+  try {
+    final length = file.lengthSync();
+    if (length > limit) invalid('file', 'encrypted exchange exceeds 128 MiB');
+    final bytes = Uint8List(length);
+    var read = 0;
+    while (read < length) {
+      final count = file.readIntoSync(bytes, read);
+      if (count == 0) invalid('file', 'file changed while reading');
+      read += count;
+    }
+    // Do not let a file that grows after the length check extend allocation.
+    if (file.readByteSync() != -1)
+      invalid('file', 'file changed while reading');
+    return bytes;
+  } finally {
+    file.closeSync();
+  }
+}
 
 bool isEncryptedExchange(String path) {
   final file = File(path);
@@ -49,21 +78,26 @@ Future<void> _encrypt(String plain, String out, String passphrase) async {
   final salt = List<int>.generate(_saltLength, (_) => random.nextInt(256));
   final aes = AesGcm.with256bits();
   final box = await aes.encrypt(
-    File(plain).readAsBytesSync(),
+    _readBounded(plain, maxEncryptedExchangeBytes - _envelopeBytes),
     secretKey: await _key(passphrase, salt),
     nonce: aes.newNonce(),
   );
   final part = File('$out.part');
-  part.writeAsBytesSync(
-    Uint8List.fromList([
-      ..._magic,
-      ...salt,
-      ...box.nonce,
-      ...box.cipherText,
-      ...box.mac.bytes,
-    ]),
-    flush: true,
-  );
+  final output = part.openSync(mode: FileMode.write);
+  try {
+    for (final bytes in [
+      _magic,
+      salt,
+      box.nonce,
+      box.cipherText,
+      box.mac.bytes,
+    ]) {
+      output.writeFromSync(bytes);
+    }
+    output.flushSync();
+  } finally {
+    output.closeSync();
+  }
   part.renameSync(out);
 }
 
@@ -79,15 +113,19 @@ Future<String> _decrypt(
   String passphrase,
   Directory tempDir,
 ) async {
-  final bytes = File(path).readAsBytesSync();
+  final bytes = _readBounded(path, maxEncryptedExchangeBytes);
   final head = _magic.length, body = head + _saltLength + _nonceLength;
-  if (!isEncryptedExchange(path) || bytes.length < body + _tagLength) {
+  if (bytes.length < body + _tagLength ||
+      !List.generate(
+        _magic.length,
+        (i) => bytes[i] == _magic[i],
+      ).every((v) => v)) {
     invalid('file', 'not an encrypted exchange file');
   }
   final box = SecretBox(
-    bytes.sublist(body, bytes.length - _tagLength),
-    nonce: bytes.sublist(head + _saltLength, body),
-    mac: Mac(bytes.sublist(bytes.length - _tagLength)),
+    Uint8List.sublistView(bytes, body, bytes.length - _tagLength),
+    nonce: Uint8List.sublistView(bytes, head + _saltLength, body),
+    mac: Mac(Uint8List.sublistView(bytes, bytes.length - _tagLength)),
   );
   final List<int> plain;
   try {
@@ -99,7 +137,7 @@ Future<String> _decrypt(
       ),
     );
   } on SecretBoxAuthenticationError {
-    invalid('file', '口令不对，或文件已损坏');
+    throw const ExchangeAuthenticationException();
   }
   tempDir.createSync(recursive: true);
   final out = File(
@@ -110,12 +148,13 @@ Future<String> _decrypt(
 
 extension EncryptedExchange on Store {
   Future<void> exportEncryptedTo(String path, String passphrase) async {
-    final plain = '$path.plain';
-    exportTo(plain);
+    final temp = Directory.systemTemp.createTempSync('siq-encrypt-');
+    final plain = '${temp.path}/snapshot.siq';
     try {
+      exportTo(plain);
       await encryptFile(plain, path, passphrase);
     } finally {
-      File(plain).deleteSync();
+      temp.deleteSync(recursive: true);
     }
   }
 }

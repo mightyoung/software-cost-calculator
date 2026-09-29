@@ -5,6 +5,18 @@ import 'format.dart';
 /// Chinese for every reason the core validators raise. A test scans the core
 /// sources so a new English reason cannot reach users untranslated.
 const _reasons = {
+  'encrypted exchange exceeds 128 MiB': '加密交换文件超过 128 兆字节上限',
+  'file changed while reading': '读取期间文件发生变化，请重新选择文件',
+  'expected at most 300 rows': '最多 300 行',
+  'duplicate clause': '条款重复',
+  'unknown outcome': '响应结论无效',
+  'expected boolean': '应为是或否',
+  'unsupported exchange schema': '交换文件结构不受支持',
+  'missing exchange metadata': '交换文件缺少格式信息',
+  'expected canonical UTC timestamp': '时间格式不规范',
+  'marker requires null': '历史标记不应带有字段值',
+  'expected bounded JSON text': '历史字段值格式错误或过长',
+  'invalid JSON': '历史字段值格式错误',
   'required': '必填',
   'precision exceeded': '位数超出（最多 12 位整数、6 位小数）',
   'expected unsigned decimal text': '应为不带符号的数字',

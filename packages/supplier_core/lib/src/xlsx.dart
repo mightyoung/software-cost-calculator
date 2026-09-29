@@ -4,12 +4,15 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:xml/xml.dart';
 
+import 'bounded_zip.dart';
 import 'values.dart';
 
 /// Size guards against hostile or accidental giant files (zip bombs).
 const maxXlsxBytes = 20 * 1024 * 1024;
 const maxExpandedBytes = 100 * 1024 * 1024;
 const maxZipEntries = 2048;
+// Budgets cover all sheets, including implied blank positions.
+const maxWorkbookRows = 200000, maxWorkbookCells = 2000000;
 
 enum CellKind { blank, text, number, boolean, error }
 
@@ -116,20 +119,19 @@ class SheetData {
 // limit. Switch to xml_events streaming if much larger sheets are needed.
 XWorkbook readXlsx(Uint8List bytes) {
   if (bytes.length > maxXlsxBytes) invalid('file', '文件超过 20 MB');
-  final Archive archive;
+  final Map<String, Uint8List> archive;
   try {
-    archive = ZipDecoder().decodeBytes(bytes, verify: true);
+    archive = readBoundedZip(
+      bytes,
+      maxEntries: maxZipEntries,
+      maxExpandedBytes: maxExpandedBytes,
+    );
   } catch (_) {
-    invalid('file', '不是有效的 xlsx 文件');
+    invalid('file', '不是有效的 xlsx 文件，或文件解压后过大');
   }
-  if (archive.length > maxZipEntries) invalid('file', '文件结构异常');
-  var expanded = 0;
   String? part(String name) {
-    final file = archive.findFile(name);
-    if (file == null) return null;
-    final content = file.content as List<int>;
-    expanded += content.length;
-    if (expanded > maxExpandedBytes) invalid('file', '文件解压后过大');
+    final content = archive[name];
+    if (content == null) return null;
     return utf8.decode(content);
   }
 
@@ -156,13 +158,14 @@ XWorkbook readXlsx(Uint8List bytes) {
     ).findAllElements('Relationship'))
       r.getAttribute('Id'): r.getAttribute('Target'),
   };
-  final shared = part('xl/sharedStrings.xml') == null
+  final shared = !archive.containsKey('xl/sharedStrings.xml')
       ? const <String>[]
       : [
           for (final si in doc('xl/sharedStrings.xml').findAllElements('si'))
             _runText(si),
         ];
   final sheets = <XSheet>[];
+  final budget = _WorkbookBudget();
   for (final s in workbook.findAllElements('sheet')) {
     final rel = s.attributes
         .firstWhere(
@@ -173,7 +176,7 @@ XWorkbook readXlsx(Uint8List bytes) {
     var target = targets[rel] ?? '';
     target = target.startsWith('/') ? target.substring(1) : 'xl/$target';
     sheets.add(
-      XSheet(s.getAttribute('name') ?? '', _rows(doc(target), shared)),
+      XSheet(s.getAttribute('name') ?? '', _rows(doc(target), shared, budget)),
     );
   }
   return XWorkbook(sheets, date1904: date1904);
@@ -184,14 +187,38 @@ String _runText(XmlElement si) => [
     if (t.parentElement?.name.local != 'rPh') t.innerText,
 ].join();
 
-List<List<XCell>> _rows(XmlDocument sheet, List<String> shared) {
+class _WorkbookBudget {
+  var rows = 0, cells = 0;
+}
+
+List<List<XCell>> _rows(
+  XmlDocument sheet,
+  List<String> shared,
+  _WorkbookBudget budget,
+) {
   final rows = <int, Map<int, XCell>>{};
+  final widths = <int, int>{};
+  var height = 0;
   for (final c in sheet.findAllElements('c')) {
     final ref = c.getAttribute('r') ?? '';
     final m = RegExp(r'^([A-Z]{1,3})(\d{1,7})$').firstMatch(ref);
     if (m == null) invalid('file', '单元格坐标无效：$ref');
     final col = m[1]!.codeUnits.fold(0, (n, u) => n * 26 + u - 64) - 1;
     final row = int.parse(m[2]!) - 1;
+    if (row < 0 || row >= 1048576 || col >= 16384) {
+      invalid('file', '单元格坐标超出 Excel 范围：$ref');
+    }
+    final newHeight = row + 1 > height ? row + 1 : height;
+    budget.rows += newHeight - height;
+    height = newHeight;
+    final previous = widths[row] ?? 0;
+    if (col + 1 > previous) {
+      budget.cells += col + 1 - previous;
+      widths[row] = col + 1;
+    }
+    if (budget.rows > maxWorkbookRows || budget.cells > maxWorkbookCells) {
+      invalid('file', '工作簿行数或单元格数量过多，请拆分后导入');
+    }
     final type = c.getAttribute('t');
     final value = c.getElement('v')?.innerText;
     final formula = c.getElement('f') != null;
@@ -232,11 +259,7 @@ List<List<XCell>> _rows(XmlDocument sheet, List<String> shared) {
     for (var r = 0; r <= last; r++)
       if (rows[r] case final cells?)
         [
-          for (
-            var col = 0;
-            col <= cells.keys.reduce((a, b) => a > b ? a : b);
-            col++
-          )
+          for (var col = 0; col < widths[r]!; col++)
             cells[col] ?? XCell(_ref(col, r), CellKind.blank, ''),
         ]
       else

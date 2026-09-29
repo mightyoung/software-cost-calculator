@@ -13,7 +13,7 @@ Future<void> importCatalogList(
   AppState state,
   String type,
 ) async {
-  final file = await pickBytes(['xlsx']);
+  final file = await pickBytesForUi(context, ['xlsx']);
   if (file == null || !context.mounted) return;
   final XWorkbook book;
   try {

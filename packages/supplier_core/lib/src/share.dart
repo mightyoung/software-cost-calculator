@@ -69,52 +69,56 @@ extension Share on Store {
     String? passphrase,
   }) async {
     final ids = shareClosure(chosen);
-    final plain = passphrase == null ? path : '$path.plain';
-    for (final p in [plain, '$plain-journal']) {
-      if (File(p).existsSync()) File(p).deleteSync();
-    }
-    final file = sqlite3.open(plain);
+    final temp = passphrase == null
+        ? null
+        : Directory.systemTemp.createTempSync('siq-selection-');
+    final plain = temp == null ? path : '${temp.path}/selection.siq';
     try {
-      createSchema(file);
-    } finally {
-      file.close();
-    }
-    final all = ids.values.expand((s) => s).toList();
-    final attachments = {
-      for (final q in ids['quotation']!)
-        ...((get('quotation', q)?.data['attachment_ids'] as List?) ?? const [])
-            .cast<String>(),
-    };
-    db.execute('ATTACH DATABASE ? AS out', [plain]);
-    try {
-      transaction(() {
-        ids.forEach((type, set) {
+      for (final p in [plain, '$plain-journal']) {
+        if (File(p).existsSync()) File(p).deleteSync();
+      }
+      final file = sqlite3.open(plain);
+      try {
+        createSchema(file);
+      } finally {
+        file.close();
+      }
+      final all = ids.values.expand((s) => s).toList();
+      final attachments = {
+        for (final q in ids['quotation']!)
+          ...((get('quotation', q)?.data['attachment_ids'] as List?) ??
+                  const [])
+              .cast<String>(),
+      };
+      db.execute('ATTACH DATABASE ? AS out', [plain]);
+      try {
+        transaction(() {
+          ids.forEach((type, set) {
+            db.execute(
+              'INSERT INTO out.$type SELECT * FROM main.$type '
+              'WHERE id IN (SELECT value FROM json_each(?))',
+              [jsonEncode(set.toList())],
+            );
+          });
           db.execute(
-            'INSERT INTO out.$type SELECT * FROM main.$type '
+            'INSERT INTO out.change_log SELECT * FROM main.change_log '
+            'WHERE entity_id IN (SELECT value FROM json_each(?))',
+            [jsonEncode(all)],
+          );
+          db.execute(
+            'INSERT INTO out.attachment SELECT * FROM main.attachment '
             'WHERE id IN (SELECT value FROM json_each(?))',
-            [jsonEncode(set.toList())],
+            [jsonEncode(attachments.toList())],
           );
         });
-        db.execute(
-          'INSERT INTO out.change_log SELECT * FROM main.change_log '
-          'WHERE entity_id IN (SELECT value FROM json_each(?))',
-          [jsonEncode(all)],
-        );
-        db.execute(
-          'INSERT INTO out.attachment SELECT * FROM main.attachment '
-          'WHERE id IN (SELECT value FROM json_each(?))',
-          [jsonEncode(attachments.toList())],
-        );
-      });
-    } finally {
-      db.execute('DETACH DATABASE out');
-    }
-    if (passphrase != null) {
-      try {
-        await encryptFile(plain, path, passphrase);
       } finally {
-        File(plain).deleteSync();
+        db.execute('DETACH DATABASE out');
       }
+      if (passphrase != null) {
+        await encryptFile(plain, path, passphrase);
+      }
+    } finally {
+      temp?.deleteSync(recursive: true);
     }
   }
 }
