@@ -59,6 +59,27 @@ class _SpecRequestPageState extends State<SpecRequestPage> {
     if (saved && mounted) toast(context, '已导出技术偏离表 PDF');
   }
 
+  Future<void> _exportSuppliers(Map<String, Object?> req) async {
+    final saved = await saveBytes(
+      '供应商偏离表-${req['title']}-${today()}.xlsx',
+      state.store.supplierDeviationXlsx(widget.requestId),
+      extensions: ['xlsx'],
+    );
+    if (saved && mounted) toast(context, '已导出供应商偏离表');
+  }
+
+  void _addToBudget() {
+    late int n;
+    final err = state.write((s) => n = s.addItemsToBudget(widget.requestId));
+    toast(
+      context,
+      err ??
+          (n == 0
+              ? '需求项都已在项目预算里'
+              : '已加入 $n 行待询价物料。在项目的询价单里发给供应商，询价表会带上逐条填写的技术响应页。'),
+    );
+  }
+
   Future<void> _delete() async {
     final ok = await showDialog<bool>(
       context: context,
@@ -111,6 +132,17 @@ class _SpecRequestPageState extends State<SpecRequestPage> {
                   onPressed: () => _export(rec.data, pdf: true),
                   child: const Text('导出技术偏离表（PDF）'),
                 ),
+                MenuItemButton(
+                  onPressed: () => _exportSuppliers(rec.data),
+                  child: const Text('导出供应商偏离表（Excel）'),
+                ),
+                if (rec.data['project_id'] != null) ...[
+                  const Divider(height: 8),
+                  MenuItemButton(
+                    onPressed: _addToBudget,
+                    child: const Text('加入项目预算（待询价）'),
+                  ),
+                ],
                 const Divider(height: 8),
                 MenuItemButton(
                   onPressed: _delete,

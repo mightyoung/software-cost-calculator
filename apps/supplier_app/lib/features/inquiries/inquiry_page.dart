@@ -89,6 +89,9 @@ class InquiryPage extends StatelessWidget {
       return toast(context, '无法读取 ${file.name}：${friendlyError(e.message)}');
     }
     final good = plans.where((p) => p.error == null).length;
+    // The 技术响应 sheet, when the inquiry's lines carry requirements.
+    final answers = store.planSpecResponses(file.bytes, id) ?? const [];
+    final clauses = answers.fold(0, (n, p) => n + p.rows.length);
     final errors = [
       for (final p in plans)
         if (p.error != null) p,
@@ -102,6 +105,8 @@ class InquiryPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('$good 行报价可以导入，已报过的行会更新为新价格。原表会作为附件保存。'),
+            if (clauses > 0)
+              Text('技术响应 $clauses 条（${answers.length} 项设备），导入后在技术要求页逐条核对偏离。'),
             for (final e in errors.take(5))
               Text(
                 '第 ${e.row} 行：${e.error}',
@@ -115,7 +120,9 @@ class InquiryPage extends StatelessWidget {
             child: const Text('取消'),
           ),
           FilledButton(
-            onPressed: good == 0 ? null : () => Navigator.pop(context, true),
+            onPressed: good == 0 && clauses == 0
+                ? null
+                : () => Navigator.pop(context, true),
             child: const Text('导入'),
           ),
         ],
@@ -133,9 +140,10 @@ class InquiryPage extends StatelessWidget {
           inquirer: state.setting('inquirer') ?? state.deviceName,
           attachmentIds: [att],
         );
+        s.applySpecResponses(answers, sid, inquiryId: id);
       }),
     );
-    toast(context, err ?? '已导入 $n 行报价');
+    toast(context, err ?? '已导入 $n 行报价${clauses > 0 ? '，技术响应 $clauses 条' : ''}');
   }
 
   Future<void> _award(BuildContext context, InquiryRow row) async {

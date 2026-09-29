@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:supplier_app/app/app_state.dart';
 import 'package:supplier_app/app/theme.dart';
 import 'package:supplier_app/features/spec/spec_import.dart';
+import 'package:supplier_app/features/spec/spec_request_page.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 import 'spec_match_page_test.dart' show seedSensors;
@@ -84,5 +85,51 @@ void main() {
     final after = snapshotRows(s.get('spec_item', item.id)!)!;
     expect(after[1]['outcome'], 'worse');
     expect(after[2]['response'], 'RS485 输出，与采集器适配');
+  });
+
+  testWidgets('supplier answers are judged per clause on the item', (
+    tester,
+  ) async {
+    final dir = Directory.systemTemp.createTempSync('spec_resp');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final s = Store.open('${dir.path}/r.db', device: '测试机');
+    addTearDown(s.close);
+    final jia = s.save('supplier', {
+      for (final f in Supplier.fields) f: null,
+      'name': '甲公司',
+      'aliases': <String>[],
+      'categories': <String>[],
+    });
+    final req = s.createSpecRequest('泵房', [
+      draftItem('温湿度传感器', '（1）测量范围：温度-20℃~+80℃\n★（2）防护等级不低于IP65'),
+    ]);
+    final item = s.specItemsOf(req).single;
+    s.applySpecResponses([
+      ResponsePlan(item.id, '温湿度传感器', [
+        {'n': 1, 'response': '-40~85℃', 'stated': 'exact', 'note': null},
+        {'n': 2, 'response': 'IP54', 'stated': 'exact', 'note': '外壳'},
+      ]),
+    ], jia);
+    tester.view.physicalSize = const Size(1500, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildTheme(),
+        home: SpecRequestPage(state: AppState.test(s, dir), requestId: req),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.dragUntilVisible(
+      find.text('供应商响应'),
+      find.byType(ListView).last,
+      const Offset(0, -200),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('甲公司'), findsOneWidget);
+    expect(find.text('✓ +  -40~85℃'), findsOneWidget);
+    expect(find.text('✗  IP54'), findsOneWidget);
+    expect(find.text('声明无偏离，与数值不符'), findsOneWidget);
+    expect(find.text('负偏离 1 · 待确认 0'), findsOneWidget);
   });
 }

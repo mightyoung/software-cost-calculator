@@ -200,7 +200,12 @@ extension AgentTools on Store {
     if (code == null) {
       return [
         for (final c in specClasses)
-          {'class': c.code, 'label': c.label, 'parent': c.parent},
+          {
+            'class': c.code,
+            'label': c.label,
+            'parent': c.parent,
+            if (c.refs.isNotEmpty) 'refs': c.refs,
+          },
       ];
     }
     if (specClass(code) == null) invalid('class', 'unknown value');

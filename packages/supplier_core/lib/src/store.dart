@@ -19,7 +19,8 @@ import 'values.dart';
 /// 7: supplier `rating`/`rating_note`, quotation `price_tiers`.
 /// 8: product `spec_class`; typed parameter records `product_param`.
 /// 9: technical requirements `spec_request` and their items `spec_item`.
-const schemaVersion = 9;
+/// 10: supplier clause-by-clause responses `spec_response`.
+const schemaVersion = 10;
 const fileFormat = 'supplier-inquiry';
 
 /// Merge order matters only for the reference check at the end of an import;
@@ -35,6 +36,7 @@ const entityTypes = [
   'product_param',
   'spec_request',
   'spec_item',
+  'spec_response',
 ];
 
 /// Reference columns checked after every write and every import.
@@ -56,6 +58,11 @@ const references = {
     'request_id': 'spec_request',
     'project_item_id': 'project_item',
     'chosen_product_id': 'product',
+  },
+  'spec_response': {
+    'item_id': 'spec_item',
+    'supplier_id': 'supplier',
+    'inquiry_id': 'inquiry',
   },
   'project_item': {
     'project_id': 'project',
@@ -80,6 +87,7 @@ const _indexes = [
   "CREATE INDEX IF NOT EXISTS quotation_inquiry ON quotation(json_extract(data,'\$.inquiry_id'))",
   "CREATE INDEX IF NOT EXISTS item_project ON project_item(json_extract(data,'\$.project_id'))",
   "CREATE INDEX IF NOT EXISTS param_product ON product_param(json_extract(data,'\$.product_id'))",
+  "CREATE INDEX IF NOT EXISTS spec_response_item ON spec_response(json_extract(data,'\$.item_id'))",
   "CREATE INDEX IF NOT EXISTS spec_item_request ON spec_item(json_extract(data,'\$.request_id'))",
   'CREATE INDEX IF NOT EXISTS change_entity ON change_log(entity_id, at)',
 ];

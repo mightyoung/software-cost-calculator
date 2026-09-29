@@ -118,6 +118,16 @@ void main() {
           'chosen_snapshot': null,
           'notes': null,
         },
+        'spec_response': {
+          'item_id': s.specItemsOf(
+            s.createSpecRequest('技术要求', [draftItem('工控机', 'CPU八核')]),
+          ).single.id,
+          'supplier_id': sup,
+          'inquiry_id': null,
+          'rows': <Object>[],
+          'received_on': null,
+          'notes': null,
+        },
       };
       for (final t in ontology.values) {
         validatePayload(t.name, samples[t.name]!); // the sample is valid
