@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
@@ -14,7 +17,7 @@ Future<void> showSpecImport(
   AppState state, {
   String? projectId,
 }) async {
-  final id = await showDialog<String>(
+  final id = await showAppDialog<String>(
     context: context,
     builder: (_) => _SpecImportDialog(state: state, projectId: projectId),
   );
@@ -126,13 +129,13 @@ class _SpecImportDialogState extends State<_SpecImportDialog> {
                 children: [
                   OutlinedButton.icon(
                     onPressed: _pickExcel,
-                    icon: const Icon(Icons.table_view_outlined, size: 18),
+                    icon: const AppIcon(Icons.table_view_outlined, size: 18),
                     label: const Text('选择 Excel 文件'),
                   ),
                   if (widget.projectId != null)
                     OutlinedButton.icon(
                       onPressed: _fromProject,
-                      icon: const Icon(Icons.playlist_add_check, size: 18),
+                      icon: const AppIcon(Icons.playlist_add_check, size: 18),
                       label: const Text('用本项目待询价的物料行'),
                     ),
                 ],

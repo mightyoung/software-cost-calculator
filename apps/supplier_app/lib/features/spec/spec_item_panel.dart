@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
@@ -100,7 +103,7 @@ class SpecItemPanel extends StatelessWidget {
                   onPressed: () => _save(context, [
                     for (final c in clauses) c.copyWith(reviewed: true),
                   ]),
-                  icon: const Icon(Icons.done_all, size: 18),
+                  icon: const AppIcon(Icons.done_all, size: 18),
                   label: const Text('全部确认'),
                 ),
             ],
@@ -190,9 +193,9 @@ class _AiButtonState extends State<_AiButton> {
     icon: busy
         ? const SizedBox.square(
             dimension: 16,
-            child: CircularProgressIndicator(strokeWidth: 2),
+            child: TaskProgress(compact: true, strokeWidth: 2),
           )
-        : const Icon(Icons.auto_awesome_outlined, size: 18),
+        : const AppIcon(Icons.auto_awesome_outlined, size: 18),
     label: const Text('用 AI 读未识别的条款'),
   );
 }
@@ -328,7 +331,7 @@ class _ClauseCardState extends State<_ClauseCard> {
     final cls = widget.classCode;
     if (cls == null) return;
     final old = index == null ? null : c.constraints[index];
-    final next = await showDialog<SpecConstraint>(
+    final next = await showAppDialog<SpecConstraint>(
       context: context,
       builder: (_) => _ConstraintDialog(classCode: cls, initial: old),
     );
@@ -420,7 +423,7 @@ class _ClauseCardState extends State<_ClauseCard> {
                   ),
                 if (widget.classCode != null)
                   ActionChip(
-                    avatar: const Icon(Icons.add, size: 16),
+                    avatar: const AppIcon(Icons.add, size: 16),
                     label: const Text('添加条件'),
                     onPressed: () => _edit(),
                   ),

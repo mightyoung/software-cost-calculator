@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../app/version.dart';
@@ -56,7 +57,10 @@ class _SettingsPageState extends State<SettingsPage> {
           style: TextStyle(color: Tokens.ink2),
         ),
         const SizedBox(height: 10),
-        Row(
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             SizedBox(
               width: 280,
@@ -65,7 +69,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 onSubmitted: (_) => _saveDevice(),
               ),
             ),
-            const SizedBox(width: 8),
             OutlinedButton(onPressed: _saveDevice, child: const Text('保存')),
           ],
         ),
@@ -90,6 +93,14 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         const SizedBox(height: 28),
         AiSettings(state: widget.state),
+        SwitchListTile.adaptive(
+          contentPadding: EdgeInsets.zero,
+          title: const Text('减少动态效果'),
+          subtitle: const Text('关闭页面位移和加载动画；系统的减少动态效果设置始终优先。'),
+          value: widget.state.setting('reduce_motion') == 'true',
+          onChanged: (value) =>
+              widget.state.saveSetting('reduce_motion', value ? 'true' : null),
+        ),
         const SizedBox(height: 28),
         const Text('已删除的记录', style: TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(height: 4),
@@ -102,7 +113,7 @@ class _SettingsPageState extends State<SettingsPage> {
           alignment: Alignment.centerLeft,
           child: OutlinedButton.icon(
             onPressed: () => showTrash(context, widget.state),
-            icon: const Icon(Icons.restore_from_trash_outlined, size: 18),
+            icon: const AppIcon(Icons.restore_from_trash_outlined, size: 18),
             label: Text('查看（${store.deletedRecords().length} 条）'),
           ),
         ),

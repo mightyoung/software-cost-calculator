@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
@@ -33,6 +36,14 @@ Future<void> showAddItems(
   }
   return showGeneralDialog(
     context: context,
+    transitionDuration: AppMotion.duration(context, milliseconds: 220),
+    transitionBuilder: (_, animation, _, child) => SlideTransition(
+      position: Tween(
+        begin: const Offset(.04, 0),
+        end: Offset.zero,
+      ).animate(animation.drive(CurveTween(curve: Curves.easeOutCubic))),
+      child: child,
+    ),
     barrierDismissible: true,
     barrierLabel: '关闭',
     pageBuilder: (_, _, _) => Align(
@@ -56,7 +67,7 @@ Future<void> showAddItems(
                     IconButton(
                       tooltip: '关闭',
                       onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close),
+                      icon: const AppIcon(Icons.close),
                     ),
                   ],
                 ),
@@ -100,7 +111,7 @@ class _AddItemsState extends State<_AddItems> {
           child: TextField(
             autofocus: true,
             decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.search, size: 18),
+              prefixIcon: AppIcon(Icons.search, size: 18),
               hintText: '型号、名称、品牌或规格',
             ),
             onChanged: (v) => setState(() => query = v.trim()),
@@ -214,7 +225,7 @@ Future<void> showItemEditor(
   String? productId,
   String category = 'material',
   String? name,
-}) => showDialog(
+}) => showAppDialog(
   context: context,
   builder: (_) => _ItemEditor(
     state: state,

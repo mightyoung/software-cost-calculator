@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import 'quote_extras.dart';
@@ -16,7 +19,7 @@ Future<void> showQuoteForm(
   AppState state, {
   String? id,
   Map<String, Object?> prefill = const {},
-}) => showDialog(
+}) => showAppDialog(
   context: context,
   builder: (_) => _QuoteForm(state: state, id: id, prefill: prefill),
 );
@@ -158,10 +161,10 @@ class _QuoteFormState extends State<_QuoteForm> {
             suffixIcon: clearable && data[key] != null
                 ? IconButton(
                     tooltip: '清除',
-                    icon: const Icon(Icons.close, size: 16),
+                    icon: const AppIcon(Icons.close, size: 16),
                     onPressed: () => setState(() => data[key] = null),
                   )
-                : const Icon(Icons.calendar_today_outlined, size: 16),
+                : const AppIcon(Icons.calendar_today_outlined, size: 16),
           ),
           child: Text(
             data[key] as String? ?? '未填',
@@ -410,7 +413,10 @@ class _QuoteFormState extends State<_QuoteForm> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.verified_outlined, color: Tokens.accentDeep),
+                      AppIcon(
+                        Icons.verified_outlined,
+                        color: Tokens.accentDeep,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(

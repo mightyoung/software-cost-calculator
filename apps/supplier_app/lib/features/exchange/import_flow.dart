@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 import '../../app/app_state.dart';
@@ -105,7 +107,7 @@ Future<({bool done, String? message})> reviewAndImport(
       onBusy?.call(false);
     }
     if (!context.mounted) return (done: false, message: null);
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (_) => _Preview(title: title, preview: preview),
     );
@@ -150,7 +152,7 @@ Future<({bool done, String? message})> reviewAndRestore(
       onBusy?.call(false);
     }
     if (!context.mounted) return (done: false, message: null);
-    final previewed = await showDialog<bool>(
+    final previewed = await showAppDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('整库恢复预览'),
@@ -189,7 +191,7 @@ Future<({bool done, String? message})> reviewAndRestore(
     if (previewed != true || !context.mounted) {
       return (done: false, message: null);
     }
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('确认替换整个资料库？'),
@@ -218,6 +220,7 @@ Future<({bool done, String? message})> reviewAndRestore(
     onBusy?.call(true);
     final navigator = Navigator.of(context, rootNavigator: true);
     final progressRoute = RawDialogRoute<void>(
+      transitionDuration: AppMotion.duration(context),
       barrierDismissible: false,
       barrierColor: Colors.black54,
       barrierLabel: '整库恢复进行中',
@@ -230,7 +233,7 @@ Future<({bool done, String? message})> reviewAndRestore(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                LinearProgressIndicator(),
+                TaskProgress(),
                 SizedBox(height: 16),
                 Text('请稍候，恢复完成前不要关闭应用。'),
               ],

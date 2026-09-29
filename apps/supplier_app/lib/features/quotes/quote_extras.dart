@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
@@ -116,7 +117,7 @@ class AttachmentsField extends StatelessWidget {
             const Spacer(),
             TextButton.icon(
               onPressed: () => _add(context),
-              icon: const Icon(Icons.attach_file, size: 16),
+              icon: const AppIcon(Icons.attach_file, size: 16),
               label: const Text('添加报价单、截图等'),
             ),
           ],
@@ -126,7 +127,7 @@ class AttachmentsField extends StatelessWidget {
         for (final a in list)
           Row(
             children: [
-              Icon(Icons.description_outlined, size: 16, color: Tokens.ink3),
+              AppIcon(Icons.description_outlined, size: 16, color: Tokens.ink3),
               const SizedBox(width: 6),
               Expanded(child: Text(a.name, overflow: TextOverflow.ellipsis)),
               Text(
@@ -135,12 +136,12 @@ class AttachmentsField extends StatelessWidget {
               ),
               IconButton(
                 tooltip: '另存一份查看',
-                icon: const Icon(Icons.download_outlined, size: 16),
+                icon: const AppIcon(Icons.download_outlined, size: 16),
                 onPressed: () => _open(context, a),
               ),
               IconButton(
                 tooltip: '从这条报价移除（原件仍保留在本机）',
-                icon: const Icon(Icons.close, size: 16),
+                icon: const AppIcon(Icons.close, size: 16),
                 onPressed: () => onChanged([
                   for (final i in ids)
                     if (i != a.id) i,

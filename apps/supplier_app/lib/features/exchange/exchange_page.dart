@@ -1,8 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
@@ -118,7 +121,7 @@ class _ExchangePageState extends State<ExchangePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(icon, color: Tokens.accent),
+                AppIcon(icon, color: Tokens.accent),
                 const SizedBox(height: 10),
                 Text(title, style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 6),
@@ -178,10 +181,7 @@ class _ExchangePageState extends State<ExchangePage> {
         ],
         const SizedBox(height: 12),
         Row(children: [panels[2]]),
-        if (busy) ...[
-          const SizedBox(height: 16),
-          const LinearProgressIndicator(),
-        ],
+        if (busy) ...[const SizedBox(height: 16), const TaskProgress()],
         const SizedBox(height: 16),
         PassphraseRow(state: state),
         const SizedBox(height: 16),
@@ -205,7 +205,7 @@ class _ExchangePageState extends State<ExchangePage> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.call_split, color: Tokens.amber),
+                    AppIcon(Icons.call_split, color: Tokens.amber),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(

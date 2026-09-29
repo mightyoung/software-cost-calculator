@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
@@ -53,7 +54,7 @@ class CatalogDetail extends StatelessWidget {
                   IconButton(
                     tooltip: '关闭',
                     onPressed: onClose,
-                    icon: const Icon(Icons.close, size: 18),
+                    icon: const AppIcon(Icons.close, size: 18),
                   ),
               ],
             ),
@@ -72,12 +73,12 @@ class CatalogDetail extends StatelessWidget {
     children: [
       OutlinedButton.icon(
         onPressed: () => showCatalogForm(context, state, type, id: id),
-        icon: const Icon(Icons.edit_outlined, size: 16),
+        icon: const AppIcon(Icons.edit_outlined, size: 16),
         label: const Text('编辑'),
       ),
       FilledButton.icon(
         onPressed: () => showQuoteForm(context, state, prefill: prefill),
-        icon: const Icon(Icons.add, size: 16),
+        icon: const AppIcon(Icons.add, size: 16),
         label: const Text('新建报价'),
       ),
     ],

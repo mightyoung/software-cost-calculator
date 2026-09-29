@@ -1,8 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../records/open_record.dart';
@@ -144,7 +147,7 @@ class _AskPageState extends State<AskPage> {
                   setState(messages.clear);
                   widget.state.saveSetting(_historyKey, null);
                 },
-                icon: const Icon(Icons.delete_sweep_outlined, size: 18),
+                icon: const AppIcon(Icons.delete_sweep_outlined, size: 18),
                 label: const Text('清空记录'),
               ),
           ],
@@ -176,7 +179,8 @@ class _AskPageState extends State<AskPage> {
                                 const SizedBox(
                                   width: 14,
                                   height: 14,
-                                  child: CircularProgressIndicator(
+                                  child: TaskProgress(
+                                    compact: true,
                                     strokeWidth: 2,
                                   ),
                                 ),

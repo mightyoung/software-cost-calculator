@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import '../app/motion.dart';
 
 const maxPickedBytes = 20 * 1024 * 1024;
 // Exchange snapshots include the entire library and attachments, so use a
@@ -135,6 +136,14 @@ Future<bool> saveBytes(
 void toast(BuildContext context, String message) =>
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
+      ..showSnackBar(
+        SnackBar(content: Text(message)),
+        snackBarAnimationStyle: AppMotion.reduced(context)
+            ? AnimationStyle.noAnimation
+            : const AnimationStyle(
+                duration: Duration(milliseconds: 160),
+                reverseDuration: Duration(milliseconds: 120),
+              ),
+      );
 
 String today() => DateTime.now().toIso8601String().substring(0, 10);

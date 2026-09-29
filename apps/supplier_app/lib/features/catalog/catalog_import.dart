@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 import '../../app/app_state.dart';
@@ -39,7 +41,7 @@ Future<void> importCatalogList(
   if (plans == null || plans.isEmpty) {
     return toast(context, '没有找到供应商表头：需要"供应商名称"或"名称"列');
   }
-  final ok = await showDialog<bool>(
+  final ok = await showAppDialog<bool>(
     context: context,
     builder: (_) => _SupplierPreview(name: file.name, plans: plans),
   );

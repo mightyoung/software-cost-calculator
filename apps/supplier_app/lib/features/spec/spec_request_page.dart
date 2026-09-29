@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../platform/cjk_font.dart';
@@ -81,7 +84,7 @@ class _SpecRequestPageState extends State<SpecRequestPage> {
   }
 
   Future<void> _delete() async {
-    final ok = await showDialog<bool>(
+    final ok = await showAppDialog<bool>(
       context: context,
       builder: (c) => AlertDialog(
         title: const Text('删除这份技术要求？'),
@@ -151,7 +154,7 @@ class _SpecRequestPageState extends State<SpecRequestPage> {
               ],
               builder: (context, controller, _) => IconButton(
                 tooltip: '导出与更多',
-                icon: const Icon(Icons.more_horiz),
+                icon: const AppIcon(Icons.more_horiz),
                 onPressed: () =>
                     controller.isOpen ? controller.close() : controller.open(),
               ),

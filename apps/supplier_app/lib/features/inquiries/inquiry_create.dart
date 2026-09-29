@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
@@ -10,7 +13,7 @@ Future<String?> showCreateInquiry(
   BuildContext context,
   AppState state,
   String projectId,
-) => showDialog<String>(
+) => showAppDialog<String>(
   context: context,
   builder: (_) => _CreateInquiry(state: state, projectId: projectId),
 );
@@ -182,7 +185,7 @@ class _CreateInquiryState extends State<_CreateInquiry> {
                       focusNode: focus,
                       decoration: const InputDecoration(
                         hintText: '输入名称添加供应商',
-                        prefixIcon: Icon(Icons.search, size: 18),
+                        prefixIcon: AppIcon(Icons.search, size: 18),
                       ),
                     ),
               ),
@@ -199,7 +202,7 @@ class _CreateInquiryState extends State<_CreateInquiry> {
                     ),
                     for (final h in suggested)
                       ActionChip(
-                        avatar: const Icon(Icons.add, size: 14),
+                        avatar: const AppIcon(Icons.add, size: 14),
                         label: Text(h.data['name']! as String),
                         onPressed: () => setState(() => suppliers.add(h.id)),
                       ),
