@@ -390,6 +390,71 @@ void main() {
   });
 
   testWidgets(
+    'long opted-in history compacts without blocking cancellation or losing originals',
+    (tester) async {
+      final dir = Directory.systemTemp.createTempSync('ask_compaction');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final store = Store.open('${dir.path}/a.db', device: '测试机');
+      addTearDown(store.close);
+      final pending = Completer<Map<String, Object?>>();
+      final original = List.generate(
+        20,
+        (i) => [
+          [true, '第 $i 次询价：${'泵房设备条件。' * 200}', false],
+          [false, '第 $i 次答复：${'需要核对规格。' * 200}', false],
+        ],
+      ).expand((pair) => pair).toList();
+      var calls = 0;
+      final state = _TestState(
+        store,
+        dir,
+        LlmClient(
+          const LlmConfig(apiKey: 'fake'),
+          transport: (_) {
+            calls++;
+            return pending.future;
+          },
+        ),
+      )..saveSetting('ask_history', jsonEncode(original));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(body: AskPage(state: state)),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('使用近期对话'));
+      await tester.pump();
+      await tester.enterText(find.byType(TextField), '继续核对');
+      await tester.tap(find.text('发送'));
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(calls, 1);
+      await tester.scrollUntilVisible(
+        find.textContaining('整理对话上下文'),
+        500,
+        scrollable: find.byType(Scrollable).first,
+        maxScrolls: 100,
+      );
+      expect(find.textContaining('整理对话上下文'), findsOneWidget);
+      expect(find.text('停止'), findsOneWidget);
+      await tester.tap(find.text('停止'));
+      await tester.pumpAndSettle();
+      expect(tester.widget<TextField>(find.byType(TextField)).enabled, isTrue);
+      final saved = jsonDecode(state.setting('ask_history')!) as List;
+      expect(saved.take(original.length).toList(), original);
+      pending.complete({
+        'choices': [
+          {
+            'message': {'role': 'assistant', 'content': '晚到的整理结果'},
+          },
+        ],
+      });
+      await tester.pumpAndSettle();
+      expect(find.text('晚到的整理结果'), findsNothing);
+    },
+  );
+
+  testWidgets(
     'follow-ups use completed history and stop releases the composer',
     (tester) async {
       final dir = Directory.systemTemp.createTempSync('ask_followup');

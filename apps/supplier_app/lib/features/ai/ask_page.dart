@@ -150,6 +150,9 @@ class _AskPageState extends State<AskPage> {
           question,
           history: history,
           cancellation: cancellation,
+          onCompact: () {
+            if (mounted) setState(() => activity = '整理对话上下文');
+          },
           onTool: (tool) {
             if (mounted) setState(() => activity = toolActivity[tool]);
           },
@@ -264,7 +267,7 @@ class _AskPageState extends State<AskPage> {
               ? null
               : (value) => setState(() => _includeHistory = value ?? false),
           title: const Text('使用近期对话'),
-          subtitle: const Text('开启后，追问时会向配置的 AI 服务发送最近最多 6 轮完整问答。'),
+          subtitle: const Text('开启后，会向配置的 AI 服务发送所需历史上下文；较长对话会自动整理，并可按需回查原文。'),
         ),
         Row(
           children: [

@@ -13,7 +13,7 @@ final _tableRecordRef = RegExp(
   r'\[\[(\w+):([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\\\|([^\]]+)\]\]',
 );
 
-/// A bounded tool observation actually supplied to the model, not reasoning.
+/// A bounded local tool observation, with explicit model-delivery status.
 class AssistantObservation {
   const AssistantObservation({
     required this.callId,
@@ -21,9 +21,11 @@ class AssistantObservation {
     required this.arguments,
     required this.result,
     required this.round,
+    this.providedToModel = true,
   });
   final String callId, tool, arguments, result;
   final int round;
+  final bool providedToModel;
   bool get failed {
     final data = jsonDecode(result);
     return data is Map && data['error'] != null;
@@ -36,6 +38,7 @@ class AssistantObservation {
     'result': result,
     'round': round,
     'failed': failed,
+    'provided_to_model': providedToModel,
   };
 }
 
@@ -48,6 +51,7 @@ class AssistantAnswer {
     this.unverifiedReferences,
     this.modelCalls,
     this.elapsed,
+    this.contextCompactions,
   ) : observations = List.unmodifiable(observations),
       warnings = List.unmodifiable(warnings);
 
@@ -56,7 +60,22 @@ class AssistantAnswer {
     List<AssistantObservation> observations, {
     required int modelCalls,
     required Duration elapsed,
+    int contextCompactions = 0,
+    bool Function(AssistantObservation)? wasSupplied,
   }) {
+    if (wasSupplied != null) {
+      observations = [
+        for (final o in observations)
+          AssistantObservation(
+            callId: o.callId,
+            tool: o.tool,
+            arguments: o.arguments,
+            result: o.result,
+            round: o.round,
+            providedToModel: wasSupplied(o),
+          ),
+      ];
+    }
     final records = <String, String>{};
     for (final observation in observations) {
       _collectRecords(observation, records);
@@ -82,10 +101,13 @@ class AssistantAnswer {
         if (observations.isEmpty) '本次回答没有查询本机数据，业务结论尚无查询依据。',
         if (unsupported > 0) '$unsupported 处记录引用未出现在本次查询结果中，已取消链接，请核对。',
         if (observations.any((o) => o.failed)) '执行中有工具查询失败，请展开查询依据核对。',
+        if (observations.any((o) => !o.providedToModel))
+          '部分查询结果已归档但尚未完整送达模型；本次回答可能不完整，请核对查询依据或继续缩小查询。',
       ],
       unsupported,
       modelCalls,
       elapsed,
+      contextCompactions,
     );
   }
 
@@ -94,6 +116,7 @@ class AssistantAnswer {
   final List<String> warnings;
   final int unverifiedReferences, modelCalls;
   final Duration elapsed;
+  final int contextCompactions;
 
   Map<String, Object?> toJson() => {
     'text': text,
@@ -102,6 +125,7 @@ class AssistantAnswer {
     'unverified_references': unverifiedReferences,
     'model_calls': modelCalls,
     'elapsed_ms': elapsed.inMilliseconds,
+    'context_compactions': contextCompactions,
   };
 }
 
@@ -112,7 +136,8 @@ void _collectRecords(
   Map<String, String> records,
 ) {
   final data = jsonDecode(observation.result);
-  if (observation.failed || data == null) return;
+  if (!observation.providedToModel || observation.failed || data == null)
+    return;
   final args = jsonDecode(observation.arguments) as Map;
   void add(String? type, Object? row, {String idField = 'id'}) {
     if (type == null || !ontology.containsKey(type) || row is! Map) return;

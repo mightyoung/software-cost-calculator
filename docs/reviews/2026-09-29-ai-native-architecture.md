@@ -1,5 +1,7 @@
 # AI native 全功能审查与改进
 
+> 后续更新：[自动compact](2026-09-29-auto-compact.md)已实现。对话现在自动整理窗口并可回查原文；8个业务工具轮之外单独预留最多4个纯回查轮，替代下文初版的历史截断行为。
+
 基线 `fc75c72`，独立分支 `codex/codex-agent`。本轮包含全部 LLM 入口和完整业务流程，不局限问答。用户指定 Muse=Meta Muse、Grokbot=x.ai/bot，排除 Marvis。
 
 ## 实施前约束与方案

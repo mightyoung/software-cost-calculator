@@ -145,8 +145,8 @@ void main() {
         history: [for (var i = 0; i < 10; i++) AssistantTurn('问题$i', '回答$i')],
       );
       final messages = model.requests.single['messages'] as List;
-      expect(messages.length, 14); // system + six pairs + current question
-      expect((messages[1] as Map)['content'], '问题4');
+      expect(messages.length, 22); // system + all ten small pairs + question
+      expect((messages[1] as Map)['content'], '问题0');
       expect((messages[messages.length - 2] as Map)['content'], '回答9');
       expect((messages.first as Map)['content'], contains('重新查询'));
       expect((messages.last as Map)['content'], '这个供应商呢？');
@@ -154,7 +154,7 @@ void main() {
   );
 
   test(
-    'history character budget drops old pairs without cutting them apart',
+    'history character budget archives old pairs with recall pointers',
     () async {
       final s = device('A');
       addTearDown(s.close);
@@ -170,8 +170,10 @@ void main() {
         ],
       );
       final messages = model.requests.single['messages'] as List;
-      expect(messages, hasLength(4));
-      expect((messages[1] as Map)['content'], '新问题');
+      expect(messages, hasLength(5));
+      expect((messages[1] as Map)['content'], contains('recall_context'));
+      expect((messages[1] as Map)['content'], contains('旧问题'));
+      expect((messages[2] as Map)['content'], '新问题');
     },
   );
 
@@ -205,6 +207,44 @@ void main() {
       });
       await Future<void>.delayed(Duration.zero);
       expect(invoked, isEmpty);
+    },
+  );
+
+  test(
+    'archive recall neither certifies history nor spends business rounds',
+    () async {
+      final s = device('A');
+      addTearDown(s.close);
+      final id = s.save('supplier', supplier('历史供应商'));
+      final model = FakeModel([
+        toolReply([
+          toolCall('recall1', 'recall_context', {'query': '历史供应商'}),
+        ]),
+        for (var i = 0; i < maxToolRounds; i++)
+          toolReply([
+            toolCall('q$i', 'query', {'type': 'product'}),
+          ]),
+        {'role': 'assistant', 'content': '旧引用[[supplier:$id|历史供应商]]需要重新查询'},
+      ]);
+      final answer = await s.askWithEvidence(
+        model.client,
+        '继续',
+        history: [
+          AssistantTurn('以前的资料', '${'长文本' * 6000}[[supplier:$id|历史供应商]]'),
+        ],
+      );
+      expect(answer.contextCompactions, greaterThan(0));
+      expect(answer.observations, hasLength(maxToolRounds));
+      expect(answer.unverifiedReferences, 1);
+      expect(model.requests, hasLength(maxToolRounds + 2));
+      final recalled = (model.requests[1]['messages'] as List)
+          .where((m) => m['role'] == 'tool')
+          .first;
+      expect(recalled['content'], contains('match_offset'));
+      expect(recalled['content'], contains('历史供应商'));
+      final finalTools = model.requests.last['tools'] as List;
+      expect(finalTools, hasLength(1));
+      expect(finalTools.single['function']['name'], 'recall_context');
     },
   );
 
@@ -279,18 +319,20 @@ void main() {
           ]),
         {'role': 'assistant', 'content': '不能无界积累上下文'},
       ]);
-      await expectLater(
-        s.ask(model.client, '查产品'),
-        throwsA(
-          isA<LlmException>().having(
-            (e) => e.message,
-            'message',
-            contains('上下文过大'),
-          ),
-        ),
+      var notifications = 0;
+      final answer = await s.askWithEvidence(
+        model.client,
+        '查产品',
+        onCompact: () => notifications++,
       );
-      expect(model.requests.length, lessThan(maxToolRounds + 1));
+      expect(answer.text, '不能无界积累上下文');
+      expect(answer.contextCompactions, greaterThan(0));
+      expect(notifications, answer.contextCompactions);
+      expect(answer.observations, hasLength(maxToolRounds));
+      expect(answer.observations.first.result, contains('说明'));
+      expect(model.requests, hasLength(maxToolRounds + 1));
       for (final request in model.requests) {
+        expect(jsonEncode(request).length, lessThanOrEqualTo(100000));
         expect(
           jsonEncode(request['messages']).length,
           lessThanOrEqualTo(maxAssistantContextChars),
@@ -328,6 +370,110 @@ void main() {
       expect(result['total'], 50);
       expect(result['truncated'], isTrue);
       expect(result['lines'], hasLength(1));
+    },
+  );
+
+  test(
+    'large fresh final batches reach synthesis before being compacted',
+    () async {
+      final s = device('A');
+      addTearDown(s.close);
+      for (var i = 0; i < 5; i++) {
+        s.save('product', {...product('最终物料$i'), 'notes': '说明' * 1000});
+      }
+      final model = FakeModel([
+        for (var i = 0; i < maxToolRounds - 1; i++)
+          toolReply([
+            toolCall('q$i', 'query', {'type': 'supplier'}),
+          ]),
+        toolReply([
+          for (var i = 0; i < 4; i++)
+            toolCall('final$i', 'query', {'type': 'product', 'limit': 5}),
+        ]),
+        {'role': 'assistant', 'content': '已读取最终查询结果'},
+      ]);
+      final answer = await s.askWithEvidence(model.client, '查产品');
+      final last = model.requests.last['messages'] as List;
+      for (var i = 0; i < 4; i++) {
+        final result = last.singleWhere((m) => m['tool_call_id'] == 'final$i');
+        expect(result['content'], contains('最终物料4'));
+        expect(result['content'], contains('说明'));
+      }
+      expect(answer.observations.every((o) => o.providedToModel), isTrue);
+    },
+  );
+
+  test(
+    'previously seen results remain recoverable when compacted at synthesis',
+    () async {
+      final s = device('A');
+      addTearDown(s.close);
+      for (var i = 0; i < 5; i++) {
+        s.save('product', {...product('早期物料$i'), 'notes': '早期依据' * 500});
+      }
+      final model = FakeModel([
+        for (var i = 0; i < maxToolRounds; i++)
+          toolReply([
+            toolCall('q$i', 'query', {'type': 'product', 'limit': 5}),
+          ]),
+        toolReply([
+          toolCall('old', 'recall_context', {'id': 'c1', 'limit': 4000}),
+        ]),
+        {'role': 'assistant', 'content': '回查了早期对比依据'},
+      ]);
+      final answer = await s.askWithEvidence(model.client, '对比早期和最后结果');
+      final tools = model.requests[maxToolRounds]['tools'] as List;
+      expect(tools.single['function']['name'], 'recall_context');
+      final original = (model.requests[1]['messages'] as List).singleWhere(
+        (m) => m['tool_call_id'] == 'q0',
+      );
+      expect(original['content'], contains('早期依据'));
+      final finalMessages = model.requests.last['messages'] as List;
+      expect(finalMessages.where((m) => m['tool_call_id'] == 'q0'), isEmpty);
+      expect(
+        finalMessages.singleWhere((m) => m['tool_call_id'] == 'old')['content'],
+        contains('早期依据'),
+      );
+      expect(answer.observations.every((o) => o.providedToModel), isTrue);
+    },
+  );
+
+  test(
+    'oversized final batch offers recovery and cannot certify unread records',
+    () async {
+      final s = device('A');
+      addTearDown(s.close);
+      String? id;
+      for (var i = 0; i < 5; i++) {
+        id = s.save('product', {...product('大批物料$i'), 'notes': '说明' * 1000});
+      }
+      final model = FakeModel([
+        for (var i = 0; i < maxToolRounds - 1; i++)
+          toolReply([
+            toolCall('q$i', 'query', {'type': 'supplier'}),
+          ]),
+        toolReply([
+          for (var i = 0; i < 8; i++)
+            toolCall('final$i', 'query', {'type': 'product', 'limit': 5}),
+        ]),
+        toolReply([
+          toolCall('read1', 'recall_context', {'id': 'c8', 'limit': 4000}),
+        ]),
+        {'role': 'assistant', 'content': '只读取部分，[[product:$id|大批物料4]]尚待核对'},
+      ]);
+      final answer = await s.askWithEvidence(model.client, '查产品');
+      final recoveryTools = model.requests[maxToolRounds]['tools'] as List;
+      expect(recoveryTools, hasLength(1));
+      expect(recoveryTools.single['function']['name'], 'recall_context');
+      final page = (model.requests[maxToolRounds + 1]['messages'] as List)
+          .singleWhere((m) => m['tool_call_id'] == 'read1');
+      expect(page['content'], contains('说明'));
+      expect(
+        answer.observations.where((o) => !o.providedToModel),
+        hasLength(8),
+      );
+      expect(answer.unverifiedReferences, 1);
+      expect(answer.warnings.join(), contains('尚未完整送达模型'));
     },
   );
 }
