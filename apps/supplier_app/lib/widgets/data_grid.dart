@@ -72,6 +72,7 @@ class _DataGridState<T> extends State<DataGrid<T>> {
   GridSort? localSort;
   final ticked = <String>{};
   int? hover;
+  String? focusedId;
 
   GridSort? get sort => widget.onSort == null ? localSort : widget.sort;
 
@@ -124,7 +125,7 @@ class _DataGridState<T> extends State<DataGrid<T>> {
         if (ticked.contains(widget.id(r))) r,
     ];
     final header = Container(
-      height: 38,
+      height: 42,
       decoration: BoxDecoration(
         color: Tokens.sunken,
         border: Border(bottom: BorderSide(color: Tokens.rule)),
@@ -231,43 +232,63 @@ class _DataGridState<T> extends State<DataGrid<T>> {
                 return MouseRegion(
                   onEnter: (_) => setState(() => hover = i),
                   onExit: (_) => setState(() => hover = null),
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: widget.onOpen == null
-                        ? null
-                        : () => widget.onOpen!(row),
-                    child: Container(
-                      constraints: BoxConstraints(minHeight: widget.rowHeight),
-                      decoration: BoxDecoration(
-                        color: on
-                            ? Tokens.accentTint
-                            : (hover == i ? Tokens.groupRow : null),
-                        border: Border(bottom: BorderSide(color: Tokens.rule)),
-                      ),
-                      child: _cells([
-                        if (selectable)
-                          SizedBox(
-                            width: 44,
-                            child: Checkbox(
-                              value: ticked.contains(id),
-                              onChanged: (v) => setState(
-                                () => v! ? ticked.add(id) : ticked.remove(id),
-                              ),
-                            ),
+                  child: Semantics(
+                    selected: on,
+                    button: widget.onOpen != null,
+                    child: Material(
+                      color: on
+                          ? Tokens.accentTint
+                          : (hover == i ? Tokens.groupRow : Tokens.surface),
+                      child: InkWell(
+                        onFocusChange: (focused) => setState(() {
+                          focusedId = focused
+                              ? id
+                              : (focusedId == id ? null : focusedId);
+                        }),
+                        focusColor: Tokens.accentTint,
+                        onTap: widget.onOpen == null
+                            ? null
+                            : () => widget.onOpen!(row),
+                        child: Container(
+                          constraints: BoxConstraints(
+                            minHeight: widget.rowHeight,
                           ),
-                        for (final c in widget.columns)
-                          _sized(
-                            c,
-                            c.cell?.call(row) ??
-                                Text(
-                                  gridText(c.value(row)),
-                                  overflow: TextOverflow.ellipsis,
-                                  style: c.numeric
-                                      ? const TextStyle(fontFeatures: tabular)
-                                      : null,
+                          decoration: BoxDecoration(
+                            border: focusedId == id
+                                ? Border.all(color: Tokens.accent, width: 2)
+                                : Border(
+                                    bottom: BorderSide(color: Tokens.rule),
+                                  ),
+                          ),
+                          child: _cells([
+                            if (selectable)
+                              SizedBox(
+                                width: 44,
+                                child: Checkbox(
+                                  value: ticked.contains(id),
+                                  onChanged: (v) => setState(
+                                    () =>
+                                        v! ? ticked.add(id) : ticked.remove(id),
+                                  ),
                                 ),
-                          ),
-                      ]),
+                              ),
+                            for (final c in widget.columns)
+                              _sized(
+                                c,
+                                c.cell?.call(row) ??
+                                    Text(
+                                      gridText(c.value(row)),
+                                      overflow: TextOverflow.ellipsis,
+                                      style: c.numeric
+                                          ? const TextStyle(
+                                              fontFeatures: tabular,
+                                            )
+                                          : null,
+                                    ),
+                              ),
+                          ]),
+                        ),
+                      ),
                     ),
                   ),
                 );

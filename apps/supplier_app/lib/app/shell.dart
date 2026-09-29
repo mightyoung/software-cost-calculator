@@ -179,44 +179,42 @@ class _Sidebar extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget item(Section s) {
       final on = s == current;
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 2),
-        child: Material(
-          color: on ? Tokens.navHover : Colors.transparent,
-          borderRadius: BorderRadius.circular(Tokens.radius),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            hoverColor: Tokens.navHover,
-            onTap: () => onSelect(s),
-            child: Container(
-              // The selected entry is marked by a bar, not a block of colour,
-              // so it does not compete with primary buttons.
-              decoration: BoxDecoration(
-                border: Border(
-                  left: BorderSide(
-                    color: on ? Tokens.accent : Colors.transparent,
-                    width: 3,
-                  ),
-                ),
-              ),
-              padding: const EdgeInsets.fromLTRB(9, 9, 10, 9),
-              child: Row(
-                children: [
-                  Icon(
-                    s.icon,
-                    size: 18,
-                    color: on ? Colors.white : Tokens.navInk3,
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    s.label,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: on ? Colors.white : Tokens.navInk,
-                      fontWeight: on ? FontWeight.w600 : FontWeight.w400,
+      return Semantics(
+        selected: on,
+        button: true,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 2),
+          child: Material(
+            color: on ? Tokens.accentTint : Colors.transparent,
+            borderRadius: BorderRadius.circular(Tokens.radius),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              hoverColor: Tokens.navHover,
+              focusColor: Tokens.navHover,
+              onTap: () => onSelect(s),
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 44),
+                padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+                child: Row(
+                  children: [
+                    Icon(
+                      s.icon,
+                      size: 18,
+                      color: on ? Tokens.accentDeep : Tokens.navInk3,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        s.label,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: on ? Tokens.accentDeep : Tokens.navInk,
+                          fontWeight: on ? FontWeight.w600 : FontWeight.w400,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -230,8 +228,11 @@ class _Sidebar extends StatelessWidget {
     );
 
     return Container(
-      width: 176,
-      color: Tokens.nav,
+      width: 200,
+      decoration: BoxDecoration(
+        color: Tokens.nav,
+        border: Border(right: BorderSide(color: Tokens.rule)),
+      ),
       padding: const EdgeInsets.fromLTRB(10, 18, 10, 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -242,38 +243,43 @@ class _Sidebar extends StatelessWidget {
               height: sidebarTopInset,
               child: const DragToMoveArea(child: SizedBox.expand()),
             ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.fromLTRB(10, 0, 10, 6),
             child: Row(
               children: [
-                AppMark(size: 22),
-                SizedBox(width: 8),
+                const AppMark(size: 22),
+                const SizedBox(width: 8),
                 Text(
                   '询价台账',
                   style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
+                    color: Tokens.ink,
+                    fontSize: 17,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
             ),
           ),
-          group('工作'),
-          for (final s in [
-            Section.home,
-            Section.projects,
-            Section.quotes,
-            Section.suppliers,
-            Section.products,
-          ])
-            item(s),
-          group('智能'),
-          item(Section.ask),
-          group('系统'),
-          item(Section.exchange),
-          item(Section.data),
-          const Spacer(),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                group('业务工作'),
+                for (final s in [
+                  Section.home,
+                  Section.projects,
+                  Section.quotes,
+                  Section.suppliers,
+                  Section.products,
+                ])
+                  item(s),
+                group('辅助工具'),
+                item(Section.ask),
+                item(Section.exchange),
+                item(Section.data),
+              ],
+            ),
+          ),
           Divider(color: Tokens.navHover),
           const SizedBox(height: 8),
           item(Section.settings),
@@ -302,33 +308,38 @@ class _BottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final index = _primary.indexOf(current);
     return NavigationBar(
-      height: 64,
-      backgroundColor: Tokens.canvas,
+      height: 72,
+      backgroundColor: Tokens.surface,
       indicatorColor: Tokens.accentTint,
       selectedIndex: index < 0 ? 3 : index,
       onDestinationSelected: (i) async {
         if (i < 3) return onSelect(_primary[i]);
         final picked = await showModalBottomSheet<Section>(
           context: context,
+          isScrollControlled: true,
+          showDragHandle: true,
           builder: (_) => SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final s in [
-                  Section.products,
-                  Section.suppliers,
-                  Section.ask,
-                  Section.exchange,
-                  Section.data,
-                  Section.settings,
-                ])
-                  ListTile(
-                    minTileHeight: 56,
-                    leading: Icon(s.icon),
-                    title: Text(s.label),
-                    onTap: () => Navigator.pop(context, s),
-                  ),
-              ],
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (final s in [
+                    Section.products,
+                    Section.suppliers,
+                    Section.ask,
+                    Section.exchange,
+                    Section.data,
+                    Section.settings,
+                  ])
+                    ListTile(
+                      minTileHeight: 56,
+                      selected: s == current,
+                      leading: Icon(s.icon),
+                      title: Text(s.label),
+                      onTap: () => Navigator.pop(context, s),
+                    ),
+                ],
+              ),
             ),
           ),
         );

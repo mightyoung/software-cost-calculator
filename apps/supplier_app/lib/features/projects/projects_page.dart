@@ -26,12 +26,12 @@ class _ProjectsPageState extends State<ProjectsPage> {
 
   Future<void> _create() async {
     final id = await showProjectForm(context, state);
-    if (id != null) setState(() => selected = id);
+    if (id != null && mounted) setState(() => selected = id);
   }
 
   Future<void> _fromList() async {
     final id = await showListToProject(context, state);
-    if (id != null) setState(() => selected = id);
+    if (id != null && mounted) setState(() => selected = id);
   }
 
   @override
@@ -42,61 +42,67 @@ class _ProjectsPageState extends State<ProjectsPage> {
         for (final h in state.store.searchByName('project', search, limit: 500))
           if (status == null || h.data['status'] == status) h,
       ];
-      final wide = MediaQuery.sizeOf(context).width >= 1024;
-      final list = _ProjectList(
-        projects: projects,
-        store: state.store,
-        selected: wide ? selected : null,
-        status: status,
-        onSearch: (v) => setState(() => search = v),
-        onStatus: (v) => setState(() => status = v),
-        onCreate: _create,
-        onFromList: _fromList,
-        onOpen: (id) {
-          if (wide) return setState(() => selected = id);
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => Scaffold(
-                appBar: AppBar(backgroundColor: Tokens.canvas),
-                body: ProjectDetail(state: state, projectId: id, compact: true),
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final wide = constraints.maxWidth >= 1000;
+          final current = projects.any((p) => p.id == selected)
+              ? selected
+              : (projects.isEmpty ? null : projects.first.id);
+          final list = _ProjectList(
+            projects: projects,
+            store: state.store,
+            selected: wide ? current : null,
+            status: status,
+            onSearch: (v) => setState(() => search = v),
+            onStatus: (v) => setState(() => status = v),
+            onCreate: _create,
+            onFromList: _fromList,
+            onOpen: (id) {
+              if (wide) return setState(() => selected = id);
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => Scaffold(
+                    appBar: AppBar(backgroundColor: Tokens.canvas),
+                    body: ProjectDetail(
+                      state: state,
+                      projectId: id,
+                      compact: true,
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+          if (!wide) return list;
+          return Row(
+            children: [
+              SizedBox(width: 240, child: list),
+              const VerticalDivider(width: 1),
+              Expanded(
+                child: current == null
+                    ? EmptyState(
+                        title: '没有符合条件的项目',
+                        body: '调整搜索或状态筛选，也可以创建新项目。',
+                        actions: [
+                          FilledButton(
+                            onPressed: _create,
+                            child: const Text('新建项目'),
+                          ),
+                          OutlinedButton(
+                            onPressed: _fromList,
+                            child: const Text('从清单生成'),
+                          ),
+                        ],
+                      )
+                    : ProjectDetail(
+                        key: ValueKey(current),
+                        state: state,
+                        projectId: current,
+                      ),
               ),
-            ),
+            ],
           );
         },
-      );
-      if (!wide) return list;
-      final current =
-          selected != null &&
-              state.store.get('project', selected!)?.deleted == false
-          ? selected
-          : (projects.isEmpty ? null : projects.first.id);
-      return Row(
-        children: [
-          SizedBox(width: 240, child: list),
-          const VerticalDivider(width: 1),
-          Expanded(
-            child: current == null
-                ? EmptyState(
-                    title: '建立第一个项目',
-                    body: '项目用来汇总报价与成本预算，可从客户清单一键生成。',
-                    actions: [
-                      FilledButton(
-                        onPressed: _create,
-                        child: const Text('新建项目'),
-                      ),
-                      OutlinedButton(
-                        onPressed: _fromList,
-                        child: const Text('从清单生成'),
-                      ),
-                    ],
-                  )
-                : ProjectDetail(
-                    key: ValueKey(current),
-                    state: state,
-                    projectId: current,
-                  ),
-          ),
-        ],
       );
     },
   );
@@ -127,35 +133,38 @@ class _ProjectList extends StatelessWidget {
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       Padding(
-        padding: const EdgeInsets.fromLTRB(12, 14, 12, 8),
-        child: Row(
+        padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: TextField(
-                decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.search, size: 18),
-                  hintText: '搜索项目或编号',
+            Text('项目', style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 6),
+            Text('报价与成本预算', style: TextStyle(color: Tokens.ink2)),
+            const SizedBox(height: 20),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                FilledButton(onPressed: onCreate, child: const Text('新建项目')),
+                OutlinedButton(
+                  onPressed: onFromList,
+                  child: const Text('从清单生成'),
                 ),
-                onChanged: onSearch,
+              ],
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.search, size: 18),
+                hintText: '搜索项目或编号',
               ),
-            ),
-            const SizedBox(width: 8),
-            IconButton.outlined(
-              tooltip: '按清单建项目',
-              onPressed: onFromList,
-              icon: const Icon(Icons.playlist_add_check, size: 18),
-            ),
-            const SizedBox(width: 4),
-            IconButton.outlined(
-              tooltip: '新建项目',
-              onPressed: onCreate,
-              icon: const Icon(Icons.add, size: 18),
+              onChanged: onSearch,
             ),
           ],
         ),
       ),
       Padding(
-        padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+        padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         child: Row(
           children: [
             for (final (label, value) in [
@@ -196,86 +205,81 @@ class _ProjectList extends StatelessWidget {
                             l.data['quotation_id'] == null,
                       )
                       .length;
-                  return Material(
-                    color: on ? Tokens.surface : Colors.transparent,
-                    child: InkWell(
-                      onTap: () => onOpen(p.id),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: on
-                              ? Border(
-                                  left: BorderSide(
-                                    color: Tokens.accent,
-                                    width: 3,
-                                  ),
-                                )
-                              : null,
-                        ),
-                        padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            MonoText(p.data['code']! as String),
-                            const SizedBox(height: 3),
-                            Text(
-                              p.data['name']! as String,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
+                  return Semantics(
+                    selected: on,
+                    child: Material(
+                      color: on ? Tokens.accentTint : Tokens.surface,
+                      child: InkWell(
+                        onTap: () => onOpen(p.id),
+                        child: Container(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                p.data['name']! as String,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  color: on ? Tokens.accentDeep : Tokens.ink,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 2),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    p.data['customer'] as String? ?? '',
+                              const SizedBox(height: 6),
+                              MonoText(p.data['code']! as String),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      p.data['customer'] as String? ?? '',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Tokens.ink3,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  Text(
+                                    '成本 ${yuan(b.cost)}',
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: Tokens.ink3,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                Text(
-                                  '成本 ${yuan(b.cost)}',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Tokens.ink3,
-                                    fontFeatures: tabular,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            if (pending > 0 || b.lines.isNotEmpty) ...[
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  if (pending > 0)
-                                    HintTag(
-                                      '$pending 行待询价',
-                                      icon: Icons.help_outline,
-                                    ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      '毛利 ${yuan(b.margin)}',
-                                      textAlign: TextAlign.right,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: micros(b.margin) > BigInt.zero
-                                            ? Tokens.green
-                                            : Tokens.ink3,
-                                        fontFeatures: tabular,
-                                      ),
+                                      fontFeatures: tabular,
                                     ),
                                   ),
                                 ],
                               ),
+                              if (pending > 0 || b.lines.isNotEmpty) ...[
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    if (pending > 0)
+                                      HintTag(
+                                        '$pending 行待询价',
+                                        icon: Icons.help_outline,
+                                      ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        '毛利 ${yuan(b.margin)}',
+                                        textAlign: TextAlign.right,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: micros(b.margin) > BigInt.zero
+                                              ? Tokens.green
+                                              : Tokens.ink3,
+                                          fontFeatures: tabular,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
                       ),
                     ),
@@ -305,20 +309,25 @@ class _Pill extends StatelessWidget {
     selected: selected,
     button: true,
     child: InkWell(
-      borderRadius: BorderRadius.circular(999),
+      borderRadius: BorderRadius.circular(8),
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 4),
+        constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         decoration: BoxDecoration(
-          color: selected ? Tokens.ink : Tokens.surface,
-          border: Border.all(color: selected ? Tokens.ink : Tokens.ruleStrong),
-          borderRadius: BorderRadius.circular(999),
+          color: selected ? Tokens.accentTint : Tokens.surface,
+          border: Border.all(
+            color: selected ? Tokens.accent : Tokens.ruleStrong,
+          ),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 12,
-            color: selected ? Tokens.surface : Tokens.ink2,
+            fontSize: 13,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+            color: selected ? Tokens.accentDeep : Tokens.ink2,
           ),
         ),
       ),

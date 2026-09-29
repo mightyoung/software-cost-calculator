@@ -56,7 +56,10 @@ class _SettingsPageState extends State<SettingsPage> {
           style: TextStyle(color: Tokens.ink2),
         ),
         const SizedBox(height: 10),
-        Row(
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             SizedBox(
               width: 280,
@@ -65,7 +68,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 onSubmitted: (_) => _saveDevice(),
               ),
             ),
-            const SizedBox(width: 8),
             OutlinedButton(onPressed: _saveDevice, child: const Text('保存')),
           ],
         ),
