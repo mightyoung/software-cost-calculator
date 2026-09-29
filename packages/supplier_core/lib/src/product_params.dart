@@ -80,13 +80,14 @@ final class ProductParam extends EntityPayload {
 }
 
 /// The record id of [property] on [productId]: derived, so the same
-/// parameter created on two devices is one record after exchange. Shaped
-/// like a version 4 UUID so every id check accepts it.
-String paramRecordId(String productId, String property) {
-  final b = const DartSha256()
-      .hashSync(utf8.encode('product_param:$productId:$property'))
-      .bytes
-      .sublist(0, 16);
+/// parameter created on two devices is one record after exchange.
+String paramRecordId(String productId, String property) =>
+    derivedUuid('product_param:$productId:$property');
+
+/// A record id computed from [seed], shaped like a version 4 UUID so every
+/// id check accepts it.
+String derivedUuid(String seed) {
+  final b = const DartSha256().hashSync(utf8.encode(seed)).bytes.sublist(0, 16);
   b[6] = (b[6] & 0x0f) | 0x40;
   b[8] = (b[8] & 0x3f) | 0x80;
   final hex = b.map((x) => x.toRadixString(16).padLeft(2, '0')).join();

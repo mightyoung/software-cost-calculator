@@ -77,6 +77,7 @@ void main() {
       'product_param': 0,
       'spec_request': 0,
       'spec_item': 0,
+      'spec_response': 0,
     });
     expect(agentGuide(), contains('data_quality('));
   });

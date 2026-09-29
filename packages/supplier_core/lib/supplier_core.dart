@@ -41,6 +41,7 @@ export 'src/spec_match.dart';
 export 'src/spec_migration.dart';
 export 'src/spec_parse.dart';
 export 'src/spec_request.dart';
+export 'src/spec_response.dart';
 export 'src/spec_units.dart';
 export 'src/spec_values.dart';
 export 'src/sheet_offers.dart';

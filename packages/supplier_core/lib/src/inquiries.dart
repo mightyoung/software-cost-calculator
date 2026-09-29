@@ -7,6 +7,7 @@ import 'entities.dart';
 import 'inquiry.dart';
 import 'quotation.dart';
 import 'storage_codec.dart';
+import 'spec_response.dart';
 import 'store.dart';
 import 'values.dart';
 import 'xlsx.dart';
@@ -439,6 +440,7 @@ extension Inquiries on Store {
         widths: [6, 22, 18, 30, 8, 6, 12, 8, 8, 10, 8, 12, 16, 8, 20, 38],
         boldRows: {6},
       ),
+      ?responseSheet(inquiryId),
     ]);
   }
 

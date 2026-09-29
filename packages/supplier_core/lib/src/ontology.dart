@@ -603,6 +603,34 @@ final _types = <ObjectType>[
     ),
     _notes,
   ]),
+  ObjectType('spec_response', '技术响应', '一家供应商对一个需求项逐条填写的保证值和偏离', [
+    const FieldSpec(
+      'item_id',
+      '需求项',
+      Kind.ref,
+      '',
+      required: true,
+      target: 'spec_item',
+    ),
+    const FieldSpec(
+      'supplier_id',
+      '供应商',
+      Kind.ref,
+      '',
+      required: true,
+      target: 'supplier',
+    ),
+    const FieldSpec('inquiry_id', '询价单', Kind.ref, '', target: 'inquiry'),
+    const FieldSpec(
+      'rows',
+      '逐条响应',
+      Kind.object,
+      '[{n 条款号, response 保证值, stated 供应商声明的偏离 exact|better|worse|unknown, note}]',
+      required: true,
+    ),
+    const FieldSpec('received_on', '收到日期', Kind.date, ''),
+    _notes,
+  ]),
 ];
 
 /// Object types by name, in [entityTypes] order.
