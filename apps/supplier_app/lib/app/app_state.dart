@@ -410,6 +410,43 @@ class AppState extends ChangeNotifier {
     );
   }
 
+  // --- Company hub (optional) --------------------------------------------
+  // Like the AI key, the hub token stays in the OS secure store.
+  static const _hubTokenName = 'hub_api_token';
+
+  String? get hubAddress => setting('hub_address');
+
+  Future<bool> hasHubToken() async {
+    try {
+      return (await _secure.read(key: _hubTokenName))?.isNotEmpty ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// [token] null keeps the saved one, empty deletes it.
+  Future<void> saveHub({required String? address, String? token}) async {
+    if (token != null) {
+      token.isEmpty
+          ? await _secure.delete(key: _hubTokenName)
+          : await _secure.write(key: _hubTokenName, value: token);
+    }
+    saveSetting('hub_address', address);
+  }
+
+  /// Null when no hub is configured.
+  Future<HubClient?> hub() async {
+    final address = hubAddress;
+    if (address == null) return null;
+    final String? token;
+    try {
+      token = await _secure.read(key: _hubTokenName);
+    } catch (e) {
+      throw HubException('无法读取系统安全存储中的中心访问令牌（$e）');
+    }
+    return HubClient(parseHubAddress(address), token: token);
+  }
+
   void changed() => notifyListeners();
 
   /// Runs a write and refreshes listeners. Validation errors come back as a

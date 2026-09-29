@@ -8,6 +8,7 @@ import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../app/version.dart';
 import '../../platform/files.dart';
+import '../hub/hub_settings.dart';
 import 'ai_settings.dart';
 import '../trash/trash_page.dart';
 
@@ -91,16 +92,23 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
         ),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: SwitchListTile.adaptive(
+            contentPadding: EdgeInsets.zero,
+            title: const Text('减少动态效果'),
+            subtitle: const Text('关闭页面位移和加载动画；系统的减少动态效果设置始终优先。'),
+            value: widget.state.setting('reduce_motion') == 'true',
+            onChanged: (value) => widget.state.saveSetting(
+              'reduce_motion',
+              value ? 'true' : null,
+            ),
+          ),
+        ),
         const SizedBox(height: 28),
         AiSettings(state: widget.state),
-        SwitchListTile.adaptive(
-          contentPadding: EdgeInsets.zero,
-          title: const Text('减少动态效果'),
-          subtitle: const Text('关闭页面位移和加载动画；系统的减少动态效果设置始终优先。'),
-          value: widget.state.setting('reduce_motion') == 'true',
-          onChanged: (value) =>
-              widget.state.saveSetting('reduce_motion', value ? 'true' : null),
-        ),
+        const SizedBox(height: 28),
+        HubSettings(state: widget.state),
         const SizedBox(height: 28),
         const Text('已删除的记录', style: TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(height: 4),
