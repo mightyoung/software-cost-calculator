@@ -158,19 +158,19 @@ extension DataQuality on Store {
         'products_unclassified',
         '可归类但未选参数模板的物料',
         unclassified,
-        '数据中心 › 数据质量 › 补全参数',
+        '数据质量 › 从型号和规格文字补全参数',
       ),
       QualityCheck(
         'products_missing_key_params',
         '缺关键参数的物料',
         incomplete,
-        '数据中心 › 参数核对，或从规格文字补全',
+        '数据质量 › 参数视图，或从型号和规格文字补全',
       ),
       QualityCheck(
         'products_unconfirmed_params',
         '有未确认参数的物料',
         unconfirmed,
-        '数据中心 › 参数核对 › 确认',
+        '数据质量 › 参数视图 › 确认',
       ),
     ];
   }

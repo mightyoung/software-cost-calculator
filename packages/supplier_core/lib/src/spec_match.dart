@@ -108,6 +108,18 @@ String? spanProperty(SpecProperty p) {
 }
 
 extension SpecMatch on Store {
+  /// Live materials of [classCode] and its sub-classes, by name.
+  List<Record> productsOfClass(String classCode) => [
+    for (final r in db.select(
+      'SELECT id FROM product WHERE deleted = 0 '
+      "AND json_extract(data,'\$.merged_into') IS NULL "
+      "AND json_extract(data,'\$.spec_class') IN (SELECT value FROM json_each(?)) "
+      "ORDER BY json_extract(data,'\$.name')",
+      [jsonEncode(classFamily(classCode).toList())],
+    ))
+      get('product', r['id'] as String)!,
+  ];
+
   /// Materials of [classCode] (and its sub-classes) judged against
   /// [constraints], ranked: fewest hard failures, then least failed and
   /// unknown weight, most positive deviations, a valid quote, lowest price.
