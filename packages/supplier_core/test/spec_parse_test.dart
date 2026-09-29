@@ -368,6 +368,12 @@ void main() {
       '（2）分辨率：0.1ppm',
     ]);
     expect(splitClauses('A；B。C'), ['A', 'B', 'C']);
+    expect(splitClauses('★（4）防护等级不低于IP65。\n（1）a；★（2）b；（3）c'), [
+      '★（4）防护等级不低于IP65',
+      '（1）a',
+      '★（2）b',
+      '（3）c',
+    ]);
     final star = parseClause('sensor.th', 1, '★（5）防护等级不低于IP65');
     expect(star.mark, ClauseMark.star);
     expect(star.constraints.single.mark, ClauseMark.star);

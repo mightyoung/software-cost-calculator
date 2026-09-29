@@ -136,13 +136,25 @@ List<String> splitClauses(String text) {
     final parts = _numbering.hasMatch(bare)
         ? line.split(_inlineNumber)
         : line.split(RegExp(r'[；;]|。(?=\S)'));
+    // A mark written before a number ("；★（2）") belongs to the next part.
+    var carry = '';
     for (final p in parts) {
-      final c = p.trim().replaceFirst(RegExp(r'[；;。，,、\s]+$'), '');
-      if (c.isNotEmpty && !_heading(c)) out.add(c);
+      final m = RegExp(r'[★☆※▲△#＃]\s*$').firstMatch(p.trimRight());
+      final body = m == null ? p : p.trimRight().substring(0, m.start);
+      final c = '$carry$body'.trim().replaceFirst(RegExp(r'[；;。，,、\s]+$'), '');
+      carry = m == null ? '' : m[0]!.trim();
+      if (c.isEmpty || _heading(c)) continue;
+      if (_markOnly(c)) {
+        carry = '$c$carry';
+      } else {
+        out.add(c);
+      }
     }
   }
   return out;
 }
+
+bool _markOnly(String s) => RegExp(r'^[★☆※▲△#＃\s]+$').hasMatch(s);
 
 (ClauseMark, String) _head(String raw) {
   var t = raw.trim();
