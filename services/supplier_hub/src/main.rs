@@ -25,7 +25,7 @@ async fn main() -> anyhow::Result<()> {
     if (args[1] == "backup" && args.len() != 4) || (args[1] != "backup" && args.len() != 3) {
         bail!("unexpected command arguments");
     }
-    let config = Config::load(Path::new(&args[2]))?;
+    let mut config = Config::load(Path::new(&args[2]))?;
     let secrets = if args[1] == "backup" {
         config.validate_storage()?;
         if !config.database.is_file() {
@@ -76,8 +76,10 @@ async fn main() -> anyhow::Result<()> {
         return Ok(());
     }
     let address = config.bind;
-    let state = AppState::new(store, config, secrets.api_token.as_deref());
     let listener = tokio::net::TcpListener::bind(address).await?;
+    // Port zero selects an ephemeral port; Host checks need the bound endpoint.
+    config.bind = listener.local_addr()?;
+    let state = AppState::new(store, config, secrets.api_token.as_deref());
     let (stop_tx, mut stop_rx) = tokio::sync::watch::channel(false);
     let task_state = state.clone();
     let sync_key = secrets.sync_key.map(Arc::new);

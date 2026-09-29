@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'crypto_file.dart';
 import 'exchange.dart';
@@ -18,6 +19,7 @@ const _own = '(own)';
 
 /// Name of the file in the shared folder that announces a new version.
 const updateManifest = '版本.json';
+const maxUpdateNoticeBytes = 64 * 1024;
 
 class UpdateNotice {
   UpdateNotice(this.version, this.notes, this.file);
@@ -103,12 +105,36 @@ extension FolderSyncing on Store {
 /// numeric parts ("1.0.12" > "1.0.5").
 UpdateNotice? readUpdate(String dir, {required String current}) {
   final file = File('$dir/$updateManifest');
-  if (!file.existsSync()) return null;
   try {
-    final m = jsonDecode(file.readAsStringSync()) as Map<String, Object?>;
+    // Use one handle and a bounded read, not a path size check followed by an
+    // unbounded read: shared-folder writers can replace or grow the file.
+    final input = file.openSync();
+    final bytes = BytesBuilder(copy: false);
+    try {
+      if (input.lengthSync() > maxUpdateNoticeBytes) return null;
+      while (bytes.length <= maxUpdateNoticeBytes) {
+        final remaining = maxUpdateNoticeBytes + 1 - bytes.length;
+        final chunk = input.readSync(remaining < 4096 ? remaining : 4096);
+        if (chunk.isEmpty) break;
+        bytes.add(chunk);
+      }
+    } finally {
+      input.closeSync();
+    }
+    if (bytes.length > maxUpdateNoticeBytes) return null;
+    final m =
+        jsonDecode(utf8.decode(bytes.takeBytes())) as Map<String, Object?>;
     final version = m['version'] as String;
+    final notes = m['notes'] as String?, name = m['file'] as String?;
+    if (version.isEmpty ||
+        version.length > 128 ||
+        version.split(RegExp(r'[.+-]')).length > 16 ||
+        (notes != null && notes.length > 8192) ||
+        (name != null && name.length > 1024)) {
+      return null;
+    }
     if (compareVersions(version, current) <= 0) return null;
-    return UpdateNotice(version, m['notes'] as String?, m['file'] as String?);
+    return UpdateNotice(version, notes, name);
   } on Object {
     return null; // a malformed announcement is ignored, not fatal
   }

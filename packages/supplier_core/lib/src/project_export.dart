@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:typed_data';
 
 import 'budget.dart';
@@ -21,14 +22,64 @@ const warningLabels = {
 };
 
 /// Converts any readable workbook into plain lines for the AI list flow.
-String workbookText(XWorkbook book) => [
-  for (final sheet in book.sheets) ...[
-    '【${sheet.name}】',
-    for (final row in sheet.rows)
-      if (row.any((c) => !c.isBlank))
-        [for (final c in row) c.display.trim()].join(' | '),
-  ],
-].join('\n');
+/// Counts UTF-16 code units, including headings and separators, before writing.
+/// Oversized input is rejected rather than silently truncating source evidence.
+String workbookText(XWorkbook book, {int maxChars = 1024 * 1024}) {
+  if (maxChars < 0) throw ArgumentError.value(maxChars, 'maxChars');
+  final output = StringBuffer();
+  void append(String text) {
+    if (text.length > maxChars - output.length) {
+      throw const FormatException('工作簿文本过大，请拆分后导入');
+    }
+    output.write(text);
+  }
+
+  // Shared strings can be huge whitespace-only values repeated in many cells.
+  // Identity lookup avoids hashing/scanning the same source string repeatedly.
+  // Bound retained trimmed copies and entries; cap uncached work as well so
+  // alternating more strings than the cache holds cannot amplify trim work.
+  final trimmed = HashMap<String, String>.identity();
+  var cachedChars = 0, examinedChars = 0;
+  final scanLimit = maxChars > maxExpandedBytes ? maxChars : maxExpandedBytes;
+  String textOf(XCell cell) {
+    final lexical = cell.lexical;
+    if (cell.kind != CellKind.number && trimmed.containsKey(lexical)) {
+      return trimmed[lexical]!;
+    }
+    examinedChars += lexical.length;
+    if (examinedChars > scanLimit) {
+      throw const FormatException('工作簿文本处理量过大，请拆分后导入');
+    }
+    final text = cell.display.trim();
+    if (cell.kind != CellKind.number && text.length <= 65536) {
+      if (trimmed.length >= 256 || cachedChars + text.length > 65536) {
+        trimmed.clear();
+        cachedChars = 0;
+      }
+      trimmed[lexical] = text;
+      cachedChars += text.length;
+    }
+    return text;
+  }
+
+  for (final sheet in book.sheets) {
+    if (output.isNotEmpty) append('\n');
+    append('【');
+    append(sheet.name);
+    append('】');
+    for (final row in sheet.rows) {
+      if (!row.any((c) => c.kind != CellKind.blank && textOf(c).isNotEmpty)) {
+        continue;
+      }
+      append('\n');
+      for (var i = 0; i < row.length; i++) {
+        if (i != 0) append(' | ');
+        append(textOf(row[i]));
+      }
+    }
+  }
+  return output.toString();
+}
 
 extension ProjectExport on Store {
   /// Customer-facing quote: prices only, no cost, supplier or margin.

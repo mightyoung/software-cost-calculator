@@ -20,11 +20,233 @@ fn request(method: &str, path: &str, body: String, token: Option<&str>) -> Reque
     let mut builder = Request::builder()
         .method(method)
         .uri(path)
+        .header("host", "localhost:8080")
         .header("content-type", "application/json");
     if let Some(token) = token {
         builder = builder.header("authorization", format!("Bearer {token}"));
     }
     builder.body(Body::from(body)).unwrap()
+}
+
+fn local_request(path: &str, hosts: &[&str], origins: &[&str]) -> Request<Body> {
+    let mut request = request(
+        "POST",
+        path,
+        include_str!("../examples/supplier.json").into(),
+        None,
+    );
+    request.headers_mut().remove("host");
+    for host in hosts {
+        request.headers_mut().append("host", host.parse().unwrap());
+    }
+    for origin in origins {
+        request
+            .headers_mut()
+            .append("origin", origin.parse().unwrap());
+    }
+    request
+}
+
+#[tokio::test]
+async fn tokenless_requests_reject_foreign_or_ambiguous_authorities_without_writes() {
+    let state = AppState::new(Store::open(":memory:").unwrap(), config(), None);
+    let app = router(state.clone());
+    let cases: &[(&[&str], &[&str])] = &[
+        (&[], &[]),
+        (&["attacker.example:8080"], &[]),
+        (&["localhost.attacker.example:8080"], &[]),
+        (&["localhost:8080", "localhost:8080"], &[]),
+        (&["localhost:8080,attacker.example"], &[]),
+        (&["localhost:8081"], &[]),
+        (&["localhost"], &[]),
+        (&["127.0.0.2:8080"], &[]),
+        (&["user@localhost:8080"], &[]),
+        (&["localhost:8080/path"], &[]),
+        (&["localhost:8080?query"], &[]),
+        (&["localhost:8080#fragment"], &[]),
+        (&["localhost:"], &[]),
+        (&["localhost:99999"], &[]),
+        (&["localhost:+8080"], &[]),
+        (&["localhost.:8080"], &[]),
+        (&["[127.0.0.1]:8080"], &[]),
+        (&["localhost:8080"], &["null"]),
+        (&["localhost:8080"], &["http://attacker.example"]),
+        (&["localhost:8080"], &["http://localhost:8081"]),
+        (&["localhost:8080"], &["https://localhost:8080"]),
+        (&["localhost:8080"], &["http://127.0.0.1:8080"]),
+        (
+            &["localhost:8080"],
+            &["http://localhost:8080.attacker.example"],
+        ),
+        (&["localhost:8080"], &["http://user@localhost:8080"]),
+        (&["localhost:8080"], &["http://localhost:8080/"]),
+        (&["localhost:8080"], &["http://localhost:8080?query"]),
+        (&["localhost:8080"], &["http://localhost:8080#fragment"]),
+        (
+            &["localhost:8080"],
+            &["http://localhost:8080 http://attacker.example"],
+        ),
+        (
+            &["localhost:8080"],
+            &["http://localhost:8080", "http://localhost:8080"],
+        ),
+    ];
+    for (hosts, origins) in cases {
+        let mut request = local_request("/v1/publications", hosts, origins);
+        request
+            .headers_mut()
+            .insert("x-forwarded-host", "localhost:8080".parse().unwrap());
+        request
+            .headers_mut()
+            .insert("x-forwarded-proto", "http".parse().unwrap());
+        let response = app.clone().oneshot(request).await.unwrap();
+        assert_eq!(
+            response.status(),
+            StatusCode::FORBIDDEN,
+            "hosts={hosts:?}, origins={origins:?}"
+        );
+    }
+    for uri in [
+        "http://attacker.example:8080/v1/publications",
+        "http://localhost:8081/v1/publications",
+        "http://127.0.0.1:8080/v1/publications",
+        "https://localhost:8080/v1/publications",
+        "http://user@localhost:8080/v1/publications",
+    ] {
+        let response = app
+            .clone()
+            .oneshot(local_request(uri, &["localhost:8080"], &[]))
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::FORBIDDEN, "uri={uri}");
+    }
+    for path in ["/v1/status", "/v1/publications"] {
+        let mut request = request("GET", path, String::new(), None);
+        request
+            .headers_mut()
+            .insert("host", "attacker.example:8080".parse().unwrap());
+        assert_eq!(
+            app.clone().oneshot(request).await.unwrap().status(),
+            StatusCode::FORBIDDEN
+        );
+    }
+    let status = state.database(|db| db.status()).await.unwrap();
+    assert_eq!(status.revision_count, 0);
+    assert_eq!(status.received_packages, 0);
+    assert!(status.tasks.is_empty());
+}
+
+#[tokio::test]
+async fn tokenless_same_origin_and_native_requests_support_ipv4_ipv6_and_default_port() {
+    for (bind, host, origin) in [
+        ("127.0.0.1:8080", "localhost:8080", None),
+        (
+            "127.0.0.1:8080",
+            "127.0.0.1:8080",
+            Some("http://127.0.0.1:8080"),
+        ),
+        (
+            "127.0.0.1:8080",
+            "LOCALHOST:8080",
+            Some("http://localhost:8080"),
+        ),
+        ("[::1]:8080", "[::1]:8080", Some("http://[::1]:8080")),
+        ("[::1]:8080", "localhost:8080", None),
+        ("127.0.0.1:80", "localhost", Some("http://localhost")),
+        ("127.0.0.1:80", "localhost:80", Some("http://localhost")),
+    ] {
+        let mut config = config();
+        config.bind = bind.parse().unwrap();
+        let state = AppState::new(Store::open(":memory:").unwrap(), config, None);
+        let origins: Vec<_> = origin.into_iter().collect();
+        let response = router(state.clone())
+            .oneshot(local_request("/v1/publications", &[host], &origins))
+            .await
+            .unwrap();
+        assert_eq!(
+            response.status(),
+            StatusCode::CREATED,
+            "bind={bind}, host={host}"
+        );
+        assert_eq!(
+            state
+                .database(|db| db.status())
+                .await
+                .unwrap()
+                .revision_count,
+            1
+        );
+    }
+    let app = router(AppState::new(
+        Store::open(":memory:").unwrap(),
+        config(),
+        None,
+    ));
+    assert_eq!(
+        app.oneshot(local_request(
+            "http://localhost:8080/v1/publications",
+            &["localhost:8080"],
+            &["http://localhost:8080"]
+        ))
+        .await
+        .unwrap()
+        .status(),
+        StatusCode::CREATED
+    );
+}
+
+#[tokio::test]
+async fn tokenless_unvalidated_remote_or_unresolved_bind_fails_closed() {
+    for bind in ["0.0.0.0:8080", "192.0.2.1:8080", "[::]:8080", "127.0.0.1:0"] {
+        let mut config = config();
+        config.bind = bind.parse().unwrap();
+        let state = AppState::new(Store::open(":memory:").unwrap(), config, None);
+        let app = router(state.clone());
+        assert_eq!(
+            app.clone()
+                .oneshot(local_request("/v1/publications", &["localhost:8080"], &[]))
+                .await
+                .unwrap()
+                .status(),
+            StatusCode::FORBIDDEN,
+            "bind={bind}"
+        );
+        assert_eq!(
+            state
+                .database(|db| db.status())
+                .await
+                .unwrap()
+                .revision_count,
+            0
+        );
+        for path in ["/healthz", "/admin/"] {
+            let mut request = request("GET", path, String::new(), None);
+            request.headers_mut().remove("host");
+            assert_eq!(
+                app.clone().oneshot(request).await.unwrap().status(),
+                StatusCode::OK
+            );
+        }
+    }
+}
+
+#[tokio::test]
+async fn token_mode_retains_remote_proxy_access() {
+    let mut config = config();
+    config.bind = "0.0.0.0:8080".parse().unwrap();
+    let app = router(AppState::new(
+        Store::open(":memory:").unwrap(),
+        config,
+        Some(TOKEN),
+    ));
+    let mut request = request("GET", "/v1/status", String::new(), Some(TOKEN));
+    request
+        .headers_mut()
+        .insert("host", "hub.example".parse().unwrap());
+    request
+        .headers_mut()
+        .insert("origin", "https://hub.example".parse().unwrap());
+    assert_eq!(app.oneshot(request).await.unwrap().status(), StatusCode::OK);
 }
 
 #[tokio::test]

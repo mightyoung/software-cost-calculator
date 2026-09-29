@@ -1,10 +1,13 @@
-use std::sync::{Arc, Mutex};
+use std::{
+    net::IpAddr,
+    sync::{Arc, Mutex},
+};
 
 use axum::{
     Json, Router,
     extract::Request,
     extract::{DefaultBodyLimit, Path, Query, State},
-    http::{HeaderValue, StatusCode, header},
+    http::{HeaderValue, StatusCode, header, uri::Authority},
     middleware::{self, Next},
     response::{IntoResponse, Response},
     routing::{get, post},
@@ -115,8 +118,98 @@ async fn authenticate(State(state): State<AppState>, request: Request, next: Nex
         if right.verify_slice(&tag).is_err() {
             return unauthorized();
         }
+    } else if !local_request_allowed(&state, &request) {
+        return (
+            StatusCode::FORBIDDEN,
+            Json(json!({"error":"local_origin_required"})),
+        )
+            .into_response();
     }
     next.run(request).await
+}
+
+// The tokenless service is direct HTTP on its bound loopback address. Never
+// trust forwarding headers or DNS names that merely resolve to loopback.
+fn local_authority(value: &str) -> Option<(String, u16)> {
+    if value.is_empty()
+        || value.ends_with(':')
+        || value
+            .bytes()
+            .any(|b| !b.is_ascii() || b.is_ascii_whitespace() || b"@/\\?#,".contains(&b))
+    {
+        return None;
+    }
+    let authority: Authority = value.parse().ok()?;
+    let host = authority.host();
+    let host = if host.eq_ignore_ascii_case("localhost") {
+        "localhost".to_owned()
+    } else {
+        let ip = host
+            .strip_prefix('[')
+            .and_then(|h| h.strip_suffix(']'))
+            .unwrap_or(host);
+        let ip = ip.parse::<IpAddr>().ok()?;
+        if ip.is_ipv6() != host.starts_with('[') {
+            return None;
+        }
+        ip.to_string()
+    };
+    let port = match authority.port() {
+        Some(port) if port.as_str().bytes().all(|b| b.is_ascii_digit()) => {
+            port.as_str().parse::<u16>().ok()?
+        }
+        Some(_) => return None,
+        None => 80,
+    };
+    Some((host, port))
+}
+
+fn local_request_allowed(state: &AppState, request: &Request) -> bool {
+    let bind = state.config.bind;
+    // Also protect callers constructing AppState without Config::validate.
+    if !bind.ip().is_loopback() || bind.port() == 0 {
+        return false;
+    }
+    let mut hosts = request.headers().get_all(header::HOST).iter();
+    let Some(host) = hosts
+        .next()
+        .and_then(|h| h.to_str().ok())
+        .and_then(local_authority)
+    else {
+        return false;
+    };
+    if hosts.next().is_some()
+        || host.1 != bind.port()
+        || (host.0 != "localhost" && host.0 != bind.ip().to_string())
+    {
+        return false;
+    }
+    // Absolute-form requests must describe the same HTTP origin as Host.
+    let uri = request.uri();
+    if (uri.scheme().is_some() || uri.authority().is_some())
+        && (uri.scheme_str() != Some("http")
+            || uri
+                .authority()
+                .and_then(|a| local_authority(a.as_str()))
+                .as_ref()
+                != Some(&host))
+    {
+        return false;
+    }
+    let mut origins = request.headers().get_all(header::ORIGIN).iter();
+    if let Some(origin) = origins.next()
+        && (origins.next().is_some()
+            || origin
+                .to_str()
+                .ok()
+                .and_then(|s| s.strip_prefix("http://"))
+                .and_then(local_authority)
+                .as_ref()
+                != Some(&host))
+    {
+        return false;
+    }
+    true
 }
 
 fn unauthorized() -> Response {
