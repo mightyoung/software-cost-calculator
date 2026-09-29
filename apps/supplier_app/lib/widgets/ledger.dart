@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'app_icon.dart';
 import '../app/theme.dart';
 
 /// A ruled row of labelled figures; replaces metric cards.
@@ -156,7 +157,7 @@ class HintTag extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 13, color: fg),
+            AppIcon(icon, size: 13, color: fg),
             const SizedBox(width: 4),
             // Narrow cells cut the words rather than overflow.
             Flexible(
@@ -182,7 +183,7 @@ class HintText extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Icon(icon, size: 13, color: Tokens.amber),
+      AppIcon(icon, size: 13, color: Tokens.amber),
       const SizedBox(width: 4),
       Flexible(
         child: Text(text, style: TextStyle(fontSize: 12, color: Tokens.amber)),

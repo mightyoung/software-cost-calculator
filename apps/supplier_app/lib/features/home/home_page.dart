@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/shell.dart';
@@ -53,10 +54,10 @@ class HomePage extends StatelessWidget {
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.search, size: 20),
+                    AppIcon(Icons.search, size: 20),
                     SizedBox(width: 10),
                     Expanded(child: Text('搜索项目、供应商或报价')),
-                    Icon(Icons.chevron_right, size: 18),
+                    AppIcon(Icons.chevron_right, size: 18),
                   ],
                 ),
               ),
@@ -69,7 +70,7 @@ class HomePage extends StatelessWidget {
             children: [
               FilledButton.icon(
                 onPressed: () => showQuoteForm(context, state),
-                icon: const Icon(Icons.add, size: 18),
+                icon: const AppIcon(Icons.add, size: 18),
                 label: const Text('录报价'),
               ),
               OutlinedButton.icon(
@@ -77,7 +78,7 @@ class HomePage extends StatelessWidget {
                   final msg = await showMaterialImport(context, state);
                   if (msg != null && context.mounted) toast(context, msg);
                 },
-                icon: const Icon(Icons.auto_awesome_outlined, size: 18),
+                icon: const AppIcon(Icons.auto_awesome_outlined, size: 18),
                 label: const Text('智能导入'),
               ),
               OutlinedButton.icon(
@@ -87,7 +88,7 @@ class HomePage extends StatelessWidget {
                     await openRecord(context, state, 'project', id);
                   }
                 },
-                icon: const Icon(Icons.create_new_folder_outlined, size: 18),
+                icon: const AppIcon(Icons.create_new_folder_outlined, size: 18),
                 label: const Text('新建项目'),
               ),
             ],
@@ -136,7 +137,7 @@ class HomePage extends StatelessWidget {
                   _Line(
                     title: p.name,
                     sub: '${p.lines} 行还没有关联报价',
-                    trailing: Icon(Icons.chevron_right, color: Tokens.ink3),
+                    trailing: AppIcon(Icons.chevron_right, color: Tokens.ink3),
                     onTap: () => openRecord(context, state, 'project', p.id),
                   ),
               ],

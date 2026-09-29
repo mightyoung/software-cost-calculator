@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 import '../../app/app_state.dart';
@@ -17,7 +19,7 @@ Future<bool> showAwardDialog(
   String? initial,
   String? itemId,
 }) async =>
-    await showDialog<bool>(
+    await showAppDialog<bool>(
       context: context,
       builder: (_) => _AwardDialog(
         state: state,

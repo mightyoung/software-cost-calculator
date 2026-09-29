@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '../widgets/app_icon.dart';
 import '../features/ai/ask_page.dart';
 import '../features/catalog/catalog_page.dart';
 import '../features/data_center/data_center_page.dart';
@@ -13,6 +14,7 @@ import '../features/quotes/quote_form.dart';
 import '../features/quotes/quotes_page.dart';
 import '../features/settings/settings_page.dart';
 import 'app_state.dart';
+import 'motion.dart';
 import 'theme.dart';
 import 'title_bar.dart';
 
@@ -80,7 +82,7 @@ class _ShellState extends State<Shell> {
           },
         ),
         Expanded(
-          child: KeyedSubtree(key: ValueKey(section), child: _page()),
+          child: PageArrival(identity: section, child: _page()),
         ),
       ],
     );
@@ -197,7 +199,7 @@ class _Sidebar extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
                 child: Row(
                   children: [
-                    Icon(
+                    AppIcon(
                       s.icon,
                       size: 18,
                       color: on ? Tokens.accentDeep : Tokens.navInk3,
@@ -316,6 +318,12 @@ class _BottomNav extends StatelessWidget {
         if (i < 3) return onSelect(_primary[i]);
         final picked = await showModalBottomSheet<Section>(
           context: context,
+          sheetAnimationStyle: AppMotion.reduced(context)
+              ? AnimationStyle.noAnimation
+              : const AnimationStyle(
+                  duration: Duration(milliseconds: 220),
+                  reverseDuration: Duration(milliseconds: 160),
+                ),
           isScrollControlled: true,
           showDragHandle: true,
           builder: (_) => SafeArea(
@@ -334,7 +342,7 @@ class _BottomNav extends StatelessWidget {
                     ListTile(
                       minTileHeight: 56,
                       selected: s == current,
-                      leading: Icon(s.icon),
+                      leading: AppIcon(s.icon),
                       title: Text(s.label),
                       onTap: () => Navigator.pop(context, s),
                     ),
@@ -347,15 +355,15 @@ class _BottomNav extends StatelessWidget {
       },
       destinations: const [
         NavigationDestination(
-          icon: Icon(Icons.space_dashboard_outlined),
+          icon: AppIcon(Icons.space_dashboard_outlined),
           label: '工作台',
         ),
         NavigationDestination(
-          icon: Icon(Icons.folder_copy_outlined),
+          icon: AppIcon(Icons.folder_copy_outlined),
           label: '项目',
         ),
-        NavigationDestination(icon: Icon(Icons.manage_search), label: '报价'),
-        NavigationDestination(icon: Icon(Icons.more_horiz), label: '更多'),
+        NavigationDestination(icon: AppIcon(Icons.manage_search), label: '报价'),
+        NavigationDestination(icon: AppIcon(Icons.more_horiz), label: '更多'),
       ],
     );
   }
@@ -372,7 +380,7 @@ class _IncomingBar extends StatelessWidget {
     padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
     child: Row(
       children: [
-        Icon(Icons.move_to_inbox, color: Tokens.accentDeep, size: 20),
+        AppIcon(Icons.move_to_inbox, color: Tokens.accentDeep, size: 20),
         const SizedBox(width: 8),
         Expanded(child: Text(text)),
         TextButton(onPressed: onOpen, child: const Text('去查看')),

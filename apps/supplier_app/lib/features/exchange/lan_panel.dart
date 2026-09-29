@@ -1,8 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
@@ -46,7 +49,7 @@ class _LanPanelState extends State<LanPanel> {
   }
 
   Future<void> _addByAddress() async {
-    final host = await showDialog<String>(
+    final host = await showAppDialog<String>(
       context: context,
       builder: (_) => const _AddressDialog(),
     );
@@ -90,7 +93,7 @@ class _LanPanelState extends State<LanPanel> {
           children: [
             Row(
               children: [
-                Icon(Icons.wifi_tethering, color: Tokens.accent),
+                AppIcon(Icons.wifi_tethering, color: Tokens.accent),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -146,7 +149,7 @@ class _LanPanelState extends State<LanPanel> {
                     padding: const EdgeInsets.symmetric(vertical: 3),
                     child: Row(
                       children: [
-                        Icon(Icons.computer, size: 18, color: Tokens.ink2),
+                        AppIcon(Icons.computer, size: 18, color: Tokens.ink2),
                         const SizedBox(width: 8),
                         Text(p.name),
                         const SizedBox(width: 8),
@@ -164,7 +167,7 @@ class _LanPanelState extends State<LanPanel> {
                 children: [
                   FilledButton.icon(
                     onPressed: busy ? null : () => showLanPush(context, state),
-                    icon: const Icon(Icons.send_outlined, size: 18),
+                    icon: const AppIcon(Icons.send_outlined, size: 18),
                     label: const Text('选择内容推送'),
                   ),
                   OutlinedButton(
@@ -184,10 +187,7 @@ class _LanPanelState extends State<LanPanel> {
                 ),
               ),
             ],
-            if (busy) ...[
-              const SizedBox(height: 10),
-              const LinearProgressIndicator(),
-            ],
+            if (busy) ...[const SizedBox(height: 10), const TaskProgress()],
           ],
         ),
       );
@@ -208,7 +208,7 @@ class _LanPanelState extends State<LanPanel> {
           ),
           child: Row(
             children: [
-              Icon(Icons.move_to_inbox, color: Tokens.accentDeep),
+              AppIcon(Icons.move_to_inbox, color: Tokens.accentDeep),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(

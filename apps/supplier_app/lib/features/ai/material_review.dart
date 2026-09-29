@@ -2,8 +2,11 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
@@ -141,7 +144,7 @@ class _MaterialReviewState extends State<MaterialReview> {
     final end = at < 0
         ? (original?.length ?? 0)
         : (matchEnd + 160).clamp(0, original!.length);
-    showDialog<void>(
+    showAppDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('${offerFields[field]!.$1} · 核对原文'),
@@ -231,7 +234,7 @@ class _MaterialReviewState extends State<MaterialReview> {
   }
 
   Future<void> _edit(_Row r) async {
-    final offer = await showDialog<Offer>(
+    final offer = await showAppDialog<Offer>(
       context: context,
       builder: (_) => _OfferForm(offer: r.offer),
     );
@@ -581,7 +584,7 @@ class _MaterialReviewState extends State<MaterialReview> {
           ],
           IconButton(
             tooltip: '修改',
-            icon: const Icon(Icons.edit_outlined, size: 18),
+            icon: const AppIcon(Icons.edit_outlined, size: 18),
             onPressed: () => _edit(r),
           ),
         ],
@@ -608,7 +611,7 @@ class _MaterialReviewState extends State<MaterialReview> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 16, color: color),
+          AppIcon(icon, size: 16, color: color),
           const SizedBox(width: 5),
           Expanded(
             child: Text(text, style: TextStyle(fontSize: 12, color: color)),
@@ -777,7 +780,7 @@ class _MaterialReviewState extends State<MaterialReview> {
     );
     final confirm = FilledButton.icon(
       onPressed: ready == 0 ? null : _apply,
-      icon: const Icon(Icons.check, size: 18),
+      icon: const AppIcon(Icons.check, size: 18),
       label: Text('确认导入（$ready 条）'),
     );
     // Phones: the summary gets its own line above the buttons.
@@ -809,7 +812,7 @@ class _MaterialReviewState extends State<MaterialReview> {
                   const SizedBox(width: 8),
                   const Text('调整设置'),
                   const SizedBox(width: 4),
-                  const Icon(Icons.expand_less, size: 18),
+                  const AppIcon(Icons.expand_less, size: 18),
                 ],
               ),
             ),

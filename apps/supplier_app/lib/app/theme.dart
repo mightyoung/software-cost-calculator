@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'motion.dart';
 
 /// Shared workspace colours, light and dark; see DESIGN.md.
 /// [dark] is set once per build of the app root (see app.dart), which
@@ -9,22 +10,22 @@ abstract final class Tokens {
   static var dark = false;
   static Color _pick(int light, int night) => Color(dark ? night : light);
 
-  static Color get canvas => _pick(0xFFF7F8FA, 0xFF10151E);
-  static Color get surface => _pick(0xFFFFFFFF, 0xFF161C29);
-  static Color get sunken => _pick(0xFFF1F3F6, 0xFF1C2333);
-  static Color get groupRow => _pick(0xFFF6F8FB, 0xFF1A2130);
-  static Color get rule => _pick(0xFFE2E6EC, 0xFF2A3345);
-  static Color get ruleStrong => _pick(0xFFC3CAD6, 0xFF3A4459);
-  static Color get ink => _pick(0xFF111827, 0xFFE6EAF2);
-  static Color get ink2 => _pick(0xFF4B5565, 0xFFB3BCCD);
-  static Color get ink3 => _pick(0xFF636C7E, 0xFF8C96AA);
+  static Color get canvas => _pick(0xFFF7F8FA, 0xFF131211);
+  static Color get surface => _pick(0xFFFFFFFF, 0xFF181716);
+  static Color get sunken => _pick(0xFFF1F3F6, 0xFF242321);
+  static Color get groupRow => _pick(0xFFF6F8FB, 0xFF201F1D);
+  static Color get rule => _pick(0xFFE2E6EC, 0xFF35332F);
+  static Color get ruleStrong => _pick(0xFFC3CAD6, 0xFF45423E);
+  static Color get ink => _pick(0xFF111827, 0xFFEEEDEA);
+  static Color get ink2 => _pick(0xFF4B5565, 0xFFC2BFBA);
+  static Color get ink3 => _pick(0xFF636C7E, 0xFFAAA7A3);
   static Color get accent => _pick(0xFF2458D3, 0xFF7BA2FF);
   static Color get accentDeep => _pick(0xFF1B47C2, 0xFF93B2FF);
   static Color get accentTint => _pick(0xFFE8EFFF, 0xFF1C2A4D);
-  static Color get nav => _pick(0xFFEEF1F5, 0xFF131A26);
-  static Color get navHover => _pick(0xFFE2E8F2, 0xFF202D44);
-  static Color get navInk => _pick(0xFF374357, 0xFFC7D0E0);
-  static Color get navInk3 => _pick(0xFF647086, 0xFF9BA8BE);
+  static Color get nav => _pick(0xFFEEF1F5, 0xFF151413);
+  static Color get navHover => _pick(0xFFE2E8F2, 0xFF302E2B);
+  static Color get navInk => _pick(0xFF374357, 0xFFD1CECA);
+  static Color get navInk3 => _pick(0xFF5B677B, 0xFFAAA7A3);
   static Color get amber => _pick(0xFF9A5000, 0xFFF0A649);
   static Color get amberBg => _pick(0xFFFFF2DF, 0xFF3A2A12);
   static Color get red => _pick(0xFFB8302A, 0xFFFF7A70);
@@ -70,9 +71,9 @@ ThemeData buildTheme() {
     primaryContainer: Tokens.accentTint,
     onPrimaryContainer: Tokens.accentDeep,
     secondary: Tokens.ink2,
-    onSecondary: Colors.white,
+    onSecondary: Tokens.dark ? Tokens.canvas : Colors.white,
     error: Tokens.red,
-    onError: Colors.white,
+    onError: Tokens.dark ? Tokens.canvas : Colors.white,
     errorContainer: Tokens.redBg,
     onErrorContainer: Tokens.red,
     surface: Tokens.surface,
@@ -118,6 +119,12 @@ ThemeData buildTheme() {
   );
   final side = BorderSide(color: Tokens.ruleStrong);
   return base.copyWith(
+    pageTransitionsTheme: PageTransitionsTheme(
+      builders: {
+        for (final platform in TargetPlatform.values)
+          platform: const AccessiblePageTransitions(),
+      },
+    ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: Tokens.surface,
       indicatorColor: Tokens.accentTint,
@@ -194,7 +201,9 @@ ThemeData buildTheme() {
       behavior: SnackBarBehavior.floating,
       backgroundColor: Tokens.ink,
       contentTextStyle: TextStyle(color: Tokens.surface, fontSize: 13),
-      actionTextColor: Tokens.accentTint,
+      actionTextColor: Tokens.dark
+          ? const Color(0xFF1B47C2)
+          : Tokens.accentTint,
     ),
     cardTheme: const CardThemeData(elevation: 0, margin: EdgeInsets.zero),
   );

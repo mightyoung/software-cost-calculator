@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
@@ -157,7 +158,7 @@ class ConstraintFields extends StatelessWidget {
         if (onRemove != null)
           IconButton(
             tooltip: '删除条件',
-            icon: const Icon(Icons.close, size: 18),
+            icon: const AppIcon(Icons.close, size: 18),
             onPressed: onRemove,
           ),
       ],

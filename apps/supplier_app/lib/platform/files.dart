@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import '../app/motion.dart';
 
 /// Opens the system picker and returns the file's bytes, or null if the
 /// user cancelled. An empty [extensions] list allows any file.
@@ -54,6 +55,14 @@ Future<bool> saveBytes(
 void toast(BuildContext context, String message) =>
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
+      ..showSnackBar(
+        SnackBar(content: Text(message)),
+        snackBarAnimationStyle: AppMotion.reduced(context)
+            ? AnimationStyle.noAnimation
+            : const AnimationStyle(
+                duration: Duration(milliseconds: 160),
+                reverseDuration: Duration(milliseconds: 120),
+              ),
+      );
 
 String today() => DateTime.now().toIso8601String().substring(0, 10);

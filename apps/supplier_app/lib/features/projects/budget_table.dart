@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
@@ -16,7 +17,7 @@ const _warningText = {
     Icons.production_quantity_limits,
     HintTone.warning,
   ),
-  'needs_inquiry': ('待询价', Icons.help_outline, HintTone.warning),
+  'needs_inquiry': ('待询价', Icons.request_quote_outlined, HintTone.warning),
 };
 
 /// Still to be inquired and no estimate typed in yet: show "—", not 0.
@@ -419,7 +420,10 @@ class BudgetTotals extends StatelessWidget {
               runSpacing: 6,
               children: [
                 if (pending > 0)
-                  HintText('含 $pending 项待询价，未计入', icon: Icons.help_outline),
+                  HintText(
+                    '含 $pending 项待询价，未计入',
+                    icon: Icons.request_quote_outlined,
+                  ),
                 if (compact) ...[
                   figure('成本合计', budget.cost),
                   figure('毛利', budget.margin),
@@ -431,7 +435,7 @@ class BudgetTotals extends StatelessWidget {
             const SizedBox(width: 12),
             FilledButton.icon(
               onPressed: onAdd,
-              icon: const Icon(Icons.add, size: 18),
+              icon: const AppIcon(Icons.add, size: 18),
               label: const Text('添加'),
             ),
           ],

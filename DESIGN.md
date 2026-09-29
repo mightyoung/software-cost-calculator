@@ -16,7 +16,7 @@ colors:
   navigation: "#EEF1F5"
   navigation-hover: "#E2E8F2"
   navigation-ink: "#374357"
-  navigation-caption: "#647086"
+  navigation-caption: "#5B677B"
   warning: "#9A5000"
   warning-bg: "#FFF2DF"
   error: "#B8302A"
@@ -97,7 +97,11 @@ components:
 
 ### Semantic states
 
-警告用琥珀色，错误用红色，最低有效报价等良好结果用绿色。状态同时需要文字或图标。
+警告用琥珀色，错误用红色，最低有效报价等良好结果用绿色。业务状态同时保留文字标签，图标辅助识别。
+
+### Icons
+
+内部功能图标使用 `AppIcon`：统一 24×24 画布、1.7 描边、圆形端点与连接点。明暗主题共用图形，通过 `IconTheme` 继承颜色、透明度及尺寸，禁止为两种主题分别维护路径。业务名称与图形映射集中在 `docs/design/icons/catalog.json`，SVG 和 Flutter 路径均由 `apps/supplier_app/tool/generate_business_icons.py` 生成。新增图标先更新图谱并验证小尺寸，不混入独立实心或多彩插画风格。详见 `docs/design/icons/README.md`。
 
 ## Typography
 

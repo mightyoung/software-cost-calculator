@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 import '../../app/app_state.dart';
@@ -15,7 +17,7 @@ Future<void> showRefreshPrices(
 ) async {
   final plan = state.store.refreshPlan(projectId);
   if (plan.isEmpty) return toast(context, '所有材料行已经采用当前最优的有效报价');
-  final applied = await showDialog<int>(
+  final applied = await showAppDialog<int>(
     context: context,
     builder: (_) => _RefreshDialog(state: state, plan: plan),
   );

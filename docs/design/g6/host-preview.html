@@ -1,0 +1,18 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>离线图谱宿主验收</title>
+<style>body{font:14px system-ui;margin:12px}nav{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}iframe{width:100%;height:760px;border:1px solid #ccc}pre{white-space:pre-wrap}</style>
+<nav aria-label="宿主测试控制"><strong>开发验收 · 模拟计数</strong><button id="theme">切换宿主主题</button><button id="select">宿主选择供应商</button><button id="scale">文字 1.4 倍</button><button id="motion">减少动效</button><button id="narrow">390px 宽度</button></nav>
+<iframe id="frame" title="正式离线前端"></iframe><pre id="events" aria-live="polite"></pre>
+<script type="module">
+const schema=await fetch('./schema.json').then(r=>r.json());
+const payload={version:1,schema,counts:Object.fromEntries(schema.nodes.map(n=>[n.id,13])),selected:'quotation',dark:false,reducedMotion:false,textScale:1};
+const frame=document.getElementById('frame'),events=document.getElementById('events');
+function log(name,args){events.textContent+=`${name} ${JSON.stringify(args)}\n`;}
+frame.onload=()=>{frame.contentWindow.flutter_inappwebview={callHandler:async(name,...args)=>{log(name,args);if(name==='ontologyReady')return payload;if(name==='ontologySelect')payload.selected=args[0];}};frame.contentWindow.dispatchEvent(new Event('flutterInAppWebViewPlatformReady'));};
+frame.src='../../../apps/supplier_app/assets/ontology_graph/index.html';
+const update=()=>frame.contentWindow.ontologyHost.update(structuredClone(payload));
+document.getElementById('theme').onclick=()=>{payload.dark=!payload.dark;update();};
+document.getElementById('select').onclick=()=>{payload.selected='supplier';update();};
+document.getElementById('scale').onclick=()=>{payload.textScale=1.4;update();};
+document.getElementById('motion').onclick=()=>{payload.reducedMotion=!payload.reducedMotion;update();};
+document.getElementById('narrow').onclick=()=>{frame.style.width='390px';};
+</script></html>

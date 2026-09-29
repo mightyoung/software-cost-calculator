@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
@@ -155,7 +156,7 @@ class _ProjectList extends StatelessWidget {
             const SizedBox(height: 16),
             TextField(
               decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.search, size: 18),
+                prefixIcon: AppIcon(Icons.search, size: 18),
                 hintText: '搜索项目或编号',
               ),
               onChanged: onSearch,

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 import '../../app/app_state.dart';
@@ -13,7 +15,7 @@ Future<void> showInquiryCell(
   required String itemId,
   required String supplierId,
   Map<String, Object?>? current,
-}) => showDialog(
+}) => showAppDialog(
   context: context,
   builder: (_) => _CellDialog(
     state: state,

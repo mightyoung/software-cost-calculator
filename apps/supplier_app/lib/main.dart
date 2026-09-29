@@ -48,6 +48,9 @@ class _SupplierAppState extends State<SupplierApp> with WidgetsBindingObserver {
   @override
   void didChangePlatformBrightness() => setState(() {});
 
+  @override
+  void didChangeAccessibilityFeatures() => setState(() {});
+
   bool get _dark => switch (widget.state?.setting('appearance')) {
     'light' => false,
     'dark' => true,
@@ -73,6 +76,19 @@ class _SupplierAppState extends State<SupplierApp> with WidgetsBindingObserver {
       key: ValueKey(dark),
       title: '询价台账',
       debugShowCheckedModeBanner: false,
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          disableAnimations:
+              MediaQuery.disableAnimationsOf(context) ||
+              WidgetsBinding
+                  .instance
+                  .platformDispatcher
+                  .accessibilityFeatures
+                  .reduceMotion ||
+              state?.setting('reduce_motion') == 'true',
+        ),
+        child: child!,
+      ),
       theme: _themes[dark] ??= buildTheme(),
       locale: const Locale('zh', 'CN'),
       supportedLocales: const [Locale('zh', 'CN')],

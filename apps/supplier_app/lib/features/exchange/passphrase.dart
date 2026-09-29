@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../app/motion.dart';
+
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
 
@@ -9,7 +12,7 @@ Future<String?> askPassphrase(
   required String title,
   String? message,
   bool confirm = false,
-}) => showDialog<String>(
+}) => showAppDialog<String>(
   context: context,
   builder: (_) =>
       _PassphraseDialog(title: title, message: message, confirm: confirm),
@@ -147,7 +150,7 @@ class _PassphraseRowState extends State<PassphraseRow> {
     ),
     child: Row(
       children: [
-        Icon(
+        AppIcon(
           isSet == true ? Icons.lock_outline : Icons.lock_open_outlined,
           color: isSet == true ? Tokens.accent : Tokens.ink3,
         ),

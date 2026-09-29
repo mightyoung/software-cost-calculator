@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
+import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
@@ -45,7 +46,7 @@ class CompareView extends StatelessWidget {
           children: [
             TextButton.icon(
               onPressed: onClose,
-              icon: const Icon(Icons.arrow_back, size: 18),
+              icon: const AppIcon(Icons.arrow_back, size: 18),
               label: const Text('返回报价列表'),
             ),
             const SizedBox(width: 8),

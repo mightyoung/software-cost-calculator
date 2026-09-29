@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 import '../../app/app_state.dart';
@@ -86,7 +88,7 @@ Future<bool?> _preview(
   required String summary,
   required String confirm,
   required List<(String, List<String>, String?)> rows,
-}) => showDialog<bool>(
+}) => showAppDialog<bool>(
   context: context,
   builder: (context) => AlertDialog(
     title: Text(title),
