@@ -80,9 +80,14 @@ class _SpecImportDialogState extends State<_SpecImportDialog> {
   });
 
   void _paste(String t) => setState(() {
-    drafts = t.trim().isEmpty ? const [] : specItemsFromText(t);
     source = '粘贴文本';
-    error = null;
+    try {
+      drafts = t.trim().isEmpty ? const [] : specItemsFromText(t);
+      error = null;
+    } on FormatException catch (e) {
+      drafts = const [];
+      error = friendlyError(e.message);
+    }
   });
 
   void _import() {

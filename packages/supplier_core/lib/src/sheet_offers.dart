@@ -46,8 +46,85 @@ const _headers = {
   'notes': ['备注', '说明'],
 };
 
-String _norm(String s) =>
-    s.replaceAll(RegExp(r'\s'), '').replaceAll(RegExp(r'[（(][^）)]*[）)]$'), '');
+const _maxTableChars = 1024 * 1024;
+const _maxFieldChars = 65536;
+
+// Count references, not unique shared strings, before trimming or copying.
+void _checkTableText(XWorkbook book) {
+  var chars = 0, rows = 0, cells = 0;
+  for (final sheet in book.sheets) {
+    for (final row in sheet.rows) {
+      if (++rows > maxWorkbookRows) {
+        throw const FormatException('工作簿行数过多，请拆分后导入');
+      }
+      for (final cell in row) {
+        if (++cells > maxWorkbookCells ||
+            cell.lexical.length > _maxFieldChars ||
+            (chars += cell.lexical.length) > _maxTableChars) {
+          throw const FormatException('工作簿文本过大，请拆分后导入');
+        }
+      }
+    }
+  }
+}
+
+String _norm(String s) {
+  final text = s.replaceAll(RegExp(r'\s'), '');
+  if (text.isEmpty || !(text.endsWith(')') || text.endsWith('）'))) {
+    return text;
+  }
+  // Find the final bracket suffix in linear time, including mixed brackets.
+  final stop = text.length - 2;
+  final a = stop < 0 ? -1 : text.lastIndexOf(')', stop);
+  final b = stop < 0 ? -1 : text.lastIndexOf('）', stop);
+  final start = (a > b ? a : b) + 1;
+  final left = text.indexOf('(', start);
+  final right = text.indexOf('（', start);
+  final at = left < 0
+      ? right
+      : right < 0
+      ? left
+      : left < right
+      ? left
+      : right;
+  return at < 0 ? text : text.substring(0, at);
+}
+
+class _ContinuationText {
+  _ContinuationText(String? initial) {
+    if (initial != null) _text.write(initial);
+  }
+
+  final _text = StringBuffer();
+
+  void add(String more) {
+    final separator = _text.isEmpty ? 0 : 1;
+    if (more.length + separator > _maxFieldChars - _text.length) {
+      throw const FormatException('合并行文本过长，请拆分后导入');
+    }
+    if (separator != 0) _text.write('\n');
+    _text.write(more);
+  }
+
+  @override
+  String toString() => _text.toString();
+}
+
+void _continueText(Map<String, Object?> row, String key, String more) {
+  final previous = row[key];
+  final text = previous is _ContinuationText
+      ? previous
+      : _ContinuationText(previous as String?);
+  text.add(more);
+  row[key] = text;
+}
+
+Map<String, String?> _finishText(Map<String, Object?> row) => {
+  for (final entry in row.entries)
+    entry.key: entry.value is _ContinuationText
+        ? entry.value.toString()
+        : entry.value as String?,
+};
 
 /// Reads offers straight from a table with a recognizable header (a name
 /// column plus a price, brand or model column), without AI. Rows whose name
@@ -56,6 +133,7 @@ String _norm(String s) =>
 /// null when no sheet has such a header. A [materials] list (no prices)
 /// needs only a name plus a category, brand, model or specification column.
 List<Offer>? offersFromWorkbook(XWorkbook book, {bool materials = false}) {
+  _checkTableText(book);
   final second = materials
       ? const ['category', 'brand', 'model', 'specification']
       : const ['price', 'brand', 'model'];
@@ -112,7 +190,7 @@ List<Offer> _offers(
       if (raws.isEmpty) continue;
       for (final k in ['specification', 'notes']) {
         if (at(k) case final more?) {
-          raws.last[k] = [?raws.last[k] as String?, more].join('\n');
+          _continueText(raws.last, k, more);
         }
       }
       continue;
@@ -136,13 +214,14 @@ List<Offer> _offers(
     raw['supplier'] ??= raw['brand'];
     raws.add(raw);
   }
-  return [for (final r in raws) cleanOffer(r)];
+  return [for (final r in raws) cleanOffer(_finishText(r))];
 }
 
 /// Rows of a requirement sheet: name, qty, unit and requirement text
 /// (merged continuation rows joined). Needs a name and a requirement
 /// column; null otherwise.
 List<Map<String, String?>>? requirementRows(XWorkbook book) {
+  _checkTableText(book);
   for (final sheet in book.sheets) {
     for (var h = 0; h < sheet.rows.length && h < 10; h++) {
       final col = <String, int>{};
@@ -155,7 +234,7 @@ List<Map<String, String?>>? requirementRows(XWorkbook book) {
       if (!col.containsKey('name') || !col.containsKey('specification')) {
         continue;
       }
-      final out = <Map<String, String?>>[];
+      final out = <Map<String, Object?>>[];
       for (final row in sheet.rows.skip(h + 1)) {
         String? at(String key) {
           final i = col[key];
@@ -167,10 +246,7 @@ List<Map<String, String?>>? requirementRows(XWorkbook book) {
         if (name == null) {
           final more = at('specification');
           if (out.isNotEmpty && more != null) {
-            out.last['specification'] = [
-              ?out.last['specification'],
-              more,
-            ].join('\n');
+            _continueText(out.last, 'specification', more);
           }
           continue;
         }
@@ -182,7 +258,7 @@ List<Map<String, String?>>? requirementRows(XWorkbook book) {
           'unit': at('unit'),
         });
       }
-      return out;
+      return [for (final row in out) _finishText(row)];
     }
   }
   return null;
@@ -193,6 +269,9 @@ List<Map<String, String?>>? requirementRows(XWorkbook book) {
 /// for text without tabs.
 XWorkbook? tableFromText(String text) {
   if (!text.contains('\t')) return null;
+  if (text.length > _maxTableChars) {
+    throw const FormatException('表格文本过大，请拆分后导入');
+  }
   final rows = <List<XCell>>[];
   var row = <XCell>[];
   final cell = StringBuffer();
