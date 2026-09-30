@@ -120,22 +120,26 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
     }
     // A table with a recognizable header is read column by column: exact,
     // instant and no AI key needed.
-    final pasted = tableFromText(text.text);
-    if ((fileBytes != null && text.text == fileText) || pasted != null) {
-      final offers = offersFromWorkbook(
-        fileBytes != null && text.text == fileText
-            ? readXlsx(fileBytes!)
-            : pasted!,
-        materials: _masterData,
-      );
-      if (offers != null && offers.isNotEmpty) {
-        return setState(() {
-          error = null;
-          _jobId = null;
-          _jobInput = null;
-          plans = [for (final o in offers) _plan(o)];
-        });
+    try {
+      final pasted = tableFromText(text.text);
+      if ((fileBytes != null && text.text == fileText) || pasted != null) {
+        final offers = offersFromWorkbook(
+          fileBytes != null && text.text == fileText
+              ? readXlsx(fileBytes!)
+              : pasted!,
+          materials: _masterData,
+        );
+        if (offers != null && offers.isNotEmpty) {
+          return setState(() {
+            error = null;
+            _jobId = null;
+            _jobInput = null;
+            plans = [for (final o in offers) _plan(o)];
+          });
+        }
       }
+    } on FormatException catch (e) {
+      return setState(() => error = friendlyError(e.message));
     }
     final mine = ++run;
     final cancellation = _cancellation = AiCancellation();

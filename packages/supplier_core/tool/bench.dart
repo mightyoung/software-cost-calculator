@@ -3,10 +3,8 @@ import 'package:supplier_core/supplier_core.dart';
 
 void main() {
   final failures = <String>[];
-  final dir = Directory('/tmp/sq-bench/run')..createSync(recursive: true);
-  for (final f in dir.listSync()) {
-    f.deleteSync();
-  }
+  final dir = Directory.systemTemp.createTempSync('sq-bench-');
+  print('benchmark outputs: ${dir.path}');
   final s = Store.open('${dir.path}/a.db', device: 'WH01');
   final sw = Stopwatch()..start();
   late List<String> sups, prods, pros;
