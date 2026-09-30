@@ -4,10 +4,62 @@ import 'package:supplier_core/supplier_core.dart';
 import 'package:test/test.dart';
 
 import 'fixtures.dart';
+import 'sheet_text_security_test.dart' show continuationWorkbook;
 
 void main() {
   setUp(() => tmp = Directory.systemTemp.createTempSync('supplier_sheet'));
   tearDown(() => tmp.deleteSync(recursive: true));
+
+  test(
+    'supplier planning rejects repeated shared whitespace before scanning',
+    () {
+      final s = device('A');
+      addTearDown(s.close);
+      final bytes = continuationWorkbook(' ' * 32767, 33);
+      expect(bytes.length, lessThan(10000));
+      final book = readXlsx(bytes);
+      expect(() => s.planSupplierSheet(book), throwsFormatException);
+      expect(s.searchByName('supplier', ''), isEmpty);
+    },
+  );
+
+  test('supplier text guard covers headers and ignored columns', () {
+    final s = device('A');
+    addTearDown(s.close);
+    for (final rows in [
+      [
+        [XCell('A1', CellKind.text, ' ' * 65537)],
+      ],
+      [
+        [const XCell('A1', CellKind.text, '供应商名称')],
+        [
+          const XCell('A2', CellKind.text, '甲'),
+          XCell('B2', CellKind.text, ' ' * 65537),
+        ],
+      ],
+    ]) {
+      expect(
+        () => s.planSupplierSheet(
+          XWorkbook([XSheet('S', rows)], date1904: false),
+        ),
+        throwsFormatException,
+      );
+    }
+  });
+
+  test('supplier aggregate text guard spans headerless sheets', () {
+    final s = device('A');
+    addTearDown(s.close);
+    final shared = ' ' * 32767;
+    final book = XWorkbook([
+      for (var sheet = 0; sheet < 3; sheet++)
+        XSheet('S$sheet', [
+          for (var row = 0; row < 11; row++)
+            [XCell('A${row + 1}', CellKind.text, shared)],
+        ]),
+    ], date1904: false);
+    expect(() => s.planSupplierSheet(book), throwsFormatException);
+  });
 
   test('rows pasted from Excel read like a sheet, quoted cells included', () {
     const pasted =

@@ -1,6 +1,7 @@
 import 'duplicates.dart';
 import 'entities.dart';
 import 'search.dart';
+import 'sheet_offers.dart' show checkTableText;
 import 'store.dart';
 import 'xlsx.dart';
 
@@ -47,6 +48,7 @@ extension SupplierSheet on Store {
   /// Reads a supplier list (name column required). Writes nothing; null
   /// when no sheet has a supplier-name header.
   List<SupplierRowPlan>? planSupplierSheet(XWorkbook book) {
+    checkTableText(book);
     for (final sheet in book.sheets) {
       for (var h = 0; h < sheet.rows.length && h < 10; h++) {
         final col = <String, int>{};

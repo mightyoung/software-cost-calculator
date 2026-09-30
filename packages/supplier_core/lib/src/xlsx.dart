@@ -135,7 +135,13 @@ XWorkbook readXlsx(Uint8List bytes) {
     return utf8.decode(content);
   }
 
+  // Charge each XML part once. The ZIP expansion budget does not cover
+  // repeatedly decoding the same part through different sheet relationships.
+  final parsedParts = <String>{};
   XmlDocument doc(String name) {
+    if (!parsedParts.add(name)) {
+      invalid('file', '工作簿重复引用内部数据分片');
+    }
     final text = part(name);
     if (text == null) invalid('file', '缺少 $name，不是有效的 xlsx 文件');
     try {

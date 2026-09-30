@@ -49,8 +49,8 @@ const _headers = {
 const _maxTableChars = 1024 * 1024;
 const _maxFieldChars = 65536;
 
-// Count references, not unique shared strings, before trimming or copying.
-void _checkTableText(XWorkbook book) {
+/// Bounds cell references, not unique shared strings, before trimming or copying.
+void checkTableText(XWorkbook book) {
   var chars = 0, rows = 0, cells = 0;
   for (final sheet in book.sheets) {
     for (final row in sheet.rows) {
@@ -133,7 +133,7 @@ Map<String, String?> _finishText(Map<String, Object?> row) => {
 /// null when no sheet has such a header. A [materials] list (no prices)
 /// needs only a name plus a category, brand, model or specification column.
 List<Offer>? offersFromWorkbook(XWorkbook book, {bool materials = false}) {
-  _checkTableText(book);
+  checkTableText(book);
   final second = materials
       ? const ['category', 'brand', 'model', 'specification']
       : const ['price', 'brand', 'model'];
@@ -221,7 +221,7 @@ List<Offer> _offers(
 /// (merged continuation rows joined). Needs a name and a requirement
 /// column; null otherwise.
 List<Map<String, String?>>? requirementRows(XWorkbook book) {
-  _checkTableText(book);
+  checkTableText(book);
   for (final sheet in book.sheets) {
     for (var h = 0; h < sheet.rows.length && h < 10; h++) {
       final col = <String, int>{};

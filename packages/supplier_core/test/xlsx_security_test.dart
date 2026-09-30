@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
@@ -6,7 +7,57 @@ import 'package:test/test.dart';
 
 import 'excel_test.dart' show officeLike;
 
+Uint8List _referencedSheets(List<String> targets) {
+  final parts = {
+    'xl/workbook.xml':
+        '<workbook xmlns:r="r"><workbookPr date1904="1"/><sheets>'
+        '${[for (var i = 0; i < targets.length; i++) '<sheet name="S$i" r:id="r$i"/>'].join()}'
+        '</sheets></workbook>',
+    'xl/_rels/workbook.xml.rels':
+        '<Relationships>'
+        '${[for (var i = 0; i < targets.length; i++) '<Relationship Id="r$i" Target="${targets[i]}"/>'].join()}'
+        '</Relationships>',
+    for (final target in targets)
+      (target.startsWith('/') ? target.substring(1) : 'xl/$target'):
+          '<worksheet><!--${'x' * 65536}--><sheetData/></worksheet>',
+  };
+  final archive = Archive();
+  for (final part in parts.entries) {
+    final bytes = utf8.encode(part.value);
+    archive.addFile(ArchiveFile(part.key, bytes.length, bytes));
+  }
+  return Uint8List.fromList(ZipEncoder().encode(archive)!);
+}
+
 void main() {
+  test('rejects repeated worksheet targets before reparsing empty XML', () {
+    for (final targets in [
+      ['worksheets/s.xml', 'worksheets/s.xml'],
+      ['worksheets/s.xml', '/xl/worksheets/s.xml'],
+    ]) {
+      final bytes = _referencedSheets(targets);
+      expect(bytes.length, lessThan(10000));
+      expect(() => readXlsx(bytes), throwsFormatException);
+    }
+  });
+
+  test('rejects excessive empty sheet declarations within ZIP limits', () {
+    final bytes = _referencedSheets(
+      List.filled(maxZipEntries + 1, 'worksheets/s.xml'),
+    );
+    expect(bytes.length, lessThan(maxXlsxBytes));
+    expect(() => readXlsx(bytes), throwsFormatException);
+  });
+
+  test('distinct empty worksheet parts retain order and date system', () {
+    final book = readXlsx(
+      _referencedSheets(['worksheets/s.xml', '/xl/worksheets/t.xml']),
+    );
+    expect(book.date1904, isTrue);
+    expect(book.sheets.map((s) => s.name), ['S0', 'S1']);
+    expect(book.sheets.every((s) => s.rows.isEmpty), isTrue);
+  });
+
   test('accepts ordinary ZIP comments but rejects ambiguous end records', () {
     final source = officeLike('<row><c r="A1"><v>1</v></c></row>');
     Uint8List withComment(List<int> comment) {
