@@ -140,7 +140,7 @@ XWorkbook readXlsx(Uint8List bytes) {
   final parsedParts = <String>{};
   XmlDocument doc(String name) {
     if (!parsedParts.add(name)) {
-      invalid('file', '工作簿重复引用 XML 分片：$name');
+      invalid('file', '工作簿重复引用内部数据分片');
     }
     final text = part(name);
     if (text == null) invalid('file', '缺少 $name，不是有效的 xlsx 文件');
