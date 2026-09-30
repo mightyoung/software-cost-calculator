@@ -42,17 +42,23 @@ Future<void> importCatalogList(
     if (msg != null && context.mounted) toast(context, msg);
     return;
   }
-  final plans = state.store.planSupplierSheet(book);
+  final List<SupplierRowPlan>? plans;
+  try {
+    plans = state.store.planSupplierSheet(book);
+  } on FormatException catch (e) {
+    return toast(context, '无法读取 ${file.name}：${friendlyError(e.message)}');
+  }
   if (plans == null || plans.isEmpty) {
     return toast(context, '没有找到供应商表头：需要"供应商名称"或"名称"列');
   }
+  final supplierPlans = plans;
   final ok = await showAppDialog<bool>(
     context: context,
-    builder: (_) => _SupplierPreview(name: file.name, plans: plans),
+    builder: (_) => _SupplierPreview(name: file.name, plans: supplierPlans),
   );
   if (ok != true || !context.mounted) return;
   late ({int suppliers, int contacts}) sum;
-  final err = state.write((s) => sum = s.applySupplierSheet(plans));
+  final err = state.write((s) => sum = s.applySupplierSheet(supplierPlans));
   toast(context, err ?? '新建供应商 ${sum.suppliers}，联系人 ${sum.contacts}');
 }
 
