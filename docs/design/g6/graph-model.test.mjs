@@ -25,3 +25,10 @@ test('Chinese and technical names search without mutating schema',()=>{
   assert.equal(matchingNodes(data,'does-not-exist').length,0);
   assert.equal(JSON.stringify(data),before);
 });
+
+test('an object type no group names is listed under 其他', async () => {
+  const model = await import('./graph-model.mjs');
+  model.adoptGroups({nodes:[{id:'supplier'},{id:'new_type'}], groups:[{name:'A', ids:['supplier']}]});
+  assert.deepEqual(model.groups.map(g => g.name), ['A', '其他']);
+  assert.equal(model.groupOf('new_type').name, '其他');
+});
