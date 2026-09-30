@@ -46,6 +46,7 @@ class AppIcon extends Icon {
                   path,
                   foreground.withValues(alpha: foreground.a * opacity),
                   icon!.matchTextDirection && direction == TextDirection.rtl,
+                  businessIconFills.contains(icon),
                 ),
               ),
             ),
@@ -62,7 +63,7 @@ Path _parsePath(String source) {
   final tokens = RegExp(
     r'[MLQCZ]|-?(?:\d+(?:\.\d*)?|\.\d+)',
   ).allMatches(source).map((match) => match.group(0)!).toList();
-  final path = Path();
+  final path = Path()..fillType = PathFillType.evenOdd;
   var index = 0;
   double number() => double.parse(tokens[index++]);
   while (index < tokens.length) {
@@ -92,11 +93,12 @@ Path _parsePath(String source) {
 }
 
 class _BusinessIconPainter extends CustomPainter {
-  const _BusinessIconPainter(this.path, this.color, this.mirrored);
+  const _BusinessIconPainter(this.path, this.color, this.mirrored, this.filled);
 
   final Path path;
   final Color color;
   final bool mirrored;
+  final bool filled;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -112,7 +114,7 @@ class _BusinessIconPainter extends CustomPainter {
       path,
       Paint()
         ..color = color
-        ..style = PaintingStyle.stroke
+        ..style = filled ? PaintingStyle.fill : PaintingStyle.stroke
         ..strokeWidth = 1.7
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round,
@@ -124,5 +126,6 @@ class _BusinessIconPainter extends CustomPainter {
   bool shouldRepaint(_BusinessIconPainter oldDelegate) =>
       oldDelegate.path != path ||
       oldDelegate.color != color ||
-      oldDelegate.mirrored != mirrored;
+      oldDelegate.mirrored != mirrored ||
+      oldDelegate.filled != filled;
 }

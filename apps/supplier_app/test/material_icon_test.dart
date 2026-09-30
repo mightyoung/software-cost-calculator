@@ -49,12 +49,49 @@ void main() {
       '风机',
       '压缩机',
       '密封件',
+      '服务器',
+      '工控机',
+      '电脑',
+      '显示器',
+      '物联网关',
+      '交换机',
+      '路由器',
     ];
     final icons = categories.map((c) => materialIconFor(category: c));
     expect(icons.toSet(), hasLength(categories.length));
     expect(icons.every(businessIconPaths.containsKey), isTrue);
-    expect(icons.map((i) => businessIconPaths[i]).toSet(), hasLength(18));
+    expect(
+      icons.map((i) => businessIconPaths[i]).toSet(),
+      hasLength(categories.length),
+    );
   });
+
+  test(
+    'computing equipment uses specific categories before generic computer names',
+    () {
+      expect(
+        materialIconFor(name: '工业平板电脑'),
+        Icons.precision_manufacturing_outlined,
+      );
+      expect(materialIconFor(name: '电脑显示器'), Icons.monitor_outlined);
+      expect(materialIconFor(name: '机架服务器'), Icons.dns_outlined);
+      expect(materialIconFor(name: 'IoT Gateway'), Icons.device_hub_outlined);
+      expect(
+        materialIconFor(name: 'Ethernet Switch'),
+        Icons.settings_ethernet_outlined,
+      );
+      expect(materialIconFor(name: '工业路由器'), Icons.router_outlined);
+      expect(materialIconFor(name: '台式电脑'), Icons.desktop_windows_outlined);
+      expect(
+        materialIconFor(category: '显示器', name: '工业电脑配套'),
+        Icons.monitor_outlined,
+      );
+      expect(
+        materialIconFor(category: '待分类', name: '机架服务器'),
+        Icons.inventory_2_outlined,
+      );
+    },
+  );
 
   for (final brightness in Brightness.values) {
     testWidgets('material geometry paints in $brightness without errors', (

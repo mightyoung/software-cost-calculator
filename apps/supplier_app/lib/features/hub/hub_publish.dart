@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 import '../../app/app_state.dart';
+import '../../app/motion.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
 import '../../widgets/app_icon.dart';
@@ -77,6 +78,7 @@ class _PublishDialogState extends State<_PublishDialog> {
     setState(() {
       busy = true;
       error = null;
+      draft = null;
     });
     try {
       final d = await prepareHubPublication(
@@ -146,17 +148,22 @@ class _PublishDialogState extends State<_PublishDialog> {
                 ),
               ],
               const SizedBox(height: 12),
-              if (error != null)
-                Text(error!, style: TextStyle(color: Tokens.red))
-              else if (d == null)
+              if (error != null) ...[
+                Text(error!, style: TextStyle(color: Tokens.red)),
+                const SizedBox(height: 8),
+                OutlinedButton(
+                  onPressed: busy ? null : _prepare,
+                  child: const Text('重新核对'),
+                ),
+              ] else if (d == null)
                 const Row(
                   children: [
                     SizedBox.square(
                       dimension: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                      child: TaskProgress(compact: true),
                     ),
                     SizedBox(width: 8),
-                    Text('正在与中心核对…'),
+                    Expanded(child: Text('正在与中心核对…')),
                   ],
                 )
               else

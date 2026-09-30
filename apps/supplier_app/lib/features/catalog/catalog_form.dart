@@ -365,6 +365,37 @@ class _CatalogFormState extends State<_CatalogForm> {
     }
   }
 
+  Widget _fieldRow(List<String> keys) => _responsiveFields(
+    [for (final key in keys) _input(key)],
+    flexes: [for (final key in keys) key == 'unit' ? 1 : 2],
+  );
+
+  Widget _responsiveFields(List<Widget> fields, {List<int>? flexes}) =>
+      LayoutBuilder(
+        builder: (context, size) {
+          if (size.maxWidth < 440 * MediaQuery.textScalerOf(context).scale(1)) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final (i, field) in fields.indexed) ...[
+                  if (i > 0) const SizedBox(height: 12),
+                  field,
+                ],
+              ],
+            );
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final (i, field) in fields.indexed) ...[
+                if (i > 0) const SizedBox(width: 12),
+                Expanded(flex: flexes?[i] ?? 1, child: field),
+              ],
+            ],
+          );
+        },
+      );
+
   @override
   Widget build(BuildContext context) {
     return SaveKeys(
@@ -378,19 +409,7 @@ class _CatalogFormState extends State<_CatalogForm> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 for (final row in _layout[widget.type]!) ...[
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      for (final (i, key) in row.indexed) ...[
-                        if (i > 0) const SizedBox(width: 12),
-                        Expanded(
-                          // The unit is short; the name beside it gets room.
-                          flex: key == 'unit' ? 1 : 2,
-                          child: _input(key),
-                        ),
-                      ],
-                    ],
-                  ),
+                  _fieldRow(row),
                   const SizedBox(height: 12),
                 ],
                 if (widget.type == 'product') ...[
@@ -419,13 +438,14 @@ class _CatalogFormState extends State<_CatalogForm> {
                     onChanged: () => setState(() => dups = _similar()),
                   ),
                   const SizedBox(height: 12),
-                  Row(
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 12,
                     children: [
-                      const Expanded(
-                        child: Text(
-                          '报价单位换算',
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        ),
+                      const Text(
+                        '报价单位换算',
+                        style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                       TextButton.icon(
                         onPressed: () => setState(
@@ -447,30 +467,30 @@ class _CatalogFormState extends State<_CatalogForm> {
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            child: TextField(
-                              controller: unitConversions[i].$1,
-                              decoration: const InputDecoration(
-                                labelText: '报价单位',
-                                hintText: '千米',
+                            child: _responsiveFields([
+                              TextField(
+                                controller: unitConversions[i].$1,
+                                decoration: const InputDecoration(
+                                  labelText: '报价单位',
+                                  hintText: '千米',
+                                ),
                               ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: TextField(
-                              controller: unitConversions[i].$2,
-                              decoration: InputDecoration(
-                                labelText:
-                                    '等于多少${c['unit']!.text.trim().isEmpty ? '基准单位' : c['unit']!.text.trim()}',
-                                hintText: '1000',
+                              TextField(
+                                controller: unitConversions[i].$2,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      '等于多少${c['unit']!.text.trim().isEmpty ? '基准单位' : c['unit']!.text.trim()}',
+                                  hintText: '1000',
+                                ),
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                      decimal: true,
+                                    ),
                               ),
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                    decimal: true,
-                                  ),
-                            ),
+                            ]),
                           ),
                           IconButton(
                             tooltip: '删除单位换算',

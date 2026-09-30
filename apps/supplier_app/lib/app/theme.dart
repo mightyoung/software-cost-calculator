@@ -38,12 +38,12 @@ abstract final class Tokens {
   static const radius = 8.0;
 }
 
-/// Latin/numerals first, then the platform's own CJK face.
+/// System UI faces keep Chinese and Latin text in the same visual rhythm.
 const fontFallback = [
+  'Noto Sans SC',
+  'PingFang SC',
   'Microsoft YaHei UI',
   'Microsoft YaHei',
-  'PingFang SC',
-  'Noto Sans SC',
   'Noto Sans CJK SC',
 ];
 
@@ -93,12 +93,24 @@ ThemeData buildTheme() {
     borderRadius: BorderRadius.circular(Tokens.radius),
   );
   final text = TextTheme(
-    titleLarge: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
-    titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-    titleSmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-    bodyLarge: TextStyle(fontSize: 14),
-    bodyMedium: TextStyle(fontSize: 13),
-    bodySmall: TextStyle(fontSize: 12, color: Tokens.ink3),
+    titleLarge: TextStyle(
+      fontSize: 24,
+      fontWeight: FontWeight.w600,
+      height: 1.35,
+    ),
+    titleMedium: TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+      height: 1.4,
+    ),
+    titleSmall: TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      height: 1.4,
+    ),
+    bodyLarge: TextStyle(fontSize: 14, height: 1.5),
+    bodyMedium: TextStyle(fontSize: 13, height: 1.5),
+    bodySmall: TextStyle(fontSize: 12, height: 1.5, color: Tokens.ink3),
     labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
     labelMedium: TextStyle(fontSize: 12, color: Tokens.ink3),
   );
@@ -106,10 +118,9 @@ ThemeData buildTheme() {
     useMaterial3: true,
     colorScheme: scheme,
     scaffoldBackgroundColor: Tokens.canvas,
-    // Windows 11's Segoe UI Variable reads better than Segoe UI at small
-    // sizes; Windows 10 falls back to Segoe UI. Other platforms keep their
-    // system face.
-    fontFamily: Platform.isWindows ? 'Segoe UI Variable Text' : null,
+    // One bundled variable family covers Chinese, Latin and numerals without
+    // network font loading or platform-dependent CJK substitutions.
+    fontFamily: 'Noto Sans SC',
     fontFamilyFallback: [if (Platform.isWindows) 'Segoe UI', ...fontFallback],
     textTheme: text,
     visualDensity: Platform.isAndroid || Platform.isIOS

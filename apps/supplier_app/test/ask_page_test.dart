@@ -19,6 +19,55 @@ class _TestState extends AppState {
 }
 
 void main() {
+  for (final dark in [false, true]) {
+    for (final keyboard in [0.0, 260.0]) {
+      testWidgets(
+        'assistant fits 320px at 2x with keyboard $keyboard dark=$dark',
+        (tester) async {
+          final dir = Directory.systemTemp.createTempSync('ask_layout');
+          final store = Store.open('${dir.path}/a.db', device: 'test');
+          final state = AppState.test(store, dir)
+            ..saveSetting(
+              'ask_history',
+              jsonEncode([
+                [true, '泵房预算是多少？', false],
+                [false, '请核对报价、数量和含税口径。', false],
+              ]),
+            );
+          addTearDown(() {
+            state.dispose();
+            store.close();
+            dir.deleteSync(recursive: true);
+            Tokens.dark = false;
+          });
+          Tokens.dark = dark;
+          tester.view.physicalSize = const Size(320, 640);
+          tester.view.devicePixelRatio = 1;
+          tester.view.viewInsets = FakeViewPadding(bottom: keyboard);
+          addTearDown(tester.view.reset);
+          await tester.pumpWidget(
+            MaterialApp(
+              theme: buildTheme(),
+              builder: (context, child) => MediaQuery(
+                data: MediaQuery.of(
+                  context,
+                ).copyWith(textScaler: TextScaler.linear(2)),
+                child: child!,
+              ),
+              home: Scaffold(body: AskPage(state: state)),
+            ),
+          );
+          await tester.pumpAndSettle();
+          expect(tester.takeException(), isNull);
+          final send = tester.getRect(find.byTooltip('发送'));
+          expect(send.bottom, lessThanOrEqualTo(640 - keyboard));
+          await tester.enterText(find.byType(TextField), '继续查询');
+          await tester.pump();
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
+  }
   for (final scenario in [0, 1, 2]) {
     final queried = scenario > 0;
     testWidgets('record links require a pre-cleanup verified mark: $scenario', (
@@ -90,7 +139,8 @@ void main() {
         ),
       );
       await tester.enterText(find.byType(TextField), '查供应商');
-      await tester.tap(find.text('发送'));
+      await tester.pump();
+      await tester.tap(find.byTooltip('发送'));
       await tester.pumpAndSettle();
       final chip = find.ancestor(
         of: find.text('供应商甲'),
@@ -151,7 +201,8 @@ void main() {
     );
     for (var i = 1; i <= 7; i++) {
       await tester.enterText(find.byType(TextField), '问题$i');
-      await tester.tap(find.text('发送'));
+      await tester.pump();
+      await tester.tap(find.byTooltip('发送'));
       await tester.pumpAndSettle();
     }
     expect(find.text('查询依据（0 次）'), findsNWidgets(6));
@@ -237,7 +288,8 @@ void main() {
       ),
     );
     await tester.enterText(find.byType(TextField), '泵房预算？');
-    await tester.tap(find.text('发送'));
+    await tester.pump();
+    await tester.tap(find.byTooltip('发送'));
     await tester.pumpAndSettle();
     expect(find.text('查询依据（1 次）'), findsOneWidget);
     expect(find.text(result!), findsNothing);
@@ -381,7 +433,8 @@ void main() {
     );
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), '查供应商');
-    await tester.tap(find.text('发送'));
+    await tester.pump();
+    await tester.tap(find.byTooltip('发送'));
     await tester.pumpAndSettle();
     final sent = requests.single['messages'] as List;
     expect(sent, hasLength(2));
@@ -425,7 +478,8 @@ void main() {
       await tester.tap(find.text('使用近期对话'));
       await tester.pump();
       await tester.enterText(find.byType(TextField), '继续核对');
-      await tester.tap(find.text('发送'));
+      await tester.pump();
+      await tester.tap(find.byTooltip('发送'));
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));
       expect(calls, 1);
@@ -436,8 +490,8 @@ void main() {
         maxScrolls: 100,
       );
       expect(find.textContaining('整理对话上下文'), findsOneWidget);
-      expect(find.text('停止'), findsOneWidget);
-      await tester.tap(find.text('停止'));
+      expect(find.byTooltip('停止'), findsOneWidget);
+      await tester.tap(find.byTooltip('停止'));
       await tester.pumpAndSettle();
       expect(tester.widget<TextField>(find.byType(TextField)).enabled, isTrue);
       final saved = jsonDecode(state.setting('ask_history')!) as List;
@@ -499,12 +553,13 @@ void main() {
       await tester.tap(find.text('使用近期对话'));
       await tester.pump();
       await tester.enterText(find.byType(TextField), '这家供应商还报过什么？');
-      await tester.tap(find.text('发送'));
+      await tester.pump();
+      await tester.tap(find.byTooltip('发送'));
       await tester.pump();
       final context = jsonEncode(requests.single['messages']);
       expect(context, contains('来自甲泵业'));
       expect(context, isNot(contains('失败的问题')));
-      await tester.tap(find.text('停止'));
+      await tester.tap(find.byTooltip('停止'));
       await tester.pumpAndSettle();
       expect(tester.widget<TextField>(find.byType(TextField)).enabled, isTrue);
       expect(find.textContaining('已停止查询'), findsOneWidget);

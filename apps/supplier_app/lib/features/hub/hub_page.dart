@@ -3,6 +3,7 @@ import 'package:supplier_core/supplier_core.dart';
 
 import '../../app/app_state.dart';
 import '../../app/format.dart';
+import '../../app/motion.dart';
 import '../../app/theme.dart';
 import '../../widgets/app_icon.dart';
 import '../../widgets/data_grid.dart';
@@ -168,7 +169,7 @@ class _HubPageState extends State<HubPage> {
     }
     final list = rows;
     if (list == null) {
-      return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+      return const Center(child: TaskProgress());
     }
     if (list.isEmpty) {
       return EmptyState(
@@ -307,6 +308,7 @@ class _HubDetailState extends State<HubDetail> {
   }
 
   Future<void> _load() async {
+    setState(() => error = null);
     try {
       final client = await widget.state.hub();
       if (client == null) throw HubException('还没有连接公司资料中心');
@@ -374,10 +376,15 @@ class _HubDetailState extends State<HubDetail> {
           style: TextStyle(fontSize: 12, color: Tokens.ink3),
         ),
         const SizedBox(height: 16),
-        if (error != null)
-          Text(error!, style: TextStyle(color: Tokens.red))
-        else if (p == null)
-          const LinearProgressIndicator(minHeight: 2)
+        if (error != null) ...[
+          Text(error!, style: TextStyle(color: Tokens.red)),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: OutlinedButton(onPressed: _load, child: const Text('重试')),
+          ),
+        ] else if (p == null)
+          const TaskProgress()
         else ...[
           for (final r in records) ..._record(r),
           if (history.length > 1) ...[

@@ -264,11 +264,12 @@ class MoreRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 8),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    child: Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 8,
       children: [
         Text('已显示 $shown 条', style: TextStyle(color: Tokens.ink3)),
-        const SizedBox(width: 8),
         TextButton(onPressed: onMore, child: const Text('再显示 200 条')),
       ],
     ),

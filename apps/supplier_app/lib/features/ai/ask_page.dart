@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
@@ -161,7 +162,7 @@ class _AskPageState extends State<AskPage> {
       busy = true;
       activity = null;
     });
-    _scrollDown();
+    _scrollDown(force: true);
     _Message reply;
     String? jobId;
     try {
@@ -212,9 +213,15 @@ class _AskPageState extends State<AskPage> {
     _scrollDown();
   }
 
-  void _scrollDown({bool animate = true}) =>
+  void _scrollDown({bool animate = true, bool force = false}) =>
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
+        if (!force &&
+            animate &&
+            scroll.hasClients &&
+            scroll.position.maxScrollExtent - scroll.offset > 160) {
+          return;
+        }
         if (scroll.hasClients && (!animate || AppMotion.reduced(context))) {
           scroll.jumpTo(scroll.position.maxScrollExtent);
         } else if (scroll.hasClients) {
@@ -227,137 +234,231 @@ class _AskPageState extends State<AskPage> {
       });
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(24, 18, 24, 16),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text('问数据', style: Theme.of(context).textTheme.titleLarge),
-            ),
-            if (messages.isNotEmpty && !busy)
-              TextButton.icon(
-                onPressed: () {
-                  setState(messages.clear);
-                  widget.state.saveSetting(_historyKey, null);
-                },
-                icon: const AppIcon(Icons.delete_sweep_outlined, size: 18),
-                label: const Text('清空记录'),
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) => Padding(
+      padding: EdgeInsets.fromLTRB(
+        constraints.maxWidth < 600 ? 16 : 32,
+        18,
+        constraints.maxWidth < 600 ? 16 : 32,
+        8,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '问数据',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
               ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'AI 只能查询，不会修改记录。问题和所需查询结果会发送给你配置的 AI 服务；历史问答默认只保存在本机。',
-          style: TextStyle(color: Tokens.ink2),
-        ),
-        const SizedBox(height: 12),
-        Expanded(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: Tokens.surface,
-              border: Border.all(color: Tokens.rule),
-              borderRadius: BorderRadius.circular(Tokens.radius),
-            ),
-            child: messages.isEmpty
-                ? _examplesView()
-                : ListView.builder(
-                    controller: scroll,
-                    padding: const EdgeInsets.all(16),
-                    itemCount: messages.length + (busy ? 1 : 0),
-                    itemBuilder: (context, i) => i == messages.length
-                        ? Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            child: Row(
-                              children: [
-                                const SizedBox(
-                                  width: 14,
-                                  height: 14,
-                                  child: TaskProgress(
-                                    compact: true,
-                                    strokeWidth: 2,
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Text(
-                                    activity == null
-                                        ? '正在理解问题…'
-                                        : '正在$activity…',
-                                    style: TextStyle(color: Tokens.ink3),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : _bubble(messages[i]),
-                  ),
+              if (messages.isNotEmpty && !busy && constraints.maxWidth < 440)
+                IconButton(
+                  tooltip: '清空记录',
+                  onPressed: () {
+                    setState(messages.clear);
+                    widget.state.saveSetting(_historyKey, null);
+                  },
+                  icon: const AppIcon(Icons.delete_sweep_outlined, size: 18),
+                ),
+              if (messages.isNotEmpty && !busy && constraints.maxWidth >= 440)
+                TextButton.icon(
+                  onPressed: () {
+                    setState(messages.clear);
+                    widget.state.saveSetting(_historyKey, null);
+                  },
+                  icon: const AppIcon(Icons.delete_sweep_outlined, size: 18),
+                  label: const Text('清空记录'),
+                ),
+            ],
           ),
-        ),
-        const SizedBox(height: 12),
-        CheckboxListTile(
-          contentPadding: EdgeInsets.zero,
-          dense: true,
-          controlAffinity: ListTileControlAffinity.leading,
-          value: _includeHistory,
-          onChanged: busy
-              ? null
-              : (value) => setState(() => _includeHistory = value ?? false),
-          title: const Text('使用近期对话'),
-          subtitle: const Text('开启后，会向配置的 AI 服务发送所需历史上下文；较长对话会自动整理，并可按需回查原文。'),
-        ),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: input,
-                enabled: !busy,
-                minLines: 1,
-                maxLines: 4,
-                textInputAction: TextInputAction.send,
-                decoration: const InputDecoration(hintText: '问一个关于报价、项目或物料的问题'),
-                onSubmitted: (_) => _send(),
+          const SizedBox(height: 4),
+          if (constraints.maxHeight >= 480)
+            Text(
+              '查询报价、项目与物料 · AI 不会修改记录',
+              style: TextStyle(color: Tokens.ink2),
+            ),
+          const SizedBox(height: 12),
+          Expanded(
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 760),
+                child: messages.isEmpty
+                    ? _examplesView()
+                    : ListView.builder(
+                        controller: scroll,
+                        padding: const EdgeInsets.symmetric(vertical: 24),
+                        itemCount: messages.length + (busy ? 1 : 0),
+                        itemBuilder: (context, i) => i == messages.length
+                            ? Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                ),
+                                child: Row(
+                                  children: [
+                                    const SizedBox(
+                                      width: 14,
+                                      height: 14,
+                                      child: TaskProgress(
+                                        compact: true,
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        activity == null
+                                            ? '正在理解问题…'
+                                            : '正在$activity…',
+                                        style: TextStyle(color: Tokens.ink3),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : _bubble(messages[i]),
+                      ),
               ),
             ),
-            const SizedBox(width: 8),
-            FilledButton(
-              onPressed: busy ? () => _cancellation?.cancel() : _send,
-              child: Text(busy ? '停止' : '发送'),
+          ),
+          const SizedBox(height: 12),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 760),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Tokens.surface,
+                      border: Border.all(color: Tokens.ruleStrong),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: input,
+                              enabled: !busy,
+                              minLines: 1,
+                              maxLines: 5,
+                              style: const TextStyle(fontSize: 15, height: 1.5),
+                              textInputAction: TextInputAction.send,
+                              decoration: const InputDecoration(
+                                hintText: '问一个关于报价、项目或物料的问题',
+                                hintMaxLines: 1,
+                                filled: false,
+                                contentPadding: EdgeInsets.symmetric(
+                                  vertical: 10,
+                                ),
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                disabledBorder: InputBorder.none,
+                              ),
+                              onSubmitted: (_) => _send(),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          ValueListenableBuilder<TextEditingValue>(
+                            valueListenable: input,
+                            builder: (context, value, _) => IconButton.filled(
+                              tooltip: busy ? '停止' : '发送',
+                              onPressed: busy
+                                  ? () => _cancellation?.cancel()
+                                  : (value.text.trim().isEmpty ? null : _send),
+                              icon: AppIcon(
+                                busy ? Icons.close : Icons.arrow_upward,
+                              ),
+                              style: IconButton.styleFrom(
+                                minimumSize: const Size(48, 48),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Tooltip(
+                    message: '开启后，会向配置的 AI 服务发送所需历史上下文；较长对话会自动整理，并可按需回查原文。',
+                    child: CheckboxListTile(
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      value: _includeHistory,
+                      onChanged: busy
+                          ? null
+                          : (value) => setState(
+                              () => _includeHistory = value ?? false,
+                            ),
+                      title: const Text('使用近期对话'),
+                    ),
+                  ),
+                  if (constraints.maxHeight >= 480)
+                    Text(
+                      '问题和查询结果将发送给配置的 AI 服务；历史默认只保存在本机。',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                ],
+              ),
             ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     ),
   );
 
   Widget _examplesView() => Center(
-    child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 480),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text('可以这样问', style: TextStyle(fontWeight: FontWeight.w600)),
-          const SizedBox(height: 10),
-          for (final q in _examples)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: () => _send(q),
-                  style: OutlinedButton.styleFrom(
-                    alignment: Alignment.centerLeft,
-                  ),
-                  child: Text(
-                    q,
-                    style: const TextStyle(fontWeight: FontWeight.w400),
+    child: SingleChildScrollView(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 480),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              '从一个问题开始',
+              style: TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.w600,
+                height: 1.3,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '找到价格、核对预算、跟进询价。',
+              style: TextStyle(color: Tokens.ink2, fontSize: 15),
+            ),
+            const SizedBox(height: 24),
+            for (final q in _examples)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () => _send(q),
+                    style: OutlinedButton.styleFrom(
+                      alignment: Alignment.centerLeft,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Text(
+                        q,
+                        style: const TextStyle(fontWeight: FontWeight.w400),
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     ),
   );
@@ -365,19 +466,45 @@ class _AskPageState extends State<AskPage> {
   Widget _bubble(_Message m) => Align(
     alignment: m.fromUser ? Alignment.centerRight : Alignment.centerLeft,
     child: Container(
-      constraints: const BoxConstraints(maxWidth: 640),
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+      constraints: BoxConstraints(maxWidth: m.fromUser ? 580 : 760),
+      margin: const EdgeInsets.only(bottom: 28),
+      padding: m.fromUser || m.error
+          ? const EdgeInsets.symmetric(horizontal: 16, vertical: 12)
+          : EdgeInsets.zero,
       decoration: BoxDecoration(
         color: m.fromUser
-            ? Tokens.accentTint
-            : (m.error ? Tokens.redBg : Tokens.canvas),
-        borderRadius: BorderRadius.circular(Tokens.radius),
+            ? Tokens.sunken
+            : (m.error ? Tokens.redBg : Colors.transparent),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (!m.fromUser) ...[
+            Row(
+              children: [
+                AppIcon(Icons.forum_outlined, size: 18, color: Tokens.ink2),
+                const SizedBox(width: 8),
+                Text(
+                  '询价助手',
+                  style: TextStyle(
+                    color: Tokens.ink2,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  tooltip: '复制回答',
+                  onPressed: () => Clipboard.setData(
+                    ClipboardData(text: tidyAnswer(m.text)),
+                  ),
+                  icon: const AppIcon(Icons.copy, size: 18),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+          ],
           Text.rich(
             TextSpan(
               children: m.fromUser || m.error
@@ -395,10 +522,9 @@ class _AskPageState extends State<AskPage> {
                     ),
             ),
             style: TextStyle(
-              height: 1.6,
-              color: m.error
-                  ? Tokens.red
-                  : (m.fromUser ? Tokens.accentDeep : Tokens.ink),
+              fontSize: 15,
+              height: 1.7,
+              color: m.error ? Tokens.red : Tokens.ink,
             ),
           ),
           if (!m.fromUser && !m.error)

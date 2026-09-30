@@ -67,6 +67,12 @@ flutter:
   uses-material-design: true
   assets:
     - assets/ontology_graph/
+    - assets/brand/header-mark-v3.png
+    - assets/fonts/OFL.txt
+  fonts:
+    - family: Noto Sans SC
+      fonts:
+        - asset: assets/fonts/NotoSansSC-VF.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

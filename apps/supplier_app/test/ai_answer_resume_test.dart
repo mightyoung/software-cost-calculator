@@ -85,7 +85,8 @@ void main() {
         ),
       );
       await tester.enterText(find.byType(TextField), '查询这家供应商');
-      await tester.tap(find.text('发送'));
+      await tester.pump();
+      await tester.tap(find.byTooltip('发送'));
       await tester.pump();
       expect(calls, 2);
       final job = state.aiTasks.single;

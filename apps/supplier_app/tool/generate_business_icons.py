@@ -19,6 +19,7 @@ def outputs():
     generated = {}
     mappings = []
     symbols = []
+    filled = []
     groups = {}
     for item in catalog:
         name, path = item["id"], item["path"]
@@ -29,8 +30,12 @@ def outputs():
             assert alias not in aliases, alias
             aliases.add(alias)
             mappings.append(f"  Icons.{alias}: '{path}',")
+            if item.get("paint") == "fill":
+                filled.append(f"  Icons.{alias},")
         body = f'<path d="{path}"/>'
         attributes = 'fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"'
+        if item.get("paint") == "fill":
+            attributes = 'fill="currentColor" fill-rule="evenodd" stroke="none"'
         generated[ICONS / "svg" / f"{name}.svg"] = (
             f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {attributes}>'
             f'<title>{escape(item["label"])}</title>{body}</svg>\n'
@@ -45,6 +50,7 @@ def outputs():
         'final businessIconPaths = Map<IconData, String>.unmodifiable({\n' + '\n'.join(mappings) + '\n});\n\n'
         'const Map<String, IconData> businessIconNames = {\n'
         + '\n'.join(f"  '{alias}': Icons.{alias}," for alias in sorted(aliases)) + '\n};\n'
+        + '\nfinal businessIconFills = Set<IconData>.unmodifiable({\n' + '\n'.join(filled) + '\n});\n'
     )
     sections = []
     for group, items in groups.items():
@@ -56,6 +62,21 @@ def outputs():
         sections.append(f'<section><h2>{group} <span>{len(items)}</span></h2><div class="grid">' + ''.join(rows) + '</div></section>')
     template = (ICONS / "preview.template.html").read_text()
     generated[ICONS / "index.html"] = template.replace('{{SYMBOLS}}', ''.join(symbols)).replace('{{SECTIONS}}', ''.join(sections)).replace('{{COUNT}}', str(len(catalog)))
+    admin = ROOT / "services/supplier_hub/web/index.html"
+    by_id = {item['id']: item for item in catalog}
+    def admin_icon(match):
+        item = by_id[match.group(2)]
+        paint = 'fill="currentColor" fill-rule="evenodd" stroke="none"' if item.get('paint') == 'fill' else 'fill="none" stroke="currentColor"'
+        return match.group(1) + f'<path d="{item["path"]}" {paint}/></svg>'
+    generated[admin] = re.sub(r'(<svg[^>]*data-icon="([^"]+)"[^>]*>).*?</svg>', admin_icon, admin.read_text())
+    graph = ROOT / "apps/supplier_app/assets/ontology_graph/index.html"
+    graph_text = graph.read_text()
+    match = re.search(r'window\.ONTOLOGY_ASSETS=(\{.*?\});', graph_text)
+    if match:
+        assets = json.loads(match.group(1))
+        assets['catalog'] = catalog
+        encoded = json.dumps(assets, ensure_ascii=False, separators=(',', ':'))
+        generated[graph] = graph_text[:match.start(1)] + encoded + graph_text[match.end(1):]
     return generated
 
 

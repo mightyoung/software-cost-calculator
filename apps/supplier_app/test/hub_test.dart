@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -67,6 +68,83 @@ void main() {
     );
     await tester.pump();
     expect(find.textContaining('明文'), findsNothing);
+  });
+
+  testWidgets('failed publication can recheck before retrying in place', (
+    tester,
+  ) async {
+    final overrides = HttpOverrides.current;
+    HttpOverrides.global = null;
+    addTearDown(() => HttpOverrides.global = overrides);
+    var checks = 0;
+    var publishes = 0;
+    final server = await tester.runAsync(() async {
+      final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+      server.listen((request) async {
+        await request.drain<void>();
+        request.response.headers.contentType = ContentType.json;
+        Object body = {};
+        if (request.uri.path == '/v1/status') {
+          checks++;
+          body = {'center_id': 'test-center'};
+        } else if (request.method == 'GET') {
+          request.response.statusCode = 404;
+        } else if (request.uri.path == '/v1/publications') {
+          publishes++;
+          if (publishes == 1) {
+            request.response.statusCode = 503;
+            body = {'error': '中心暂时不可用'};
+          } else {
+            body = {'revision': 1};
+          }
+        }
+        request.response.write(jsonEncode(body));
+        await request.response.close();
+      });
+      await state.saveHub(address: 'http://127.0.0.1:${server.port}');
+      return server;
+    });
+    addTearDown(() => server!.close(force: true));
+    final supplier = store.save('supplier', {
+      for (final f in Supplier.fields) f: null,
+      'name': '发布重试供应商',
+      'aliases': <String>[],
+      'categories': <String>[],
+    });
+    await tester.pumpWidget(
+      app(
+        Builder(
+          builder: (context) => TextButton(
+            onPressed: () =>
+                showHubPublish(context, state, type: 'supplier', id: supplier),
+            child: const Text('publish'),
+          ),
+        ),
+      ),
+    );
+    Future<void> until(Finder finder) async {
+      for (var i = 0; i < 100 && finder.evaluate().isEmpty; i++) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 20)),
+        );
+        await tester.pump();
+      }
+      expect(finder, findsWidgets);
+    }
+
+    await tester.tap(find.text('publish'));
+    await until(find.textContaining('首次发布'));
+    await tester.tap(find.text('发布'));
+    await until(find.text('重新核对'));
+    await tester.tap(find.text('重新核对'));
+    await until(find.textContaining('首次发布'));
+    expect(checks, 2);
+    expect(publishes, 1, reason: 'Rechecking must not publish automatically');
+    await tester.tap(find.text('发布'));
+    await until(find.textContaining('已发布到公司资料（第 1 版）'));
+    expect(publishes, 2);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
   });
 
   testWidgets('publish a supplier, then find it in 公司资料', (tester) async {

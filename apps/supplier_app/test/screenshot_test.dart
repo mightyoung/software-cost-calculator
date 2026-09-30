@@ -5,6 +5,7 @@
 library;
 
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -458,8 +459,21 @@ void main() {
 
   setUpAll(() async {
     if (!hasFont) return;
+    final noto = FontLoader('Noto Sans SC')
+      ..addFont(
+        Future.value(
+          ByteData.sublistView(
+            File('assets/fonts/NotoSansSC-VF.ttf').readAsBytesSync(),
+          ),
+        ),
+      );
+    await noto.load();
     final bytes = File(_font).readAsBytesSync();
-    for (final family in ['Roboto', ...fontFallback, 'monospace']) {
+    for (final family in [
+      'Roboto',
+      ...fontFallback.where((f) => f != 'Noto Sans SC'),
+      'monospace',
+    ]) {
       final loader = FontLoader(family)
         ..addFont(Future.value(ByteData.sublistView(bytes)));
       await loader.load();
@@ -512,6 +526,21 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     final state = AppState.test(store, dir);
+    if (name.contains('ask_conversation')) {
+      state.saveSetting(
+        'ask_history',
+        jsonEncode([
+          [true, '泵房改造工程的离心泵报价应该怎么比较？', false],
+          [
+            false,
+            '先核对规格、数量与含税口径，再比较交期和运输费用。\n\n乙机电的报价为 29,800 元 / 台；甲泵业为 32,500 元 / 台。请结合安装费用与交付条件核对总成本。',
+            false,
+          ],
+          [true, '如果还没有报价，该怎么跟进？', false],
+          [false, '可以从项目的待询价物料开始，整理规格和需求数量，再选择供应商建立询价单。', false],
+        ]),
+      );
+    }
     if (name == 'desktop_conflicts') _conflict(store, dir);
     await tester.pumpWidget(
       MaterialApp(
@@ -547,7 +576,10 @@ void main() {
               )
             : name.startsWith('desktop_home')
             ? _home(store, state)
-            : Shell(state: state, initial: Section.projects),
+            : Shell(
+                state: state,
+                initial: name.contains('ask') ? Section.ask : Section.projects,
+              ),
       ),
     );
     await tester.pumpAndSettle();
@@ -725,12 +757,24 @@ void main() {
 
   testWidgets(
     'desktop ask data',
-    (t) => shoot(t, const Size(1280, 800), 'desktop_ask', () async {
-      await t.tap(find.text('问数据'));
-      await t.pumpAndSettle();
-    }),
+    (t) => shoot(t, const Size(1280, 800), 'desktop_ask'),
     skip: !hasFont,
   );
+  for (final dark in [false, true]) {
+    testWidgets(
+      'phone assistant appearance dark=$dark',
+      (t) =>
+          shoot(t, const Size(390, 844), dark ? 'dark_phone_ask' : 'phone_ask'),
+      skip: !hasFont,
+    );
+  }
+  for (final (name, size) in [
+    ('desktop_ask_conversation', Size(1280, 800)),
+    ('phone_ask_conversation', Size(390, 844)),
+    ('dark_phone_ask_conversation', Size(390, 844)),
+  ]) {
+    testWidgets(name, (t) => shoot(t, size, name), skip: !hasFont);
+  }
 
   testWidgets(
     'desktop settings',

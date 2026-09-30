@@ -402,40 +402,18 @@ class _IncomingBar extends StatelessWidget {
   );
 }
 
-/// The app icon's ledger mark: three rows, the chosen one in blue.
+/// The generated folded-folio identity, shared with platform launcher icons.
 class AppMark extends StatelessWidget {
   const AppMark({super.key, required this.size});
   final double size;
 
   @override
-  Widget build(BuildContext context) =>
-      CustomPaint(size: Size.square(size), painter: _MarkPainter());
-}
-
-class _MarkPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final w = size.width;
-    void bar(double top, double length, Color colour) => canvas.drawRRect(
-      RRect.fromLTRBR(
-        w * 0.08,
-        w * top,
-        w * (0.08 + length),
-        w * (top + 0.14),
-        Radius.circular(w * 0.07),
-      ),
-      Paint()..color = colour,
-    );
-    bar(0.16, 0.66, Tokens.navInk3);
-    bar(0.43, 0.58, Tokens.accent);
-    bar(0.70, 0.44, Tokens.navInk3);
-    canvas.drawCircle(
-      Offset(w * 0.82, w * 0.50),
-      w * 0.12,
-      Paint()..color = const Color(0xFF6F9BFF),
-    );
-  }
-
-  @override
-  bool shouldRepaint(_MarkPainter old) => false;
+  Widget build(BuildContext context) => Image.asset(
+    'assets/brand/header-mark-v3.png',
+    width: size,
+    height: size,
+    fit: BoxFit.contain,
+    excludeFromSemantics: true,
+    filterQuality: FilterQuality.high,
+  );
 }

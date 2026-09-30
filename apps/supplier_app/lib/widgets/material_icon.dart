@@ -15,6 +15,22 @@ IconData materialIconFor({String? category, String? name}) {
 
 // Specific equipment precedes general terms (e.g. heat pump before water pump).
 const _materialKinds = <(List<String>, IconData)>[
+  (['服务器', 'server'], Icons.dns_outlined),
+  (
+    ['工控机', '工业计算机', '工业电脑', '工控电脑', '工业平板电脑', 'industrial pc'],
+    Icons.precision_manufacturing_outlined,
+  ),
+  (['物联网关', '物联网网关', '工业网关', '边缘网关', 'iot gateway'], Icons.device_hub_outlined),
+  (
+    ['交换机', 'network switch', 'ethernet switch'],
+    Icons.settings_ethernet_outlined,
+  ),
+  (['路由器', 'router'], Icons.router_outlined),
+  (['显示器', '显示屏', '工业监视器', 'monitor'], Icons.monitor_outlined),
+  (
+    ['电脑', '计算机', '工作站', '上位机', 'computer', 'desktop'],
+    Icons.desktop_windows_outlined,
+  ),
   (['换热器', '热交换器'], Icons.heat_pump_outlined),
   (['压缩机', '空压机'], Icons.compress_outlined),
   (['水泵', '离心泵', '潜水泵', '增压泵', '计量泵', '泵类'], Icons.water_drop_outlined),
