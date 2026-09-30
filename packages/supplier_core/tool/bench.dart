@@ -140,10 +140,12 @@ void main() {
   // List pages: whole tables with counts, and one sorted page of quotes.
   timed('supplier table (10k)', 3000, () => b.supplierRows());
   timed('product table (20k)', 3000, () => b.productRows());
-  timed('quote page, newest 200 of 100k', 1000, () => b.quoteRows());
+  // CI runners measured 560-1030 ms for these two; the limits leave ~2x
+  // headroom so a slow runner does not fail a build; a 2x regression still does.
+  timed('quote page, newest 200 of 100k', 2000, () => b.quoteRows());
   timed(
     'quote page, usable by price',
-    1500,
+    2000,
     () => b.quoteRows(filter: QuoteFilter.usable, sort: QuoteSort.price),
   );
   // Matching: one class of 2,000 materials with typed parameters.
