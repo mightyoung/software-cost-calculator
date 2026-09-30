@@ -30,6 +30,40 @@ String suggestProjectCode(AppState state) {
 }
 
 /// Creates (id == null) or edits a project. Returns the project id.
+/// Asks, then deletes a project (budget lines go with it, quotations stay)
+/// with an undo. True when deleted.
+Future<bool> deleteProject(
+  BuildContext context,
+  AppState state,
+  String id,
+) async {
+  final name = state.store.get('project', id)?.data['name'] as String? ?? '';
+  final sure = await showAppDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('删除项目「$name」？'),
+      content: const Text(
+        '项目和它的成本预算行会从列表中移除，报价记录保留。'
+        '删除后可以立即撤销，也可以在 设置 › 已删除的记录 中恢复；'
+        '交换文件导入到其他设备后，那里也会删除。',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('取消'),
+        ),
+        FilledButton(
+          style: FilledButton.styleFrom(backgroundColor: Tokens.red),
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text('删除项目'),
+        ),
+      ],
+    ),
+  );
+  if (sure != true || !context.mounted) return false;
+  return deleteWithUndo(context, state, type: 'project', id: id, name: name);
+}
+
 Future<String?> showProjectForm(
   BuildContext context,
   AppState state, {
@@ -113,39 +147,7 @@ class _ProjectFormState extends State<_ProjectForm> {
   }
 
   Future<void> _delete() async {
-    final sure = await showAppDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('删除这个项目？'),
-        content: const Text(
-          '项目和它的成本预算行会从列表中移除，报价记录保留。'
-          '删除后可以立即撤销，也可以在 设置 › 已删除的记录 中恢复；'
-          '交换文件导入到其他设备后，那里也会删除。',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Tokens.red),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('删除项目'),
-          ),
-        ],
-      ),
-    );
-    if (sure != true || !mounted) return;
-    final id = widget.id!;
-    final name =
-        widget.state.store.get('project', id)?.data['name'] as String? ?? '';
-    if (deleteWithUndo(
-      context,
-      widget.state,
-      type: 'project',
-      id: id,
-      name: name,
-    )) {
+    if (await deleteProject(context, widget.state, widget.id!) && mounted) {
       Navigator.pop(context);
     }
   }

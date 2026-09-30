@@ -5,6 +5,7 @@ import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
+import '../../widgets/deletion.dart';
 import '../../widgets/ledger.dart';
 import '../../widgets/price_trend.dart';
 import '../quotes/quote_form.dart';
@@ -89,8 +90,29 @@ class CatalogDetail extends StatelessWidget {
           icon: const AppIcon(Icons.upload_file_outlined, size: 16),
           label: const Text('发布到公司资料'),
         ),
+      TextButton.icon(
+        onPressed: () => _delete(context),
+        style: TextButton.styleFrom(foregroundColor: Tokens.red),
+        icon: const AppIcon(Icons.delete_outline, size: 16),
+        label: const Text('删除'),
+      ),
     ],
   );
+
+  Future<void> _delete(BuildContext context) async {
+    final name = state.store.get(type, id)?.data['name'] as String? ?? '';
+    final ok = await confirmDelete(
+      context,
+      state,
+      type: type,
+      id: id,
+      name: name,
+    );
+    if (!ok || !context.mounted) return;
+    if (deleteWithUndo(context, state, type: type, id: id, name: name)) {
+      onClose?.call();
+    }
+  }
 
   List<Widget> _supplier(BuildContext context, Map<String, Object?> d) {
     final store = state.store;

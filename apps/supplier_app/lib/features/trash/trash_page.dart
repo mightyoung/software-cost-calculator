@@ -24,7 +24,7 @@ String recordTitle(Store store, String type, Map<String, Object?> d) {
     'project_item' =>
       (d['name'] ?? name('product', d['product_id']) ?? '预算行') as String,
     'inquiry' => d['title'] as String? ?? '询价单',
-    _ => d['name'] as String? ?? '',
+    _ => (d['name'] ?? d['title'] ?? '') as String,
   };
 }
 
@@ -99,7 +99,9 @@ class TrashPage extends StatelessWidget {
                           TextButton(
                             onPressed: () {
                               final err = state.write(
-                                (s) => s.restore(r.type, r.id),
+                                (s) => r.type == 'spec_request'
+                                    ? s.restoreSpecRequest(r.id)
+                                    : s.restore(r.type, r.id),
                               );
                               toast(context, err ?? '已恢复');
                             },

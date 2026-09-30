@@ -10,6 +10,82 @@ void main() {
   setUp(() => tmp = Directory.systemTemp.createTempSync('supplier_mi'));
   tearDown(() => tmp.deleteSync(recursive: true));
 
+  test('a material list imports only materials', () {
+    final s = device('A');
+    final table = tableFromText(
+      '物料名称\t类型\t品牌\t型号\t技术参数\t单位\t供应商\t联系电话\t单价\n'
+      '闸阀\t阀门\t威乐\tZ41\tDN100 PN16\t个\t乙阀门\t13900000000\t800\n'
+      '电缆\t线缆\t远东\tYJV\t3x95\t米\t\t\t\n',
+    )!;
+    final offers = offersFromWorkbook(table, materials: true)!;
+    final plans = [for (final o in offers) s.planOffer(materialOffer(o))];
+    expect(plans.map((p) => p.error), everyElement(isNull));
+    final sum = s.applyOffers(
+      [
+        for (final p in plans)
+          (offer: p.offer, supplierId: p.supplierId, productId: p.productId),
+      ],
+      projectId: null,
+      inquirer: '-',
+    );
+    expect(
+      (sum.products, sum.suppliers, sum.contacts, sum.quotations),
+      (2, 0, 0, 0),
+    );
+    final valve = s.searchProducts(['闸阀']).single.data;
+    expect(valve['category'], '阀门');
+    expect(valve['specification'], 'DN100 PN16');
+    // Without a price or brand column it is still a material list.
+    expect(
+      offersFromWorkbook(
+        tableFromText('名称\t技术参数\n泵\t10m3/h\n')!,
+        materials: true,
+      ),
+      hasLength(1),
+    );
+  });
+
+  test('quote sheet headers: 报价人, 报价公司, 报价时间', () {
+    final offer = offersFromWorkbook(
+      tableFromText(
+        '物料名称\t单位\t单价\t数量\t报价公司\t报价人\t报价人联系方式\t报价时间\n'
+        '闸阀\t个\t800\t3\t乙阀门\t王五\t13900000000\t2026-09-01\n',
+      )!,
+    )!.single;
+    expect(
+      [
+        for (final k in [
+          'supplier',
+          'contact_name',
+          'phone',
+          'quoted_on',
+          'qty',
+        ])
+          offer[k],
+      ],
+      ['乙阀门', '王五', '13900000000', '2026-09-01', '3'],
+    );
+  });
+
+  test('a quote sheet\'s 数量 is the minimum order', () {
+    final s = device('A');
+    final pro = s.save('project', project('P-1'));
+    final o = cleanOffer({
+      'supplier': '乙阀门',
+      'name': '闸阀',
+      'unit': '个',
+      'price': '800',
+      'qty': '5个',
+    });
+    final p = s.planOffer(o);
+    s.applyOffers(
+      [(offer: o, supplierId: p.supplierId, productId: p.productId)],
+      projectId: pro,
+      inquirer: '王工',
+    );
+    expect(s.listQuotations().single.data['min_qty'], '5');
+  });
+
   test('cleanOffer normalizes what the model wrote', () {
     Offer clean(Map<String, Object?> raw) =>
         cleanOffer({'name': '泵', 'unit': '台', ...raw});

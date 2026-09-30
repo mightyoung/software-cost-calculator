@@ -337,6 +337,7 @@ class Store {
 
   /// Creates when [id] is null, otherwise updates. Clearing a previously set
   /// quotation field requires [allowClear] (the UI asks the user first).
+  /// Only an [imported] quotation may be a historical record.
   String save(
     String type,
     Map<String, Object?> payload, {
@@ -344,6 +345,7 @@ class Store {
     String? newId,
     bool allowClear = false,
     String? snapshotSourceItemId,
+    bool imported = false,
   }) => transaction(() {
     // newId: create under a derived id (parameter records); it must be free.
     if (newId != null && (id != null || get(type, newId) != null)) {
@@ -355,7 +357,7 @@ class Store {
       invalid('id', 'record does not exist');
     }
     if (type == 'quotation') {
-      _checkQuotation(data, previous, allowClear);
+      _checkQuotation(data, previous, allowClear, imported);
     }
     if (snapshotSourceItemId != null &&
         (type != 'project_item' ||
@@ -513,6 +515,7 @@ class Store {
     Map<String, Object?> data,
     Record? previous,
     bool allowClear,
+    bool imported,
   ) {
     final quotation = Quotation.fromJson(data);
     if (previous != null) {
@@ -520,7 +523,7 @@ class Store {
         Quotation.fromJson(previous.data),
         allowExplicitClear: allowClear,
       );
-    } else if (data['capture_mode'] != 'standard') {
+    } else if (data['capture_mode'] != 'standard' && !imported) {
       invalid('capture_mode', 'historical records come only from imports');
     }
     // The snapshot is copied when a contact is chosen; later edits to the

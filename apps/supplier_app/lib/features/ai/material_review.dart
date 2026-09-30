@@ -209,8 +209,8 @@ class _MaterialReviewState extends State<MaterialReview> {
     Navigator.of(context).pop(
       [
         '新建物料 ${sum.products}',
-        if (sum.suppliers > 0) '供应商 ${sum.suppliers}',
-        if (sum.contacts > 0) '联系人 ${sum.contacts}',
+        if (ready.length > sum.products)
+          '${ready.length - sum.products} 条与已有物料相同，未重复新建',
       ].join('，'),
     );
   }
@@ -328,6 +328,8 @@ class _MaterialReviewState extends State<MaterialReview> {
           icon: Icons.error_outline,
           tone: HintTone.error,
         )
+      else if (widget.masterData)
+        const SizedBox.shrink()
       else if (o['supplier'] == null && r.supplierId == null)
         _reviewHint('没有供应商，只登记物料', icon: Icons.info_outline)
       else if (o['price'] == null)
@@ -552,7 +554,7 @@ class _MaterialReviewState extends State<MaterialReview> {
         );
     if (widget.masterData) {
       return Text(
-        '只登记供应商、联系人和物料；表里的单价不会存为报价（报价需要所属项目和询价人，可以之后用"智能导入"导入）。',
+        '只登记物料的名称、类型、品牌、型号、技术参数和单位；表里的供应商、联系方式和单价不会导入（请到"报价"用"导入报价表"导入）。',
         style: TextStyle(fontSize: 12, color: Tokens.ink3),
       );
     }
@@ -654,8 +656,7 @@ class _MaterialReviewState extends State<MaterialReview> {
     final summary = Text(
       error ??
           [
-            if (!widget.masterData) '$priced 条报价',
-            '新建供应商 $newSuppliers',
+            if (!widget.masterData) ...['$priced 条报价', '新建供应商 $newSuppliers'],
             '新建物料 $newProducts',
           ].join(' · '),
       style: TextStyle(color: error == null ? Tokens.ink2 : Tokens.red),
@@ -705,7 +706,7 @@ class _MaterialReviewState extends State<MaterialReview> {
           if (widget.masterData)
             const Padding(
               padding: EdgeInsets.only(bottom: 8),
-              child: Text('仅登记供应商、联系人和物料；不保存报价'),
+              child: Text('仅登记物料；不导入供应商，不保存报价'),
             ),
           summary,
           const SizedBox(height: 8),
