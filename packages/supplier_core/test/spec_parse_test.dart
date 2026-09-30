@@ -183,6 +183,10 @@ void main() {
       s.deleteSpecRequest(req);
       expect(s.specItemsOf(req), isEmpty);
       expect(s.specRequests(), isEmpty);
+
+      s.restoreSpecRequest(req);
+      expect(s.specRequests(), hasLength(1));
+      expect(s.specItemsOf(req), hasLength(1));
     });
 
     test('budget lines to be inquired become items; choosing fills them', () {

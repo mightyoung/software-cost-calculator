@@ -177,17 +177,18 @@ void main() {
         RowAction.update,
         RowAction.create,
         RowAction.duplicate,
-        RowAction.error,
+        RowAction.create,
       ]);
       expect(
         plans[0].changedFields,
         containsAll(['price', 'notes', 'inquirer_name']),
       );
       expect(plans[0].changedSinceExport, isFalse);
-      expect(plans[3].error, contains('不存在的公司'));
+      expect(plans[3].newSupplier, '不存在的公司');
       expect(plans.map((p) => p.row), [2, 3, 4, 5]);
 
-      expect(s.applyQuotationImport(plans), 2);
+      expect(s.applyQuotationImport(plans), 3);
+      expect(s.searchByName('supplier', '不存在的公司'), hasLength(1));
       expect(s.get('quotation', q1)!.data['price'], '95.5');
       expect(
         s.get('quotation', q1)!.data['tax_rate'],
@@ -206,6 +207,67 @@ void main() {
         RowAction.unchanged,
         RowAction.duplicate,
       ]);
+    });
+
+    test('a quote for a material not on file creates it, with its quoter', () {
+      List<Object?> newRow(String? unit, {String phone = '13900000000'}) => [
+        ...row(supplier: '乙阀门有限公司').take(4),
+        '闸阀',
+        '威乐',
+        'Z41',
+        'DN100',
+        unit,
+        Num('800'),
+        ...row().skip(10).take(11),
+        '王五',
+        phone,
+        '阀门',
+      ];
+      final plans = s.planQuotationImport(
+        edited([newRow('个'), newRow('个', phone: '13700000000'), newRow(null)]),
+      );
+      expect(plans.map((p) => p.action), [
+        RowAction.create,
+        RowAction.create,
+        RowAction.error,
+      ]);
+      expect(plans[2].error, contains('单位'));
+      expect(s.applyQuotationImport(plans), 2);
+      final valve = s.searchProducts(['闸阀']).single;
+      expect(valve.data['category'], '阀门');
+      expect(valve.data['unit'], '个');
+      final supplierId = s.searchByName('supplier', '乙阀门').single.id;
+      expect(s.contactsOf(supplierId), hasLength(2));
+      final quotes = s.listQuotations(productId: valve.id);
+      expect(quotes, hasLength(2));
+      expect(
+        quotes.map((q) => (q.data['contact_snapshot']! as Map)['name']),
+        everyElement('王五'),
+      );
+      // The same supplier under its short name is not created again.
+      final again = s.planQuotationImport(
+        edited([
+          [...newRow('个').take(3), '乙阀门', ...newRow('个').skip(4)],
+        ]),
+      );
+      expect(again.single.newSupplier, isNull);
+      expect(again.single.newProduct, isNull);
+      expect(again.single.action, RowAction.duplicate);
+    });
+
+    test('a price sheet row without project or inquirer is historical', () {
+      final r = row(price: '88', date: '2026-08-01');
+      r[2] = null; // 项目编号
+      r[17] = null; // 询价人
+      r[18] = null; // 询价日期
+      final plan = s.planQuotationImport(edited([r])).single;
+      expect(plan.action, RowAction.create);
+      expect(plan.payload!['capture_mode'], 'historical');
+      expect(s.applyQuotationImport([plan]), 1);
+      expect(
+        s.listQuotations(productId: prod).map((q) => q.data['capture_mode']),
+        contains('historical'),
+      );
     });
 
     test('a record edited after export is flagged before overwrite', () {

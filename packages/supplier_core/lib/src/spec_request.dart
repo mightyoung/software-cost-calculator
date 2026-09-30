@@ -385,6 +385,38 @@ extension SpecRequests on Store {
     delete('spec_request', id);
   });
 
+  /// Undoes [deleteSpecRequest]: the request and the items deleted with
+  /// it, i.e. the item deletions logged right before the request's with no
+  /// other change in between.
+  void restoreSpecRequest(String id) => transaction(() {
+    final deletions = db.select(
+      "SELECT c.entity_id AS id, c.at FROM change_log c JOIN spec_item i "
+      "ON i.id = c.entity_id WHERE c.field = '(deleted)' AND i.deleted = 1 "
+      "AND json_extract(i.data,'\$.request_id') = ?",
+      [id],
+    );
+    final at =
+        db.select(
+              "SELECT max(at) AS at FROM change_log WHERE entity_id = ? "
+              "AND field = '(deleted)'",
+              [id],
+            ).first['at']
+            as String?;
+    restore('spec_request', id);
+    if (at == null) return;
+    final ours = {for (final d in deletions) d['id'] as String};
+    final before = db.select(
+      'SELECT entity_id, field FROM change_log WHERE at < ? '
+      'ORDER BY at DESC LIMIT ?',
+      [at, ours.length + 1],
+    );
+    for (final r in before) {
+      final id = r['entity_id'] as String;
+      if (r['field'] != '(deleted)' || !ours.contains(id)) break;
+      restore('spec_item', id);
+    }
+  });
+
   /// Rewrites an item's clauses (and class, which re-reads unreviewed
   /// clauses when it changes).
   void saveClauses(

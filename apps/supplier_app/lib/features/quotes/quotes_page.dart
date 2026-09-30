@@ -355,6 +355,9 @@ class _QuotesPageState extends State<QuotesPage> {
           ),
         );
       }
+      final projects = store.searchByName('project', '', limit: 500);
+      // The filtered project may have been deleted since it was chosen.
+      if (!projects.any((h) => h.id == projectId)) projectId = null;
       final page = _quotes();
       final quotes = page.rows;
       final more = quotes.length < page.total;
@@ -439,11 +442,7 @@ class _QuotesPageState extends State<QuotesPage> {
                   hint: const Text('全部项目'),
                   items: [
                     const DropdownMenuItem(value: null, child: Text('全部项目')),
-                    for (final h in store.searchByName(
-                      'project',
-                      '',
-                      limit: 500,
-                    ))
+                    for (final h in projects)
                       DropdownMenuItem(
                         value: h.id,
                         child: Text(h.data['name']! as String),
@@ -582,6 +581,24 @@ class _ImportPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     int count(RowAction a) => plans.where((p) => p.action == a).length;
     final writes = count(RowAction.create) + count(RowAction.update);
+    final written = plans.where(
+      (p) => p.action == RowAction.create || p.action == RowAction.update,
+    );
+    final historical = written
+        .where((p) => p.payload!['capture_mode'] == 'historical')
+        .length;
+    final newSuppliers = {
+      for (final p in written)
+        if (p.newSupplier case final n?) companyKey(n),
+    }.length;
+    final newProducts = {
+      for (final p in written)
+        if (p.newProduct case final n?)
+          [
+            for (final k in ['name', 'brand', 'model', 'specification'])
+              normalizeKey(n[k] as String?),
+          ].join('|'),
+    }.length;
     final attention = plans
         .where((p) => p.action == RowAction.error || p.changedSinceExport)
         .toList();
@@ -597,6 +614,20 @@ class _ImportPreview extends StatelessWidget {
               '新增 ${count(RowAction.create)} · 更新 ${count(RowAction.update)} · 无变化 ${count(RowAction.unchanged)} · '
               '疑似重复（跳过）${count(RowAction.duplicate)} · 有问题 ${count(RowAction.error)}',
             ),
+            if (historical > 0) ...[
+              const SizedBox(height: 4),
+              Text(
+                '其中 $historical 行缺少项目、询价人或日期，按历史资料补录',
+                style: TextStyle(fontSize: 12, color: Tokens.ink3),
+              ),
+            ],
+            if (newSuppliers + newProducts > 0) ...[
+              const SizedBox(height: 4),
+              Text(
+                '本机还没有的将自动新建：供应商 $newSuppliers 家 · 物料 $newProducts 种',
+                style: TextStyle(fontSize: 12, color: Tokens.ink3),
+              ),
+            ],
             if (attention.isNotEmpty) ...[
               const SizedBox(height: 12),
               ConstrainedBox(

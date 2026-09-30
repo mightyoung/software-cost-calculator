@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'duplicates.dart';
+import 'entities.dart';
+import 'material_import.dart';
 import 'quotation.dart';
 import 'search.dart';
 import 'store.dart';
@@ -31,7 +34,16 @@ const quoteColumns = [
   '询价日期',
   '询价地点',
   '备注',
+  // Who quoted and how to reach them; the material's type. A supplier or
+  // material not yet on file is created on import (a material needs 单位).
+  '报价人',
+  '联系电话',
+  '类型',
 ];
+
+/// Stands in for a supplier or material created only when the plan is
+/// applied, so the row validates as a quotation beforehand.
+const _pendingId = '00000000-0000-4000-8000-000000000001';
 
 const _taxLabels = {'included': '含税', 'excluded': '不含税', 'unknown': '未知'};
 
@@ -46,6 +58,9 @@ class QuoteRowPlan {
     this.changedFields = const [],
     this.changedSinceExport = false,
     this.error,
+    this.newSupplier,
+    this.newProduct,
+    this.contact,
   });
   final int row; // 1-based Excel row number
   final RowAction action;
@@ -55,6 +70,13 @@ class QuoteRowPlan {
 
   /// The local record was edited after this file was exported.
   final bool changedSinceExport;
+
+  /// Supplier name / material payload to create on apply (not on file yet).
+  final String? newSupplier;
+  final Map<String, Object?>? newProduct;
+
+  /// Quoting person to find or add among the supplier's contacts on apply.
+  final Offer? contact;
 }
 
 extension QuoteExcel on Store {
@@ -96,6 +118,9 @@ extension QuoteExcel on Store {
         q['inquiry_date'],
         q['inquiry_location'],
         q['notes'],
+        (q['contact_snapshot'] as Map?)?['name'],
+        (q['contact_snapshot'] as Map?)?['phone'],
+        p['category'],
       ]);
     }
     return writeXlsx([
@@ -124,6 +149,9 @@ extension QuoteExcel on Store {
           12,
           16,
           24,
+          10,
+          14,
+          10,
         ],
         boldRows: {0},
       ),
@@ -148,17 +176,58 @@ extension QuoteExcel on Store {
     invalid('file', '没有找到报价模板表头（需要“物料名称”“单价”等列）');
   }
 
-  /// Saves create/update rows in one transaction; returns how many were saved.
+  /// Saves create/update rows in one transaction, first creating the
+  /// suppliers, materials and contacts they need (once each per file);
+  /// returns how many quotations were saved.
   int applyQuotationImport(List<QuoteRowPlan> plans) => transaction(() {
+    final suppliers = <String, String>{};
+    final products = <String, String>{};
+    final contacts = <String, String>{};
     var saved = 0;
     for (final p in plans) {
-      if (p.action == RowAction.create) {
-        save('quotation', p.payload!);
-      } else if (p.action == RowAction.update) {
-        save('quotation', p.payload!, id: p.id);
-      } else {
+      if (p.action != RowAction.create && p.action != RowAction.update) {
         continue;
       }
+      final data = Map<String, Object?>.of(p.payload!);
+      if (p.newSupplier case final name?) {
+        data['supplier_id'] = suppliers.putIfAbsent(
+          companyKey(name),
+          () => save('supplier', {
+            for (final f in Supplier.fields) f: null,
+            'name': name,
+            'aliases': <String>[],
+            'categories': <String>[],
+          }),
+        );
+      }
+      if (p.newProduct case final product?) {
+        data['product_id'] = products.putIfAbsent(
+          [
+            for (final k in ['name', 'brand', 'model', 'specification'])
+              normalizeKey(product[k] as String?),
+          ].join('|'),
+          () => save('product', product),
+        );
+      }
+      if (p.contact case final c?) {
+        final id = matchOrCreateContact(
+          c,
+          data['supplier_id']! as String,
+          contacts,
+        );
+        if (id != null) {
+          data['contact_id'] = id;
+          data['contact_snapshot'] = Contact.fromJson(
+            get('contact', id)!.data,
+          ).snapshot;
+        }
+      }
+      save(
+        'quotation',
+        data,
+        id: p.action == RowAction.update ? p.id : null,
+        imported: true,
+      );
       saved++;
     }
     return saved;
@@ -192,8 +261,10 @@ extension QuoteExcel on Store {
       }
 
       final supplier = cell('供应商').text();
-      if (supplier != null) set('supplier_id', _supplierId(supplier));
+      final supplierId = supplier == null ? null : _supplierId(supplier);
+      if (supplier != null) set('supplier_id', supplierId ?? _pendingId);
       final product = _productId(cell, existing == null);
+      final newProduct = product == _pendingId ? _newProduct(cell) : null;
       set('product_id', product);
       final code = cell('项目编号').text();
       if (code != null) set('project_id', _projectId(code));
@@ -213,7 +284,13 @@ extension QuoteExcel on Store {
         );
       }
       set('tax_rate', cell('税率(%)').decimal());
-      set('min_qty', cell('起订量').decimal(positive: true));
+      // "数量" in a supplier's sheet is the minimum order.
+      set(
+        'min_qty',
+        (cell('起订量').isBlank ? cell('数量') : cell('起订量')).decimal(
+          positive: true,
+        ),
+      );
       set('quoted_on', cell('报价日期').date(date1904: date1904));
       set('valid_until', cell('有效期至').date(date1904: date1904));
       final lead = cell('交期(天)').decimal();
@@ -234,19 +311,74 @@ extension QuoteExcel on Store {
       }
       set('inquiry_location', cell('询价地点').text());
       set('notes', cell('备注').text());
+      // The quoting person: an existing contact of a known supplier now,
+      // otherwise found or added on apply (a contact needs a phone).
+      final person = cell('报价人').text(), phone = cell('联系电话').text();
+      Offer? contact;
+      if (person != null || phone != null) {
+        final known =
+            supplierId ??
+            (supplier == null ? data['supplier_id'] as String? : null);
+        final match = known == null
+            ? null
+            : contactsOf(known)
+                  .where(
+                    (h) => phone != null
+                        ? h.data['phone'] == phone
+                        : h.data['name'] == person,
+                  )
+                  .firstOrNull;
+        if (match != null) {
+          data['contact_id'] = match.id;
+          data['contact_snapshot'] = Contact.fromJson(match.data).snapshot;
+        } else if (phone != null) {
+          contact = {
+            'contact_name': person,
+            'phone': phone,
+            'wechat': null,
+            'email': null,
+          };
+        } else if (existing == null) {
+          data['notes'] = [?data['notes'] as String?, '报价人：$person'].join('；');
+        }
+      }
+      if (data['unit_snapshot'] == null && newProduct != null) {
+        data['unit_snapshot'] = newProduct['unit'];
+      }
       if (data['unit_snapshot'] == null && data['product_id'] != null) {
         data['unit_snapshot'] = get(
           'product',
           data['product_id']! as String,
         )?.data['unit'];
       }
+      // A price sheet row without project, inquirer or dates is kept as a
+      // historical record rather than refused.
+      if (existing == null &&
+          [
+            'project_id',
+            'inquirer_name',
+            'inquiry_date',
+            'quoted_on',
+          ].any((k) => data[k] == null)) {
+        data['capture_mode'] = 'historical';
+        if (data['inquiry_date'] == null) data['inquiry_precision'] = 'unknown';
+      }
       final payload = validatePayload('quotation', data);
+      final newSupplier = supplier != null && supplierId == null
+          ? supplier
+          : null;
+      final pending = newSupplier != null || newProduct != null;
 
       if (existing == null) {
         return QuoteRowPlan(
           row,
-          _isDuplicate(payload) ? RowAction.duplicate : RowAction.create,
+          !pending && _isDuplicate(payload)
+              ? RowAction.duplicate
+              : RowAction.create,
           payload: payload,
+          newSupplier: newSupplier,
+          newProduct: newProduct,
+          contact: contact,
         );
       }
       final changed = [
@@ -256,11 +388,16 @@ extension QuoteExcel on Store {
       final version = cell('版本').text();
       return QuoteRowPlan(
         row,
-        changed.isEmpty ? RowAction.unchanged : RowAction.update,
+        changed.isEmpty && !pending && contact == null
+            ? RowAction.unchanged
+            : RowAction.update,
         id: existing.id,
         payload: payload,
         changedFields: changed,
         changedSinceExport: version != null && version != '${existing.version}',
+        newSupplier: newSupplier,
+        newProduct: newProduct,
+        contact: contact,
       );
     } on FormatException catch (e) {
       return QuoteRowPlan(row, RowAction.error, error: e.message);
@@ -276,7 +413,9 @@ extension QuoteExcel on Store {
     'capture_mode': 'standard',
   };
 
-  String _supplierId(String name) {
+  /// The supplier by exact name or alias, else the one supplier that is
+  /// the same company ("有限公司" etc. ignored); null means "create it".
+  String? _supplierId(String name) {
     final hits = searchByName('supplier', name, limit: 50)
         .where(
           (h) =>
@@ -284,9 +423,32 @@ extension QuoteExcel on Store {
               (h.data['aliases']! as List).contains(name),
         )
         .toList();
-    if (hits.isEmpty) invalid('供应商', '本机没有供应商“$name”');
     if (hits.length > 1) invalid('供应商', '有多个供应商叫“$name”');
-    return hits.single.id;
+    if (hits.length == 1) return hits.single.id;
+    final same = [
+      for (final d in similarSuppliers(name))
+        if (d.level == Similarity.same) d.hit.id,
+    ];
+    if (same.length > 1) invalid('供应商', '有多个供应商与“$name”同名');
+    return same.firstOrNull;
+  }
+
+  /// A material not on file, from the row's own columns; needs 单位.
+  Map<String, Object?> _newProduct(XCell Function(String) cell) {
+    final name = cell('物料名称').text()!;
+    final unit = cell('单位').text();
+    if (unit == null) {
+      invalid('单位', '本机没有物料“$name”，填写单位后可以自动新建');
+    }
+    return validatePayload('product', {
+      for (final f in Product.fields) f: null,
+      'name': name,
+      'unit': unit,
+      'brand': cell('品牌').text(),
+      'model': cell('型号').text(),
+      'specification': cell('规格').text(),
+      'category': cell('类型').text(),
+    });
   }
 
   String _projectId(String code) {
@@ -319,7 +481,7 @@ extension QuoteExcel on Store {
       [name],
       limit: 200,
     ).where((h) => key.entries.every((e) => h.data[e.key] == e.value)).toList();
-    if (hits.isEmpty) invalid('物料名称', '本机没有物料“$name”（品牌/型号/规格需一致）');
+    if (hits.isEmpty) return _pendingId;
     if (hits.length > 1) invalid('物料名称', '物料“$name”有重复记录');
     return hits.single.id;
   }

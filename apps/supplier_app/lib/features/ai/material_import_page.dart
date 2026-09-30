@@ -93,12 +93,18 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
       fileName = t.name;
       fileBytes = t.bytes;
       fileText = text.text;
-      plans = [for (final o in t.offers) widget.state.store.planOffer(o)];
+      plans = [for (final o in t.offers) _plan(o)];
     }
     widget.state.hasAiKey().then((v) {
       if (mounted) setState(() => hasKey = v);
     });
   }
+
+  /// A material list keeps only what describes the material.
+  OfferPlan _plan(Offer o, {String? source}) => widget.state.store.planOffer(
+    _masterData ? materialOffer(o) : o,
+    source: source,
+  );
 
   @override
   void dispose() {
@@ -120,14 +126,14 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
         fileBytes != null && text.text == fileText
             ? readXlsx(fileBytes!)
             : pasted!,
+        materials: _masterData,
       );
       if (offers != null && offers.isNotEmpty) {
-        final store = widget.state.store;
         return setState(() {
           error = null;
           _jobId = null;
           _jobInput = null;
-          plans = [for (final o in offers) store.planOffer(o)];
+          plans = [for (final o in offers) _plan(o)];
         });
       }
     }
@@ -176,7 +182,7 @@ class _MaterialImportPageState extends State<MaterialImportPage> {
         if (offers.isEmpty) {
           error = '没有识别出产品报价，检查内容后重试。';
         } else {
-          plans = [for (final o in offers) store.planOffer(o, source: source)];
+          plans = [for (final o in offers) _plan(o, source: source)];
         }
       });
     } on LlmException catch (e) {

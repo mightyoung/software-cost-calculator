@@ -654,6 +654,15 @@ final Map<String, ObjectType> ontology = {
   for (final t in entityTypes) t: _types.firstWhere((o) => o.name == t),
 };
 
+/// How the data centre groups object types; every type is in exactly one
+/// group (a test checks), so a new type cannot silently drop off the map.
+const objectGroups = <(String, List<String>)>[
+  ('供应商与报价', ['supplier', 'contact', 'quotation']),
+  ('物料与物料参数', ['product', 'product_param']),
+  ('项目与询价', ['project', 'project_item', 'inquiry']),
+  ('技术要求', ['spec_request', 'spec_item', 'spec_response']),
+];
+
 /// Every reference between object types, from the stored reference maps.
 final List<LinkType> links = [
   for (final MapEntry(key: from, value: fields) in references.entries)

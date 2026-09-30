@@ -24,6 +24,11 @@ void main() {
       }
     });
 
+    test('every object type is in exactly one data-centre group', () {
+      final grouped = [for (final (_, ids) in objectGroups) ...ids];
+      expect(grouped..sort(), [...entityTypes]..sort());
+    });
+
     test('references are links, and links are references', () {
       final declared = {
         for (final MapEntry(key: from, value: fields) in references.entries)

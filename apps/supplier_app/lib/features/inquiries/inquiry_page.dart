@@ -9,6 +9,7 @@ import '../../app/app_state.dart';
 import '../../app/format.dart';
 import '../../app/theme.dart';
 import '../../platform/files.dart';
+import '../../widgets/deletion.dart';
 import '../../widgets/ledger.dart';
 import '../quotes/quote_extras.dart';
 import 'award_dialog.dart';
@@ -170,6 +171,21 @@ class InquiryPage extends StatelessWidget {
     if (awarded && context.mounted) toast(context, '已定标，预算已更新');
   }
 
+  /// Quotations already received are kept; only the inquiry goes.
+  Future<void> _delete(BuildContext context, String title) async {
+    final ok = await confirmDelete(
+      context,
+      state,
+      type: 'inquiry',
+      id: id,
+      name: title,
+    );
+    if (!ok || !context.mounted) return;
+    if (deleteWithUndo(context, state, type: 'inquiry', id: id, name: title)) {
+      Navigator.of(context).pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: state,
@@ -203,6 +219,17 @@ class InquiryPage extends StatelessWidget {
                 }, id: id),
               ),
               child: Text(open ? '标记为已结束' : '重新打开'),
+            ),
+            PopupMenuButton<String>(
+              tooltip: '更多操作',
+              icon: const AppIcon(Icons.more_vert),
+              onSelected: (_) => _delete(context, title),
+              itemBuilder: (_) => [
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Text('删除询价单', style: TextStyle(color: Tokens.red)),
+                ),
+              ],
             ),
             const SizedBox(width: 12),
           ],

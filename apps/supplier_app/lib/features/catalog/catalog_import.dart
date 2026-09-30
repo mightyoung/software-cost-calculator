@@ -24,9 +24,9 @@ Future<void> importCatalogList(
     return toast(context, '无法读取 ${file.name}：${friendlyError(e.message)}');
   }
   if (type == 'product') {
-    final offers = offersFromWorkbook(book);
+    final offers = offersFromWorkbook(book, materials: true);
     if (offers == null || offers.isEmpty) {
-      return toast(context, '没有找到物料表头：需要"名称"列，以及"品牌""型号"或"单价"之一');
+      return toast(context, '没有找到物料表头：需要"名称"列，以及"类型""品牌""型号"或"技术参数"之一');
     }
     final msg = await showMaterialImport(
       context,

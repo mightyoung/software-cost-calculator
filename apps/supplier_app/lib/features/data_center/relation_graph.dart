@@ -41,7 +41,7 @@ class RelationGraphPalette {
 
 const _canvas = Size(1100, 660);
 const _box = Size(180, 72);
-const _at = <String, Offset>{
+const _placed = <String, Offset>{
   'supplier': Offset(150, 130),
   'contact': Offset(150, 330),
   'quotation': Offset(550, 130),
@@ -53,6 +53,16 @@ const _at = <String, Offset>{
   'spec_request': Offset(550, 550),
   'spec_item': Offset(350, 550),
   'spec_response': Offset(150, 550),
+};
+/// Hand-placed positions; an object type added to the model later still
+/// appears, in the free row between the others, until it is placed.
+final _at = <String, Offset>{
+  ..._placed,
+  for (final (i, t) in [
+    for (final t in entityTypes)
+      if (!_placed.containsKey(t)) t,
+  ].indexed)
+    t: Offset(250 + 200.0 * (i % 5), 440),
 };
 const _icons = <String, IconData>{
   'supplier': Icons.factory_outlined,
@@ -482,7 +492,7 @@ class _Node extends StatelessWidget {
           child: Row(
             children: [
               AppIcon(
-                _icons[type.name],
+                _icons[type.name] ?? Icons.table_rows_outlined,
                 color: selected ? palette.accent : palette.muted,
                 size: 24,
               ),

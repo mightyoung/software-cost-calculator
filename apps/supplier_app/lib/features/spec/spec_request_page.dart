@@ -88,22 +88,38 @@ class _SpecRequestPageState extends State<SpecRequestPage> {
       context: context,
       builder: (c) => AlertDialog(
         title: const Text('删除这份技术要求？'),
-        content: const Text('连同其中的需求项和定选记录一起删除，可在回收站恢复。'),
+        content: const Text(
+          '连同其中的需求项和定选记录一起删除。删除后可以立即撤销，也可以在 设置 › 已删除的记录 中恢复。',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(c, false),
             child: const Text('取消'),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Tokens.red),
             onPressed: () => Navigator.pop(c, true),
-            child: const Text('删除'),
+            child: const Text('删除技术要求'),
           ),
         ],
       ),
     );
     if (ok != true || !mounted) return;
-    final problem = state.write((s) => s.deleteSpecRequest(widget.requestId));
+    final messenger = ScaffoldMessenger.of(context);
+    final id = widget.requestId;
+    final problem = state.write((s) => s.deleteSpecRequest(id));
     if (problem != null) return toast(context, problem);
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: const Text('已删除技术要求'),
+          action: SnackBarAction(
+            label: '撤销',
+            onPressed: () => state.write((s) => s.restoreSpecRequest(id)),
+          ),
+        ),
+      );
     Navigator.of(context).pop();
   }
 
@@ -149,7 +165,12 @@ class _SpecRequestPageState extends State<SpecRequestPage> {
                 const Divider(height: 8),
                 MenuItemButton(
                   onPressed: _delete,
-                  child: const Text('删除这份技术要求'),
+                  leadingIcon: AppIcon(
+                    Icons.delete_outline,
+                    size: 18,
+                    color: Tokens.red,
+                  ),
+                  child: Text('删除这份技术要求', style: TextStyle(color: Tokens.red)),
                 ),
               ],
               builder: (context, controller, _) => IconButton(

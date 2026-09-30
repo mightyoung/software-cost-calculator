@@ -12,6 +12,7 @@ import '../ai/list_to_project.dart';
 import '../ai/material_import_page.dart';
 import '../inquiries/project_inquiries.dart';
 import '../exchange/lan_push_page.dart';
+import '../quotes/quote_form.dart';
 import '../spec/spec_request_list.dart';
 import 'budget_table.dart';
 import 'item_dialogs.dart';
@@ -90,7 +91,13 @@ class _ProjectDetailState extends State<ProjectDetail> {
         children: [
           Padding(
             padding: EdgeInsets.fromLTRB(pad, widget.compact ? 0 : 18, pad, 0),
-            child: _Header(project: p, budget: b, compact: widget.compact),
+            child: _Header(
+              project: p,
+              budget: b,
+              compact: widget.compact,
+              onEdit: () =>
+                  showProjectForm(context, state, id: widget.projectId),
+            ),
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: pad, vertical: 10),
@@ -100,6 +107,15 @@ class _ProjectDetailState extends State<ProjectDetail> {
               onTab: (t) => setState(() => tab = t),
               onEdit: () =>
                   showProjectForm(context, state, id: widget.projectId),
+              onDelete: () async {
+                final route = ModalRoute.of(context);
+                if (await deleteProject(context, state, widget.projectId) &&
+                    context.mounted &&
+                    route != null &&
+                    !route.isFirst) {
+                  Navigator.of(context).pop();
+                }
+              },
               onExport: (k) => _export(k, p),
               onFromList: () => showListToProject(context, state),
               onImport: () async {
@@ -141,7 +157,7 @@ class _ProjectDetailState extends State<ProjectDetail> {
                   projectId: widget.projectId,
                 ),
                 _Tab.quotes => _ProjectQuotes(
-                  store: state.store,
+                  state: state,
                   projectId: widget.projectId,
                 ),
                 _Tab.changes => _Changes(
@@ -171,10 +187,12 @@ class _Header extends StatelessWidget {
     required this.project,
     required this.budget,
     required this.compact,
+    required this.onEdit,
   });
   final Map<String, Object?> project;
   final Budget budget;
   final bool compact;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -210,9 +228,20 @@ class _Header extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 6),
-        Text(
-          p['name']! as String,
-          style: Theme.of(context).textTheme.titleLarge,
+        Row(
+          children: [
+            Flexible(
+              child: Text(
+                p['name']! as String,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            IconButton(
+              tooltip: '编辑项目',
+              onPressed: onEdit,
+              icon: const AppIcon(Icons.edit_outlined, size: 18),
+            ),
+          ],
         ),
         const SizedBox(height: 4),
         Text(meta, style: TextStyle(fontSize: 13, color: Tokens.ink2)),
@@ -260,6 +289,7 @@ class _Toolbar extends StatelessWidget {
     required this.compact,
     required this.onTab,
     required this.onEdit,
+    required this.onDelete,
     required this.onExport,
     required this.onAdd,
     required this.onFromList,
@@ -270,7 +300,13 @@ class _Toolbar extends StatelessWidget {
   final _Tab tab;
   final bool compact;
   final ValueChanged<_Tab> onTab;
-  final VoidCallback onEdit, onAdd, onFromList, onImport, onRefresh, onPush;
+  final VoidCallback onEdit,
+      onDelete,
+      onAdd,
+      onFromList,
+      onImport,
+      onRefresh,
+      onPush;
   final ValueChanged<String> onExport;
 
   static const _exports = [
@@ -339,6 +375,7 @@ class _Toolbar extends StatelessWidget {
               'import' => onImport(),
               'refresh' => onRefresh(),
               'push' => onPush(),
+              'delete' => onDelete(),
               _ => onExport(v),
             },
             itemBuilder: (_) => [
@@ -352,6 +389,11 @@ class _Toolbar extends StatelessWidget {
               const PopupMenuItem(value: 'push', child: Text('推送到局域网设备')),
               for (final (value, label) in _exports)
                 PopupMenuItem(value: value, child: Text(label)),
+              const PopupMenuDivider(),
+              PopupMenuItem(
+                value: 'delete',
+                child: Text('删除项目', style: TextStyle(color: Tokens.red)),
+              ),
             ],
           ),
         ],
@@ -397,6 +439,16 @@ class _Toolbar extends StatelessWidget {
                       onPressed: () => onExport(value),
                       child: Text(label),
                     ),
+                  const Divider(height: 8),
+                  MenuItemButton(
+                    onPressed: onDelete,
+                    leadingIcon: AppIcon(
+                      Icons.delete_outline,
+                      size: 18,
+                      color: Tokens.red,
+                    ),
+                    child: Text('删除项目', style: TextStyle(color: Tokens.red)),
+                  ),
                 ],
                 builder: (context, controller, _) => OutlinedButton.icon(
                   onPressed: () => controller.isOpen
@@ -420,12 +472,13 @@ class _Toolbar extends StatelessWidget {
 }
 
 class _ProjectQuotes extends StatelessWidget {
-  const _ProjectQuotes({required this.store, required this.projectId});
-  final Store store;
+  const _ProjectQuotes({required this.state, required this.projectId});
+  final AppState state;
   final String projectId;
 
   @override
   Widget build(BuildContext context) {
+    final store = state.store;
     final quotes = store.listQuotations(projectId: projectId, limit: 500);
     if (quotes.isEmpty) {
       return const EmptyState(
@@ -444,6 +497,7 @@ class _ProjectQuotes extends StatelessWidget {
             ?.data;
         return ListTile(
           dense: true,
+          onTap: () => showQuoteForm(context, state, id: quotes[i].id),
           title: Text('${product?['name'] ?? ''}  ${product?['model'] ?? ''}'),
           subtitle: Text(
             '${supplier?['name'] ?? ''} · 报价日期 ${q['quoted_on'] ?? '未填'}',

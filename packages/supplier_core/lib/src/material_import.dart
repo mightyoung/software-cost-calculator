@@ -28,7 +28,7 @@ const offerFields = {
   'currency': ('币种', 3),
   'tax_mode': ('含税口径', 10),
   'tax_rate': ('税率(%)', 10),
-  'qty': ('数量', 50),
+  'qty': ('数量（起订量）', 50),
   'quoted_on': ('报价日期', 10),
   'valid_until': ('有效期至', 10),
   'lead_time_days': ('交期(天)', 10),
@@ -235,7 +235,7 @@ extension MaterialImport on Store {
           );
       final contactId = supplierId == null
           ? null
-          : _contact(o, supplierId, newContacts);
+          : matchOrCreateContact(o, supplierId, newContacts);
       final product = get('product', productId)!.data;
       String? quoteId;
       if (projectId != null && o['price'] != null && supplierId != null) {
@@ -294,7 +294,13 @@ extension MaterialImport on Store {
     );
   });
 
-  String? _contact(Offer o, String supplierId, Map<String, String> created) {
+  /// The supplier's contact with the offer's phone, WeChat or email, or a
+  /// new one (once per file via [created]); null without any of them.
+  String? matchOrCreateContact(
+    Offer o,
+    String supplierId,
+    Map<String, String> created,
+  ) {
     final methods = [o['phone'], o['wechat'], o['email']];
     if (methods.every((m) => m == null)) return null;
     for (final h in contactsOf(supplierId)) {
@@ -333,7 +339,8 @@ extension MaterialImport on Store {
     'currency': o['currency'] ?? 'CNY',
     'tax_mode': o['tax_mode'] ?? 'unknown',
     'unit_snapshot': unit,
-    'min_qty': '1',
+    // A quote's quantity is its minimum order.
+    'min_qty': o['qty'] == null ? '1' : parseQty(o['qty']).$1,
     'quoted_on': o['quoted_on'] ?? today,
     'contact_id': contactId,
     'contact_snapshot': contactId == null
@@ -474,6 +481,26 @@ Offer cleanOffer(Map<String, Object?> raw) {
   o['notes'] = notes.isEmpty ? null : clipText(notes.join('；'), 2000);
   return o;
 }
+
+/// Fields a material list may set: what describes the material itself.
+/// Supplier, contact and price columns belong to a quote import.
+const materialFields = {
+  'name',
+  'category',
+  'brand',
+  'model',
+  'specification',
+  'unit',
+  'notes',
+};
+
+/// [o] reduced to [materialFields]; everything else null, so importing a
+/// material list never creates suppliers, contacts or quotations.
+Offer materialOffer(Offer o) => {
+  for (final k in offerFields.keys) k: materialFields.contains(k) ? o[k] : null,
+  'currency': o['currency'],
+  'tax_mode': o['tax_mode'],
+};
 
 /// "12,500"、"¥1.2万"、"3200元" to canonical decimal; null when unreadable.
 String? parsePrice(String? raw) {

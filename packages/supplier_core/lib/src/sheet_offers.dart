@@ -19,18 +19,28 @@ const _headers = {
     '主要技术参数',
     '配置',
   ],
-  'category': ['类别', '设备类别', '物料类别', '分类'],
+  'category': ['类别', '设备类别', '物料类别', '分类', '类型', '物料类型', '设备类型'],
   'unit': ['单位', '计量单位'],
   'price': ['单价', '含税单价', '不含税单价', '报价', '参考单价'],
-  'qty': ['数量'],
-  'supplier': ['供应商', '供应商名称', '供货商', '厂家', '厂商', '生产厂家'],
-  'contact_name': ['联系人'],
-  'phone': ['联系方式', '电话', '联系电话', '手机', '手机号'],
+  'qty': ['数量', '采购数量', '需求数量'],
+  'supplier': [
+    '供应商',
+    '供应商名称',
+    '供货商',
+    '厂家',
+    '厂商',
+    '生产厂家',
+    '报价公司',
+    '报价单位',
+    '报价方',
+  ],
+  'contact_name': ['联系人', '报价人', '报价联系人'],
+  'phone': ['联系方式', '电话', '联系电话', '手机', '手机号', '报价人联系方式', '报价人电话', '联系人电话'],
   'wechat': ['微信'],
   'email': ['邮箱', '电子邮箱'],
   'currency': ['币种'],
   'tax_rate': ['税率'],
-  'quoted_on': ['报价日期'],
+  'quoted_on': ['报价日期', '报价时间', '取价日期', '价格日期'],
   'valid_until': ['有效期至', '有效期'],
   'lead_time_days': ['交期', '交货期'],
   'notes': ['备注', '说明'],
@@ -43,8 +53,12 @@ String _norm(String s) =>
 /// column plus a price, brand or model column), without AI. Rows whose name
 /// is blank continue the row above (merged cells: extra requirement lines).
 /// Without a supplier column the brand stands in as the supplier. Returns
-/// null when no sheet has such a header.
-List<Offer>? offersFromWorkbook(XWorkbook book) {
+/// null when no sheet has such a header. A [materials] list (no prices)
+/// needs only a name plus a category, brand, model or specification column.
+List<Offer>? offersFromWorkbook(XWorkbook book, {bool materials = false}) {
+  final second = materials
+      ? const ['category', 'brand', 'model', 'specification']
+      : const ['price', 'brand', 'model'];
   for (final sheet in book.sheets) {
     for (var h = 0; h < sheet.rows.length && h < 10; h++) {
       final col = <String, int>{};
@@ -61,8 +75,7 @@ List<Offer>? offersFromWorkbook(XWorkbook book) {
           taxOf[i] = 'included';
         }
       }
-      if (!col.containsKey('name') ||
-          !['price', 'brand', 'model'].any(col.containsKey)) {
+      if (!col.containsKey('name') || !second.any(col.containsKey)) {
         continue;
       }
       return _offers(sheet.rows.skip(h + 1), col, taxOf, book.date1904);

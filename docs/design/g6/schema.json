@@ -1272,6 +1272,39 @@
       }
     }
   ],
+  "groups": [
+    {
+      "name": "供应商与报价",
+      "ids": [
+        "supplier",
+        "contact",
+        "quotation"
+      ]
+    },
+    {
+      "name": "物料与物料参数",
+      "ids": [
+        "product",
+        "product_param"
+      ]
+    },
+    {
+      "name": "项目与询价",
+      "ids": [
+        "project",
+        "project_item",
+        "inquiry"
+      ]
+    },
+    {
+      "name": "技术要求",
+      "ids": [
+        "spec_request",
+        "spec_item",
+        "spec_response"
+      ]
+    }
+  ],
   "edges": [
     {
       "id": "supplier.merged_into",

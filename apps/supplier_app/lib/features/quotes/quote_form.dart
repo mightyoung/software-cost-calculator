@@ -6,6 +6,8 @@ import 'package:supplier_core/supplier_core.dart';
 import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
 import '../../app/theme.dart';
+import '../../widgets/deletion.dart';
+import '../trash/trash_page.dart';
 import 'quote_extras.dart';
 import '../../widgets/save_keys.dart';
 import 'tiers_editor.dart';
@@ -130,6 +132,32 @@ class _QuoteFormState extends State<_QuoteForm> {
       onChanged: (_) => data[key] = null,
     ),
   );
+
+  Future<void> _delete() async {
+    final id = widget.id!;
+    final name = recordTitle(
+      store,
+      'quotation',
+      store.get('quotation', id)!.data,
+    );
+    final ok = await confirmDelete(
+      context,
+      widget.state,
+      type: 'quotation',
+      id: id,
+      name: name,
+    );
+    if (!ok || !mounted) return;
+    if (deleteWithUndo(
+      context,
+      widget.state,
+      type: 'quotation',
+      id: id,
+      name: name,
+    )) {
+      Navigator.pop(context);
+    }
+  }
 
   Future<void> _date(String key) async {
     final current =
@@ -459,31 +487,28 @@ class _QuoteFormState extends State<_QuoteForm> {
         ),
       ),
       actionsAlignment: MainAxisAlignment.spaceBetween,
-      actions: [
-        if (widget.id != null && widget.state.hubAddress != null)
-          TextButton.icon(
-            onPressed: () => showHubPublish(
-              context,
-              widget.state,
-              type: 'quotation',
-              id: widget.id!,
+      actions: dialogActions(
+        onDelete: widget.id == null ? null : _delete,
+        deleteLabel: '删除报价',
+        actions: [
+          if (widget.id != null && widget.state.hubAddress != null)
+            TextButton.icon(
+              onPressed: () => showHubPublish(
+                context,
+                widget.state,
+                type: 'quotation',
+                id: widget.id!,
+              ),
+              icon: const AppIcon(Icons.upload_file_outlined, size: 18),
+              label: const Text('发布到公司资料'),
             ),
-            icon: const AppIcon(Icons.upload_file_outlined, size: 18),
-            label: const Text('发布到公司资料'),
-          )
-        else
-          const SizedBox.shrink(),
-        Wrap(
-          spacing: 8,
-          children: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('取消'),
-            ),
-            FilledButton(onPressed: _save, child: const Text('保存报价')),
-          ],
-        ),
-      ],
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          FilledButton(onPressed: _save, child: const Text('保存报价')),
+        ],
+      ),
     ),
   );
 }

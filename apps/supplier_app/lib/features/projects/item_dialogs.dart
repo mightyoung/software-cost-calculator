@@ -478,6 +478,17 @@ class _ItemEditorState extends State<_ItemEditor> {
                         value: null,
                         child: Text('不采用报价，手填估价'),
                       ),
+                      // The line's quote may since have been deleted or
+                      // become unusable; it must stay selectable as is.
+                      if (data['quotation_id'] case final String q
+                          when !options.any((o) => o.id == q))
+                        DropdownMenuItem(
+                          value: q,
+                          child: Text(
+                            '原采用的报价（已删除或不再可用）',
+                            style: TextStyle(color: Tokens.ink3),
+                          ),
+                        ),
                       for (final o in options)
                         DropdownMenuItem(
                           value: o.id,

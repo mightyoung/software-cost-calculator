@@ -28,6 +28,9 @@ Map<String, Object?> ontologyGraphSchema() => {
         },
       },
   ],
+  'groups': [
+    for (final (name, ids) in objectGroups) {'name': name, 'ids': ids},
+  ],
   'edges': [
     for (final link in links)
       {
