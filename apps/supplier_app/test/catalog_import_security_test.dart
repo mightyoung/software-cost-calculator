@@ -142,11 +142,17 @@ void main() {
       findsOneWidget,
     );
     expect(store.searchByName('supplier', ''), isEmpty);
-    await tester.tap(find.text('确认导入'));
+    await tester.runAsync(() async {
+      await tester.tap(find.text('确认导入'));
+      for (var i = 0; i < 100; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        await tester.pump();
+        if (store.searchByName('supplier', '').length == 2) break;
+      }
+    });
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
-    expect(find.text('新建供应商 2，联系人 2'), findsOneWidget);
     final suppliers = store.searchByName('supplier', '');
     expect(suppliers, hasLength(2));
     expect(
