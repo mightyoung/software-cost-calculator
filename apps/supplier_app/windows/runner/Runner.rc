@@ -90,11 +90,13 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.mightyoung" "\0"
-            VALUE "FileDescription", "询价台账" "\0"
+            VALUE "FileDescription", "Folio" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "supplier_app" "\0"
+            VALUE "InternalName", "Folio" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.mightyoung. All rights reserved." "\0"
-            VALUE "OriginalFilename", "supplier_app.exe" "\0"
+            VALUE "OriginalFilename", "Folio.exe" "\0"
+            // path_provider_windows uses ProductName for the existing data directory.
+            // Keep this storage identity; FileDescription and the window display Folio.
             VALUE "ProductName", "询价台账" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END

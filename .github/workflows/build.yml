@@ -119,7 +119,7 @@ jobs:
           dart build cli -t bin/siq_mcp.dart -o build/mcp
       - name: Package
         run: |
-          app=apps/supplier_app/build/macos/Build/Products/Release/supplier_app.app
+          app=apps/supplier_app/build/macos/Build/Products/Release/Folio.app
           cp -R packages/supplier_core/build/mcp/bundle "$app/Contents/Resources/siq-mcp"
           # Adding files breaks the seal: re-sign, keeping the sandbox
           # entitlements, and fail the build if either is off.
@@ -127,9 +127,7 @@ jobs:
           codesign --verify --deep --strict --verbose=2 "$app"
           codesign -d --entitlements - "$app" 2>&1 | grep -q app-sandbox
           "$app/Contents/Resources/siq-mcp/bin/siq_mcp" --version
-          # Finder shows the bundle's file name: ship it as 询价台账.app.
-          mv "$app" "$(dirname "$app")/询价台账.app"
-          ditto -c -k --keepParent "$(dirname "$app")/询价台账.app" supplier-app-macos.zip
+          ditto -c -k --keepParent "$app" supplier-app-macos.zip
       - uses: actions/upload-artifact@v4
         with:
           name: supplier-app-macos

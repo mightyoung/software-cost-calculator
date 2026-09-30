@@ -17,7 +17,7 @@ Future<void> initWindow() async {
   await windowManager.ensureInitialized();
   await windowManager.waitUntilReadyToShow(
     const WindowOptions(
-      title: '询价台账',
+      title: 'Folio',
       minimumSize: Size(960, 600),
       titleBarStyle: TitleBarStyle.hidden,
     ),

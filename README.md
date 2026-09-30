@@ -1,4 +1,6 @@
-# 询价台账
+# Folio
+
+Named for a collection of document pages, Folio carries the app's folded-page identity.
 
 A supplier inquiry and project cost tool. Each device runs on its own and stores its data locally; there is no server. It targets Windows (primary), Android and macOS.
 

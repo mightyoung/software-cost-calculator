@@ -74,7 +74,7 @@ class _SupplierAppState extends State<SupplierApp> with WidgetsBindingObserver {
     // rebuilds the whole app (open dialogs close).
     return MaterialApp(
       key: ValueKey(dark),
-      title: '询价台账',
+      title: 'Folio',
       debugShowCheckedModeBanner: false,
       builder: (context, child) => MediaQuery(
         data: MediaQuery.of(context).copyWith(

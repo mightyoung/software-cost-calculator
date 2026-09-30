@@ -261,7 +261,7 @@ class _Sidebar extends StatelessWidget {
                 const AppMark(size: 22),
                 const SizedBox(width: 8),
                 Text(
-                  '询价台账',
+                  'Folio',
                   style: TextStyle(
                     color: Tokens.ink,
                     fontSize: 16,

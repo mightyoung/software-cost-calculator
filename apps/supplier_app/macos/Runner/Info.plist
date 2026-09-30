@@ -13,9 +13,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>询价台账</string>
+	<string>Folio</string>
 	<key>CFBundleDisplayName</key>
-	<string>询价台账</string>
+	<string>Folio</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
