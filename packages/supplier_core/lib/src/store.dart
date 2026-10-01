@@ -21,7 +21,9 @@ import 'values.dart';
 /// 8: product `spec_class`; typed parameter records `product_param`.
 /// 9: technical requirements `spec_request` and their items `spec_item`.
 /// 10: supplier clause-by-clause responses `spec_response`.
-const schemaVersion = 11;
+/// 11: project item `requirement` separate from notes.
+/// 12: product `source_attachment_ids` preserves unpriced source evidence.
+const schemaVersion = 12;
 const fileFormat = 'supplier-inquiry';
 
 /// Merge order matters only for the reference check at the end of an import;
@@ -611,10 +613,13 @@ class Store {
         }
       }
     }
-    if (type == 'quotation') {
-      for (final id in (data['attachment_ids'] as List?) ?? const []) {
+    if (type == 'quotation' || type == 'product') {
+      final field = type == 'product'
+          ? 'source_attachment_ids'
+          : 'attachment_ids';
+      for (final id in (data[field] as List?) ?? const []) {
         if (db.select('SELECT 1 FROM attachment WHERE id=?', [id]).isEmpty) {
-          invalid('attachment_ids', 'unknown attachment');
+          invalid(field, 'unknown attachment');
         }
       }
     }

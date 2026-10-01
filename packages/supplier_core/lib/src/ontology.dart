@@ -193,6 +193,12 @@ final _types = <ObjectType>[
       Kind.text,
       '参数字典中的类别代码，如 sensor.th（温湿度传感器）；决定有哪些结构化参数',
     ),
+    const FieldSpec(
+      'source_attachment_ids',
+      '物料来源',
+      Kind.refList,
+      '产品页面、技术资料等来源附件的 id，最多 8 个；不代表报价或经过认证的事实',
+    ),
   ]),
   ObjectType('project', '项目', '一次成本测算或采购任务，含预算行、报价和询价单', [
     const FieldSpec(

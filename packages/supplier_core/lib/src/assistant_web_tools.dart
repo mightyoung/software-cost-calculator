@@ -6,6 +6,7 @@ import 'package:xml/xml.dart';
 
 import 'ai_runtime.dart';
 import 'assistant_toolset.dart';
+import 'assistant_web_catalog.dart';
 
 typedef AssistantWebResolver =
     Future<List<InternetAddress>> Function(String host);
@@ -41,16 +42,38 @@ class AssistantWebTools implements AssistantToolset {
     AssistantWebResolver? resolver,
     AssistantWebTransport? transport,
     Duration timeout = const Duration(seconds: 20),
+    List<AssistantWebSnapshot> restoredSnapshots = const [],
+    this.onSnapshot,
   }) : _resolver = resolver ?? InternetAddress.lookup,
        _transport = transport ?? _request,
        _timeout = timeout > const Duration(seconds: 20)
            ? const Duration(seconds: 20)
-           : timeout;
+           : timeout {
+    for (final snapshot in restoredSnapshots.take(8)) {
+      _remember(AssistantWebSnapshot.fromJson(snapshot.toJson()));
+    }
+  }
 
   final AssistantWebResolver _resolver;
   final AssistantWebTransport _transport;
   final Duration _timeout;
   final _pages = <String, _Page>{};
+  final _snapshots = <String, AssistantWebSnapshot>{};
+  final void Function(AssistantWebSnapshot)? onSnapshot;
+  List<AssistantWebSnapshot> get snapshots =>
+      List.unmodifiable(_snapshots.values);
+  AssistantWebSnapshot? snapshot(String id) => _snapshots[id];
+  void _remember(AssistantWebSnapshot snapshot) {
+    _snapshots.remove(snapshot.id);
+    if (_snapshots.length >= 8) {
+      final removed = _snapshots.remove(_snapshots.keys.first)!;
+      if (_pages[removed.url]?.snapshot.id == removed.id)
+        _pages.remove(removed.url);
+    }
+    _snapshots[snapshot.id] = snapshot;
+    _pages[snapshot.url] = _Page(snapshot);
+  }
+
   static const maxBodyBytes = 512 * 1024;
   static const maxOutputChars = 12000;
 
@@ -72,6 +95,14 @@ class AssistantWebTools implements AssistantToolset {
         'url': {'type': 'string', 'maxLength': 2048},
       },
       ['url'],
+    ),
+    _tool(
+      'web_product_rows',
+      '读取宿主从指定网页快照确定性提取的产品行。不得提供或补造字段；缺失与冲突须人工核验。',
+      {
+        'source_id': {'type': 'string', 'maxLength': 100},
+      },
+      ['source_id'],
     ),
     _tool(
       'web_extract',
@@ -201,20 +232,26 @@ class AssistantWebTools implements AssistantToolset {
         final loaded = await _load(_url(_string(args, 'url', 2048)), cancel);
         final plain = loaded.contentType == 'text/plain';
         final parsed = plain
-            ? (text: loaded.text.trim(), title: '')
+            ? (
+                text: loaded.text.trim(),
+                title: '',
+                catalog: loaded.text.trim(),
+                jsonLd: <String>[],
+                truncated: false,
+              )
             : _htmlText(loaded.text);
-        final readable = parsed.text;
-        final page = _Page(
-          loaded.uri.toString(),
-          _clip(parsed.title, 200),
-          loaded.at,
-          _clip(readable, 24000),
-          readable.length > 24000,
+        final snapshot = AssistantWebSnapshot.capture(
+          url: loaded.uri.toString(),
+          title: _clip(parsed.title, 200),
+          fetchedAt: loaded.at,
+          text: parsed.catalog,
+          truncated: parsed.truncated,
+          jsonLd: parsed.jsonLd,
         );
         cancel.check();
-        _pages.remove(page.url);
-        if (_pages.length >= 8) _pages.remove(_pages.keys.first);
-        _pages[page.url] = page;
+        _remember(snapshot);
+        onSnapshot?.call(snapshot);
+        final page = _pages[snapshot.url]!;
         var text = _clip(page.text, 5000);
         final result = <String, Object?>{
           ...page.metadata,
@@ -232,6 +269,30 @@ class AssistantWebTools implements AssistantToolset {
             'truncated': true,
             'complete': false,
           });
+        }
+        return jsonEncode(result);
+      case 'web_product_rows':
+        _keys(args, {'source_id'});
+        final source = snapshot(_string(args, 'source_id', 100));
+        if (source == null) throw _WebError('网页快照不存在或已过期，请先调用 web_fetch。');
+        final rows = source.products.map((row) => row.toJson()).toList();
+        final result = <String, Object?>{
+          'source_id': source.id,
+          'digest': source.digest,
+          'url': source.url,
+          'fetched_at': source.fetchedAt,
+          'untrusted': true,
+          'products': rows,
+          'returned': rows.length,
+          'total': rows.length,
+          'truncated': source.truncated || source.products.length == 8,
+          'complete': false,
+          'scope': '仅列出最多 8 个可明确绑定的产品记录；未识别字段保持缺失，非网页全部产品的保证',
+        };
+        while (jsonEncode(result).length > maxOutputChars && rows.isNotEmpty) {
+          rows.removeLast();
+          result['returned'] = rows.length;
+          result['truncated'] = true;
         }
         return jsonEncode(result);
       case 'web_extract':
@@ -510,9 +571,20 @@ String _readable(String html) => _htmlText(html).text;
 /// Each input character is scanned a constant number of times. In particular,
 /// malformed tags/comments and unclosed active elements never restart a search
 /// from every '<', and title extraction uses the same pass.
-({String text, String title}) _htmlText(String html) {
+({
+  String text,
+  String title,
+  String catalog,
+  List<String> jsonLd,
+  bool truncated,
+})
+_htmlText(String html) {
   final text = StringBuffer();
+  final catalog = StringBuffer();
   final title = StringBuffer();
+  final jsonLd = <String>[];
+  int? jsonStart;
+  var truncated = false;
   String? blocked;
   var blockedDepth = 0;
   var inTitle = false;
@@ -529,6 +601,7 @@ String _readable(String html) => _htmlText(html).text;
   void append(String value) {
     if (blocked != null) return;
     text.write(value);
+    catalog.write(value);
     if (inTitle) title.write(value);
   }
 
@@ -583,6 +656,15 @@ String _readable(String html) => _htmlText(html).text;
     if (blocked != null) {
       if (name == blocked) {
         if (closing) {
+          if (blocked == 'script' && jsonStart != null) {
+            final length = start - 1 - jsonStart;
+            if (length <= 16000 && jsonLd.length < 8) {
+              jsonLd.add(html.substring(jsonStart, start - 1));
+            } else {
+              truncated = true;
+            }
+            jsonStart = null;
+          }
           blockedDepth--;
           if (blockedDepth == 0) {
             blocked = null;
@@ -595,9 +677,30 @@ String _readable(String html) => _htmlText(html).text;
       continue;
     }
     append(' ');
+    if ({
+      'p',
+      'div',
+      'br',
+      'li',
+      'tr',
+      'dt',
+      'dd',
+      'h1',
+      'h2',
+      'section',
+    }.contains(name))
+      catalog.write('\n');
     if (!closing && activeTags.contains(name)) {
       blocked = name;
       blockedDepth = 1;
+      if (name == 'script' &&
+          end - nameEnd <= 2048 &&
+          RegExp(
+            r'''(?:^|\s)type\s*=\s*(?:"application/ld\+json"|'application/ld\+json'|application/ld\+json(?:\s|$))''',
+            caseSensitive: false,
+          ).hasMatch(html.substring(nameEnd, end))) {
+        jsonStart = offset;
+      }
     } else if (name == 'title') {
       if (closing) {
         inTitle = false;
@@ -610,6 +713,14 @@ String _readable(String html) => _htmlText(html).text;
   return (
     text: _decodeText(text.toString()),
     title: _decodeText(title.toString()),
+    catalog: catalog
+        .toString()
+        .split('\n')
+        .map(_decodeText)
+        .where((line) => line.isNotEmpty)
+        .join('\n'),
+    jsonLd: jsonLd,
+    truncated: truncated || jsonStart != null,
   );
 }
 
@@ -662,15 +773,21 @@ class _Loaded {
 }
 
 class _Page {
-  _Page(this.url, this.title, this.at, this.text, this.truncated);
-  final String url, title, at, text;
-  final bool truncated;
+  _Page(this.snapshot);
+  final AssistantWebSnapshot snapshot;
+  String get url => snapshot.url;
+  String get title => snapshot.title;
+  String get at => snapshot.fetchedAt;
+  String get text => snapshot.text.replaceAll('\n', ' ');
+  bool get truncated => snapshot.truncated;
   Map<String, Object?> get metadata => {
     'source_url': url,
     'url': url,
     'title': title,
     'fetched_at': at,
     'untrusted': true,
+    'source_id': snapshot.id,
+    'digest': snapshot.digest,
   };
   Map<String, Object?> get source => {
     'url': url,
@@ -678,5 +795,7 @@ class _Page {
     'fetched_at': at,
     'excerpt': _clip(text, 400),
     'truncated': truncated || text.length > 400,
+    'source_id': snapshot.id,
+    'digest': snapshot.digest,
   };
 }

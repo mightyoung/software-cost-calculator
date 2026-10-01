@@ -184,6 +184,8 @@ class _AskPageState extends State<AskPage> {
     _Message reply;
     String? jobId;
     AssistantAppTools? appTools;
+    AssistantProcurementTools? procurement;
+    AssistantWebTools? web;
     final completed = <AssistantObservation>[];
     Map<String, String>? navigation;
     final permission = widget.state.assistantPermission;
@@ -197,48 +199,74 @@ class _AskPageState extends State<AskPage> {
             for (final t in history) [t.question, t.answer],
           ],
         },
-        (llm) => widget.state.store.askWithEvidence(
-          llm,
-          question,
-          history: history,
-          cancellation: cancellation,
-          toolsets: [
-            appTools!,
-            if (webEnabled)
-              _ReviewedWebTools(
-                (name, args, cancel) =>
-                    confirmAssistantNetwork(context, name, args, cancel),
-                () => widget.state.assistantWebEnabled,
+        (llm) async {
+          final raw = await widget.state.store.askWithEvidence(
+            llm,
+            question,
+            history: history,
+            cancellation: cancellation,
+            toolsets: [
+              appTools!,
+              procurement!,
+              if (webEnabled)
+                _ReviewedWebTools(
+                  (name, args, cancel) =>
+                      confirmAssistantNetwork(context, name, args, cancel),
+                  () => widget.state.assistantWebEnabled,
+                  web!,
+                ),
+              _AppNavigationTools(
+                widget.state.store,
+                (request) => navigation = request,
               ),
-            _AppNavigationTools(
-              widget.state.store,
-              (request) => navigation = request,
-            ),
-          ],
-          onObservation: completed.add,
-          onCompact: () {
-            if (mounted) setState(() => activity = '整理对话上下文');
-          },
-          onTool: (tool) {
-            if (mounted) setState(() => activity = toolActivity[tool]);
-          },
-        ),
+            ],
+            onObservation: completed.add,
+            onCompact: () {
+              if (mounted) setState(() => activity = '整理对话上下文');
+            },
+            onTool: (tool) {
+              if (mounted) setState(() => activity = toolActivity[tool]);
+            },
+          );
+          return raw.verifiedReport(
+            procurementReport:
+                raw.observations.any((o) => o.tool.startsWith('procurement_'))
+                ? procurement!.renderReport(raw)
+                : '',
+          );
+        },
         resumeId: resumeId,
         cancellation: cancellation,
         onCreated: (id) {
           jobId = id;
+          void validateSession() {
+            widget.state.validateAssistantSession(id);
+            if (widget.state.assistantPermission != permission) {
+              throw LlmException('助手权限已变化，请重新开始任务');
+            }
+          }
+
+          web = widget.state.createAssistantWebTools(id);
+          procurement = AssistantProcurementTools(
+            widget.state.store,
+            web: web!,
+            sessionId: id,
+            permission: permission,
+            requestText: question,
+            domesticCriterion: () => widget.state.assistantDomesticCriterion,
+            approve: (preview) =>
+                confirmAssistantAction(context, preview, cancellation),
+            validateSession: validateSession,
+            onChanged: widget.state.changed,
+          );
           appTools = AssistantAppTools(
             widget.state.store,
             permission: permission,
             sessionId: id,
             approve: (preview) =>
                 confirmAssistantAction(context, preview, cancellation),
-            validateSession: () {
-              widget.state.validateAssistantSession(id);
-              if (widget.state.assistantPermission != permission) {
-                throw LlmException('助手权限已变化，请重新开始任务');
-              }
-            },
+            validateSession: validateSession,
+            validateWrite: guardAssistantProcurementWrite,
             onChanged: widget.state.changed,
           );
         },
@@ -255,7 +283,24 @@ class _AskPageState extends State<AskPage> {
       reply = _Message(false, '查询未完成：${friendlyError('$e')}', error: true);
     }
     if (!mounted) return;
-    final applied = appTools?.appliedActions ?? const <Map<String, Object?>>[];
+    final applied = [
+      ...?appTools?.appliedActions,
+      for (final receipt in procurement?.appliedActions ?? const [])
+        for (final type in ['product', 'supplier', 'quotation'])
+          if (receipt['${type}_id'] case final String recordId)
+            if (widget.state.store.get(type, recordId) case final record?)
+              {
+                'type': type,
+                'id': recordId,
+                'record': {
+                  'name':
+                      record.data['name'] ??
+                      (type == 'quotation'
+                          ? '参考报价 ${record.data['price']} ${record.data['currency']}'
+                          : ''),
+                },
+              },
+    ];
     final summary = applied.isEmpty
         ? ''
         : '\n\n本任务已确认保存 ${applied.length} 项操作：${applied.map((a) {
@@ -285,7 +330,11 @@ class _AskPageState extends State<AskPage> {
       _cancellation = null;
     });
     _saveHistory();
-    if (!reply.error && jobId != null) widget.state.finishAiTask(jobId!);
+    if (!reply.error && jobId != null) {
+      widget.state.finishAiTask(jobId!);
+      procurement?.clearTransient();
+      widget.state.clearAssistantWebSnapshots(jobId!);
+    }
     _scrollDown();
     if (!reply.error && navigation != null) {
       final request = navigation!;
@@ -359,6 +408,10 @@ class _AskPageState extends State<AskPage> {
                   if (value == 'web') {
                     widget.state.assistantWebEnabled =
                         !widget.state.assistantWebEnabled;
+                  } else if (value.startsWith('domestic:')) {
+                    final criterion = value.substring('domestic:'.length);
+                    widget.state.assistantDomesticCriterion =
+                        criterion == 'unspecified' ? null : criterion;
                   } else {
                     widget.state.assistantPermission = value == 'readOnly'
                         ? AssistantPermission.readOnly
@@ -372,6 +425,14 @@ class _AskPageState extends State<AskPage> {
                       '${widget.state.assistantPermission == AssistantPermission.readOnly ? '✓ ' : ''}只读',
                     ),
                   ),
+                  const PopupMenuDivider(),
+                  for (final criterion in assistantDomesticCriteria.entries)
+                    PopupMenuItem(
+                      value: 'domestic:${criterion.key}',
+                      child: Text(
+                        '${(widget.state.assistantDomesticCriterion ?? 'unspecified') == criterion.key ? '✓ ' : ''}${criterion.value}',
+                      ),
+                    ),
                   PopupMenuItem(
                     value: 'confirmWrites',
                     child: Text(
@@ -913,11 +974,11 @@ class _AppNavigationTools implements AssistantToolset {
 }
 
 class _ReviewedWebTools implements AssistantToolset {
-  _ReviewedWebTools(this.review, this.enabled);
+  _ReviewedWebTools(this.review, this.enabled, this._web);
   final Future<bool> Function(String, Map<String, Object?>, AiCancellation)
   review;
   final bool Function() enabled;
-  final _web = AssistantWebTools();
+  final AssistantWebTools _web;
   final _approved = <String>{};
 
   @override

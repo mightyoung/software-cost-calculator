@@ -7,6 +7,7 @@ import 'inquiries.dart';
 import 'ontology.dart';
 import 'record_query.dart';
 import 'search.dart';
+import 'spec_compare.dart';
 import 'spec_constraint.dart';
 import 'spec_dictionary.dart';
 import 'spec_match.dart';
@@ -148,7 +149,8 @@ final agentTools = [
   _tool(
     'match_item',
     '按技术要求匹配物料：给 item_id（技术要求中的需求项），或给 class（类别代码）和 requirement（要求原文）。'
-        '返回读出的条件、每个候选物料的结论（完全满足/基本满足/不满足）、最低有效报价和逐条判定',
+        '返回原文、已计算和待核验条件、候选物料的证据状态及最低有效参考报价；'
+        '参考价不是项目含运费等费用的总成本，也不证明市场价格合理',
     {'item_id': _str, 'class': _str, 'requirement': _str, 'limit': _limit},
   ),
   _tool(
@@ -263,14 +265,32 @@ extension AgentTools on Store {
     }
     final cs = constraintsOf(clauses);
     final r = matchSpec(cls, cs);
+    final pendingClauses =
+        clauses.isEmpty ||
+        clauses.any((c) => c.isText || !c.reviewed || c.hint != null);
+    MatchGroup group(Candidate c) =>
+        c.group == MatchGroup.full && pendingClauses
+        ? MatchGroup.partial
+        : c.group;
+    String qualification(Candidate c) =>
+        c.results.any((x) => x.verdict.outcome == Outcome.worse)
+        ? 'contradicted'
+        : group(c) == MatchGroup.full
+        ? 'supported'
+        : 'pending';
     return {
       'class': cls,
+      'clauses': [for (final c in clauses) c.toJson()],
+      'qualification_scope': '仅依据本地参数和已审核条件；不证明未核验的网页或供应商声明真实',
       'conditions': [for (final c in cs) c.describe()],
       'text_clauses': [
         for (final c in clauses)
           if (c.isText) c.text,
       ],
-      'counts': {for (final g in MatchGroup.values) g.name: r.size(g)},
+      'counts': {
+        for (final g in MatchGroup.values)
+          g.name: r.candidates.where((c) => group(c) == g).length,
+      },
       ..._bounds(r.candidates.length, limit),
       'candidates': [
         for (final c in r.candidates.take(limit))
@@ -278,12 +298,25 @@ extension AgentTools on Store {
             'product_id': c.id,
             'name': c.data['name'],
             'model': c.data['model'],
-            'group': matchGroupLabels[c.group],
+            'group': matchGroupLabels[group(c)],
+            'qualification': qualification(c),
+            'pending_clauses': pendingClauses,
             'price': c.price,
+            'price_unit': c.priceUnit,
+            'price_basis': {
+              'kind': 'lowest_valid_local_reference_quote',
+              'currency': 'CNY',
+              'tax_mode': 'included',
+              'project_normalized': false,
+              'note': '本地有效报价参考单价；尚未按项目数量、运费、折扣和交易条件核算，不能据此认定价格合理',
+            },
             'results': [
               for (final x in c.results)
                 {
                   'condition': x.constraint.describe(),
+                  'evaluated': x.verdict.outcome != Outcome.unknown,
+                  'unconfirmed': x.unconfirmed,
+                  'derived': x.derived,
                   'outcome': deviationLabels[x.verdict.outcome],
                   'note': ?x.verdict.note,
                 },

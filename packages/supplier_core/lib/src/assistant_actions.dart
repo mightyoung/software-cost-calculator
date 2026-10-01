@@ -62,6 +62,7 @@ class AssistantAppTools implements AssistantToolset {
     this.approve,
     this.validateSession,
     this.onChanged,
+    this.validateWrite,
   }) {
     if (sessionId.isEmpty || sessionId.length > 200) {
       throw ArgumentError.value(sessionId, 'sessionId');
@@ -73,6 +74,12 @@ class AssistantAppTools implements AssistantToolset {
   final String sessionId;
   final Future<bool> Function(AssistantActionPreview)? approve;
   final void Function()? validateSession, onChanged;
+  final void Function(
+    String operation,
+    String type,
+    Map<String, Object?> values,
+  )?
+  validateWrite;
 
   /// Committed outcomes remain available after cancellation for the host UI.
   /// Exact prefix matching avoids treating session IDs as SQL wildcards.
@@ -108,6 +115,7 @@ class AssistantAppTools implements AssistantToolset {
   static const _protectedFields = {
     'merged_into',
     'attachment_ids',
+    'source_attachment_ids',
     'capture_mode',
   };
 
@@ -238,6 +246,15 @@ class AssistantAppTools implements AssistantToolset {
       throw const FormatException('Invalid action arguments');
     }
     final type = args['type']! as String;
+    if (editing) {
+      final values = args['values'];
+      if (values is! Map<String, Object?>) {
+        throw const FormatException('Expected record field values');
+      }
+      // This application-owned policy runs before receipt lookup as well,
+      // so a restored older task cannot bypass a newer evidence policy.
+      validateWrite?.call(name, type, values);
+    }
     final canonical = jsonEncode({'name': name, 'arguments': args});
     final receiptKey = 'assistant_action:${jsonEncode([sessionId, callId])}';
     final prior = _receipt(receiptKey, canonical);
@@ -301,6 +318,13 @@ class AssistantAppTools implements AssistantToolset {
     var didApply = false;
     final result = store.transaction(() {
       _check(cancellation);
+      if (editing) {
+        validateWrite?.call(
+          name,
+          type,
+          args['values']! as Map<String, Object?>,
+        );
+      }
       final duplicate = _receipt(receiptKey, canonical);
       if (duplicate != null) return duplicate;
       final current = store.get(type, id);

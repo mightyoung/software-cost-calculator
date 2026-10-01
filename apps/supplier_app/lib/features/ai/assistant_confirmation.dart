@@ -109,7 +109,11 @@ class _ActionDialogState extends State<_ActionDialog> {
     final type = ontology[preview.type];
     return AlertDialog(
       scrollable: true,
-      title: Text('确认$operation${type?.label ?? preview.type}'),
+      title: Text(
+        preview.operation == 'procurement_import'
+            ? '确认导入来源资料'
+            : '确认$operation${type?.label ?? preview.type}',
+      ),
       content: SizedBox(
         width: 560,
         child: Column(
@@ -117,6 +121,11 @@ class _ActionDialogState extends State<_ActionDialog> {
           children: [
             Text(preview.title, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 12),
+            if (preview.operation == 'procurement_import') ...[
+              const Text('请核对产品身份、每项技术条件与来源原文。网页声明仍须人工核实。'),
+              const Text('网络价格只导入参考价；原项目的物料、报价和成本保持原值，替换时须重新询价和审核定价。'),
+              const SizedBox(height: 12),
+            ],
             if (preview.operation == 'delete_record') ...[
               const Text('记录将移入回收站。相关记录会保留原有引用。'),
               for (final entry in preview.affectedReferences.entries)
