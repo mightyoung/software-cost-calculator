@@ -369,6 +369,26 @@ class AppState extends ChangeNotifier {
   String get aiBaseUrl => setting('ai_base_url') ?? 'https://api.deepseek.com';
   String get aiModel => setting('ai_model') ?? 'deepseek-flash';
 
+  bool get assistantWebEnabled => setting('assistant_web') == '1';
+  set assistantWebEnabled(bool value) =>
+      saveSetting('assistant_web', value ? '1' : null);
+
+  AssistantPermission get assistantPermission =>
+      setting('assistant_permission') == 'readOnly'
+      ? AssistantPermission.readOnly
+      : AssistantPermission.confirmWrites;
+  set assistantPermission(AssistantPermission value) =>
+      saveSetting('assistant_permission', value.name);
+
+  /// Conversation actions validate a running job, rather than a ready draft.
+  void validateAssistantSession(String id) {
+    if (_disposed || _restoring) throw LlmException('资料库当前不可用，操作已停止');
+    final job = _jobs.get(id);
+    if (job.epoch != _jobs.epoch || job.status != 'running') {
+      throw LlmException('任务已经失效，请重新开始并确认操作');
+    }
+  }
+
   /// Technical requirements may be sent to the AI service (off by default:
   /// requirements can be confidential; a local model is an option).
   bool get specAi => setting('spec_ai') == '1';

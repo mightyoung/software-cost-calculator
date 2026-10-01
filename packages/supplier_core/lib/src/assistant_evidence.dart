@@ -42,6 +42,27 @@ class AssistantObservation {
   };
 }
 
+/// Source positions from successful web tools, never URLs invented in prose.
+class AssistantSource {
+  const AssistantSource({
+    required this.url,
+    required this.title,
+    required this.fetchedAt,
+    this.excerpt = '',
+    this.truncated = false,
+  });
+  final String url, title, fetchedAt, excerpt;
+  final bool truncated;
+
+  Map<String, Object?> toJson() => {
+    'url': url,
+    'title': title,
+    'fetched_at': fetchedAt,
+    'excerpt': excerpt,
+    'truncated': truncated,
+  };
+}
+
 /// A local evidence packet. Record provenance is not a truth score for prose.
 class AssistantAnswer {
   AssistantAnswer._(
@@ -113,6 +134,53 @@ class AssistantAnswer {
 
   final String text;
   final List<AssistantObservation> observations;
+  List<AssistantSource> get sources {
+    final found = <String, AssistantSource>{};
+    for (final observation in observations) {
+      if (!observation.providedToModel ||
+          observation.failed ||
+          !const {
+            'web_search',
+            'web_fetch',
+            'web_extract',
+          }.contains(observation.tool)) {
+        continue;
+      }
+      final data = jsonDecode(observation.result);
+      if (data is! Map || data['sources'] is! List) continue;
+      for (final source in (data['sources'] as List).whereType<Map>()) {
+        final url = source['url'];
+        final title = source['title'];
+        final at = source['fetched_at'];
+        if (url is! String ||
+            url.length > 2048 ||
+            title is! String ||
+            at is! String)
+          continue;
+        final uri = Uri.tryParse(url);
+        if (uri == null ||
+            uri.scheme != 'https' ||
+            uri.host.isEmpty ||
+            uri.userInfo.isNotEmpty)
+          continue;
+        found[url] = AssistantSource(
+          url: url,
+          title: title.length > 200 ? title.substring(0, 200) : title,
+          fetchedAt: at,
+          excerpt: source['excerpt'] is String
+              ? (source['excerpt'] as String).substring(
+                  0,
+                  (source['excerpt'] as String).length.clamp(0, 500),
+                )
+              : '',
+          truncated: source['truncated'] == true,
+        );
+        if (found.length >= 24) return List.unmodifiable(found.values);
+      }
+    }
+    return List.unmodifiable(found.values);
+  }
+
   final List<String> warnings;
   final int unverifiedReferences, modelCalls;
   final Duration elapsed;
@@ -121,6 +189,7 @@ class AssistantAnswer {
   Map<String, Object?> toJson() => {
     'text': text,
     'observations': [for (final o in observations) o.toJson()],
+    'sources': [for (final source in sources) source.toJson()],
     'warnings': warnings,
     'unverified_references': unverifiedReferences,
     'model_calls': modelCalls,
@@ -184,6 +253,19 @@ void _collectRecords(
           for (final row in values.whereType<Map>()) {
             rows('quotation', row['quotes'], idField: 'quotation_id');
           }
+        }
+      }
+    case 'create_record' || 'update_record' || 'restore_record':
+      if (data is Map &&
+          const {'applied', 'already_applied'}.contains(data['status'])) {
+        final row = data['record'];
+        if (row is Map && row['data'] is Map) {
+          add(data['type'] as String?, {
+            ...(row['data'] as Map),
+            'id': row['id'],
+          });
+        } else {
+          add(data['type'] as String?, row);
         }
       }
   }

@@ -203,6 +203,39 @@ class _AiSettingsState extends State<AiSettings> {
       const SizedBox(height: 12),
       Wrap(
         spacing: 8,
+        children: [
+          const Text('助手操作权限'),
+          DropdownButton<AssistantPermission>(
+            value: widget.state.assistantPermission,
+            items: const [
+              DropdownMenuItem(
+                value: AssistantPermission.readOnly,
+                child: Text('只读'),
+              ),
+              DropdownMenuItem(
+                value: AssistantPermission.confirmWrites,
+                child: Text('修改前逐次确认'),
+              ),
+            ],
+            onChanged: (value) {
+              if (value != null) {
+                setState(() => widget.state.assistantPermission = value);
+              }
+            },
+          ),
+        ],
+      ),
+      SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        value: widget.state.assistantWebEnabled,
+        onChanged: (value) =>
+            setState(() => widget.state.assistantWebEnabled = value),
+        title: const Text('助手联网查询'),
+        subtitle: const Text('搜索词会发送给公开搜索网站；公开网页内容会交给配置的 AI 服务处理。'),
+      ),
+      const SizedBox(height: 12),
+      Wrap(
+        spacing: 8,
         runSpacing: 8,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
