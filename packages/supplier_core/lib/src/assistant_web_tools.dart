@@ -615,12 +615,28 @@ _htmlText(String html) {
     }
     if (html.startsWith('<!--', offset)) {
       final end = html.indexOf('-->', offset + 4);
-      if (end < 0) break;
+      if (end < 0) {
+        truncated = true;
+        break;
+      }
       append(' ');
       offset = end + 3;
       continue;
     }
     final start = offset + 1;
+    // A literal comparison such as "stock < 10" is visible text, not a tag.
+    // Recognize an ASCII tag name (or declaration) before searching for '>'.
+    var first = start;
+    if (first < html.length && html.codeUnitAt(first) == 47) first++;
+    final initial = first < html.length ? html.codeUnitAt(first) : 0;
+    if (!(initial >= 65 && initial <= 90 ||
+        initial >= 97 && initial <= 122 ||
+        initial == 33 ||
+        initial == 63)) {
+      append('<');
+      offset++;
+      continue;
+    }
     var end = start;
     var quote = 0;
     while (end < html.length) {
@@ -634,7 +650,10 @@ _htmlText(String html) {
       }
       end++;
     }
-    if (end == html.length) break; // Discard an incomplete tag, once.
+    if (end == html.length) {
+      truncated = true;
+      break; // Discard an incomplete tag, once.
+    }
     offset = end + 1;
     var nameStart = start;
     final closing = nameStart < end && html.codeUnitAt(nameStart) == 47;

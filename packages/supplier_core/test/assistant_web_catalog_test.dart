@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cryptography/dart.dart';
 import 'package:supplier_core/src/ai_runtime.dart';
 import 'package:supplier_core/src/assistant_web_catalog.dart';
 import 'package:supplier_core/src/assistant_web_tools.dart';
@@ -57,6 +58,94 @@ Future<Map<String, dynamic>> run(
         as Map<String, dynamic>;
 
 void main() {
+  Map<String, Object?> legacyJson(AssistantWebSnapshot snapshot) {
+    final json = Map<String, Object?>.from(snapshot.toJson())
+      ..remove('json_ld');
+    final payload = {
+      for (final key in [
+        'url',
+        'title',
+        'fetched_at',
+        'text',
+        'truncated',
+        'products',
+      ])
+        key: json[key],
+    };
+    final digest = const DartSha256()
+        .hashSync(utf8.encode(jsonEncode(payload)))
+        .bytes
+        .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
+        .join();
+    return {...json, 'id': 'web_$digest', 'digest': digest};
+  }
+
+  test('marker-free legacy snapshots preserve original identity', () {
+    final legacy = legacyJson(capture('名称：Pump\n型号：P100\n价格：100'));
+    final restored = AssistantWebSnapshot.fromJson(legacy);
+    expect(restored.toJson(), legacy);
+    expect(restored.products.single.facts['price'], '100');
+  });
+
+  test('ambiguous legacy declaration markers require a fresh capture', () {
+    final legacy = legacyJson(
+      capture('名称：Pump\n型号：P100\n价格：100\n[Folio JSON-LD declaration]\n{}'),
+    );
+    expect(() => AssistantWebSnapshot.fromJson(legacy), throwsFormatException);
+  });
+
+  test('structured declarations are immutable digest-bound and restorable', () {
+    final snapshot = capture(
+      'Visible\n[Folio JSON-LD declaration]\ntext',
+      jsonLd: [jsonEncode(product())],
+    );
+    expect(snapshot.products.single.facts['price'], '125.50');
+    expect(
+      AssistantWebSnapshot.fromJson(snapshot.toJson()).toJson(),
+      snapshot.toJson(),
+    );
+    expect(() => snapshot.jsonLd.clear(), throwsUnsupportedError);
+    final changed = {
+      ...snapshot.toJson(),
+      'json_ld': [jsonEncode(product(name: 'Other'))],
+    };
+    expect(() => AssistantWebSnapshot.fromJson(changed), throwsFormatException);
+    for (final invalid in [
+      null,
+      'declaration',
+      [1],
+      List.filled(9, '{}'),
+      ['x' * 16001],
+    ]) {
+      expect(
+        () => AssistantWebSnapshot.fromJson({
+          ...snapshot.toJson(),
+          'json_ld': invalid,
+        }),
+        throwsFormatException,
+      );
+    }
+  });
+
+  test('visible declaration markers cannot hide price qualifiers', () {
+    final snapshot = capture(
+      '名称：Pump\n型号：P100\n价格：100\n'
+      '[Folio JSON-LD declaration]\n此价格为整批总价，非单价',
+    );
+    expect(snapshot.products.single.facts, isNot(contains('price')));
+    expect(
+      AssistantWebSnapshot.fromJson(snapshot.toJson()).products.single.facts,
+      isNot(contains('price')),
+    );
+  });
+
+  test('visible declaration markers cannot manufacture JSON-LD evidence', () {
+    final snapshot = capture(
+      'Ordinary text\n[Folio JSON-LD declaration]\n${jsonEncode(product())}',
+    );
+    expect(snapshot.products, isEmpty);
+  });
+
   test(
     'additional property price cannot substitute for an Offer own price',
     () {
@@ -282,7 +371,8 @@ void main() {
       expect(row.facts, isNot(contains('manufacture_country')));
       expect(row.facts, isNot(contains('brand_origin')));
       expect(row.parameters['功率'], '2.2 kW');
-      expect(snapshot.text, contains('"@type":"Product"'));
+      expect(snapshot.text, 'Product page');
+      expect(snapshot.jsonLd.single, contains('"@type":"Product"'));
       expect(row.evidence['price'], contains('Product.offers.price'));
     },
   );

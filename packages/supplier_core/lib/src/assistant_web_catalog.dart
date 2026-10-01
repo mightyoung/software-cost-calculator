@@ -78,13 +78,18 @@ class AssistantWebSnapshot {
     this.text,
     this.truncated,
     this.digest,
+    List<String> jsonLd,
     List<AssistantWebProduct> products,
-  ) : products = List.unmodifiable(products);
+    this._legacy,
+  ) : jsonLd = List.unmodifiable(jsonLd),
+      products = List.unmodifiable(products);
 
   static const maxTextChars = 48000;
   final String id, url, title, fetchedAt, text, digest;
   final bool truncated;
+  final List<String> jsonLd;
   final List<AssistantWebProduct> products;
+  final bool _legacy;
 
   factory AssistantWebSnapshot.capture({
     required String url,
@@ -95,19 +100,21 @@ class AssistantWebSnapshot {
     List<String> jsonLd = const [],
   }) {
     // Retain complete declarations only: incomplete JSON cannot become facts.
-    var body = text.length > 24000 ? text.substring(0, 24000) : text;
+    final body = text.length > 24000 ? text.substring(0, 24000) : text;
+    final declarations = <String>[];
+    var retainedChars = body.length;
     var omitted = truncated || text.length > 24000;
     for (final declaration in jsonLd.take(8)) {
       if (declaration.length > 16000 ||
-          body.length + _jsonMarker.length + declaration.length >
-              maxTextChars) {
+          retainedChars + declaration.length > maxTextChars) {
         omitted = true;
         continue;
       }
-      body += '$_jsonMarker$declaration';
+      declarations.add(declaration);
+      retainedChars += declaration.length;
     }
     if (jsonLd.length > 8) omitted = true;
-    return _build(url, title, fetchedAt, body, omitted);
+    return _build(url, title, fetchedAt, body, omitted, declarations);
   }
 
   static AssistantWebSnapshot _build(
@@ -116,7 +123,9 @@ class AssistantWebSnapshot {
     String fetchedAt,
     String text,
     bool truncated,
-  ) {
+    List<String> jsonLd, {
+    bool legacy = false,
+  }) {
     final uri = Uri.tryParse(url);
     if (url.length > 2048 ||
         uri == null ||
@@ -129,13 +138,23 @@ class AssistantWebSnapshot {
         DateTime.tryParse(fetchedAt) == null ||
         text.length > maxTextChars)
       throw const FormatException('Invalid snapshot bounds');
-    final products = _products(text, truncated);
+    // Legacy mixed text cannot prove whether a marker came from the host or
+    // the page. Marker-free legacy snapshots retain their original identities.
+    if (jsonLd.length > 8 ||
+        jsonLd.any((value) => value.length > 16000) ||
+        text.length + jsonLd.fold<int>(0, (sum, value) => sum + value.length) >
+            maxTextChars ||
+        legacy && text.contains(_jsonMarker)) {
+      throw const FormatException('Invalid or ambiguous snapshot declarations');
+    }
+    final products = _products(text, jsonLd, truncated);
     final payload = {
       'url': url,
       'title': title,
       'fetched_at': fetchedAt,
       'text': text,
       'truncated': truncated,
+      if (!legacy) 'json_ld': jsonLd,
       'products': products.map((p) => p.toJson()).toList(),
     };
     final digest = _digest(payload);
@@ -147,11 +166,14 @@ class AssistantWebSnapshot {
       text,
       truncated,
       digest,
+      jsonLd,
       products,
+      legacy,
     );
   }
 
   factory AssistantWebSnapshot.fromJson(Map<String, Object?> json) {
+    final legacy = !json.containsKey('json_ld');
     const keys = {
       'id',
       'url',
@@ -161,8 +183,9 @@ class AssistantWebSnapshot {
       'truncated',
       'digest',
       'products',
+      'json_ld',
     };
-    if (json.length != keys.length ||
+    if (json.length != keys.length - (legacy ? 1 : 0) ||
         json.keys.any((k) => !keys.contains(k)) ||
         json['truncated'] is! bool ||
         json['products'] is! List ||
@@ -175,12 +198,22 @@ class AssistantWebSnapshot {
       return value;
     }
 
+    final rawDeclarations = legacy ? const <String>[] : json['json_ld'];
+    if (rawDeclarations is! List ||
+        rawDeclarations.length > 8 ||
+        rawDeclarations.any(
+          (value) => value is! String || value.length > 16000,
+        )) {
+      throw const FormatException('Invalid snapshot declarations');
+    }
     final result = _build(
       string('url', 2048),
       string('title', 200),
       string('fetched_at', 40),
       string('text', maxTextChars),
       json['truncated'] as bool,
+      rawDeclarations.cast<String>(),
+      legacy: legacy,
     );
     if (string('id', 100) != result.id ||
         string('digest', 64) != result.digest ||
@@ -199,6 +232,7 @@ class AssistantWebSnapshot {
     'fetched_at': fetchedAt,
     'text': text,
     'truncated': truncated,
+    if (!_legacy) 'json_ld': jsonLd,
     'digest': digest,
     'products': products.map((p) => p.toJson()).toList(),
   };
@@ -389,10 +423,13 @@ bool _type(Map value, String type) =>
     value['@type'] == type ||
     value['@type'] is List && (value['@type'] as List).contains(type);
 
-List<AssistantWebProduct> _products(String text, bool truncated) {
-  final sections = text.split(_jsonMarker);
+List<AssistantWebProduct> _products(
+  String text,
+  List<String> jsonLd,
+  bool truncated,
+) {
   final found = <AssistantWebProduct>[];
-  for (final raw in sections.skip(1).take(8)) {
+  for (final raw in jsonLd) {
     if (raw.length > 16000 || !_safeJson(raw)) continue;
     Object? decoded;
     try {
@@ -495,8 +532,7 @@ List<AssistantWebProduct> _products(String text, bool truncated) {
         invalidOffer =
             true; // Never blend commercial terms across sellers/offers.
       if (invalidOffer) row.noPrice('报价缺少唯一 Offer 自身的明确价格，或为区间、起价及绑定不明确，需人工核验');
-      if (_uncertainPrice(sections.first))
-        row.noPrice('来源说明包含总价、非单价或不确定报价，需人工核验');
+      if (_uncertainPrice(text)) row.noPrice('来源说明包含总价、非单价或不确定报价，需人工核验');
       if (truncated) row.noPrice('来源内容不完整，无法排除遗漏的报价条件或冲突');
       final product = row.finish();
       if (product != null) found.add(product);
@@ -505,7 +541,7 @@ List<AssistantWebProduct> _products(String text, bool truncated) {
   if (found.isNotEmpty) return found;
   final row = _Row();
   var nameCount = 0;
-  final lines = sections.first.split('\n');
+  final lines = text.split('\n');
   // A capture limit must never turn a partially retained number into a price.
   if (truncated && lines.isNotEmpty) lines.removeLast();
   for (final line in lines) {
@@ -523,7 +559,7 @@ List<AssistantWebProduct> _products(String text, bool truncated) {
   }
   if (nameCount != 1)
     return const []; // Explicitly single-product records only.
-  if (_uncertainPrice(sections.first)) row.noPrice('来源说明包含总价、非单价或不确定报价，需人工核验');
+  if (_uncertainPrice(text)) row.noPrice('来源说明包含总价、非单价或不确定报价，需人工核验');
   if (truncated) row.noPrice('来源内容不完整，无法排除遗漏的报价条件或冲突');
   final product = row.finish();
   return product == null ? const [] : [product];
