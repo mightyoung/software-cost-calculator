@@ -203,6 +203,59 @@ class _AiSettingsState extends State<AiSettings> {
       const SizedBox(height: 12),
       Wrap(
         spacing: 8,
+        children: [
+          const Text('助手操作权限'),
+          DropdownButton<AssistantPermission>(
+            value: widget.state.assistantPermission,
+            items: const [
+              DropdownMenuItem(
+                value: AssistantPermission.readOnly,
+                child: Text('只读'),
+              ),
+              DropdownMenuItem(
+                value: AssistantPermission.confirmWrites,
+                child: Text('修改前逐次确认'),
+              ),
+            ],
+            onChanged: (value) {
+              if (value != null) {
+                setState(() => widget.state.assistantPermission = value);
+              }
+            },
+          ),
+        ],
+      ),
+      SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        value: widget.state.assistantWebEnabled,
+        onChanged: (value) =>
+            setState(() => widget.state.assistantWebEnabled = value),
+        title: const Text('助手联网查询'),
+        subtitle: const Text('搜索词会发送给公开搜索网站；公开网页内容会交给配置的 AI 服务处理。'),
+      ),
+      Wrap(
+        spacing: 12,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          const Text('采购要求中的“国产”'),
+          DropdownButton<String>(
+            value: widget.state.assistantDomesticCriterion ?? 'unspecified',
+            items: [
+              for (final entry in assistantDomesticCriteria.entries)
+                DropdownMenuItem(value: entry.key, child: Text(entry.value)),
+            ],
+            onChanged: (value) => setState(() {
+              widget.state.assistantDomesticCriterion = value == 'unspecified'
+                  ? null
+                  : value;
+            }),
+          ),
+        ],
+      ),
+      const Text('口径未明确或来源缺失时不判为符合；网络价格仅为参考，导入前核对来源。'),
+      const SizedBox(height: 12),
+      Wrap(
+        spacing: 8,
         runSpacing: 8,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [

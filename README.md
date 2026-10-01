@@ -12,7 +12,7 @@ A supplier inquiry and project cost tool. Each device runs on its own and stores
 - **AI (DeepSeek or any OpenAI-compatible service):**
   - **Build a project from a list:** matches the list against the local material catalogue; nothing is written until the user confirms.
   - **Smart quote import:** paste supplier information (chat, email, a quote sheet or an Excel file) and the app pulls out suppliers, contacts, products (brand, model, technical specs) and prices. It matches them to existing suppliers and materials, then after review writes them into an existing or new project in one go, optionally adding them to the budget. Only the pasted text is sent to the AI.
-  - **Ask your data:** answers questions using read-only queries.
+  - **Assistant:** queries local data and optionally researches public product and price sources. New answers display host-verified tool facts; unsupported fields stay unknown. Source-bound candidates are reviewed before catalogue import, and web prices remain reference prices. Existing-project price checks require matching identity and commercial terms; alternative products require a new formal quote and review in the budget workflow. Other app record changes require confirmation; read-only mode and outbound web-request review are available.
   - The API key is kept only in the operating system's secure storage.
 
 ## Layout

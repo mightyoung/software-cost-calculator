@@ -194,8 +194,17 @@ extension SpecMatch on Store {
               ),
               have: have,
               unconfirmed:
-                  mine[c.property] != null &&
-                  mine[c.property]!['confirmed'] != true,
+                  [
+                    if (!derived) c.property,
+                    if (derived && c.property == 'mem.total') ...[
+                      'mem.dimm_size',
+                      'mem.dimm_count',
+                    ],
+                    if (spanCode != null && have?['basis'] == 'FS') spanCode,
+                  ].any(
+                    (code) =>
+                        mine[code] != null && mine[code]!['confirmed'] != true,
+                  ),
               derived: derived,
             );
           }(),
@@ -205,7 +214,8 @@ extension SpecMatch on Store {
             (x) => hard(x.constraint) && x.verdict.outcome == Outcome.worse,
           )
           ? MatchGroup.failed
-          : results.every((x) => x.verdict.satisfied)
+          : results.isNotEmpty &&
+                results.every((x) => x.verdict.satisfied && !x.unconfirmed)
           ? MatchGroup.full
           : MatchGroup.partial;
       final quote = quoteOptionsFor(
@@ -259,9 +269,11 @@ extension SpecMatch on Store {
       if (c.group == MatchGroup.full) continue;
       final open = [
         for (final (i, x) in c.results.indexed)
-          if (!x.verdict.satisfied) i,
+          if (!x.verdict.satisfied || x.unconfirmed) i,
       ];
-      if (open.length == 1) gain[open.single] = (gain[open.single] ?? 0) + 1;
+      if (open.length == 1 && c.results.length > 1) {
+        gain[open.single] = (gain[open.single] ?? 0) + 1;
+      }
     }
     return MatchResult(candidates, gain, allHard: allHard);
   }

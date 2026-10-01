@@ -82,20 +82,23 @@ class AttachmentsField extends StatelessWidget {
     super.key,
     required this.state,
     required this.ids,
-    required this.onChanged,
-  });
+    this.onChanged,
+    this.readOnly = false,
+  }) : assert(readOnly || onChanged != null);
   final AppState state;
   final List<String> ids;
-  final ValueChanged<List<String>> onChanged;
+  final ValueChanged<List<String>>? onChanged;
+  final bool readOnly;
 
   Future<void> _add(BuildContext context) async {
+    if (readOnly) return;
     final file = await pickBytesForUi(context, const []);
     if (file == null) return;
     String? id;
     final err = state.write((s) => id = s.addAttachment(file.name, file.bytes));
     if (!context.mounted) return;
     if (err != null) return toast(context, '无法添加附件：$err');
-    onChanged([...ids, id!]);
+    onChanged!([...ids, id!]);
   }
 
   Future<void> _open(BuildContext context, Attachment a) async {
@@ -115,11 +118,12 @@ class AttachmentsField extends StatelessWidget {
           children: [
             Text('原件', style: TextStyle(fontSize: 12, color: Tokens.ink2)),
             const Spacer(),
-            TextButton.icon(
-              onPressed: () => _add(context),
-              icon: const AppIcon(Icons.attach_file, size: 16),
-              label: const Text('添加报价单、截图等'),
-            ),
+            if (!readOnly)
+              TextButton.icon(
+                onPressed: () => _add(context),
+                icon: const AppIcon(Icons.attach_file, size: 16),
+                label: const Text('添加报价单、截图等'),
+              ),
           ],
         ),
         if (list.isEmpty)
@@ -139,14 +143,15 @@ class AttachmentsField extends StatelessWidget {
                 icon: const AppIcon(Icons.download_outlined, size: 16),
                 onPressed: () => _open(context, a),
               ),
-              IconButton(
-                tooltip: '从这条报价移除（原件仍保留在本机）',
-                icon: const AppIcon(Icons.close, size: 16),
-                onPressed: () => onChanged([
-                  for (final i in ids)
-                    if (i != a.id) i,
-                ]),
-              ),
+              if (!readOnly)
+                IconButton(
+                  tooltip: '从这条报价移除（原件仍保留在本机）',
+                  icon: const AppIcon(Icons.close, size: 16),
+                  onPressed: () => onChanged!([
+                    for (final i in ids)
+                      if (i != a.id) i,
+                  ]),
+                ),
             ],
           ),
       ],

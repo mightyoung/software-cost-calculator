@@ -113,7 +113,10 @@ void main() {
       expect(calls, 3);
       expect(resumedToolResult, contains('新供应商名称'));
       expect(resumedToolResult, isNot(contains('旧供应商名称')));
-      expect(find.text('已核对新供应商名称。'), findsOneWidget);
+      expect(find.text('新供应商名称'), findsOneWidget);
+      expect(find.textContaining('本机查询结果'), findsOneWidget);
+      expect(find.text('已核对新供应商名称。'), findsNothing);
+      expect(find.text('旧供应商名称'), findsNothing);
       expect(find.text('过时回答'), findsNothing);
       expect(reopened.aiTask(job.id).status, 'finished');
       expect(tester.takeException(), isNull);

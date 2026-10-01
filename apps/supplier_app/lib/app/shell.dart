@@ -59,7 +59,11 @@ class _ShellState extends State<Shell> {
     Section.home => HomePage(state: widget.state, onGo: go),
     Section.projects => ProjectsPage(state: widget.state),
     Section.quotes => QuotesPage(state: widget.state),
-    Section.ask => AskPage(state: widget.state),
+    Section.ask => AskPage(
+      state: widget.state,
+      onOpenPage: (name) =>
+          go(Section.values.firstWhere((s) => s.name == name)),
+    ),
     Section.aiTasks => AiTasksPage(state: widget.state),
     Section.suppliers => CatalogPage(state: widget.state, type: 'supplier'),
     Section.products => CatalogPage(state: widget.state, type: 'product'),

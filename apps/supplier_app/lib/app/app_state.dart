@@ -11,6 +11,12 @@ import 'errors.dart';
 
 export 'errors.dart' show friendlyError;
 
+const assistantDomesticCriteria = {
+  'unspecified': '国产口径待明确',
+  'manufacture': '国产指中国制造',
+  'brand': '国产指国产品牌',
+};
+
 /// Holds the device's store. Pages read the store directly (SQLite is
 /// synchronous and local) and call [changed] after writing so every
 /// listener rebuilds with fresh data.
@@ -368,6 +374,92 @@ class AppState extends ChangeNotifier {
 
   String get aiBaseUrl => setting('ai_base_url') ?? 'https://api.deepseek.com';
   String get aiModel => setting('ai_model') ?? 'deepseek-flash';
+
+  bool get assistantWebEnabled => setting('assistant_web') == '1';
+  set assistantWebEnabled(bool value) =>
+      saveSetting('assistant_web', value ? '1' : null);
+
+  AssistantPermission get assistantPermission =>
+      setting('assistant_permission') == 'readOnly'
+      ? AssistantPermission.readOnly
+      : AssistantPermission.confirmWrites;
+  set assistantPermission(AssistantPermission value) =>
+      saveSetting('assistant_permission', value.name);
+
+  String? get assistantDomesticCriterion {
+    final value = setting('assistant_domestic_criterion');
+    return value == 'manufacture' || value == 'brand' ? value : null;
+  }
+
+  set assistantDomesticCriterion(String? value) {
+    if (value != null && value != 'manufacture' && value != 'brand') {
+      throw ArgumentError.value(value, 'domesticCriterion');
+    }
+    saveSetting('assistant_domestic_criterion', value);
+  }
+
+  String _webCacheKey(String id) => 'assistant_web_sources:${jsonEncode(id)}';
+
+  /// A host-owned factory also gives UI tests a bounded transport seam.
+  AssistantWebTools createAssistantWebTools(String jobId) => AssistantWebTools(
+    restoredSnapshots: assistantWebSnapshots(jobId),
+    onSnapshot: (source) => saveAssistantWebSnapshot(jobId, source),
+  );
+
+  List<AssistantWebSnapshot> assistantWebSnapshots(String jobId) {
+    validateAssistantSession(jobId);
+    final rows = store.db.select('SELECT value FROM meta WHERE key=?', [
+      _webCacheKey(jobId),
+    ]);
+    if (rows.isEmpty) return const [];
+    try {
+      final text = rows.single['value'] as String;
+      if (text.length > 1024 * 1024 || utf8.encode(text).length > 1024 * 1024) {
+        throw const FormatException('Source cache exceeds task budget');
+      }
+      final decoded = jsonDecode(text);
+      if (decoded is! List || decoded.length > 8) {
+        throw const FormatException('Invalid source cache shape');
+      }
+      return [
+        for (final row in decoded)
+          AssistantWebSnapshot.fromJson((row as Map).cast<String, Object?>()),
+      ];
+    } on FormatException {
+      throw LlmException('任务网页来源缓存损坏或超限，不能恢复该任务。请重新开始采购研究。');
+    } on TypeError {
+      throw LlmException('任务网页来源缓存结构损坏，不能恢复该任务。请重新开始采购研究。');
+    }
+  }
+
+  void saveAssistantWebSnapshot(String jobId, AssistantWebSnapshot source) {
+    validateAssistantSession(jobId);
+    final prior = assistantWebSnapshots(jobId);
+    final sources = [...prior.where((s) => s.id != source.id), source];
+    final encoded = jsonEncode([
+      for (final s in sources.skip(sources.length > 8 ? sources.length - 8 : 0))
+        s.toJson(),
+    ]);
+    if (utf8.encode(encoded).length > 1024 * 1024) {
+      throw LlmException('本任务网页证据超过1MiB，请分批研究');
+    }
+    store.db.execute(
+      'INSERT INTO meta(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',
+      [_webCacheKey(jobId), encoded],
+    );
+  }
+
+  void clearAssistantWebSnapshots(String jobId) =>
+      store.db.execute('DELETE FROM meta WHERE key=?', [_webCacheKey(jobId)]);
+
+  /// Conversation actions validate a running job, rather than a ready draft.
+  void validateAssistantSession(String id) {
+    if (_disposed || _restoring) throw LlmException('资料库当前不可用，操作已停止');
+    final job = _jobs.get(id);
+    if (job.epoch != _jobs.epoch || job.status != 'running') {
+      throw LlmException('任务已经失效，请重新开始并确认操作');
+    }
+  }
 
   /// Technical requirements may be sent to the AI service (off by default:
   /// requirements can be confidential; a local model is an option).

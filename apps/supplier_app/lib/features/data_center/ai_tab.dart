@@ -55,7 +55,8 @@ class _AiTabState extends State<AiAccessTab> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '"问数据"里的 AI 助手读取的就是这里的数据模型和规则，并且只能用下列只读工具查询，不能修改数据。'
+                '"问数据"里的 AI 助手使用这里的数据模型和规则查询；可在助手权限中开启联网，或选择逐次确认修改。'
+                '下列本地查询工具及外部 MCP 接口保持只读。'
                 '也可以把完整的数据说明复制给其他 AI 工具，让它理解这些数据。',
                 style: TextStyle(
                   color: RelationGraphPalette.of(context).muted,

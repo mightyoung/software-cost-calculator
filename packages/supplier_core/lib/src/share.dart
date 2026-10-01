@@ -7,11 +7,11 @@ import 'crypto_file.dart';
 import 'store.dart';
 
 /// Records that travel with a chosen one: a supplier brings its contacts,
-/// a material its quotations, a project its budget lines, quotations and
+/// a material its quotations and parameters, a project its budget lines, quotations and
 /// inquiries.
 const _children = {
   'supplier': [('contact', 'supplier_id')],
-  'product': [('quotation', 'product_id')],
+  'product': [('quotation', 'product_id'), ('product_param', 'product_id')],
   'project': [
     ('project_item', 'project_id'),
     ('quotation', 'project_id'),
@@ -61,7 +61,7 @@ extension Share on Store {
   }
 
   /// Writes an exchange file holding only the [shareClosure] of [chosen]:
-  /// its rows, their change history and the quotations' attachments. It
+  /// its rows, their change history and referenced source attachments. It
   /// imports like any exchange file. Encrypted when [passphrase] is given.
   Future<void> exportSelection(
     String path,
@@ -85,6 +85,14 @@ extension Share on Store {
       }
       final all = ids.values.expand((s) => s).toList();
       final attachments = {
+        for (final p in ids['product']!)
+          ...((get('product', p)?.data['source_attachment_ids'] as List?) ??
+                  const [])
+              .cast<String>(),
+        for (final p in ids['product_param']!)
+          if (get('product_param', p)?.data['attachment_id']
+              case final String id)
+            id,
         for (final q in ids['quotation']!)
           ...((get('quotation', q)?.data['attachment_ids'] as List?) ??
                   const [])
