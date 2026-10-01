@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 import '../../widgets/app_icon.dart';
@@ -41,19 +42,35 @@ class _ProjectDetailState extends State<ProjectDetail> {
   AppState get state => widget.state;
 
   Future<void> _export(String kind, Map<String, Object?> p) async {
-    final store = state.store;
-    if (kind.endsWith('_pdf')) return _exportPdf(kind, p);
-    final (name, bytes) = switch (kind) {
-      'quote' => ('项目报价单', store.exportQuoteSheet(widget.projectId)),
-      'budget' => ('成本预算表', store.exportCostBudget(widget.projectId)),
-      _ => ('询价清单', store.exportInquiryList(widget.projectId)),
-    };
-    final saved = await saveBytes(
-      '$name-${p['name']}-${today()}.xlsx',
-      bytes,
-      extensions: ['xlsx'],
-    );
-    if (saved && mounted) toast(context, '已导出$name');
+    try {
+      final store = state.store;
+      if (kind.endsWith('_pdf')) {
+        await _exportPdf(kind, p);
+        return;
+      }
+      final (name, bytes) = switch (kind) {
+        'quote' => ('项目报价单', store.exportQuoteSheet(widget.projectId)),
+        'budget' => ('成本预算表', store.exportCostBudget(widget.projectId)),
+        _ => ('询价清单', store.exportInquiryList(widget.projectId)),
+      };
+      final saved = await saveBytes(
+        '$name-${p['name']}-${today()}.xlsx',
+        bytes,
+        extensions: ['xlsx'],
+      );
+      if (saved && mounted) toast(context, '已导出$name');
+    } catch (e) {
+      if (!mounted) return;
+      final message = switch (e) {
+        PlatformException(code: 'explorer_not_found') =>
+          '无法打开系统文件管理器，请确认已启用文件管理器后重试',
+        PlatformException(:final message, :final code) => friendlyError(
+          message ?? code,
+        ),
+        _ => friendlyError('$e'),
+      };
+      toast(context, '导出失败：$message');
+    }
   }
 
   Future<void> _exportPdf(String kind, Map<String, Object?> p) async {
