@@ -9,6 +9,7 @@ import '../../widgets/deletion.dart';
 import '../../widgets/ledger.dart';
 import '../../widgets/price_trend.dart';
 import '../quotes/quote_form.dart';
+import '../quotes/quote_extras.dart';
 import '../records/open_record.dart';
 import 'catalog_page.dart';
 import 'contacts.dart';
@@ -244,6 +245,15 @@ class CatalogDetail extends StatelessWidget {
       ],
       const SizedBox(height: 12),
       _actions(context, {'product_id': id, 'unit_snapshot': d['unit']}),
+      if ((d['source_attachment_ids'] as List?)?.isNotEmpty == true) ...[
+        _section('采购来源'),
+        _sub('网页资料尚待核实；可另存原始来源及字段证据查看。'),
+        AttachmentsField(
+          state: state,
+          ids: (d['source_attachment_ids'] as List).cast<String>(),
+          readOnly: true,
+        ),
+      ],
       ..._params(d),
       if (main != null) ...[
         _section(

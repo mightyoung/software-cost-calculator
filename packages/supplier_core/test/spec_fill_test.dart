@@ -283,8 +283,28 @@ void main() {
     expect(m['conditions'], ['防护等级 不低于 IP65']);
     expect(m['text_clauses'], ['与采集器适配']);
     final top = (m['candidates'] as List).single as Map;
-    expect(top['group'], '完全满足');
+    expect(top['group'], '基本满足', reason: '与采集器适配尚无可计算证据');
+    expect(top['qualification'], 'pending');
+    expect(top['pending_clauses'], isTrue);
     expect(((top['results'] as List).single as Map)['outcome'], '正偏离');
+    expect(((top['results'] as List).single as Map)['unconfirmed'], isFalse);
+
+    // A separate, fully structured requirement can be supported once its
+    // reading is reviewed; this does not certify the compatibility clause.
+    s.createSpecRequest('已审核防护要求', [
+      draftItem('变送器', '防护等级不低于IP65', specClass: 'sensor.th'),
+    ]);
+    final itemId =
+        s.db.select('SELECT id FROM spec_item').single['id'] as String;
+    s.saveClauses(itemId, [
+      for (final clause in clausesOf(s.get('spec_item', itemId)!))
+        clause.copyWith(reviewed: true),
+    ]);
+    final reviewed = run('match_item', {'item_id': itemId}) as Map;
+    final supported = (reviewed['candidates'] as List).single as Map;
+    expect(supported['group'], '完全满足');
+    expect(supported['qualification'], 'supported');
+    expect(supported['pending_clauses'], isFalse);
     expect((run('match_item', {'class': 'nope'}) as Map)['error'], isNotNull);
   });
 }

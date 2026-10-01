@@ -582,6 +582,14 @@ void main() {
               ),
       ),
     );
+    // Image decoding uses real async work; settling frames alone can capture
+    // the header before its brand asset has finished loading.
+    await tester.runAsync(() async {
+      await precacheImage(
+        const AssetImage('assets/brand/header-mark-v3.png'),
+        tester.element(find.byType(MaterialApp)),
+      );
+    });
     await tester.pumpAndSettle();
     if (act != null) await act();
     await expectLater(

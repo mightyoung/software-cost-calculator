@@ -1,3 +1,4 @@
+import 'inquiry.dart' show uuidList;
 import 'values.dart';
 
 abstract base class EntityPayload {
@@ -131,10 +132,11 @@ final class Product extends EntityPayload {
     'unit_conversions',
     // Schema 8: parameter template (dictionary class code).
     'spec_class',
+    'source_attachment_ids',
   ];
   factory Product.fromJson(Map<String, Object?> input) {
     // Fields added later may be left out; they mean "not set".
-    final value = {'spec_class': null, ...input};
+    final value = {'spec_class': null, 'source_attachment_ids': null, ...input};
     exactKeys(value, fields);
     return Product._({
       'name': normalizeText(value['name'], 'name', 200, required: true),
@@ -157,6 +159,13 @@ final class Product extends EntityPayload {
       'spec_class': value['spec_class'] == null
           ? null
           : _specClass(value['spec_class']),
+      'source_attachment_ids': value['source_attachment_ids'] == null
+          ? null
+          : uuidList(
+              value['source_attachment_ids'],
+              'source_attachment_ids',
+              8,
+            ),
     });
   }
 }

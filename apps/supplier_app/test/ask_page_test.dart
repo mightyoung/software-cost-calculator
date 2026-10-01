@@ -147,12 +147,13 @@ void main() {
         matching: find.byType(InkWell),
       );
       if (queried) {
-        expect(chip, findsNWidgets(scenario == 2 ? 2 : 1));
+        expect(chip, findsOneWidget);
         expect(tester.widget<InkWell>(chip.first).onTap, isNotNull);
         expect(find.text('质量已认证最低价'), findsNothing);
       } else {
         expect(chip, findsNothing);
-        expect(find.textContaining('供应商甲（未核验）'), findsOneWidget);
+        expect(find.textContaining('供应商甲'), findsNothing);
+        expect(find.textContaining('没有取得可核验'), findsOneWidget);
       }
     });
   }
@@ -168,7 +169,7 @@ void main() {
   testWidgets('only six recent answers retain evidence in memory', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(1000, 2000);
+    tester.view.physicalSize = const Size(1000, 6000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -207,11 +208,18 @@ void main() {
     }
     expect(find.text('查询依据（0 次）'), findsNWidgets(6));
     expect(find.text('历史回答，未保留查询依据'), findsOneWidget);
-    expect(find.text('回答1'), findsOneWidget);
+    expect(find.text('回答1'), findsNothing);
     final saved = jsonDecode(state.setting('ask_history')!) as List;
     expect(saved, hasLength(14));
     expect(saved.every((entry) => (entry as List).length == 3), isTrue);
     expect(jsonEncode(saved), isNot(contains('observations')));
+    expect(jsonEncode(saved), isNot(contains('回答1')));
+    expect(
+      saved
+          .where((entry) => (entry as List)[0] == false)
+          .every((entry) => (entry[1] as String).contains('没有取得可核验')),
+      isTrue,
+    );
   });
 
   testWidgets('query evidence is collapsed, inspectable and never persisted', (
@@ -304,10 +312,13 @@ void main() {
     expect(result, contains('"cost":"0"'));
     expect(find.text(jsonEncode({'project_id': project})), findsOneWidget);
     final saved = jsonDecode(state.setting('ask_history')!) as List;
-    expect(saved, [
-      [true, '泵房预算？', false],
-      [false, '成本为 0 元。', false],
-    ]);
+    expect(saved, hasLength(2));
+    expect(saved.first, [true, '泵房预算？', false]);
+    expect(saved.last[0], isFalse);
+    expect(saved.last[2], isFalse);
+    expect(saved.last[1], contains('本机查询结果'));
+    expect(saved.last[1], contains('"cost": "0"'));
+    expect(saved.last[1], isNot(contains('成本为 0 元。')));
   });
 
   testWidgets('old record references are plain text without current evidence', (

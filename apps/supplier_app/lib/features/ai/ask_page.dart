@@ -1,15 +1,20 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 import '../../app/motion.dart';
 import 'package:supplier_core/supplier_core.dart';
 
 import '../../widgets/app_icon.dart';
 import '../../app/app_state.dart';
+import '../../app/shell.dart';
 import '../../app/theme.dart';
+import '../../platform/files.dart';
 import '../records/open_record.dart';
+import 'assistant_confirmation.dart';
 
 const _examples = [
   '离心水泵目前最低的有效报价是多少？来自哪个供应商？',
@@ -19,18 +24,31 @@ const _examples = [
 ];
 
 class _Message {
-  _Message(this.fromUser, this.text, {this.error = false, this.evidence});
+  _Message(
+    this.fromUser,
+    this.text, {
+    this.error = false,
+    this.evidence,
+    this.appliedActions = const [],
+  });
   final bool fromUser, error;
   final String text;
   // Evidence belongs only to this page session, never to saved history.
   final AssistantAnswer? evidence;
+  final List<Map<String, Object?>> appliedActions;
 }
 
-/// Questions about local data, answered through read-only tool calls.
+/// Local queries, optional web research and individually approved app actions.
 class AskPage extends StatefulWidget {
-  const AskPage({super.key, required this.state, this.resumeJobId});
+  const AskPage({
+    super.key,
+    required this.state,
+    this.resumeJobId,
+    this.onOpenPage,
+  });
   final AppState state;
   final String? resumeJobId;
+  final void Function(String page)? onOpenPage;
 
   @override
   State<AskPage> createState() => _AskPageState();
@@ -165,6 +183,13 @@ class _AskPageState extends State<AskPage> {
     _scrollDown(force: true);
     _Message reply;
     String? jobId;
+    AssistantAppTools? appTools;
+    AssistantProcurementTools? procurement;
+    AssistantWebTools? web;
+    final completed = <AssistantObservation>[];
+    Map<String, String>? navigation;
+    final permission = widget.state.assistantPermission;
+    final webEnabled = widget.state.assistantWebEnabled;
     try {
       final answer = await widget.state.runAiTask(
         AiTask.conversation,
@@ -174,21 +199,77 @@ class _AskPageState extends State<AskPage> {
             for (final t in history) [t.question, t.answer],
           ],
         },
-        (llm) => widget.state.store.askWithEvidence(
-          llm,
-          question,
-          history: history,
-          cancellation: cancellation,
-          onCompact: () {
-            if (mounted) setState(() => activity = '整理对话上下文');
-          },
-          onTool: (tool) {
-            if (mounted) setState(() => activity = toolActivity[tool]);
-          },
-        ),
+        (llm) async {
+          final raw = await widget.state.store.askWithEvidence(
+            llm,
+            question,
+            history: history,
+            cancellation: cancellation,
+            toolsets: [
+              appTools!,
+              procurement!,
+              if (webEnabled)
+                _ReviewedWebTools(
+                  (name, args, cancel) =>
+                      confirmAssistantNetwork(context, name, args, cancel),
+                  () => widget.state.assistantWebEnabled,
+                  web!,
+                ),
+              _AppNavigationTools(
+                widget.state.store,
+                (request) => navigation = request,
+              ),
+            ],
+            onObservation: completed.add,
+            onCompact: () {
+              if (mounted) setState(() => activity = '整理对话上下文');
+            },
+            onTool: (tool) {
+              if (mounted) setState(() => activity = toolActivity[tool]);
+            },
+          );
+          return raw.verifiedReport(
+            procurementReport:
+                raw.observations.any((o) => o.tool.startsWith('procurement_'))
+                ? procurement!.renderReport(raw)
+                : '',
+          );
+        },
         resumeId: resumeId,
         cancellation: cancellation,
-        onCreated: (id) => jobId = id,
+        onCreated: (id) {
+          jobId = id;
+          void validateSession() {
+            widget.state.validateAssistantSession(id);
+            if (widget.state.assistantPermission != permission) {
+              throw LlmException('助手权限已变化，请重新开始任务');
+            }
+          }
+
+          web = widget.state.createAssistantWebTools(id);
+          procurement = AssistantProcurementTools(
+            widget.state.store,
+            web: web!,
+            sessionId: id,
+            permission: permission,
+            requestText: question,
+            domesticCriterion: () => widget.state.assistantDomesticCriterion,
+            approve: (preview) =>
+                confirmAssistantAction(context, preview, cancellation),
+            validateSession: validateSession,
+            onChanged: widget.state.changed,
+          );
+          appTools = AssistantAppTools(
+            widget.state.store,
+            permission: permission,
+            sessionId: id,
+            approve: (preview) =>
+                confirmAssistantAction(context, preview, cancellation),
+            validateSession: validateSession,
+            validateWrite: guardAssistantProcurementWrite,
+            onChanged: widget.state.changed,
+          );
+        },
       );
       widget.state.validateAiTask(jobId!);
       reply = _Message(
@@ -202,6 +283,46 @@ class _AskPageState extends State<AskPage> {
       reply = _Message(false, '查询未完成：${friendlyError('$e')}', error: true);
     }
     if (!mounted) return;
+    final applied = [
+      ...?appTools?.appliedActions,
+      for (final receipt in procurement?.appliedActions ?? const [])
+        for (final type in ['product', 'supplier', 'quotation'])
+          if (receipt['${type}_id'] case final String recordId)
+            if (widget.state.store.get(type, recordId) case final record?)
+              {
+                'type': type,
+                'id': recordId,
+                'record': {
+                  'name':
+                      record.data['name'] ??
+                      (type == 'quotation'
+                          ? '参考报价 ${record.data['price']} ${record.data['currency']}'
+                          : ''),
+                },
+              },
+    ];
+    final summary = applied.isEmpty
+        ? ''
+        : '\n\n本任务已确认保存 ${applied.length} 项操作：${applied.map((a) {
+            final record = a['record'] as Map;
+            return '${ontology[a['type']]?.label ?? a['type']} ${record['name'] ?? record['title'] ?? ''}';
+          }).join('；')}。';
+    reply = _Message(
+      false,
+      '${reply.text}$summary',
+      error: reply.error,
+      appliedActions: applied,
+      evidence:
+          reply.evidence ??
+          (completed.isEmpty
+              ? null
+              : AssistantAnswer.fromRun(
+                  reply.text,
+                  completed,
+                  modelCalls: 0,
+                  elapsed: Duration.zero,
+                )),
+    );
     setState(() {
       messages.add(reply);
       _trimMessages();
@@ -209,8 +330,34 @@ class _AskPageState extends State<AskPage> {
       _cancellation = null;
     });
     _saveHistory();
-    if (!reply.error && jobId != null) widget.state.finishAiTask(jobId!);
+    if (!reply.error && jobId != null) {
+      widget.state.finishAiTask(jobId!);
+      procurement?.clearTransient();
+      widget.state.clearAssistantWebSnapshots(jobId!);
+    }
     _scrollDown();
+    if (!reply.error && navigation != null) {
+      final request = navigation!;
+      if (request['page'] == 'record') {
+        await openRecord(
+          context,
+          widget.state,
+          request['type']!,
+          request['id']!,
+        );
+      } else if (widget.onOpenPage != null) {
+        widget.onOpenPage!(request['page']!);
+      } else {
+        final section = Section.values.firstWhere(
+          (s) => s.name == request['page'],
+        );
+        await Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => Shell(state: widget.state, initial: section),
+          ),
+        );
+      }
+    }
   }
 
   void _scrollDown({bool animate = true, bool force = false}) =>
@@ -253,6 +400,53 @@ class _AskPageState extends State<AskPage> {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
+              PopupMenuButton<String>(
+                tooltip: '助手权限',
+                enabled: !busy,
+                icon: const AppIcon(Icons.settings_outlined, size: 20),
+                onSelected: (value) => setState(() {
+                  if (value == 'web') {
+                    widget.state.assistantWebEnabled =
+                        !widget.state.assistantWebEnabled;
+                  } else if (value.startsWith('domestic:')) {
+                    final criterion = value.substring('domestic:'.length);
+                    widget.state.assistantDomesticCriterion =
+                        criterion == 'unspecified' ? null : criterion;
+                  } else {
+                    widget.state.assistantPermission = value == 'readOnly'
+                        ? AssistantPermission.readOnly
+                        : AssistantPermission.confirmWrites;
+                  }
+                }),
+                itemBuilder: (_) => [
+                  PopupMenuItem(
+                    value: 'readOnly',
+                    child: Text(
+                      '${widget.state.assistantPermission == AssistantPermission.readOnly ? '✓ ' : ''}只读',
+                    ),
+                  ),
+                  const PopupMenuDivider(),
+                  for (final criterion in assistantDomesticCriteria.entries)
+                    PopupMenuItem(
+                      value: 'domestic:${criterion.key}',
+                      child: Text(
+                        '${(widget.state.assistantDomesticCriterion ?? 'unspecified') == criterion.key ? '✓ ' : ''}${criterion.value}',
+                      ),
+                    ),
+                  PopupMenuItem(
+                    value: 'confirmWrites',
+                    child: Text(
+                      '${widget.state.assistantPermission == AssistantPermission.confirmWrites ? '✓ ' : ''}修改前逐次确认',
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'web',
+                    child: Text(
+                      '${widget.state.assistantWebEnabled ? '✓ ' : ''}允许联网查询',
+                    ),
+                  ),
+                ],
+              ),
               if (messages.isNotEmpty && !busy && constraints.maxWidth < 440)
                 IconButton(
                   tooltip: '清空记录',
@@ -276,7 +470,7 @@ class _AskPageState extends State<AskPage> {
           const SizedBox(height: 4),
           if (constraints.maxHeight >= 480)
             Text(
-              '查询报价、项目与物料 · AI 不会修改记录',
+              '${widget.state.assistantPermission == AssistantPermission.readOnly ? '只读查询' : '修改前逐次确认'} · ${widget.state.assistantWebEnabled ? '允许联网查询' : '联网已关闭'}',
               style: TextStyle(color: Tokens.ink2),
             ),
           const SizedBox(height: 12),
@@ -352,7 +546,7 @@ class _AskPageState extends State<AskPage> {
                               style: const TextStyle(fontSize: 15, height: 1.5),
                               textInputAction: TextInputAction.send,
                               decoration: const InputDecoration(
-                                hintText: '问一个关于报价、项目或物料的问题',
+                                hintText: '查询、整理信息，或提出操作请求',
                                 hintMaxLines: 1,
                                 filled: false,
                                 contentPadding: EdgeInsets.symmetric(
@@ -527,7 +721,25 @@ class _AskPageState extends State<AskPage> {
               color: m.error ? Tokens.red : Tokens.ink,
             ),
           ),
-          if (!m.fromUser && !m.error)
+          for (final action in m.appliedActions)
+            Material(
+              color: Colors.transparent,
+              child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  '已保存：${ontology[action['type']]?.label ?? action['type']} ${(action['record'] as Map)['name'] ?? (action['record'] as Map)['title'] ?? ''}',
+                ),
+                onTap: action['deleted'] == true
+                    ? null
+                    : () => openRecord(
+                        context,
+                        widget.state,
+                        action['type'] as String,
+                        action['id'] as String,
+                      ),
+              ),
+            ),
+          if (!m.fromUser)
             if (m.evidence case final evidence?)
               _evidenceView(evidence)
             else
@@ -584,6 +796,23 @@ class _AskPageState extends State<AskPage> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        for (final source in evidence.sources)
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(
+              source.title.isEmpty ? Uri.parse(source.url).host : source.title,
+            ),
+            subtitle: Text(
+              '${source.url}\n获取时间：${source.fetchedAt}${source.truncated ? ' · 内容有截断' : ''}',
+            ),
+            onTap: () => _openSource(source.url),
+            trailing: IconButton(
+              tooltip: '复制来源链接',
+              icon: const AppIcon(Icons.copy, size: 18),
+              onPressed: () =>
+                  Clipboard.setData(ClipboardData(text: source.url)),
+            ),
+          ),
         for (final warning in evidence.warnings)
           Padding(
             padding: const EdgeInsets.only(top: 8),
@@ -612,7 +841,7 @@ class _AskPageState extends State<AskPage> {
                   const SizedBox(height: 8),
                   const Align(
                     alignment: Alignment.centerLeft,
-                    child: Text('发送给 AI 的实际结果'),
+                    child: Text('工具实际结果'),
                   ),
                   Align(
                     alignment: Alignment.centerLeft,
@@ -625,6 +854,165 @@ class _AskPageState extends State<AskPage> {
       ],
     ),
   );
+
+  Future<void> _openSource(String url) async {
+    try {
+      await InAppBrowser.openWithSystemBrowser(
+        url: WebUri(url),
+      ).timeout(const Duration(seconds: 5));
+    } on TimeoutException {
+      // Some Windows plugin versions open the browser without completing IPC.
+      if (mounted) toast(context, '已发送打开请求；也可复制来源链接');
+    } catch (_) {
+      if (mounted) toast(context, '无法打开系统浏览器，请复制来源链接');
+    }
+  }
+}
+
+class _AppNavigationTools implements AssistantToolset {
+  _AppNavigationTools(this.store, this.onRequest);
+  final Store store;
+  final void Function(Map<String, String>) onRequest;
+  bool _requested = false;
+  static const _recordTypes = [
+    'supplier',
+    'contact',
+    'product',
+    'project',
+    'project_item',
+    'inquiry',
+    'quotation',
+  ];
+
+  @override
+  List<Map<String, Object?>> get tools => [
+    {
+      'type': 'function',
+      'function': {
+        'name': 'app_pages',
+        'description': '查看整个应用的页面入口。同步、导入导出、资料库恢复、公司发布及设置通过现有页面的人工流程操作。',
+        'parameters': {
+          'type': 'object',
+          'properties': <String, Object?>{},
+          'additionalProperties': false,
+        },
+      },
+    },
+    {
+      'type': 'function',
+      'function': {
+        'name': 'open_page',
+        'description':
+            '本轮回答完成后打开应用页面或已存在的记录；返回 ready_to_open 仅表示已安排打开，不会代替用户执行页面中的修改。每轮只打开一个页面。',
+        'parameters': {
+          'type': 'object',
+          'additionalProperties': false,
+          'properties': {
+            'page': {
+              'type': 'string',
+              'enum': [
+                ...Section.values
+                    .where((s) => s != Section.ask)
+                    .map((s) => s.name),
+                'record',
+              ],
+            },
+            'type': {'type': 'string', 'enum': _recordTypes},
+            'id': {'type': 'string'},
+          },
+          'required': ['page'],
+        },
+      },
+    },
+  ];
+
+  @override
+  Future<String> execute(
+    String name,
+    Map<String, Object?> arguments, {
+    required String callId,
+    required AiCancellation cancellation,
+  }) async {
+    cancellation.check();
+    if (name == 'app_pages' && arguments.isEmpty) {
+      return jsonEncode({
+        'pages': [
+          for (final s in Section.values) {'page': s.name, 'label': s.label},
+        ],
+        'record_types': _recordTypes,
+      });
+    }
+    if (name != 'open_page' ||
+        arguments.keys.any((k) => !const {'page', 'type', 'id'}.contains(k))) {
+      throw const FormatException('页面工具参数无效');
+    }
+    if (_requested) throw const FormatException('本轮已经安排打开一个页面');
+    final page = arguments['page'];
+    final request = <String, String>{};
+    if (page == 'record') {
+      final type = arguments['type'], id = arguments['id'];
+      if (type is! String || id is! String || !_recordTypes.contains(type)) {
+        throw const FormatException('打开记录需要有效类型和编号');
+      }
+      final record = store.get(type, id);
+      if (record == null || record.deleted) {
+        throw const FormatException('记录不存在');
+      }
+      request.addAll({'page': 'record', 'type': type, 'id': id});
+    } else if (page is String &&
+        Section.values.any((s) => s != Section.ask && s.name == page) &&
+        arguments.length == 1) {
+      request['page'] = page;
+    } else {
+      throw const FormatException('未知页面或多余参数');
+    }
+    cancellation.check();
+    onRequest(request);
+    _requested = true;
+    return jsonEncode({'status': 'ready_to_open', ...request});
+  }
+}
+
+class _ReviewedWebTools implements AssistantToolset {
+  _ReviewedWebTools(this.review, this.enabled, this._web);
+  final Future<bool> Function(String, Map<String, Object?>, AiCancellation)
+  review;
+  final bool Function() enabled;
+  final AssistantWebTools _web;
+  final _approved = <String>{};
+
+  @override
+  List<Map<String, Object?>> get tools => _web.tools;
+
+  @override
+  Future<String> execute(
+    String name,
+    Map<String, Object?> arguments, {
+    required String callId,
+    required AiCancellation cancellation,
+  }) async {
+    cancellation.check();
+    if (!enabled()) return jsonEncode({'error': '联网权限已关闭'});
+    if (name == 'web_search' || name == 'web_fetch') {
+      final key = jsonEncode({'name': name, 'arguments': arguments});
+      if (!_approved.contains(key)) {
+        final allowed = await cancellation.wait(
+          review(name, arguments, cancellation),
+        );
+        cancellation.check();
+        if (!allowed) return jsonEncode({'error': '用户拒绝此联网请求，尚未发送'});
+        _approved.add(key);
+      }
+    }
+    cancellation.check();
+    if (!enabled()) return jsonEncode({'error': '联网权限已关闭'});
+    return _web.execute(
+      name,
+      arguments,
+      callId: callId,
+      cancellation: cancellation,
+    );
+  }
 }
 
 final _uuid = RegExp(

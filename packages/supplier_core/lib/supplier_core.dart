@@ -1,6 +1,11 @@
 export 'src/agent_tools.dart';
 export 'src/ai_jobs.dart';
 export 'src/assistant.dart';
+export 'src/assistant_actions.dart';
+export 'src/assistant_toolset.dart';
+export 'src/assistant_web_tools.dart';
+export 'src/assistant_web_catalog.dart';
+export 'src/assistant_procurement.dart';
 export 'src/attachments.dart';
 export 'src/background.dart';
 export 'src/budget.dart';

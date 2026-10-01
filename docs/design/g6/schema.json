@@ -156,7 +156,7 @@
       "data": {
         "label": "物料",
         "description": "可询价的设备、材料或服务，一条物料可有多家供应商的报价",
-        "fieldCount": 11,
+        "fieldCount": 12,
         "fields": [
           {
             "name": "name",
@@ -254,6 +254,15 @@
             "kind": "文本",
             "required": false,
             "description": "参数字典中的类别代码，如 sensor.th（温湿度传感器）；决定有哪些结构化参数",
+            "values": null,
+            "target": null
+          },
+          {
+            "name": "source_attachment_ids",
+            "label": "物料来源",
+            "kind": "引用列表",
+            "required": false,
+            "description": "产品页面、技术资料等来源附件的 id，最多 8 个；不代表报价或经过认证的事实",
             "values": null,
             "target": null
           }
