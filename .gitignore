@@ -14,3 +14,10 @@ artifacts/benchmark/**/*
 !artifacts/benchmark/**/*.json
 !artifacts/benchmark/**/*.md
 !artifacts/benchmark/**/*.log
+
+# Local secrets
+.env
+.env.*
+!.env.example
+.DS_Store
+.idea/
