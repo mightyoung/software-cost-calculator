@@ -135,6 +135,25 @@ class AssistantAnswer {
   final String text;
   final List<AssistantObservation> observations;
 
+  /// The answer to show. The model's own reply is the answer; only runs that
+  /// reached the procurement-evidence tools are replaced by the application
+  /// report, because there prices, models and compliance verdicts must come
+  /// from verified tool results, never from free text.
+  AssistantAnswer finalAnswer({String procurementReport = ''}) {
+    if (procurementReport.isNotEmpty ||
+        observations.any((o) => o.tool.startsWith('procurement_'))) {
+      return verifiedReport(procurementReport: procurementReport);
+    }
+    if (!observations.any((o) => o.tool.startsWith('web_'))) return this;
+    return AssistantAnswer.fromRun(
+      '$text\n\n（网页与搜索内容仅是外部线索，未经逐字段核验，不等于已确认的价格、型号或合格结论。）',
+      observations,
+      modelCalls: modelCalls,
+      elapsed: elapsed,
+      contextCompactions: contextCompactions,
+    );
+  }
+
   /// Application-owned output. Model prose is deliberately not consumed.
   AssistantAnswer verifiedReport({String procurementReport = ''}) {
     final parts = <String>[];

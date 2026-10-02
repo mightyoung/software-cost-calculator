@@ -8,7 +8,9 @@ import 'store.dart';
 import 'trash.dart';
 import 'values.dart';
 
-enum AssistantPermission { readOnly, confirmWrites }
+/// [bypass] applies approved-by-policy writes without a dialog. Authority still
+/// comes only from the host: the model cannot select or widen its permission.
+enum AssistantPermission { readOnly, confirmWrites, bypass }
 
 Object? _freeze(Object? value) => switch (value) {
   Map value => Map<String, Object?>.unmodifiable({
@@ -63,6 +65,7 @@ class AssistantAppTools implements AssistantToolset {
     this.validateSession,
     this.onChanged,
     this.validateWrite,
+    this.requireApproval,
   }) {
     if (sessionId.isEmpty || sessionId.length > 200) {
       throw ArgumentError.value(sessionId, 'sessionId');
@@ -74,6 +77,11 @@ class AssistantAppTools implements AssistantToolset {
   final String sessionId;
   final Future<bool> Function(AssistantActionPreview)? approve;
   final void Function()? validateSession, onChanged;
+
+  /// In [AssistantPermission.bypass], true forces a normal approval anyway.
+  /// Hosts use it once untrusted external content (web pages) entered the task,
+  /// so injected text cannot silently turn into a write.
+  final bool Function()? requireApproval;
   final void Function(
     String operation,
     String type,
@@ -154,7 +162,7 @@ class AssistantAppTools implements AssistantToolset {
   void _check(AiCancellation cancellation) {
     cancellation.check();
     validateSession?.call();
-    if (permission != AssistantPermission.confirmWrites) {
+    if (permission == AssistantPermission.readOnly) {
       throw const FormatException('Application writes are disabled');
     }
   }
@@ -309,9 +317,15 @@ class AssistantAppTools implements AssistantToolset {
           : {},
       referencedRecords: refs,
     );
-    if (approve == null)
+    final skipApproval =
+        permission == AssistantPermission.bypass &&
+        !(requireApproval?.call() ?? false);
+    if (!skipApproval && approve == null) {
       throw const FormatException('Approval interface unavailable');
-    final accepted = await cancellation.wait(approve!(preview));
+    }
+    final accepted = skipApproval
+        ? true
+        : await cancellation.wait(approve!(preview));
     _check(cancellation);
     if (!accepted)
       return jsonEncode({'status': 'denied', 'type': type, 'id': id});

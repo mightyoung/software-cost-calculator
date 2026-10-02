@@ -83,8 +83,10 @@ void main() {
     addTearDown(s.close);
     final model = FakeModel([
       {'role': 'assistant', 'content': '  '},
+      {'role': 'assistant', 'content': ''},
     ]);
     await expectLater(s.ask(model.client, '查询'), throwsA(isA<LlmException>()));
+    expect(model.requests, hasLength(2));
   });
 
   test(

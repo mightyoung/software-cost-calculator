@@ -25,6 +25,7 @@ void main() {
     Future<bool> Function(AssistantActionPreview)? approve,
     void Function()? validateSession,
     void Function()? onChanged,
+    bool Function()? requireApproval,
   }) => AssistantAppTools(
     store,
     permission: permission,
@@ -32,6 +33,7 @@ void main() {
     approve: approve ?? (_) async => true,
     validateSession: validateSession,
     onChanged: onChanged,
+    requireApproval: requireApproval,
   );
   Future<Map<String, dynamic>> run(
     AssistantAppTools executor,
@@ -53,6 +55,36 @@ void main() {
     ..remove('capture_mode')
     ..remove('attachment_ids');
 
+  test(
+    'bypass applies writes without asking until external content is read',
+    () async {
+      var asked = 0;
+      var external = false;
+      final executor = tools(
+        permission: AssistantPermission.bypass,
+        approve: (_) async {
+          asked++;
+          return false;
+        },
+        requireApproval: () => external,
+      );
+      expect(executor.tools, isNotEmpty);
+      final created = await run(executor, 'create_record', {
+        'type': 'supplier',
+        'values': {'name': 'A'},
+      });
+      expect(created['status'], 'applied');
+      expect(asked, 0);
+      external = true;
+      final gated = await run(executor, 'create_record', {
+        'type': 'supplier',
+        'values': {'name': 'B'},
+      });
+      expect(gated['status'], 'denied');
+      expect(asked, 1);
+      expect(store.db.select('SELECT * FROM supplier'), hasLength(1));
+    },
+  );
   test('read-only executor refuses hidden write tools', () async {
     final executor = tools(permission: AssistantPermission.readOnly);
     expect(executor.tools, isEmpty);

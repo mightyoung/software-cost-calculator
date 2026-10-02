@@ -106,4 +106,32 @@ void main() {
       isNot(contains('用户拒绝联网请求')),
     );
   });
+
+  test('plain local queries show the model answer, not tool output', () {
+    const id = '546aff01-c05c-4e08-ac41-09ffc126235a';
+    final raw = answer('最低价是 1200 元 [[product:$id|真实型号]]', [
+      observation('get', {
+        'id': id,
+        'name': '真实型号',
+      }, arguments: jsonEncode({'type': 'product', 'id': id})),
+    ]);
+    final shown = raw.finalAnswer();
+    expect(shown.text, contains('最低价是 1200 元'));
+    expect(shown.text, isNot(contains('本机查询结果')));
+  });
+
+  test('web runs keep the answer and add the evidence caveat', () {
+    final raw = answer('参考资料显示该型号常见', [
+      observation('web_search', {'sources': []}),
+    ]);
+    expect(raw.finalAnswer().text, contains('参考资料显示该型号常见'));
+    expect(raw.finalAnswer().text, contains('未经逐字段核验'));
+  });
+
+  test('procurement runs still use the application-owned report', () {
+    final raw = answer('型号FAKE-123可采购', [
+      observation('procurement_check', {'ok': true}),
+    ]);
+    expect(raw.finalAnswer().text, isNot(contains('FAKE-123')));
+  });
 }
