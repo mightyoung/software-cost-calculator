@@ -440,4 +440,30 @@ void main() {
       isNull,
     );
   });
+
+  test('repeated offers are dropped and applied once', () {
+    final s = device('A');
+    Offer o(String name, String model) => {
+      for (final k in offerFields.keys) k: null,
+      'name': name,
+      'model': model,
+      'unit': '个',
+    };
+    final offers = dedupeOffers([
+      o('闸阀', 'Z41'),
+      o('闸 阀', 'z-41'),
+      o('球阀', 'Q1'),
+    ]);
+    expect(offers, hasLength(2));
+    // Same model under a different name: still the one stored material.
+    final sum = s.applyOffers(
+      [
+        for (final x in [o('闸阀', 'Z41'), o('DN100闸阀', 'Z41')])
+          (offer: x, supplierId: null, productId: null),
+      ],
+      projectId: null,
+      inquirer: '-',
+    );
+    expect(sum.products, 1);
+  });
 }

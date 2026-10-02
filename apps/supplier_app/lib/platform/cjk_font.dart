@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:supplier_core/supplier_core.dart';
 
-/// System Chinese fonts to embed in PDFs, most suitable first. Nothing is
-/// bundled with the app: the PDF writer keeps only the glyphs used.
+/// System Chinese fonts to embed in PDFs, most suitable first; the bundled
+/// Noto Sans SC is the fallback (recent macOS no longer ships PingFang at
+/// these paths). The PDF writer keeps only the glyphs used.
 const _candidates = [
   // Windows
   r'C:\Windows\Fonts\msyh.ttc',
@@ -24,7 +26,7 @@ const _candidates = [
 
 Uint8List? _cached;
 
-/// The first system font the PDF writer can embed; null when none is.
+/// The first font the PDF writer can embed; null when none is.
 Future<Uint8List?> cjkFont() async {
   if (_cached != null) return _cached;
   for (final path in _candidates) {
@@ -38,5 +40,6 @@ Future<Uint8List?> cjkFont() async {
       continue;
     }
   }
-  return null;
+  final bundled = await rootBundle.load('assets/fonts/NotoSansSC-VF.ttf');
+  return _cached = embeddableFont(bundled.buffer.asUint8List());
 }

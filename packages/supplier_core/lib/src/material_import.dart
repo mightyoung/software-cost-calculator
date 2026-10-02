@@ -151,32 +151,35 @@ extension MaterialImport on Store {
         ], limit: 6))
           h.id: h,
     };
-    String? single(List<Duplicate> ds, {bool bySpec = false}) {
-      var same = [
-        for (final d in ds)
-          if (d.level == Similarity.same) d.hit,
-      ];
-      // Same name, brand and model but several specs: the identical one.
-      if (same.length > 1 && bySpec) {
-        same = [
-          for (final h in same)
-            if (normalizeKey(h.data['specification'] as String?) ==
-                normalizeKey(offer['specification']))
-              h,
-        ];
-      }
-      return same.length == 1 ? same.single.id : null;
-    }
-
     return OfferPlan(
       offer,
-      supplierId: single(suppliers),
-      productId: single(products, bySpec: true),
+      supplierId: _sameOne(suppliers),
+      productId: _sameOne(products, spec: offer['specification']),
       supplierCandidates: [for (final d in suppliers.take(8)) d.hit],
       productCandidates: productCandidates.values.take(8).toList(),
       error: offerError(offer),
       unverified: source == null ? const {} : unverifiedFields(offer, source),
     );
+  }
+
+  /// The id of the one stored record equal to the entry, when there is
+  /// exactly one (several of the same name, brand and model: the one with
+  /// the same [spec]). Rows added earlier in this import are stored already,
+  /// so repeats within one import resolve to them.
+  String? _sameOne(List<Duplicate> found, {String? spec}) {
+    var same = [
+      for (final d in found)
+        if (d.level == Similarity.same) d.hit,
+    ];
+    if (same.length > 1) {
+      same = [
+        for (final h in same)
+          if (normalizeKey(h.data['specification'] as String?) ==
+              normalizeKey(spec))
+            h,
+      ];
+    }
+    return same.length == 1 ? same.single.id : null;
   }
 
   /// Creates suppliers, contacts, products and standard quotations for every
@@ -212,17 +215,25 @@ extension MaterialImport on Store {
           c.supplierId ??
           (o['supplier'] == null
               ? null
-              : newSuppliers.putIfAbsent(
-                  companyKey(o['supplier']!),
-                  () => save('supplier', {
-                    for (final f in Supplier.fields) f: null,
-                    'name': o['supplier'],
-                    'aliases': <String>[],
-                    'categories': <String>[],
-                  }),
-                ));
+              : _sameOne(similarSuppliers(o['supplier']!)) ??
+                    newSuppliers.putIfAbsent(
+                      companyKey(o['supplier']!),
+                      () => save('supplier', {
+                        for (final f in Supplier.fields) f: null,
+                        'name': o['supplier'],
+                        'aliases': <String>[],
+                        'categories': <String>[],
+                      }),
+                    ));
       final productId =
           c.productId ??
+          _sameOne([
+            // A different specification is a different material.
+            for (final d in similarProducts(o))
+              if (normalizeKey(d.hit.data['specification'] as String?) ==
+                  normalizeKey(o['specification']))
+                d,
+          ]) ??
           newProducts.putIfAbsent(
             [
               for (final k in ['name', 'brand', 'model', 'specification'])
@@ -501,6 +512,20 @@ Offer materialOffer(Offer o) => {
   'currency': o['currency'],
   'tax_mode': o['tax_mode'],
 };
+
+/// [offers] without repeats: an offer equal to an earlier one on every
+/// field (compared by [normalizeKey]) is dropped, e.g. the same line read
+/// from overlapping text chunks or listed twice in a sheet.
+List<Offer> dedupeOffers(Iterable<Offer> offers) {
+  final seen = <String>{};
+  return [
+    for (final o in offers)
+      if (seen.add(
+        [for (final k in offerFields.keys) normalizeKey(o[k])].join('|'),
+      ))
+        o,
+  ];
+}
 
 /// "12,500"、"¥1.2万"、"3200元" to canonical decimal; null when unreadable.
 String? parsePrice(String? raw) {
