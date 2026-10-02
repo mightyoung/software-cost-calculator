@@ -1,12 +1,12 @@
 # 发布检查清单
 
-更新：2026-09-23。当前定位为**开发候选**；尚未达到完整正式发布验收。[A01–A18 矩阵](verification/release-matrix.md)是各项状态与证据入口。
+更新：2026-09-27。当前定位为**开发候选**；尚未达到完整正式发布验收。[A01–A18 矩阵](verification/release-matrix.md)是各项状态与证据入口。
 
 ## 当前开发候选门
 
 - [ ] 固定候选源码与依赖锁文件摘要，记录 Flutter/Dart、SQLite、浏览器版本和验证日期；后续变更需重跑受影响范围。
-- [x] 核心静态分析与完整测试通过：[analyze](../artifacts/development/final-core-analyze.log)、[435/435 测试](../artifacts/development/final-core-tests.log)。
-- [x] 应用静态分析与完整测试通过：[analyze](../artifacts/development/final-app-analyze.log)、[113/113 测试](../artifacts/development/final-app-tests.log)。这是宿主测试运行器证据，不是已安装原生应用验收。
+- [x] 核心静态分析与完整测试通过：[当前 analyze](../artifacts/development/core-analyze-20260927.log)、[534/534 测试](../artifacts/development/core-tests-20260927.log)。
+- [x] 应用静态分析与完整测试通过：[当前 analyze](../artifacts/development/app-analyze-20260927.log)、[116/116 测试](../artifacts/development/app-tests-20260927.log)。这是宿主测试运行器证据，不是已安装原生应用验收。
 - [ ] 本地工作流集成测试通过。当前未执行：仓库无 macOS target，且[运行日志](../artifacts/development/final-app-integration.log)报告 Web integration tests 不受支持；Android/Windows 继续延期。
 - [x] [Web release 构建](../artifacts/development/final-web-build.log)与[隔离 Chrome 存储运行时](../artifacts/development/web-runtime-smoke.json)通过，限定为构建及 OPFS/IndexedDB 端口、重开和锁验证。
 - [x] [Web 正式交换适配器 E2E](../artifacts/development/web-exchange-smoke.json)通过：真实 OPFS 业务表/同步包、取消与损坏输入无回执，进程重开后备份 locator 可读且重试同回执。系统 chooser 被绕过，此勾选不覆盖 UI。
@@ -32,7 +32,7 @@
 | 表格软件往返 | 用真实 Excel、WPS 打开业务导出，修改价格/备注后保存并回流；核对前导零、长电话、六位小数、日期精度、空白保留、旧基线和回执 | [WPS 7.5.1 尝试](../artifacts/development/office-roundtrip-wps-attempt.json)已启动，但 AppleEvent 文档/窗口操作超时，实际保存与回流仍 BLOCKED；[A04/A06/A07/A18](verification/release-matrix.md)保留完整往返门 |
 | 浏览器产品链路 | 实际界面完成文件选择、业务导入、完整同步预览/提交/导出及恢复；关闭浏览器后验证安全备份能通过任务持久位置重新读取，再核对完整数据 | [Web 运行时证据](verification/web-runtime.md)；注入句柄的 Flutter UI 映射、提交、同步与重启任务卡通过，正式适配器备份重开通过；系统选择器和完整 UI 恢复仍未验 |
 | 离线与升级 | 已缓存后断网重开；更新页面、worker、WASM 资源版本；确认数据保留且资源不混用，降级模式禁写 | A14；现有存储探针不能替代 |
-| 完整规模 | 10 万报价/50 万修订的查询、全量导入/导出/备份/恢复均比较完整摘要并测量时间和峰值 | [性能报告](verification/performance.md)；2026-09-23 查询及独立 oracle 已 PASS，原空间阻断为历史。full-chain-100k 另行运行、尚无完成结果，此发布门仍未通过 |
+| 完整规模 | 10 万报价/50 万修订的查询、全量导入/导出/备份/恢复均比较完整摘要并测量时间和峰值 | [性能报告](verification/performance.md)；当前版分进程恢复、123 卷导出及重开正确性和独立 oracle 已 PASS，但续跑不能证明连续全链路时间。正式导入 989.7 秒超过桌面 600 秒目标；此发布门未通过 |
 | 并发导出与中断 | 第一/中/末卷期间并发编辑、取消和终止；成功包来自同一快照，失败不公布半包，记录 WAL/临时空间 | [小样本 9/9](../artifacts/benchmark/a17-concurrency-checkpoint-20260923-v2/report.json)通过；关闭源库后准备冻结副本，尚未覆盖平台快照创建、规模时间/RSS/大 WAL、SIGKILL 后启动清理及 picker/worker/UI，A17 仍 PARTIAL |
 | 故障与原子性 | 提交和恢复关键点终止后重开；仅见旧库或完整新库。另做受控磁盘满，核对旧库、回执与候选清理 | A10/A13；浏览器受控配额错误证据不代替物理磁盘满 |
 | 交互时延 | 实测输入到首屏、进度首次显示、取消反馈；大型文件在真实浏览器中取消需 ≤2 秒。Web 同时披露 page/worker/WASM 内存观测范围 | A15 与性能报告；已有小型取消测试不能外推大型浏览器文件，不用截图或宿主 RSS 代替 |
