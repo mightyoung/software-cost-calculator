@@ -253,6 +253,10 @@ Map<String, Object?> buildHubPublication(
           ((data['attachment_ids'] as List?)?.isNotEmpty ?? false)) {
         throw StateError('首版暂不传输附件；不能静默丢弃此报价的附件');
       }
+      if (kind == 'product' &&
+          ((data['source_attachment_ids'] as List?)?.isNotEmpty ?? false)) {
+        throw StateError('首版暂不传输附件；不能静默丢弃此物料的来源附件');
+      }
       records.add({
         'entity_type': kind,
         'entity_id': entityId,
