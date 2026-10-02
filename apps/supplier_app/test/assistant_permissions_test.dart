@@ -140,6 +140,28 @@ void main() {
     );
   }
 
+  testWidgets('bypass mode saves without a dialog and shows the model answer', (
+    tester,
+  ) async {
+    var requests = 0;
+    final state = stateFor(
+      (_) async => ++requests == 1
+          ? _tool('update_record', {
+              'type': 'supplier',
+              'id': id,
+              'values': {'name': '新供应商'},
+            })
+          : _reply({'content': '已把名称改为新供应商。'}),
+    )..assistantPermission = AssistantPermission.bypass;
+    addTearDown(state.dispose);
+    await _start(tester, state);
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(store.get('supplier', id)!.data['name'], '新供应商');
+    expect(find.textContaining('已把名称改为新供应商。'), findsOneWidget);
+    expect(find.textContaining('本机查询结果'), findsNothing);
+  });
+
   testWidgets(
     'read-only mode omits writes and rejects model claimed confirmation',
     (tester) async {

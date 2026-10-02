@@ -18,6 +18,15 @@ class LlmConfig {
   final Duration timeout;
 }
 
+final _reasoningBlock = RegExp(
+  r'<(think|thinking)>[\s\S]*?</\1>',
+  caseSensitive: false,
+);
+
+/// Removes complete inline reasoning blocks from model content.
+String stripReasoning(String content) =>
+    content.replaceAll(_reasoningBlock, '').trim();
+
 /// Sends one chat-completions request body and returns the decoded response.
 typedef Transport =
     Future<Map<String, Object?>> Function(Map<String, Object?> body);
@@ -96,10 +105,16 @@ class LlmClient {
     if (choice['finish_reason'] == 'length') {
       throw LlmException('模型输出被长度限制截断，请缩小输入范围后重试');
     }
-    final message = choice['message'];
+    var message = choice['message'];
     if (message is! Map<String, Object?>) throw LlmException('响应缺少 message');
     if (message['content'] != null && message['content'] is! String) {
       throw LlmException('响应 content 格式无效');
+    }
+    // Some compatible endpoints inline the reasoning as <think> blocks; it is
+    // never part of the answer or of the replayed conversation.
+    if (message['content'] case final String content) {
+      final visible = stripReasoning(content);
+      if (visible != content) message = {...message, 'content': visible};
     }
     checkpoint?.record(replayRequest, message);
     return message;

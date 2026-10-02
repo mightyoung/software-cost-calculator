@@ -207,15 +207,9 @@ class _AiSettingsState extends State<AiSettings> {
           const Text('助手操作权限'),
           DropdownButton<AssistantPermission>(
             value: widget.state.assistantPermission,
-            items: const [
-              DropdownMenuItem(
-                value: AssistantPermission.readOnly,
-                child: Text('只读'),
-              ),
-              DropdownMenuItem(
-                value: AssistantPermission.confirmWrites,
-                child: Text('修改前逐次确认'),
-              ),
+            items: [
+              for (final p in AssistantPermission.values)
+                DropdownMenuItem(value: p, child: Text(p.label)),
             ],
             onChanged: (value) {
               if (value != null) {
@@ -225,6 +219,11 @@ class _AiSettingsState extends State<AiSettings> {
           ),
         ],
       ),
+      if (widget.state.assistantPermission == AssistantPermission.bypass)
+        Text(
+          '助手会直接保存修改和联网请求，不再弹窗确认；读取网页后写入仍需确认，来源资料导入始终需人工审核。',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
       SwitchListTile(
         contentPadding: EdgeInsets.zero,
         value: widget.state.assistantWebEnabled,

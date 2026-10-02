@@ -178,20 +178,17 @@ void main() {
     dir.deleteSync(recursive: true);
   });
 
-  testWidgets(
-    'unverified model prose is absent from visible answer and history',
-    (tester) async {
-      final state = _State(store, dir, (_) async => _reply(_fabrication));
-      addTearDown(state.dispose);
-      await _mount(tester, state);
-      await _send(tester);
-      await tester.pumpAndSettle();
-      expect(find.textContaining(_fabrication), findsNothing);
-      expect(state.setting('ask_history'), isNot(contains(_fabrication)));
-      expect(state.setting('ask_history'), contains('本次没有取得可核验'));
-      expect(find.textContaining('本次没有取得可核验'), findsWidgets);
-    },
-  );
+  testWidgets('ungrounded model prose is shown with a no-evidence warning', (
+    tester,
+  ) async {
+    final state = _State(store, dir, (_) async => _reply(_fabrication));
+    addTearDown(state.dispose);
+    await _mount(tester, state);
+    await _send(tester);
+    await tester.pumpAndSettle();
+    expect(find.textContaining(_fabrication), findsOneWidget);
+    expect(find.textContaining('尚无查询依据'), findsWidgets);
+  });
 
   for (final scenario in ['product', 'quotation', 'pricing', 'requirement']) {
     for (final forgedConsent in [false, true]) {
@@ -251,7 +248,6 @@ void main() {
             store.db.select('SELECT COUNT(*) AS n FROM change_log').single['n'],
             writes,
           );
-          expect(state.setting('ask_history'), isNot(contains(_fabrication)));
         },
       );
     }
@@ -365,7 +361,7 @@ void main() {
       expect(state.assistantDomesticCriterion, isNull);
       await tester.tap(find.byTooltip('助手权限'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('国产指国产品牌'));
+      await tester.tap(find.text('国产指国产品牌').last);
       await tester.pumpAndSettle();
       expect(state.assistantDomesticCriterion, 'brand');
       await tester.tap(find.byTooltip('助手权限'));

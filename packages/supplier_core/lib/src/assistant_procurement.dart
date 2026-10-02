@@ -108,7 +108,7 @@ class AssistantProcurementTools implements AssistantToolset {
   void _check(AiCancellation cancellation, {bool write = false}) {
     cancellation.check();
     validateSession?.call();
-    if (write && permission != AssistantPermission.confirmWrites)
+    if (write && permission == AssistantPermission.readOnly)
       throw const FormatException('只读模式禁止采购导入');
   }
 
@@ -146,7 +146,7 @@ class AssistantProcurementTools implements AssistantToolset {
       },
       ['candidate_ids'],
     ),
-    if (permission == AssistantPermission.confirmWrites)
+    if (permission != AssistantPermission.readOnly)
       _tool(
         'procurement_import',
         '人工审核后保存资料与原始来源；报价固定参考价。预算替代需重新询价并在预算界面用正式报价完成。',

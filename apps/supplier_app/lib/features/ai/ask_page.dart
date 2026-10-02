@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 import '../../app/motion.dart';
+
 import 'package:supplier_core/supplier_core.dart';
 
 import '../../widgets/app_icon.dart';
@@ -188,6 +189,8 @@ class _AskPageState extends State<AskPage> {
     AssistantWebTools? web;
     final completed = <AssistantObservation>[];
     Map<String, String>? navigation;
+    // Set once web content entered the task; bypass then falls back to prompts.
+    var externalContent = false;
     final permission = widget.state.assistantPermission;
     final webEnabled = widget.state.assistantWebEnabled;
     try {
@@ -214,6 +217,8 @@ class _AskPageState extends State<AskPage> {
                       confirmAssistantNetwork(context, name, args, cancel),
                   () => widget.state.assistantWebEnabled,
                   web!,
+                  autoApprove: permission == AssistantPermission.bypass,
+                  onUsed: () => externalContent = true,
                 ),
               _AppNavigationTools(
                 widget.state.store,
@@ -228,7 +233,7 @@ class _AskPageState extends State<AskPage> {
               if (mounted) setState(() => activity = toolActivity[tool]);
             },
           );
-          return raw.verifiedReport(
+          return raw.finalAnswer(
             procurementReport:
                 raw.observations.any((o) => o.tool.startsWith('procurement_'))
                 ? procurement!.renderReport(raw)
@@ -251,7 +256,10 @@ class _AskPageState extends State<AskPage> {
             widget.state.store,
             web: web!,
             sessionId: id,
-            permission: permission,
+            // Evidence review of imported sources is always a human decision.
+            permission: permission == AssistantPermission.bypass
+                ? AssistantPermission.confirmWrites
+                : permission,
             requestText: question,
             domesticCriterion: () => widget.state.assistantDomesticCriterion,
             approve: (preview) =>
@@ -267,6 +275,7 @@ class _AskPageState extends State<AskPage> {
                 confirmAssistantAction(context, preview, cancellation),
             validateSession: validateSession,
             validateWrite: guardAssistantProcurementWrite,
+            requireApproval: () => externalContent,
             onChanged: widget.state.changed,
           );
         },
@@ -413,18 +422,19 @@ class _AskPageState extends State<AskPage> {
                     widget.state.assistantDomesticCriterion =
                         criterion == 'unspecified' ? null : criterion;
                   } else {
-                    widget.state.assistantPermission = value == 'readOnly'
-                        ? AssistantPermission.readOnly
-                        : AssistantPermission.confirmWrites;
+                    widget.state.assistantPermission = AssistantPermission
+                        .values
+                        .byName(value);
                   }
                 }),
                 itemBuilder: (_) => [
-                  PopupMenuItem(
-                    value: 'readOnly',
-                    child: Text(
-                      '${widget.state.assistantPermission == AssistantPermission.readOnly ? '✓ ' : ''}只读',
+                  for (final p in AssistantPermission.values)
+                    PopupMenuItem(
+                      value: p.name,
+                      child: Text(
+                        '${widget.state.assistantPermission == p ? '✓ ' : ''}${p.label}',
+                      ),
                     ),
-                  ),
                   const PopupMenuDivider(),
                   for (final criterion in assistantDomesticCriteria.entries)
                     PopupMenuItem(
@@ -433,12 +443,6 @@ class _AskPageState extends State<AskPage> {
                         '${(widget.state.assistantDomesticCriterion ?? 'unspecified') == criterion.key ? '✓ ' : ''}${criterion.value}',
                       ),
                     ),
-                  PopupMenuItem(
-                    value: 'confirmWrites',
-                    child: Text(
-                      '${widget.state.assistantPermission == AssistantPermission.confirmWrites ? '✓ ' : ''}修改前逐次确认',
-                    ),
-                  ),
                   PopupMenuItem(
                     value: 'web',
                     child: Text(
@@ -470,7 +474,7 @@ class _AskPageState extends State<AskPage> {
           const SizedBox(height: 4),
           if (constraints.maxHeight >= 480)
             Text(
-              '${widget.state.assistantPermission == AssistantPermission.readOnly ? '只读查询' : '修改前逐次确认'} · ${widget.state.assistantWebEnabled ? '允许联网查询' : '联网已关闭'}',
+              '${widget.state.assistantPermission == AssistantPermission.readOnly ? '只读查询' : widget.state.assistantPermission.label} · ${widget.state.assistantWebEnabled ? '允许联网查询' : '联网已关闭'}',
               style: TextStyle(color: Tokens.ink2),
             ),
           const SizedBox(height: 12),
@@ -984,7 +988,15 @@ class _AppNavigationTools implements AssistantToolset {
 }
 
 class _ReviewedWebTools implements AssistantToolset {
-  _ReviewedWebTools(this.review, this.enabled, this._web);
+  _ReviewedWebTools(
+    this.review,
+    this.enabled,
+    this._web, {
+    this.autoApprove = false,
+    this.onUsed,
+  });
+  final bool autoApprove;
+  final void Function()? onUsed;
   final Future<bool> Function(String, Map<String, Object?>, AiCancellation)
   review;
   final bool Function() enabled;
@@ -1005,7 +1017,7 @@ class _ReviewedWebTools implements AssistantToolset {
     if (!enabled()) return jsonEncode({'error': '联网权限已关闭'});
     if (name == 'web_search' || name == 'web_fetch') {
       final key = jsonEncode({'name': name, 'arguments': arguments});
-      if (!_approved.contains(key)) {
+      if (!autoApprove && !_approved.contains(key)) {
         final allowed = await cancellation.wait(
           review(name, arguments, cancellation),
         );
@@ -1016,6 +1028,7 @@ class _ReviewedWebTools implements AssistantToolset {
     }
     cancellation.check();
     if (!enabled()) return jsonEncode({'error': '联网权限已关闭'});
+    onUsed?.call();
     return _web.execute(
       name,
       arguments,

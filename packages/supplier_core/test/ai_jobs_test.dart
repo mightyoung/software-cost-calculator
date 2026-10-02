@@ -19,7 +19,6 @@ void main() {
     final store = Store.open('${dir.path}/business.sqlite', device: 'test');
     addTearDown(store.close);
     for (final invalid in <Map<String, Object?>>[
-      {'content': ''},
       {
         'tool_calls': [
           {
@@ -54,6 +53,28 @@ void main() {
       expect(await store.ask(client(), '你好'), '恢复成功');
       expect(calls, 2);
     }
+  });
+
+  test('an empty assistant message is retried in the same run', () async {
+    final store = Store.open('${dir.path}/business.sqlite', device: 'test');
+    addTearDown(store.close);
+    final id = journal.create(AiTask.conversation, {}).id;
+    final session = journal.start(id);
+    var calls = 0;
+    final client = LlmClient(
+      const LlmConfig(apiKey: 'test'),
+      checkpoint: session,
+      transport: (_) async => {
+        'choices': [
+          {
+            'message': {'content': ++calls == 1 ? '' : '重试成功'},
+          },
+        ],
+      },
+    );
+    expect(await store.ask(client, '你好'), '重试成功');
+    expect(calls, 2);
+    expect(journal.get(id).stepCount, 1);
   });
 
   test('business export excludes local task data and apply receipts', () {

@@ -380,9 +380,11 @@ class AppState extends ChangeNotifier {
       saveSetting('assistant_web', value ? '1' : null);
 
   AssistantPermission get assistantPermission =>
-      setting('assistant_permission') == 'readOnly'
-      ? AssistantPermission.readOnly
-      : AssistantPermission.confirmWrites;
+      switch (setting('assistant_permission')) {
+        'readOnly' => AssistantPermission.readOnly,
+        'bypass' => AssistantPermission.bypass,
+        _ => AssistantPermission.confirmWrites,
+      };
   set assistantPermission(AssistantPermission value) =>
       saveSetting('assistant_permission', value.name);
 
@@ -593,3 +595,11 @@ Future<void> Function(Store) _shareJob(
   String? passphrase,
 ) =>
     (s) => s.exportSelection(path, chosen, passphrase: passphrase);
+
+extension AssistantPermissionLabel on AssistantPermission {
+  String get label => switch (this) {
+    AssistantPermission.readOnly => '只读',
+    AssistantPermission.confirmWrites => '修改前逐次确认',
+    AssistantPermission.bypass => '自动执行（免确认）',
+  };
+}

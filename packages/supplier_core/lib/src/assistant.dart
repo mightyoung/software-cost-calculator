@@ -64,6 +64,7 @@ const toolActivity = {
 };
 String _system(String today) =>
     '你是供应商询价与项目成本系统的智能助手。今天是 $today。'
+    '最终回复必须直接回答用户的问题：先给结论，再给必要依据；不要复述工具调用过程或思考过程。'
     '只能通过当前提供的工具查询或操作，不要编造；查不到就如实说明。'
     '先用 search 找到记录 id，再用 get/query/related 取详情；比价用 compare_quotes，'
     '项目选价用 quote_options，预算用 project_budget，询价单用 inquiry_matrix；'
@@ -139,7 +140,7 @@ extension Assistant on Store {
       limits: AiLimits(
         timeout: timeout,
         callTimeout: llm.config.timeout,
-        maxCalls: maxToolRounds + maxContextRecallRounds + 1,
+        maxCalls: maxToolRounds + maxContextRecallRounds + 2,
       ),
     );
     question = question.trim();
@@ -189,6 +190,8 @@ extension Assistant on Store {
     var toolCount = 0;
     var recallCount = 0;
     var recallOnlyRounds = 0;
+    // A reply with no text gets one tool-free retry before the task fails.
+    var forceFinish = false;
     final observations = <AssistantObservation>[];
     for (
       var round = 0;
@@ -201,8 +204,9 @@ extension Assistant on Store {
       // Pure archive reads get a small separate reserve: automatic compaction
       // must not take away the existing allowance for actual business queries.
       var finishing =
+          forceFinish ||
           round >=
-          maxToolRounds + recallOnlyRounds.clamp(0, maxContextRecallRounds);
+              maxToolRounds + recallOnlyRounds.clamp(0, maxContextRecallRounds);
       final previousCompactions = context.compactions;
       var messages = context.messages(
         finalInstruction: finishing
@@ -256,7 +260,12 @@ extension Assistant on Store {
       }
       if (calls == null || (calls as List).isEmpty) {
         final answer = (message['content'] as String?)?.trim() ?? '';
-        if (answer.isEmpty) rejectMessage('模型没有返回回答，请重试');
+        if (answer.isEmpty) {
+          if (forceFinish) rejectMessage('模型没有返回回答，请重试');
+          llm.checkpoint?.rejectLast();
+          forceFinish = true;
+          continue;
+        }
         return AssistantAnswer.fromRun(
           answer,
           observations,

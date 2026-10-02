@@ -154,13 +154,14 @@ void main() {
         matching: find.byType(InkWell),
       );
       if (queried) {
-        expect(chip, findsOneWidget);
+        // The forged label is never shown; its real id renders the real name.
+        expect(chip, scenario == 2 ? findsNWidgets(2) : findsOneWidget);
         expect(tester.widget<InkWell>(chip.first).onTap, isNotNull);
         expect(find.text('质量已认证最低价'), findsNothing);
       } else {
         expect(chip, findsNothing);
-        expect(find.textContaining('供应商甲'), findsNothing);
-        expect(find.textContaining('没有取得可核验'), findsOneWidget);
+        expect(find.textContaining('供应商甲（未核验）'), findsOneWidget);
+        expect(find.textContaining('尚无查询依据'), findsOneWidget);
       }
     });
   }
@@ -215,16 +216,16 @@ void main() {
     }
     expect(find.text('查询依据（0 次）'), findsNWidgets(6));
     expect(find.text('历史回答，未保留查询依据'), findsOneWidget);
-    expect(find.text('回答1'), findsNothing);
+    // Only the evidence is dropped from old answers; the answer text stays.
+    expect(find.text('回答1'), findsOneWidget);
     final saved = jsonDecode(state.setting('ask_history')!) as List;
     expect(saved, hasLength(14));
     expect(saved.every((entry) => (entry as List).length == 3), isTrue);
     expect(jsonEncode(saved), isNot(contains('observations')));
-    expect(jsonEncode(saved), isNot(contains('回答1')));
     expect(
       saved
           .where((entry) => (entry as List)[0] == false)
-          .every((entry) => (entry[1] as String).contains('没有取得可核验')),
+          .every((entry) => RegExp(r'^回答\d$').hasMatch(entry[1] as String)),
       isTrue,
     );
   });
@@ -323,9 +324,7 @@ void main() {
     expect(saved.first, [true, '泵房预算？', false]);
     expect(saved.last[0], isFalse);
     expect(saved.last[2], isFalse);
-    expect(saved.last[1], contains('本机查询结果'));
-    expect(saved.last[1], contains('"cost": "0"'));
-    expect(saved.last[1], isNot(contains('成本为 0 元。')));
+    expect(saved.last[1], '成本为 0 元。');
   });
 
   testWidgets('old record references are plain text without current evidence', (
