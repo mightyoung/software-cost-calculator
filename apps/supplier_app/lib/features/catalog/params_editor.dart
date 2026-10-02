@@ -188,16 +188,16 @@ class ParamsEditor extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        Wrap(
+          spacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             const Text('物料参数', style: TextStyle(fontWeight: FontWeight.w600)),
-            const SizedBox(width: 8),
             if (keys.isNotEmpty)
               Text(
                 '关键参数 $filled/${keys.length}',
                 style: TextStyle(fontSize: 12, color: Tokens.ink3),
               ),
-            const Spacer(),
             if (draft.hasUnconfirmed && !draft.confirmAll)
               TextButton(
                 onPressed: () {
@@ -209,41 +209,53 @@ class ParamsEditor extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 6),
-        Row(
-          children: [
-            Expanded(
-              child: DropdownButtonFormField<String?>(
-                initialValue: code,
-                isExpanded: true,
-                decoration: const InputDecoration(labelText: '参数模板'),
-                items: [
-                  const DropdownMenuItem(value: null, child: Text('不使用模板')),
-                  for (final c in specClasses)
-                    DropdownMenuItem(
-                      value: c.code,
-                      child: Text(
-                        c.parent == null ? c.label : '　${c.label}',
-                        overflow: TextOverflow.ellipsis,
-                      ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final narrow =
+                constraints.maxWidth <
+                420 * MediaQuery.textScalerOf(context).scale(14) / 14;
+            final picker = DropdownButtonFormField<String?>(
+              initialValue: code,
+              isExpanded: true,
+              decoration: const InputDecoration(labelText: '参数模板'),
+              items: [
+                const DropdownMenuItem(value: null, child: Text('不使用模板')),
+                for (final c in specClasses)
+                  DropdownMenuItem(
+                    value: c.code,
+                    child: Text(
+                      c.parent == null ? c.label : '　${c.label}',
+                      overflow: TextOverflow.ellipsis,
                     ),
-                ],
-                onChanged: (v) {
-                  draft.classCode = v;
-                  onChanged();
-                },
-              ),
-            ),
-            if (suggestion != null && suggestion != code) ...[
-              const SizedBox(width: 8),
-              TextButton(
-                onPressed: () {
-                  draft.classCode = suggestion;
-                  onChanged();
-                },
-                child: Text('用「${specClass(suggestion!)!.label}」'),
-              ),
-            ],
-          ],
+                  ),
+              ],
+              onChanged: (v) {
+                draft.classCode = v;
+                onChanged();
+              },
+            );
+            final suggest = suggestion != null && suggestion != code
+                ? TextButton(
+                    onPressed: () {
+                      draft.classCode = suggestion;
+                      onChanged();
+                    },
+                    child: Text('用「${specClass(suggestion!)!.label}」'),
+                  )
+                : null;
+            if (narrow) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [picker, ?suggest],
+              );
+            }
+            return Row(
+              children: [
+                Expanded(child: picker),
+                if (suggest != null) ...[const SizedBox(width: 8), suggest],
+              ],
+            );
+          },
         ),
         if ((code == null ? null : specClass(code)?.help) case final help?)
           Padding(

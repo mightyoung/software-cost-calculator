@@ -104,9 +104,11 @@ class HomePage extends StatelessWidget {
           if (w.conflicts > 0)
             _Section(
               '修改冲突',
+              icon: Icons.compare_arrows,
               count: w.conflicts,
               children: [
                 _Line(
+                  icon: Icons.compare_arrows,
                   title: '有 ${w.conflicts} 处修改在两台设备上不一致',
                   sub: '确认保留哪一个值之前，这些字段按最后导入的值显示',
                   trailing: const HintTag('待确认'),
@@ -117,10 +119,12 @@ class HomePage extends StatelessWidget {
           if (w.inquiries.isNotEmpty)
             _Section(
               '询价单',
+              icon: Icons.request_quote_outlined,
               count: w.inquiries.length,
               children: [
                 for (final i in w.inquiries)
                   _Line(
+                    icon: Icons.request_quote_outlined,
                     title: '${i.data['title']}',
                     sub: '${i.project} · 已回复 ${i.replied}/${i.suppliers} 家',
                     trailing: _due(i.daysLeft, i.data['due_date'] as String?),
@@ -131,10 +135,12 @@ class HomePage extends StatelessWidget {
           if (w.pending.isNotEmpty)
             _Section(
               '待询价的预算行',
+              icon: Icons.table_rows_outlined,
               count: w.pending.fold(0, (n, p) => n + p.lines),
               children: [
                 for (final p in w.pending)
                   _Line(
+                    icon: Icons.table_rows_outlined,
                     title: p.name,
                     sub: '${p.lines} 行还没有关联报价',
                     trailing: AppIcon(Icons.chevron_right, color: Tokens.ink3),
@@ -145,6 +151,7 @@ class HomePage extends StatelessWidget {
           if (w.attention.expiringCount > 0)
             _Section(
               '30 天内到期的报价',
+              icon: Icons.event_busy_outlined,
               count: w.attention.expiringCount,
               action: TextButton(
                 onPressed: () => onGo(Section.quotes),
@@ -153,6 +160,7 @@ class HomePage extends StatelessWidget {
               children: [
                 for (final h in w.attention.expiring)
                   _Line(
+                    icon: Icons.event_busy_outlined,
                     title: _name('product', h.data['product_id']),
                     sub:
                         '${_name('supplier', h.data['supplier_id'])} · '
@@ -190,11 +198,13 @@ class HomePage extends StatelessWidget {
 class _Section extends StatelessWidget {
   const _Section(
     this.title, {
+    required this.icon,
     required this.count,
     required this.children,
     this.action,
   });
   final String title;
+  final IconData icon;
   final int count;
   final List<Widget> children;
   final Widget? action;
@@ -207,6 +217,8 @@ class _Section extends StatelessWidget {
       children: [
         Row(
           children: [
+            AppIcon(icon, size: 20, color: Tokens.ink2),
+            const SizedBox(width: 8),
             Text(
               title,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
@@ -237,11 +249,13 @@ class _Section extends StatelessWidget {
 
 class _Line extends StatelessWidget {
   const _Line({
+    required this.icon,
     required this.title,
     required this.sub,
     required this.trailing,
     required this.onTap,
   });
+  final IconData icon;
   final String title, sub;
   final Widget trailing;
   final VoidCallback onTap;
@@ -277,7 +291,7 @@ class _Line extends StatelessWidget {
                 ),
               ],
             );
-            return narrow
+            final body = narrow
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -293,6 +307,14 @@ class _Line extends StatelessWidget {
                       trailing,
                     ],
                   );
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppIcon(icon, size: 20, color: Tokens.ink3),
+                const SizedBox(width: 12),
+                Expanded(child: body),
+              ],
+            );
           },
         ),
       ),

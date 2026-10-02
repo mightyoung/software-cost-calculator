@@ -542,7 +542,17 @@ class _AskPageState extends State<AskPage> {
                               controller: input,
                               enabled: !busy,
                               minLines: 1,
-                              maxLines: 5,
+                              // Keep the draft scrollable when the keyboard or
+                              // larger text leaves little room for the thread.
+                              maxLines:
+                                  (constraints.maxHeight *
+                                          0.25 /
+                                          (MediaQuery.textScalerOf(
+                                                context,
+                                              ).scale(15) *
+                                              1.5))
+                                      .floor()
+                                      .clamp(1, 5),
                               style: const TextStyle(fontSize: 15, height: 1.5),
                               textInputAction: TextInputAction.send,
                               decoration: const InputDecoration(

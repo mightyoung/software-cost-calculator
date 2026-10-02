@@ -11,14 +11,14 @@ const quiet=()=>hostQuiet || pendingQuiet || media.matches || $('quiet').checked
 const duration=()=>quiet()?false:{duration:240};
 // Canvas colours follow the app tokens (ink, ink3, ruleStrong, accent); dark
 // nodes sit one step above the surface and the selection is light grey.
-const colors=()=>dark?{surface:'#20201e',ink:'#eeedea',muted:'#aaa7a3',line:'#565650',accent:'#deded5'}:
+const colors=()=>dark?{surface:'#202020',ink:'#eeeeee',muted:'#aaaaaa',line:'#484848',accent:'#eeeeee'}:
   {surface:'#ffffff',ink:'#111827',muted:'#636c7e',line:'#c3cad6',accent:'#2458d3'};
 const iconIds={supplier:'supplier',contact:'contact',product:'material',product_param:'match',quotation:'quotation',project:'project',project_item:'workspace',inquiry:'inquiry',spec_request:'review',spec_item:'match',spec_response:'review'};
 function el(tag,text,className){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e;}
 function icon(id){const item=catalog.find(c=>c.id===iconIds[id]);const path=item?.path || '';const paint=item?.paint==='fill'?`fill="${colors().ink}" fill-rule="evenodd" stroke="none"`:`fill="none" stroke="${colors().ink}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"`;return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="${path}" ${paint}/></svg>`);}
 function nodeStyle(n){const p=colors();return {radius:7,fill:p.surface,stroke:groupOf(n.id).color,lineWidth:1.3,iconSrc:icon(n.id),iconWidth:21,iconHeight:21,iconX:-46*textScale,
   labelText:n.data.label,labelPlacement:'center',labelOffsetX:14,labelFontSize:13*textScale,labelFontWeight:500,labelFill:p.ink,labelFontFamily:'system-ui, PingFang SC, Microsoft YaHei, sans-serif',cursor:'pointer',size:[136*textScale,48*textScale]};}
-function edgeStyle(){const p=colors();return {stroke:p.line,lineWidth:1,endArrow:true,endArrowSize:5,loopDist:24,loopPlacement:'top',labelFontFamily:'system-ui, PingFang SC, Microsoft YaHei, sans-serif',labelFontSize:11,labelFill:p.ink,labelBackground:true,labelBackgroundFill:dark?'#242421':'#fff',labelPadding:[3,6],labelAutoRotate:false};}
+function edgeStyle(){const p=colors();return {stroke:p.line,lineWidth:1,endArrow:true,endArrowSize:5,loopDist:24,loopPlacement:'top',labelFontFamily:'system-ui, PingFang SC, Microsoft YaHei, sans-serif',labelFontSize:11*textScale,labelFill:p.ink,labelBackground:true,labelBackgroundFill:dark?'#242424':'#fff',labelPadding:[3,6],labelAutoRotate:false};}
 function drawDirectory(){
   $('catalog').replaceChildren();
   $('type-count').textContent=data.nodes.length;
@@ -64,7 +64,16 @@ async function paintSelection(){
     labelText:e.id===edgeSelected?e.data.label:''}})));
   await graph.draw();
 }
-async function select(id,{focus=false}={}){if(disposed || !data.nodes.some(n=>n.id===id))return;selected=id;edgeSelected=null;updateDetail();if(embedded)void notify('ontologySelect',id);await paintSelection();if(focus && !disposed)await graph.focusElement(id,duration());}
+async function focusObject(id){
+  if(disposed)return;
+  // Full-model fit can be small on phones; explicit focus restores readable
+  // labels while preserving any closer zoom the user already chose.
+  if(graph.getZoom()<.85)await graph.zoomTo(.85,duration());
+  if(disposed)return;
+  await graph.focusElement(id,duration());
+  if(!disposed)updateZoom();
+}
+async function select(id,{focus=false}={}){if(disposed || !data.nodes.some(n=>n.id===id))return;selected=id;edgeSelected=null;updateDetail();if(embedded)void notify('ontologySelect',id);await paintSelection();if(focus)await focusObject(id);}
 async function fit(){await graph.fitView({when:'always',direction:'both'},duration());updateZoom();}
 function updateZoom(){$('zoom').textContent=Math.round(graph.getZoom()*100)+'%';}
 async function changeLayout(){if(busy)return;busy=true;$('layout').disabled=true;
@@ -101,12 +110,11 @@ async function start(){
   graph.on('node:click',event=>select(event.target.id));
   graph.on('edge:click',event=>{edgeSelected=event.target.id;const edge=data.edges.find(e=>e.id===edgeSelected);if(edge && edge.source!==selected && edge.target!==selected){selected=edge.source;if(embedded)void notify('ontologySelect',selected);}updateDetail();void paintSelection();});
   await graph.render();if(disposed){graph.destroy();return;}await paintSelection();
-  if($('graph').clientWidth<600 && graph.getZoom()<.75){await graph.zoomTo(.75,false);await graph.focusElement(selected,false);}
   $('loading').hidden=true;updateZoom();
   rendered=true;if(embedded)void notify('ontologyRendered');
   graph.on('aftertransform',updateZoom);
-  $('object').onchange=()=>select($('object').value);
-  $('theme').onclick=theme;$('fit').onclick=fit;$('focus').onclick=()=>graph.focusElement(selected,duration());
+  $('object').onchange=()=>select($('object').value,{focus:true});
+  $('theme').onclick=theme;$('fit').onclick=fit;$('focus').onclick=()=>focusObject(selected);
   const stopFlight=()=>{void graph.zoomTo(graph.getZoom(),false);};
   const motionChanged=()=>{if(quiet())stopFlight();};
   $('quiet').onchange=motionChanged;media.addEventListener('change',motionChanged);
@@ -125,9 +133,9 @@ async function start(){
     const narrowed=r.width<previousWidth*.8 || (previousWidth>=600 && r.width<600);previousWidth=r.width;
     graph.setSize(r.width,r.height);
     try{
-      // Keep the selected object in view when a sidebar or narrow viewport takes space.
-      // This changes only the camera: user node positions and the layout stay intact.
-      if(narrowed){if(r.width<600 && graph.getZoom()<.75)await graph.zoomTo(.75,false);if(!disposed)await graph.focusElement(selected,false);}
+      // Keep the full model visible when sidebars reduce the canvas. Explicit
+      // focus remains available for reading an individual object at closer zoom.
+      if(narrowed)await graph.fitView({when:'always',direction:'both'},false);
       if(!disposed)updateZoom();
     }catch(error){fail(error);}
   });});observer.observe($('graph'));

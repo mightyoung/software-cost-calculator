@@ -17,7 +17,7 @@ test('admin navigation uses the same local icon geometry as the application', as
 test('admin surfaces expose neutral themes, scaling, local table scroll and reduced motion', async () => {
   const css = await readFile(new URL('./styles.css', import.meta.url), 'utf8');
   assert.match(css, /--canvas:#f7f8fa/i);
-  assert.match(css, /--canvas:#131211/i);
+  assert.match(css, /--canvas:#111111/i);
   assert.match(css, /data-theme=dark/);
   assert.match(css, /data-theme=light/);
   assert.match(css, /font:0\.875rem/);

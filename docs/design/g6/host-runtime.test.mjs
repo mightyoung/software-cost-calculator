@@ -7,14 +7,15 @@ const source=html.slice(html.lastIndexOf('<script>')+8,html.lastIndexOf('</scrip
 const schema=JSON.parse(await readFile(new URL('./schema.json',import.meta.url),'utf8'));
 const payload=()=>({version:1,schema,counts:{supplier:7},selected:'quotation',dark:false,reducedMotion:false,textScale:1});
 function fixture({delayed=false}={}){
-  const nodes=new Map(),events=new Map(),graphEvents=new Map(),calls=[],metrics={renders:0,draws:0,zoomStops:0,destroyed:0,edges:[],width:900,height:600,zoom:1,focused:[],sizes:[]};
+  const nodes=new Map(),events=new Map(),graphEvents=new Map(),calls=[],metrics={renders:0,draws:0,zoomStops:0,destroyed:0,edges:[],width:900,height:600,zoom:1,focused:[],sizes:[],fits:0,zoomAnimations:[],focusAnimations:[]};
   let resizeCallback;
   const element=()=>({dataset:{},style:{setProperty(){}},classList:{add(){}},value:'',checked:false,clientWidth:900,
     children:[],append(...c){this.children.push(...c);},replaceChildren(...c){this.children=c;},setAttribute(){},addEventListener(){},getBoundingClientRect:()=>({width:metrics.width,height:metrics.height})});
   const document={getElementById(id){if(!nodes.has(id))nodes.set(id,element());return nodes.get(id);},createElement:element,querySelectorAll:()=>[],documentElement:element(),body:element()};
   class Graph{
     on(name,handler){graphEvents.set(name,handler);} off(){} async render(){metrics.renders++;} async draw(){metrics.draws++;await metrics.drawGate;}
-    getZoom(){return metrics.zoom;} async zoomTo(zoom){metrics.zoomStops++;metrics.zoom=zoom;} async focusElement(id){metrics.focused.push(id);}
+    getZoom(){return metrics.zoom;} async zoomTo(zoom,animation){metrics.zoomStops++;metrics.zoom=zoom;metrics.zoomAnimations.push(animation);if(animation)await metrics.zoomGate;} async focusElement(id,animation){metrics.focused.push(id);metrics.focusAnimations.push(animation);}
+    async fitView(){metrics.fits++;}
     updateNodeData(){} updateEdgeData(edges){metrics.edges=edges;} setSize(w,h){metrics.sizes.push([w,h]);} setData(){} destroy(){metrics.destroyed++;}
   }
   const window={G6:{Graph},addEventListener(name,fn){const list=events.get(name)||[];list.push(fn);events.set(name,list);},removeEventListener(name,fn){events.set(name,(events.get(name)||[]).filter(f=>f!==fn));}};
@@ -76,13 +77,38 @@ test('reduced motion stops viewport animation immediately while a preceding draw
   assert.equal(f.metrics.zoomStops,before+1);
   release();await Promise.all([first,next]);
 });
-test('narrow resize centers selected object at readable zoom without recalculating layout',async()=>{
+test('narrow resize fits the complete model without forcing a crop or recalculating layout',async()=>{
   const f=fixture();await f.window.ontologyHost.update({...payload(),selected:'supplier'});
   f.metrics.zoom=.4;f.resize(390,470);await new Promise(setImmediate);
-  assert.equal(f.metrics.zoom,.75);assert.equal(f.metrics.focused.at(-1),'supplier');
+  assert.equal(f.metrics.zoom,.4);assert.equal(f.metrics.fits,1);assert.equal(f.metrics.focused.length,0);
   assert.deepEqual(f.metrics.sizes.at(-1),[390,470]);assert.equal(f.metrics.renders,1);
   const focusCount=f.metrics.focused.length;f.resize(385,460);await new Promise(setImmediate);
   assert.equal(f.metrics.focused.length,focusCount);
+  assert.equal(f.metrics.fits,1);
+});
+test('explicit focus restores readable zoom after full fit and preserves closer zoom',async()=>{
+  const f=fixture();await f.window.ontologyHost.update({...payload(),textScale:1.4,reducedMotion:true});
+  f.metrics.zoom=.25;
+  await f.document.getElementById('focus').onclick();
+  assert.equal(f.metrics.zoom,.85);assert.equal(f.metrics.focused.at(-1),'quotation');
+  assert.equal(f.metrics.zoomAnimations.at(-1),false);assert.equal(f.metrics.focusAnimations.at(-1),false);
+  assert.equal(f.document.getElementById('zoom').textContent,'85%');
+  f.metrics.zoom=1.6;const zoomCalls=f.metrics.zoomStops;
+  await f.document.getElementById('focus').onclick();
+  assert.equal(f.metrics.zoom,1.6);assert.equal(f.metrics.zoomStops,zoomCalls);
+  f.metrics.zoom=.25;f.document.getElementById('object').value='supplier';
+  await f.document.getElementById('object').onchange();
+  assert.equal(f.metrics.zoom,.85);assert.equal(f.metrics.focused.at(-1),'supplier');
+});
+test('reduced motion interrupts focus zoom and prevents its following pan animation',async()=>{
+  const f=fixture();await f.window.ontologyHost.update(payload());
+  let release;f.metrics.zoomGate=new Promise(resolve=>{release=resolve;});f.metrics.zoom=.25;
+  const focus=f.document.getElementById('focus').onclick();
+  await new Promise(setImmediate);
+  const update=f.window.ontologyHost.update({...payload(),reducedMotion:true});
+  assert.equal(f.metrics.zoomAnimations.at(-1),false);
+  release();await Promise.all([focus,update]);
+  assert.equal(f.metrics.focusAnimations.at(-1),false);
 });
 test('property details retain descriptions, enum meaning and navigable reference targets',async()=>{
   const f=fixture();const expanded=structuredClone(schema);

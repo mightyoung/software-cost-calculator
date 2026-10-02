@@ -39,12 +39,7 @@ class AttributesEditor extends StatelessWidget {
           children: [
             const Text('关键属性', style: TextStyle(fontWeight: FontWeight.w600)),
             const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                '区分同名物料的参数，如 流量、扬程、材质；查重和搜索都会用到',
-                style: TextStyle(fontSize: 12, color: Tokens.ink3),
-              ),
-            ),
+            const Spacer(),
             TextButton.icon(
               onPressed: () => onAdd(null),
               icon: const AppIcon(Icons.add, size: 16),
@@ -52,33 +47,58 @@ class AttributesEditor extends StatelessWidget {
             ),
           ],
         ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Text(
+            '区分同名物料的参数，如流量、扬程、材质；查重和搜索都会用到',
+            style: TextStyle(fontSize: 12, color: Tokens.ink3),
+          ),
+        ),
         for (var i = 0; i < rows.length; i++)
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 140,
-                  child: TextField(
-                    controller: rows[i].$1,
-                    decoration: const InputDecoration(hintText: '属性名'),
-                    onChanged: (_) => onChanged(),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: rows[i].$2,
-                    decoration: const InputDecoration(hintText: '值'),
-                    onChanged: (_) => onChanged(),
-                  ),
-                ),
-                IconButton(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final narrow =
+                    constraints.maxWidth <
+                    420 * MediaQuery.textScalerOf(context).scale(14) / 14;
+                final name = TextField(
+                  controller: rows[i].$1,
+                  decoration: const InputDecoration(hintText: '属性名'),
+                  onChanged: (_) => onChanged(),
+                );
+                final value = TextField(
+                  controller: rows[i].$2,
+                  decoration: const InputDecoration(hintText: '值'),
+                  onChanged: (_) => onChanged(),
+                );
+                final remove = IconButton(
                   tooltip: '删除',
                   icon: const AppIcon(Icons.close, size: 16),
                   onPressed: () => onRemove(i),
-                ),
-              ],
+                );
+                return narrow
+                    ? Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(child: name),
+                              remove,
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          value,
+                        ],
+                      )
+                    : Row(
+                        children: [
+                          SizedBox(width: 140, child: name),
+                          const SizedBox(width: 8),
+                          Expanded(child: value),
+                          remove,
+                        ],
+                      );
+              },
             ),
           ),
         if (open.isNotEmpty)

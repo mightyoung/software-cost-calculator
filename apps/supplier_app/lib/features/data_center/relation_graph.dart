@@ -16,26 +16,20 @@ class RelationGraphPalette {
     this.accent,
     this.tint,
   );
-  factory RelationGraphPalette.of(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark
-      ? const RelationGraphPalette(
-          Color(0xFF131211),
-          Color(0xFF181716),
-          Color(0xFFEEEDEA),
-          Color(0xFFAAA7A3),
-          Color(0xFF45423E),
-          Color(0xFFEEEDEA),
-          Color(0xFF302E2B),
-        )
-      : const RelationGraphPalette(
-          Color(0xFFF7F8FA),
-          Color(0xFFFFFFFF),
-          Color(0xFF111827),
-          Color(0xFF636C7E),
-          Color(0xFFC3CAD6),
-          Color(0xFF2458D3),
-          Color(0xFFE8EFFF),
-        );
+  factory RelationGraphPalette.of(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return RelationGraphPalette(
+      scheme.surfaceContainerLow,
+      scheme.surface,
+      scheme.onSurface,
+      scheme.onSurfaceVariant,
+      scheme.outline,
+      scheme.brightness == Brightness.dark ? scheme.onSurface : scheme.primary,
+      scheme.brightness == Brightness.dark
+          ? scheme.surfaceContainerHigh
+          : scheme.primaryContainer,
+    );
+  }
   final Color canvas, surface, ink, muted, border, accent, tint;
 }
 
@@ -54,6 +48,7 @@ const _placed = <String, Offset>{
   'spec_item': Offset(350, 550),
   'spec_response': Offset(150, 550),
 };
+
 /// Hand-placed positions; an object type added to the model later still
 /// appears, in the free row between the others, until it is placed.
 final _at = <String, Offset>{
@@ -143,13 +138,15 @@ class _RelationGraphState extends State<RelationGraph>
       0,
       1,
     )
-    ..scaleByDouble(scale, scale, 1, 1);
-  void _fit({bool animate = true, bool readable = false}) {
+    // InteractiveViewer reads the largest axis as its zoom, including Z.
+    // Keeping Z at 1 makes every zoom below 100% report as 100%.
+    ..scaleByDouble(scale, scale, scale, 1);
+  void _fit({bool animate = true}) {
     if (_viewport.isEmpty) return;
     final scale = min(
       _viewport.width / _canvas.width,
       _viewport.height / _canvas.height,
-    ).clamp(readable ? .75 : .2, 1.0);
+    ).clamp(.2, 1.0);
     _move(_matrix(scale, _canvas.center(Offset.zero)), animate: animate);
   }
 
@@ -287,7 +284,7 @@ class _RelationGraphState extends State<RelationGraph>
                     if (_viewport != next) {
                       _viewport = next;
                       WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (mounted) _fit(animate: false, readable: true);
+                        if (mounted) _fit(animate: false);
                       });
                     }
                     return Stack(
