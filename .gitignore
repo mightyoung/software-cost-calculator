@@ -5,3 +5,6 @@ build/
 .env
 .env.*
 !.env.example
+
+# Local business data
+docs/test-doc/设备具体选型品牌型号.xlsx
