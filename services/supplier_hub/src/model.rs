@@ -98,7 +98,7 @@ fn fields(kind: &str) -> Result<&'static str> {
         "supplier" => "name aliases address categories notes merged_into rating rating_note",
         "contact" => "supplier_id name phone wechat email notes",
         "product" => {
-            "name unit brand model specification category notes merged_into attributes unit_conversions spec_class"
+            "name unit brand model specification category notes merged_into attributes unit_conversions spec_class source_attachment_ids"
         }
         "project" => {
             "code name status type level customer contract_no contract_amount department leader start_date end_date currency tax_mode markup_rate notes"
@@ -306,8 +306,14 @@ impl RecordSnapshot {
             // else in the Dart payload is scalar; retain its exact raw value.
             if !value.is_null() {
                 match key.as_str() {
-                    "aliases" | "categories" | "includes" | "attachment_ids" | "price_tiers"
-                    | "item_ids" | "supplier_ids"
+                    "aliases"
+                    | "categories"
+                    | "includes"
+                    | "attachment_ids"
+                    | "price_tiers"
+                    | "source_attachment_ids"
+                    | "item_ids"
+                    | "supplier_ids"
                         if !value.is_array() =>
                     {
                         return Err(invalid(format!("{key} must be an array")));
@@ -326,6 +332,7 @@ impl RecordSnapshot {
                     | "categories"
                     | "includes"
                     | "attachment_ids"
+                    | "source_attachment_ids"
                     | "price_tiers"
                     | "item_ids"
                     | "supplier_ids"
@@ -399,6 +406,16 @@ impl RecordSnapshot {
                     return Err(invalid("invalid text list"));
                 }
             }
+        }
+        if let Some(v) = self
+            .data
+            .get("source_attachment_ids")
+            .filter(|v| !v.is_null())
+            && v.as_array().is_none_or(|a| !a.is_empty())
+        {
+            return Err(invalid(
+                "v1 attachment transfer is unsupported; do not omit existing attachments",
+            ));
         }
         for field in ["attributes", "unit_conversions"] {
             if let Some(v) = self.data.get(field).filter(|v| !v.is_null()) {
