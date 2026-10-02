@@ -54,11 +54,17 @@ def file_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def assert_standalone_sqlite(path: Path) -> None:
+    for suffix in ("-wal", "-journal", "-shm"):
+        if Path(f"{path}{suffix}").exists():
+            raise ValueError(f"SQLite input has an active or leftover sidecar: {path}{suffix}")
+
+
 def verify(directory: Path) -> dict:
     report = json.loads((directory / "report.json").read_text())
     kind = report.get("kind")
     if report.get("status") != "PASS" or kind not in {
-        "formal-full-chain", "formal-full-chain-resumed"
+        "formal-full-chain", "formal-full-chain-resumed", "formal-import-only"
     }:
         raise ValueError("Expected a successful formal full-chain report")
     if report["source_sha256"] != report["source_sha256_at_finish"]:
@@ -77,10 +83,23 @@ def verify(directory: Path) -> dict:
         if (file_sha256(source_path) != report["input_file_sha256"]["source"] or
                 file_sha256(backup_path) != report["input_file_sha256"]["backup"]):
             raise ValueError("Resumed input file hash differs")
+    assert_standalone_sqlite(source_path)
     source = database_digest(source_path)
+    if kind == "formal-import-only":
+        assert_standalone_sqlite(source_path)
+        if source["revision_count"] != report["count"] * 5:
+            raise ValueError("Formal import cardinality differs")
+        if any(result["source_digest"][key] != value for key, value in source.items()):
+            raise ValueError("Formal import report digest differs from SQLite")
+        return {"status": "PASS", "kind": kind, **source,
+                "sqlite_cache_kib": 8192, "retained_sqlite_rows": 1,
+                "scope": "Independent authority/receipt/SQLite integrity for formal import only"}
+    assert_standalone_sqlite(directory / "restored.sqlite")
     if kind == "formal-full-chain-resumed" and source["authority_sha256"] != report["expected_authority_sha256"]:
         raise ValueError("Resumed source authority digest differs")
     restored = database_digest(directory / "restored.sqlite")
+    assert_standalone_sqlite(source_path)
+    assert_standalone_sqlite(directory / "restored.sqlite")
     if source != restored or source["revision_count"] != report["count"] * 5:
         raise ValueError("Restored authority or count differs")
     for key, value in source.items():

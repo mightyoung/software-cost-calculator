@@ -121,4 +121,29 @@ void main() {
       }
     },
   );
+
+  test('a sidecar created during the run invalidates the final report', () async {
+    final out = Directory('${root.path}/late-sidecar');
+    final sidecar = File('${input.path}/source.sqlite-shm');
+    try {
+      final report = await resume.resumeFullChain(
+        input,
+        out,
+        count: 2,
+        expectedAuthority: authority,
+        rowsPerVolume: 2,
+        freeSpace: (_) async {
+          if (await File('${out.path}/manifest.json').exists()) {
+            await sidecar.writeAsString('created after admission');
+          }
+          return 1 << 40;
+        },
+      );
+      expect(report['status'], 'FAIL');
+      expect(report['finalization_error'], contains('Source has -shm'));
+      expect(await sidecar.readAsString(), 'created after admission');
+    } finally {
+      if (await sidecar.exists()) await sidecar.delete();
+    }
+  }, timeout: const Timeout(Duration(minutes: 2)));
 }

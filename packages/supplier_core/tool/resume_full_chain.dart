@@ -24,6 +24,18 @@ Future<void> main(List<String> args) async {
     }
     options[arg.substring(2, at)] = arg.substring(at + 1);
   }
+  if (options['prepare-backup'] == 'true') {
+    final report = await prepareSourceBackup(
+      Directory(options['input']!),
+      count: int.parse(options['count']!),
+      expectedAuthority: options['authority']!,
+    );
+    stdout.writeln(
+      '${report['status']}: ${options['input']}/backup-preparation.json',
+    );
+    if (report['status'] != 'PASS') exitCode = 1;
+    return;
+  }
   final report = await resumeFullChain(
     Directory(options['input']!),
     Directory(options['out']!),
@@ -37,6 +49,91 @@ Future<void> main(List<String> args) async {
 
 Future<String> _hash(File file) async =>
     (await sha256.bind(file.openRead()).single).toString();
+
+/// Produce a real application backup for a previously completed import-only
+/// fixture. The source remains available for the independent resumed chain.
+Future<Map<String, Object?>> prepareSourceBackup(
+  Directory input, {
+  required int count,
+  required String expectedAuthority,
+}) async {
+  if (count < 1 ||
+      count > 100000 ||
+      !RegExp(r'^[0-9a-f]{64}$').hasMatch(expectedAuthority)) {
+    throw ArgumentError('Invalid count or authority');
+  }
+  final original = File('${input.absolute.path}/source.sqlite');
+  final backup = File('${input.absolute.path}/source.backup');
+  final evidence = File('${input.absolute.path}/backup-preparation.json');
+  if (!await original.exists() ||
+      await backup.exists() ||
+      await evidence.exists()) {
+    throw ArgumentError(
+      'Completed source required; backup/evidence must be new',
+    );
+  }
+  await _assertCheckpointHasNoSidecars(original);
+  final report = <String, Object?>{
+    'schema': 1,
+    'kind': 'formal-backup-from-completed-source',
+    'status': 'RUNNING',
+    'count': count,
+    'expected_authority_sha256': expectedAuthority,
+    'source_path': original.path,
+    'backup_path': backup.path,
+    'started_at': DateTime.now().toUtc().toIso8601String(),
+  };
+  Future<void> save() => evidence.writeAsString(
+    '${const JsonEncoder.withIndent('  ').convert(report)}\n',
+  );
+  final sourceBefore = await _hash(original);
+  final db = SupplierDatabase(
+    NativeDatabase(File(original.path)),
+    instanceId: scale.sourceId,
+  );
+  final watch = Stopwatch()..start();
+  try {
+    await save();
+    final digest = await scale.digestDatabase(db);
+    if (digest['authority_sha256'] != expectedAuthority ||
+        digest['revision_count'] != count * 5 ||
+        digest['quotation_count'] != count) {
+      throw StateError('Source checkpoint digest or cardinality mismatch');
+    }
+    final artifact = _Artifact(backup);
+    final summary = await BackupService(
+      database: db,
+      writeLock: TestWriteLock(),
+      readActiveVersion: db.currentVersion,
+      createArtifact: () async => _Artifact(
+        File('${input.absolute.path}/private-backup-checkpoint.bin'),
+      ),
+    ).create(artifact);
+    report['backup_digest'] = summary.digest;
+    report['backup_bytes'] = summary.bytes;
+    report['backup_counts'] = summary.header.counts;
+    report['source_digest'] = digest;
+  } catch (error, stack) {
+    report['status'] = 'FAIL';
+    report['error'] = '$error';
+    report['stack'] = '$stack';
+  } finally {
+    await db.close();
+    report['elapsed_ms'] = watch.elapsedMilliseconds;
+    report['source_sha256_before'] = sourceBefore;
+    report['source_sha256_after'] = await _hash(original);
+    if (await backup.exists()) report['backup_sha256'] = await _hash(backup);
+    report['finished_at'] = DateTime.now().toUtc().toIso8601String();
+    if (report['status'] != 'FAIL') {
+      report['status'] =
+          report['source_sha256_after'] == sourceBefore && await backup.exists()
+          ? 'PASS'
+          : 'FAIL';
+    }
+    await save();
+  }
+  return report;
+}
 
 Future<Map<String, Object?>> resumeFullChain(
   Directory input,
@@ -59,12 +156,7 @@ Future<Map<String, Object?>> resumeFullChain(
   if (!await original.exists() || !await backup.file.exists()) {
     throw ArgumentError('Source and published backup required');
   }
-  // A hot journal or WAL means the main file is not a standalone checkpoint.
-  for (final suffix in ['-wal', '-journal']) {
-    if (await File('${original.path}$suffix').exists()) {
-      throw StateError('Source has $suffix; checkpoint is not immutable');
-    }
-  }
+  await _assertCheckpointHasNoSidecars(original);
   await out.create(recursive: true);
   final watch = Stopwatch()..start();
   final timings = <String, int>{};
@@ -294,6 +386,7 @@ Future<Map<String, Object?>> resumeFullChain(
         'source': await _hash(original),
         'backup': await _hash(backup.file),
       };
+      await _assertCheckpointHasNoSidecars(original);
       report['source_sha256_at_finish'] = await codeHashes();
       if (jsonEncode(report['input_file_sha256']) !=
               jsonEncode(report['input_file_sha256_at_finish']) ||
@@ -313,6 +406,15 @@ Future<Map<String, Object?>> resumeFullChain(
     await save();
   }
   return report;
+}
+
+Future<void> _assertCheckpointHasNoSidecars(File source) async {
+  // The main-file hash alone cannot detect a writer that created a new WAL.
+  for (final suffix in ['-wal', '-journal', '-shm']) {
+    if (await File('${source.path}$suffix').exists()) {
+      throw StateError('Source has $suffix; checkpoint is not immutable');
+    }
+  }
 }
 
 class _Input implements InputSource {

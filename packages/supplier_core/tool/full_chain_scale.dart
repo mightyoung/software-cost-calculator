@@ -16,6 +16,12 @@ const restoredId = '00000000-0000-4000-8000-000000000002';
 const supplierId = '10000000-0000-4000-8000-000000000001';
 const productId = '20000000-0000-4000-8000-000000000001';
 const authored = '2026-09-23T00:00:00.000Z';
+const fixtureTimingScope =
+    'staging_append_transactions is included in staging_generate_and_append; '
+    'commit_total includes commit_through_after_commit and post_commit_cleanup; '
+    'post_commit_cleanup spans the after_commit callback through coordinator '
+    'return, including workspace discard and lock release; graph checkpoints '
+    'are elapsed from coordinator invocation, not individual phase durations';
 
 /// Admission for the first stage only. Subsequent stages measure existing
 /// files and reserve their own incremental working set plus 20%, so already
@@ -50,8 +56,23 @@ Future<void> main(List<String> args) async {
   }
   final count = int.parse(options['count'] ?? '100');
   final volume = int.parse(options['rows-per-volume'] ?? '5000');
-  if (count < 1 || count > 100000 || volume < 1 || volume > 5000) {
-    throw ArgumentError('count 1..100000, rows-per-volume 1..5000');
+  final importOnly = options['import-only'] == 'true';
+  final installPageSize = options['install-page-size'] == null
+      ? null
+      : int.parse(options['install-page-size']!);
+  final cacheKib = options['cache-kib'] == null
+      ? null
+      : int.parse(options['cache-kib']!);
+  if (count < 1 ||
+      count > 100000 ||
+      volume < 1 ||
+      volume > 5000 ||
+      (installPageSize != null &&
+          (installPageSize < 1 || installPageSize > 5000)) ||
+      (cacheKib != null && (cacheKib < 1024 || cacheKib > 131072))) {
+    throw ArgumentError(
+      'count 1..100000, rows-per-volume 1..5000, install-page-size 1..5000',
+    );
   }
   final out = Directory(options['out'] ?? 'full-chain-$count');
   if (await out.exists()) throw ArgumentError('Output must be a new directory');
@@ -59,10 +80,12 @@ Future<void> main(List<String> args) async {
   final watch = Stopwatch()..start();
   final report = <String, Object?>{
     'schema': 1,
-    'kind': 'formal-full-chain',
+    'kind': importOnly ? 'formal-import-only' : 'formal-full-chain',
     'count': count,
     'expected_revisions': count * 5,
     'rows_per_volume': volume,
+    'experimental_cache_kib': cacheKib,
+    'experimental_install_page_size': installPageSize,
     'command': [
       Platform.resolvedExecutable,
       Platform.script.toFilePath(),
@@ -74,8 +97,9 @@ Future<void> main(List<String> args) async {
       'os': Platform.operatingSystemVersion,
     },
     'source_sha256': await sourceHashes(),
-    'scope':
-        'Native host; formal staged commit, backup, isolated restore, frozen multi-volume export and reopen digest',
+    'scope': importOnly
+        ? 'Native host; formal staged commit and independent source digest only'
+        : 'Native host; formal staged commit, backup, isolated restore, frozen multi-volume export and reopen digest',
     'unverified': [
       'Android/Windows deferred by user',
       'restore active-pointer publication',
@@ -99,6 +123,9 @@ Future<void> main(List<String> args) async {
       out,
       count: count,
       rowsPerVolume: volume,
+      importOnly: importOnly,
+      cacheKib: cacheKib,
+      installPageSize: installPageSize,
     );
     report['status'] = 'PASS';
   } catch (error, stack) {
@@ -218,11 +245,32 @@ Future<Map<String, Object?>> runFullChain(
   Directory out, {
   required int count,
   int rowsPerVolume = 5000,
+  bool importOnly = false,
+  int? cacheKib,
+  int? installPageSize,
 }) async {
   final resources = _Resources(out);
   final source = resources.database('source', sourceId);
+  if (cacheKib != null) {
+    await source.customStatement('PRAGMA cache_size=-$cacheKib');
+  }
   final lock = TestWriteLock();
   final timings = <String, int>{};
+  final fixtureTimings = <String, int>{};
+  final graphCheckpoints = <String, int>{};
+  Future<T> measureFixture<T>(String phase, Future<T> Function() action) async {
+    final timer = Stopwatch()..start();
+    try {
+      return await action();
+    } finally {
+      timer.stop();
+      fixtureTimings[phase] = timer.elapsedMilliseconds;
+      stdout.writeln(
+        'fixture_phase=$phase elapsed_ms=${timer.elapsedMilliseconds}',
+      );
+    }
+  }
+
   final stageRss = <String, int>{};
   final stageSizes = <String, int>{};
   final spaceChecks = <String, Object?>{};
@@ -289,14 +337,27 @@ Future<Map<String, Object?>> runFullChain(
 
   try {
     await measure('formal_fixture_commit', () async {
-      await source.createJob('scale-fixture');
+      await measureFixture(
+        'job_create',
+        () => source.createJob('scale-fixture'),
+      );
       final batch = <RevisionEnvelope>[];
       var staged = 0;
-      Future<void> flush() => source.transaction(() async {
-        for (final revision in batch) {
-          await source.appendStaging('scale-fixture', revision);
+      final stagingWatch = Stopwatch()..start();
+      final appendWatch = Stopwatch();
+      Future<void> flush() async {
+        appendWatch.start();
+        try {
+          await source.transaction(() async {
+            for (final revision in batch) {
+              await source.appendStaging('scale-fixture', revision);
+            }
+          });
+        } finally {
+          appendWatch.stop();
         }
-      });
+      }
+
       await for (final revision in fixture(count)) {
         batch.add(revision);
         staged++;
@@ -312,23 +373,104 @@ Future<Map<String, Object?>> runFullChain(
         await flush();
         batch.clear();
       }
-      final token = await source.sealJob('scale-fixture', 'full-chain');
-      await source.registerConfirmation('scale-confirmation', token);
+      stagingWatch.stop();
+      fixtureTimings['staging_generate_and_append'] =
+          stagingWatch.elapsedMilliseconds;
+      fixtureTimings['staging_append_transactions'] =
+          appendWatch.elapsedMilliseconds;
+      for (final phase in [
+        'staging_generate_and_append',
+        'staging_append_transactions',
+      ]) {
+        stdout.writeln(
+          'fixture_phase=$phase elapsed_ms=${fixtureTimings[phase]}',
+        );
+      }
+      final token = await measureFixture(
+        'seal_preview',
+        () => source.sealJob('scale-fixture', 'full-chain'),
+      );
+      await measureFixture(
+        'confirmation',
+        () => source.registerConfirmation('scale-confirmation', token),
+      );
+      final commitWatch = Stopwatch()..start();
+      int? afterCommitMicros;
       await CommitCoordinator(
         database: source,
         writeLock: lock,
         readActiveVersion: source.currentVersion,
         pageSize: 200,
+        installPageSize: installPageSize,
+        graphPhaseObserver: (phase) {
+          graphCheckpoints[phase] = commitWatch.elapsedMilliseconds;
+          stdout.writeln(
+            'graph_phase=$phase elapsed_ms=${commitWatch.elapsedMilliseconds} '
+            'rss_bytes=${ProcessInfo.currentRss}',
+          );
+        },
+        fault: (point) async {
+          if (point == 'after_commit') {
+            afterCommitMicros = commitWatch.elapsedMicroseconds;
+          }
+          final count = point.startsWith('page:')
+              ? int.tryParse(point.substring(5))
+              : null;
+          if (count == 200 ||
+              (count != null && count % 10000 == 0) ||
+              point == 'before_commit' ||
+              point == 'after_commit') {
+            stdout.writeln(
+              'commit_point=$point elapsed_ms=${commitWatch.elapsedMilliseconds} '
+              'rss_bytes=${ProcessInfo.currentRss}',
+            );
+          }
+        },
       ).commitStaged(
         jobId: 'scale-fixture',
         expectedPreviewToken: token,
         confirmationEventId: 'scale-confirmation',
       );
+      commitWatch.stop();
+      fixtureTimings['commit_total'] = commitWatch.elapsedMilliseconds;
+      if (afterCommitMicros != null) {
+        fixtureTimings['commit_through_after_commit'] =
+            afterCommitMicros! ~/ 1000;
+        fixtureTimings['post_commit_cleanup'] =
+            (commitWatch.elapsedMicroseconds - afterCommitMicros!) ~/ 1000;
+      }
+      for (final phase in [
+        'commit_total',
+        'commit_through_after_commit',
+        'post_commit_cleanup',
+      ]) {
+        if (fixtureTimings.containsKey(phase)) {
+          stdout.writeln(
+            'fixture_phase=$phase elapsed_ms=${fixtureTimings[phase]}',
+          );
+        }
+      }
     });
     final before = await measure('source_digest', () => digestDatabase(source));
     if (before['revision_count'] != count * 5 ||
         before['quotation_count'] != count) {
       throw StateError('Formal fixture cardinality mismatch');
+    }
+    if (importOnly) {
+      return {
+        'quotation_count': count,
+        'revision_count': count * 5,
+        'source_digest': before,
+        'timings_ms': timings,
+        'fixture_timings_ms': fixtureTimings,
+        'fixture_graph_checkpoints_ms': graphCheckpoints,
+        'fixture_timing_scope': fixtureTimingScope,
+        'phase_high_water_rss_bytes': stageRss,
+        'phase_directory_bytes': stageSizes,
+        'phase_space_checks': spaceChecks,
+        'performance_acceptance':
+            'formal_fixture_commit includes staging and transaction; compare with desktop import target separately',
+      };
     }
     final backup = _FileArtifact(File('${out.path}/source.backup'));
     final summary = await measure(
@@ -425,6 +567,9 @@ Future<Map<String, Object?>> runFullChain(
       'backup_bytes': await backup.source.length(),
       'bundle_bytes': await target.source.length(),
       'timings_ms': timings,
+      'fixture_timings_ms': fixtureTimings,
+      'fixture_graph_checkpoints_ms': graphCheckpoints,
+      'fixture_timing_scope': fixtureTimingScope,
       'phase_high_water_rss_bytes': stageRss,
       'phase_directory_bytes': stageSizes,
       'phase_space_checks': spaceChecks,

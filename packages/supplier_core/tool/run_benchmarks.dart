@@ -26,6 +26,10 @@ Future<void> main(List<String> args) async {
   if (!['query', 'deep', 'strings'].contains(mode)) {
     throw ArgumentError('Unknown benchmark mode');
   }
+  final stringPattern = options['string-pattern'] ?? 'compressible';
+  if (!['compressible', 'high-entropy'].contains(stringPattern)) {
+    throw ArgumentError('Unknown string pattern');
+  }
   final out = Directory(options['out'] ?? 'benchmark-$mode');
   if (out.existsSync()) throw ArgumentError('Output directory must be new');
   await out.create(recursive: true);
@@ -91,6 +95,7 @@ Future<void> main(List<String> args) async {
         out,
         count: int.parse(options['count'] ?? '1000'),
         length: int.parse(options['length'] ?? '4000'),
+        pattern: stringPattern,
       ),
     };
     report['result'] = result;
@@ -318,7 +323,12 @@ Future<Map<String, Object?>> runDeep(
     final token = await rig.database.sealJob('deep', 'deep-chain');
     await rig.database.registerConfirmation('deep-event', token);
     timer.reset();
-    await rig.coordinator().commitStaged(
+    await CommitCoordinator(
+      database: rig.database,
+      writeLock: rig.lock,
+      readActiveVersion: rig.active,
+      pageSize: 200,
+    ).commitStaged(
       jobId: 'deep',
       expectedPreviewToken: token,
       confirmationEventId: 'deep-event',
@@ -355,9 +365,19 @@ Future<Map<String, Object?>> runDeep(
   }
 }
 
-String uniqueText(int index, int length) {
+String uniqueText(int index, int length, String pattern) {
   final prefix = index.toString().padLeft(8, '0');
-  return '$prefix${'x' * (length - prefix.length)}';
+  if (pattern == 'compressible') {
+    return '$prefix${'x' * (length - prefix.length)}';
+  }
+  final text = StringBuffer(prefix);
+  var block = 0;
+  while (text.length < length) {
+    final bytes = sha256.convert(utf8.encode('$index:$block')).bytes;
+    text.write(base64Url.encode(bytes).replaceAll('=', ''));
+    block++;
+  }
+  return text.toString().substring(0, length);
 }
 
 /// Adversarial volume fixture construction has a fixed 40 MiB ceiling. Its
@@ -366,6 +386,7 @@ Future<Map<String, Object?>> runStrings(
   Directory out, {
   required int count,
   required int length,
+  String pattern = 'compressible',
 }) async {
   if (count < 1 ||
       count > 5000 ||
@@ -376,7 +397,7 @@ Future<Map<String, Object?>> runStrings(
   }
   final source = xlsxFixture(
     shared:
-        '<sst xmlns="$mainNs">${Iterable.generate(count, (i) => '<si><t>${uniqueText(i, length)}</t></si>').join()}</sst>',
+        '<sst xmlns="$mainNs">${Iterable.generate(count, (i) => '<si><t>${uniqueText(i, length, pattern)}</t></si>').join()}</sst>',
     sheet: worksheet(
       '<row r="1"><c r="A1" t="inlineStr"><is><t>text</t></is></c></row>${Iterable.generate(count, (i) => '<row r="${i + 2}"><c r="A${i + 2}" t="s"><v>$i</v></c></row>').join()}',
     ),
@@ -394,7 +415,7 @@ Future<Map<String, Object?>> runStrings(
     for (var i = 0; i < count; i++) {
       final cells = await database.cellsPage(i + 2);
       if (cells.length != 1 ||
-          cells.single.cell.lexical != uniqueText(i, length)) {
+          cells.single.cell.lexical != uniqueText(i, length, pattern)) {
         throw StateError('Shared string $i differs from bounded oracle');
       }
     }
@@ -404,6 +425,7 @@ Future<Map<String, Object?>> runStrings(
     return {
       'count': count,
       'text_length': length,
+      'string_pattern': pattern,
       'compressed_bytes': source.bytes.length,
       'parse_ms': parseMs,
       'profile': profile.toJson(),

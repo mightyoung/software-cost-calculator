@@ -36,6 +36,47 @@ void main() {
       expect(scale.requiredSpace(1), greaterThan(100 * 1024 * 1024));
     },
   );
+  test('formal import-only run stops after source digest', () async {
+    final directory = await Directory.systemTemp.createTemp(
+      'import-only-test-',
+    );
+    addTearDown(() => directory.delete(recursive: true));
+    final report = await scale.runFullChain(
+      directory,
+      count: 2,
+      importOnly: true,
+    );
+    expect(report['revision_count'], 10);
+    expect(report['quotation_count'], 2);
+    expect(
+      (report['timings_ms'] as Map).keys,
+      contains('formal_fixture_commit'),
+    );
+    expect((report['source_digest'] as Map)['revision_count'], 10);
+    expect(await File('${directory.path}/source.sqlite').exists(), isTrue);
+    expect(await File('${directory.path}/source.backup').exists(), isFalse);
+    expect(await File('${directory.path}/export.bundle.zip').exists(), isFalse);
+    final hashes = await scale.sourceHashes();
+    await File('${directory.path}/report.json').writeAsString(
+      jsonEncode({
+        'status': 'PASS',
+        'kind': 'formal-import-only',
+        'count': 2,
+        'source_sha256': hashes,
+        'source_sha256_at_finish': hashes,
+        'result': report,
+      }),
+    );
+    final verified = await Process.run('python3', [
+      'tool/verify_full_chain.py',
+      directory.path,
+    ]);
+    expect(
+      verified.exitCode,
+      0,
+      reason: '${verified.stdout}\n${verified.stderr}',
+    );
+  });
   test(
     'formal backup restores, exports several verified volumes and survives reopen',
     () async {
