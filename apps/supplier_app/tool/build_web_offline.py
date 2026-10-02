@@ -14,10 +14,38 @@ import subprocess
 
 APP = Path(__file__).resolve().parents[1]
 MARKER = '// SUPPLIER_OFFLINE_BOOTSTRAP'
+REQUIRED_ASSETS = (
+    'index.html', 'flutter_bootstrap.js', 'main.dart.js',
+    'supplier_platform.js', 'drift_worker.js', 'sqlite3.wasm',
+    'assets/FontManifest.json',
+    'canvaskit/canvaskit.js', 'canvaskit/canvaskit.wasm',
+    'canvaskit/chromium/canvaskit.js', 'canvaskit/chromium/canvaskit.wasm',
+    'canvaskit/webparagraph/canvaskit.js', 'canvaskit/webparagraph/canvaskit.wasm',
+)
+
+
+def validate_runtime_assets(directory):
+    # Validate before touching the output: a partial Flutter build must never
+    # acquire a release identity or overwrite an existing packaged release.
+    for name in REQUIRED_ASSETS:
+        path = directory / name
+        if not path.is_file() or path.stat().st_size == 0:
+            raise ValueError('Required runtime asset is missing or empty: ' + name)
+    fonts = json.loads((directory / 'assets/FontManifest.json').read_text())
+    if not isinstance(fonts, list):
+        raise ValueError('FontManifest must be a list')
+    for family in fonts:
+        for font in family['fonts']:
+            name = font['asset']
+            path = (directory / 'assets' / name).resolve()
+            if not path.is_relative_to(directory.resolve()) or not path.is_file() or path.stat().st_size == 0:
+                raise ValueError('Required font asset is missing or invalid: ' + name)
+    return fonts
 
 
 def package(directory):
     directory = Path(directory)
+    fonts = validate_runtime_assets(directory)
     font_source=APP/'web/fonts'
     for name, expected in {
         'NotoSansSC.ttf':'a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da',
@@ -27,7 +55,6 @@ def package(directory):
             raise ValueError('Bundled font or license differs from reviewed upstream: '+name)
     shutil.copytree(font_source,directory/'fonts',dirs_exist_ok=True)
     font_manifest=directory/'assets/FontManifest.json'
-    fonts=json.loads(font_manifest.read_text())
     # Web's default Roboto family is an alias for this unmodified CJK+Latin
     # font. The actual Noto font name and license remain intact.
     fonts=[font for font in fonts if font['family']!='Roboto']

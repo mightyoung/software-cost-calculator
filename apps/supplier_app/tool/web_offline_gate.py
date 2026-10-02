@@ -11,20 +11,42 @@ import http.server
 import importlib.util
 import json
 import os
+import re
 import shutil
 import sys
 from pathlib import Path
 import tempfile
 import threading
 import time
+import uuid
 
 APP = Path(__file__).resolve().parents[1]
 ROOT = APP.parents[1]
-BUILD = APP / 'build/web'
+BUILD = Path(os.environ.get('OFFLINE_BUILD', APP / 'build/web'))
 EVIDENCE = ROOT / 'artifacts/development'
-spec = importlib.util.spec_from_file_location('offline_transport', ROOT / 'prototypes/web_storage_gate/tool/browser_test.py')
-transport = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(transport)
+RUN_ID = uuid.uuid4().hex
+
+
+def report_output():
+    name=os.environ.get('OFFLINE_REPORT',('web-offline-receipt-recovery.json' if '--receipt-recovery' in sys.argv
+         else 'web-offline-upgrade.json') if '--upgrade' in sys.argv else 'web-offline-gate.json')
+    return EVIDENCE/name
+
+
+# Mark this invocation before loading the browser transport: missing optional
+# host packages must not leave an earlier PASS visible as the latest result.
+if __name__ == '__main__':
+    output=report_output()
+    output.parent.mkdir(parents=True,exist_ok=True)
+    output.write_text(json.dumps({'status':'RUNNING','run_id':RUN_ID,'phase':'prerequisites'},indent=2))
+try:
+    spec = importlib.util.spec_from_file_location('offline_transport', ROOT / 'prototypes/web_storage_gate/tool/browser_test.py')
+    transport = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(transport)
+except BaseException as error:
+    if __name__ == '__main__':
+        output.write_text(json.dumps({'status':'FAIL','run_id':RUN_ID,'error':str(error)},indent=2))
+    raise
 
 
 class Handler(transport.Handler):
@@ -67,7 +89,7 @@ def observe(browser, seconds=30):
 
 def main():
     EVIDENCE.mkdir(parents=True, exist_ok=True)
-    result = {'status':'RUNNING', 'scope':'Current Flutter release UI, isolated Chrome; no Android/Windows; no business fixture imported',
+    result = {'status':'RUNNING', 'run_id':RUN_ID, 'scope':'Current Flutter release UI, isolated Chrome; no Android/Windows; no business fixture imported',
               'hashes':{name:hashlib.sha256((BUILD/name).read_bytes()).hexdigest() for name in ['index.html','main.dart.js','flutter_bootstrap.js','flutter_service_worker.js','drift_worker.js','sqlite3.wasm']},
               'cases':{}}
     server = http.server.ThreadingHTTPServer(('127.0.0.1',0),functools.partial(Handler,directory=str(BUILD)))
@@ -136,6 +158,8 @@ def main():
         output = EVIDENCE/os.environ.get('OFFLINE_REPORT','web-offline-gate.json')
         output.write_text(json.dumps(result,ensure_ascii=False,indent=2))
         print(str(output),flush=True)
+    if result['status'] != 'PASS':
+        raise SystemExit(1)
 
 
 def release_state(browser):
@@ -147,15 +171,100 @@ def release_state(browser):
         channel.port1.onmessage=e=>{clearTimeout(timer);channel.port1.close();resolve(e.data.release)};
         navigator.serviceWorker.controller.postMessage({type:'supplier-release'},[channel.port2]);
       });
-      const bytes=await (await fetch('drift_worker.js')).arrayBuffer();
-      const hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(x=>x.toString(16).padStart(2,'0')).join('');
-      return {release,workerHash:hash,waiting:registration.waiting?.state || null,caches:await caches.keys()};
+      const hashes={};
+      for(const path of ['index.html','flutter_bootstrap.js','main.dart.js','supplier_platform.js','drift_worker.js','sqlite3.wasm','canvaskit/chromium/canvaskit.wasm']) {
+        const bytes=await (await fetch(path)).arrayBuffer();
+        hashes[path]=[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(x=>x.toString(16).padStart(2,'0')).join('');
+      }
+      return {release,workerHash:hashes['drift_worker.js'],hashes,waiting:registration.waiting?.state || null,caches:await caches.keys()};
     })()''')
+
+
+def backup_state(browser):
+    return browser.evaluate('''(async()=>{
+      const root=await navigator.storage.getDirectory(),result={};
+      for await(const [name,directory] of root.entries()) {
+        if(directory.kind!=='directory'||!name.endsWith('-backups'))continue;
+        for await(const [fileName,handle] of directory.entries()) {
+          if(handle.kind!=='file')continue;
+          const file=await handle.getFile();
+          result[name+'/'+fileName]={bytes:file.size,sha256:[...new Uint8Array(await crypto.subtle.digest('SHA-256',await file.arrayBuffer()))].map(x=>x.toString(16).padStart(2,'0')).join('')};
+        }
+      }
+      return result;
+    })()''')
+
+
+def seed_business(browser):
+    import web_exchange_ui_injected_test as ui
+    fixture=base64.b64encode(ui.workbook()).decode()
+    browser.evaluate('''window.showOpenFilePicker=async()=>[{getFile:async()=>new File([Uint8Array.from(atob(%s),c=>c.charCodeAt(0))],'a14-business.xlsx')}];true''' % json.dumps(fixture))
+    first='导入导出/备份' if '导入导出/备份' in ui.ui.text(browser) else '文件与备份'
+    for label in [first,'导入业务 Excel','选择 Excel 文件']:
+        ui.click(browser,label)
+    ui.wait_text(browser,'a14-business.xlsx')
+    ui.click(browser,'解析选中工作表');ui.wait_text(browser,'选择列映射')
+    ui.click(browser,'确认映射并查看转换预览');ui.wait_text(browser,'逐行核对')
+    for label in ['核对并选择操作','明确新建供应商','明确新建产品']:
+        ui.click(browser,label)
+    if '已核对并接受上述格式转换' in ui.ui.text(browser):ui.click(browser,'已核对并接受上述格式转换')
+    ui.click(browser,'确认本行决定');time.sleep(1.5)
+    ui.click(browser,'查看最终汇总');time.sleep(1)
+    if '逐行核对' in ui.ui.text(browser):ui.click(browser,'查看最终汇总')
+    ui.wait_text(browser,'确认产生 1 条报价结果')
+    ui.click(browser,'确认汇总并提交导入')
+    receipt=ui.wait_text(browser,'成功回执：')
+    backups=backup_state(browser)
+    record={'receipt':re.search(r'成功回执：([^\s]+)',receipt).group(1),'text':receipt,'backups':backups}
+    if '--receipt-recovery' in sys.argv:
+        ui.click(browser,'Back');ui.click(browser,'查看文件任务记录')
+        # Flutter renders SelectableText in a canvas-backed textarea. Its
+        # completed-state label is exposed to accessibility, but the content
+        # only enters textarea.value after an actual pointer selection.
+        deadline=time.monotonic()+60
+        history=''
+        while time.monotonic()<deadline:
+            rect=browser.evaluate('''(() => {const n=document.querySelector('textarea[aria-label="已完成"]');if(!n)return null;const r=n.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()''')
+            if rect:
+                for kind in ['mousePressed','mouseReleased']:
+                    browser.call('Input.dispatchMouseEvent',{'type':kind,**rect,'button':'left','clickCount':1})
+                history=browser.evaluate('document.querySelector(\'textarea[aria-label="已完成"]\')?.value || ""')
+                if '任务 ' in history: break
+            time.sleep(.2)
+        job_match=re.search(r'任务 ([^\s]+)',history)
+        if not job_match:
+            raise RuntimeError('Missing job number in persisted history: '+history)
+        record.update(job_id=job_match.group(1),history=history)
+    return record
+
+
+def resume_receipt(browser,job):
+    import web_exchange_ui_injected_test as ui
+    first='导入导出/备份' if '导入导出/备份' in ui.ui.text(browser) else '文件与备份'
+    ui.click(browser,first);ui.click(browser,'导入业务 Excel')
+    rect=browser.evaluate('''(() => {const n=document.querySelector('input[aria-label="恢复任务编号"]');if(!n)return null;const r=n.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()''')
+    if not rect: raise RuntimeError('Missing restore task number input')
+    for kind in ['mousePressed','mouseReleased']:
+        browser.call('Input.dispatchMouseEvent',{'type':kind,**rect,'button':'left','clickCount':1})
+    # A focused DOM input can accept bytes before Flutter attaches its input
+    # listener. Wait for the engine listener, then type into the controller.
+    field=browser.call('Runtime.evaluate',{'expression':'document.querySelector(\'input[aria-label="恢复任务编号"]\')','returnByValue':False})['result']['objectId']
+    deadline=time.monotonic()+10
+    while time.monotonic()<deadline:
+        listeners=browser.call('DOMDebugger.getEventListeners',{'objectId':field})['listeners']
+        if any(item['type']=='input' for item in listeners): break
+        time.sleep(.05)
+    else: raise RuntimeError('Flutter restore task input did not become ready')
+    browser.call('Input.insertText',{'text':job['job_id']})
+    if browser.evaluate('document.querySelector(\'input[aria-label="恢复任务编号"]\')?.value')!=job['job_id']:
+        raise RuntimeError('Restore task number was not entered')
+    ui.click(browser,'恢复导入任务')
+    return ui.wait_text(browser,'恢复原回执：'+job['receipt'])
 
 
 def upgrade_main():
     import build_web_offline
-    result={'status':'RUNNING','scope':'same-origin old/new tabs and rejected then valid update; compatible worker change'}
+    result={'status':'RUNNING','run_id':RUN_ID,'scope':'same-origin old/new tabs and rejected then valid update; compatible worker change'}
     with tempfile.TemporaryDirectory(prefix='supplier-web-upgrade-') as work:
         directory=Path(work)
         old=directory/'old'; new=directory/'new'
@@ -188,7 +297,15 @@ def upgrade_main():
             browser=transport.Browser(str(directory/'profile'),log)
             try:
                 browser.start(); browser.call('Page.navigate',{'url':url}); time.sleep(2)
+                browser.call('Emulation.setDeviceMetricsOverride',{'width':1440,'height':1100,'deviceScaleFactor':1,'mobile':False})
                 result['initial_ui']=observe(browser)
+                assert '查询与比价' in result['initial_ui']['text']
+                result['business_import']=seed_business(browser)
+                assert result['business_import']['backups'], 'No pre-import backup'
+                browser.call('Page.navigate',{'url':url});time.sleep(2)
+                import web_exchange_ui_injected_test as ui
+                observe(browser)
+                result['business_before_upgrade']=ui.wait_text(browser,'界面验收产品')
                 result['initial']=release_state(browser)
                 browser.call('Network.enable')
                 browser.evaluate("(async()=>{for(const name of await caches.keys())if(name.startsWith('supplier-offline-'))await (await caches.open(name)).delete(new URL('drift_worker.js',location.href));return true})()")
@@ -238,30 +355,61 @@ def upgrade_main():
                 browser.ws=transport.websocket.create_connection(tab['webSocketDebuggerUrl'],origin='http://localhost',timeout=60)
                 time.sleep(2)
                 result['second_tab_ui']=observe(browser)
+                result['second_tab_business']=ui.wait_text(browser,'界面验收产品')
                 result['second_tab']=release_state(browser)
                 assert result['second_tab']['release']==result['old_release']
                 assert result['second_tab']['workerHash']==result['initial']['workerHash']
+                assert result['second_tab']['hashes']==result['initial']['hashes']
                 browser.call('Target.closeTarget',{'targetId':target})
                 browser.ws.close(); browser.ws=old_ws
                 result['close']=browser.stop()
                 browser.start(); browser.call('Page.navigate',{'url':url}); time.sleep(2)
                 result['after_all_clients_closed_ui']=observe(browser)
+                result['business_after_upgrade']=ui.wait_text(browser,'界面验收产品')
                 result['after_all_clients_closed']=release_state(browser)
                 assert result['after_all_clients_closed']['release']==result['new_release']
                 assert result['after_all_clients_closed']['workerHash']==hashlib.sha256((new/'drift_worker.js').read_bytes()).hexdigest()
+                expected=json.loads((new/'supplier_offline_manifest.json').read_text())['assets']
+                assert all(expected[path]==digest for path,digest in result['after_all_clients_closed']['hashes'].items())
                 cached=result['after_all_clients_closed']['caches']
                 assert 'supplier-offline-other-deployment-sentinel' in cached
                 assert len(cached)==2 and any(c.endswith(result['new_release']) for c in cached)
                 result['preserved_opfs_marker']=browser.evaluate("(async()=>{const root=await navigator.storage.getDirectory();return await (await (await root.getFileHandle('a14-upgrade-preservation')).getFile()).text()})()")
                 assert result['preserved_opfs_marker']=='A14 persistent marker'
+                result['backups_after_upgrade']=backup_state(browser)
+                assert result['backups_after_upgrade']==result['business_import']['backups']
+                if '--receipt-recovery' in sys.argv:
+                    result['receipt_after_upgrade']=resume_receipt(browser,result['business_import'])
+                browser.call('Network.enable');browser.call('Network.clearBrowserCache')
+                browser.call('Network.emulateNetworkConditions',{'offline':True,'latency':0,'downloadThroughput':0,'uploadThroughput':0})
+                browser.call('Page.navigate',{'url':url});time.sleep(2);observe(browser)
+                result['business_offline']=ui.wait_text(browser,'界面验收产品')
+                screenshot=browser.call('Page.captureScreenshot',{'format':'png'})
+                (EVIDENCE/'web-offline-business-chinese.png').write_bytes(base64.b64decode(screenshot['data']))
+                result['backups_offline']=backup_state(browser)
+                assert result['backups_offline']==result['business_import']['backups']
+                if '--receipt-recovery' in sys.argv:
+                    result['receipt_offline']=resume_receipt(browser,result['business_import'])
+                else:
+                    result['receipt_recovery']='NOT_VERIFIED: see web-offline-receipt-gap.json; record and backup persistence are asserted separately'
                 result['status']='PASS'
             except Exception as error:
                 result['status']='FAIL'; result['error']=str(error)
             finally:
                 browser.stop(); server.shutdown(); server.server_close()
-                (EVIDENCE/'web-offline-upgrade.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
+                report_name=os.environ.get('OFFLINE_REPORT','web-offline-receipt-recovery.json' if '--receipt-recovery' in sys.argv else 'web-offline-upgrade.json')
+                (EVIDENCE/report_name).write_text(json.dumps(result,ensure_ascii=False,indent=2))
                 print('upgrade',result['status'],result.get('error',''),flush=True)
+    if result['status'] != 'PASS':
+        raise SystemExit(1)
 
 
 if __name__ == '__main__':
-    upgrade_main() if '--upgrade' in sys.argv else main()
+    output=report_output()
+    try:
+        upgrade_main() if '--upgrade' in sys.argv else main()
+    except BaseException as error:
+        current=json.loads(output.read_text())
+        if current.get('run_id')==RUN_ID and current.get('status')=='RUNNING':
+            output.write_text(json.dumps({'status':'FAIL','run_id':RUN_ID,'error':str(error)},indent=2))
+        raise

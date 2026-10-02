@@ -1,8 +1,8 @@
-# Supplier platform capability probe
+# Supplier and quotation app
 
-Engineering shell for Windows, Android and Web. No business repository or CRUD is installed. Every capability starts BLOCKED and production writes remain disabled. The shell only reports the absence of verified evidence; it does not yet execute storage experiments.
+Local-first Flutter app for supplier, product, contact, quotation, business Excel and full-history bundle workflows. The shared repository and import/export implementations are present; see `../../docs/verification/release-matrix.md` for current platform and release evidence. Android and Windows device validation is deferred.
 
-Toolchain: Flutter **3.47.4**, framework **9584c6713b**, Dart **3.13.3**. Use the committed `pubspec.lock`; no Drift/SQLite/WASM backend is selected or represented as verified by this app.
+Toolchain: Flutter **3.47.4**, framework **9584c6713b**, Dart **3.13.3**. Use the committed `pubspec.lock`.
 
 From this directory:
 
@@ -10,8 +10,20 @@ From this directory:
 flutter pub get
 flutter analyze
 flutter test
-flutter build web
+python3 tool/build_web_offline.py
 flutter test integration_test/platform_probe_test.dart -d <real-device-id>
 ```
 
-Run Windows build on Windows and Android build with the Android SDK. Integration smoke only proves startup and a closed write gate. See `../../docs/verification/platform-capabilities.md` for the remaining real-device acceptance experiments.
+Run Windows build on Windows and Android build with the Android SDK when those platform checks resume. See `../../docs/verification/platform-capabilities.md` for the remaining real-device acceptance experiments.
+
+Web release deployment must use `tool/build_web_offline.py` and publish its whole
+`build/web` output. Plain `flutter build web` leaves an unprepared release that
+intentionally refuses to open the database. `FLUTTER=/path/to/flutter` selects
+the SDK. For an existing release, use `--package-only`; it does not compile Dart.
+The wrapper bundles the licensed Chinese/Latin font and verifies all offline
+assets. Updates remain waiting until every old application tab closes.
+
+For browser debugging of the packaged release, serve `build/web` on localhost
+and use Chrome DevTools. This exercises the production offline gate; it does
+not provide Flutter hot reload. Use `flutter test` for widget debug workflows.
+Do not deploy a debug/bootstrap bypass as a release.

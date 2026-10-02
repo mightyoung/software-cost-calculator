@@ -48,7 +48,17 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET' || url.origin !== root.origin || !url.pathname.startsWith(root.pathname)) return;
   let path = decodeURIComponent(url.pathname.slice(root.pathname.length));
   if (!path) path = 'index.html';
-  if (!Object.hasOwn(ASSETS, path)) return;
+  if (!Object.hasOwn(ASSETS, path)) {
+    // A malformed/incomplete manifest must not silently fetch a newer runtime
+    // from the network while this client is pinned to the active generation.
+    const critical = new Set(['index.html', 'flutter_bootstrap.js', 'flutter.js',
+      'main.dart.js', 'supplier_platform.js', 'drift_worker.js', 'sqlite3.wasm']);
+    if (critical.has(path) || path.startsWith('canvaskit/') ||
+        path.startsWith('assets/') || path.startsWith('fonts/')) {
+      event.respondWith(Promise.resolve(new Response('Application resource is absent from the pinned release.', {status: 503})));
+    }
+    return;
+  }
   event.respondWith((async () => {
     // Repair cache eviction only with the exact pinned bytes. Never consume a
     // different release. Do not touch OPFS, IndexedDB, or business backups.
