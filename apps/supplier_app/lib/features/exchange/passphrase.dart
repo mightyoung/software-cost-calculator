@@ -172,37 +172,65 @@ class _PassphraseRowState extends State<PassphraseRow> {
       border: Border.all(color: Tokens.rule),
       borderRadius: BorderRadius.circular(Tokens.radius),
     ),
-    child: Row(
-      children: [
-        AppIcon(
-          isSet == true ? Icons.lock_outline : Icons.lock_open_outlined,
-          color: isSet == true ? Tokens.accent : Tokens.ink3,
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
+    child: LayoutBuilder(
+      builder: (context, constraints) {
+        final summary = Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AppIcon(
+              isSet == true ? Icons.lock_outline : Icons.lock_open_outlined,
+              color: isSet == true ? Tokens.accent : Tokens.ink3,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    loadError ??
+                        (isSet == null
+                            ? '正在读取交换口令…'
+                            : isSet == true
+                            ? '交换口令：已设置'
+                            : '交换口令：未设置'),
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                    '设置后，导出的交换文件和共享文件夹里本机的文件都会加密（AES-256）；导入加密文件时使用这个口令。',
+                    style: TextStyle(fontSize: 12, color: Tokens.ink2),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+        final actions = Wrap(
+          spacing: 4,
+          runSpacing: 4,
+          children: [
+            TextButton(
+              onPressed: _set,
+              child: Text(isSet == true ? '更改' : '设置口令'),
+            ),
+            if (isSet == true)
+              TextButton(onPressed: _clear, child: const Text('清除')),
+          ],
+        );
+        if (constraints.maxWidth <
+            600 * MediaQuery.textScalerOf(context).scale(1)) {
+          return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                loadError ??
-                    (isSet == null
-                        ? '正在读取交换口令…'
-                        : isSet == true
-                        ? '交换口令：已设置'
-                        : '交换口令：未设置'),
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              Text(
-                '设置后，导出的交换文件和共享文件夹里本机的文件都会加密（AES-256）；导入加密文件时使用这个口令。',
-                style: TextStyle(fontSize: 12, color: Tokens.ink2),
-              ),
-            ],
-          ),
-        ),
-        TextButton(onPressed: _set, child: Text(isSet == true ? '更改' : '设置口令')),
-        if (isSet == true)
-          TextButton(onPressed: _clear, child: const Text('清除')),
-      ],
+            children: [summary, const SizedBox(height: 8), actions],
+          );
+        }
+        return Row(
+          children: [
+            Expanded(child: summary),
+            const SizedBox(width: 12),
+            actions,
+          ],
+        );
+      },
     ),
   );
 }

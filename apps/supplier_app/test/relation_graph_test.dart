@@ -35,6 +35,25 @@ void main() {
   }
 
   testWidgets(
+    'initial narrow canvas contains every object without horizontal clipping',
+    (tester) async {
+      await mount(tester, width: 700);
+      final viewer = tester.widget<InteractiveViewer>(
+        find.byType(InteractiveViewer),
+      );
+      final controller = viewer.transformationController!;
+      final viewport = tester.getRect(find.byType(InteractiveViewer));
+      for (final type in entityTypes) {
+        final node = tester.getRect(find.byKey(ValueKey('node-$type')));
+        expect(node.left, greaterThanOrEqualTo(viewport.left));
+        expect(node.right, lessThanOrEqualTo(viewport.right));
+      }
+      expect(controller.value.getMaxScaleOnAxis(), lessThan(.75));
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
     'search matches Chinese and English and has a recoverable empty state',
     (tester) async {
       String? selected;

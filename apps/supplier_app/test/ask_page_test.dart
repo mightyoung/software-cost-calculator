@@ -61,9 +61,16 @@ void main() {
           expect(tester.takeException(), isNull);
           final send = tester.getRect(find.byTooltip('发送'));
           expect(send.bottom, lessThanOrEqualTo(640 - keyboard));
-          await tester.enterText(find.byType(TextField), '继续查询');
+          await tester.enterText(
+            find.byType(TextField),
+            '继续查询\n请列出供应商\n核对有效期\n比较含税价格\n保留查询依据',
+          );
           await tester.pump();
           expect(tester.takeException(), isNull);
+          expect(
+            tester.getRect(find.byTooltip('发送')).bottom,
+            lessThanOrEqualTo(640 - keyboard),
+          );
         },
       );
     }
