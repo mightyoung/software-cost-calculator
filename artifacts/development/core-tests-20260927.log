@@ -1,0 +1,721 @@
+Running build hooks...Running build hooks...00:00 +0: loading test/resume_full_chain_test.dart
+00:00 +0: test/resume_full_chain_test.dart: (setUpAll)
+phase=formal_fixture_commit
+fixture_phase=job_create elapsed_ms=1801
+fixture_phase=staging_generate_and_append elapsed_ms=526
+fixture_phase=staging_append_transactions elapsed_ms=2
+00:02 +1: test/resume_full_chain_test.dart: (setUpAll)
+00:02 +2: test/resume_full_chain_test.dart: (setUpAll)
+fixture_phase=seal_preview elapsed_ms=28
+fixture_phase=confirmation elapsed_ms=3
+graph_phase=local_revisions_copied elapsed_ms=7 rss_bytes=461619200
+graph_phase=staged_revisions_copied elapsed_ms=8 rss_bytes=461930496
+graph_phase=entities_copied elapsed_ms=8 rss_bytes=462094336
+graph_phase=edges_copied elapsed_ms=9 rss_bytes=462405632
+graph_phase=reset_complete elapsed_ms=9 rss_bytes=462422016
+graph_phase=initialization_complete elapsed_ms=45 rss_bytes=469499904
+graph_phase=topology_complete elapsed_ms=58 rss_bytes=472776704
+graph_phase=relations_complete elapsed_ms=75 rss_bytes=476905472
+graph_phase=anomalies_complete elapsed_ms=80 rss_bytes=478298112
+graph_phase=summary_complete elapsed_ms=81 rss_bytes=478429184
+graph_phase=projection_install_start elapsed_ms=101 rss_bytes=484818944
+graph_phase=projection_install_complete elapsed_ms=141 rss_bytes=487292928
+graph_phase=foreign_key_check_complete elapsed_ms=141 rss_bytes=486916096
+commit_point=before_commit elapsed_ms=142 rss_bytes=487243776
+commit_point=after_commit elapsed_ms=146 rss_bytes=491192320
+fixture_phase=commit_total elapsed_ms=150
+fixture_phase=commit_through_after_commit elapsed_ms=146
+fixture_phase=post_commit_cleanup elapsed_ms=4
+00:02 +3: test/resume_full_chain_test.dart: (setUpAll)
+00:02 +4: test/resume_full_chain_test.dart: (setUpAll)
+phase=source_digest
+00:02 +5: test/resume_full_chain_test.dart: (setUpAll)
+00:02 +6: test/resume_full_chain_test.dart: (setUpAll)
+phase=backup
+00:02 +7: test/resume_full_chain_test.dart: (setUpAll)
+00:02 +8: test/resume_full_chain_test.dart: (setUpAll)
+phase=restore_candidate
+00:02 +9: test/resume_full_chain_test.dart: (setUpAll)
+00:02 +10: test/resume_full_chain_test.dart: (setUpAll)
+00:02 +11: test/resume_full_chain_test.dart: (setUpAll)
+phase=restored_digest
+phase=bundle_export_and_self_verify
+00:02 +12: test/resume_full_chain_test.dart: (setUpAll)
+00:03 +13: test/resume_full_chain_test.dart: (setUpAll)
+00:03 +14: test/resume_full_chain_test.dart: (setUpAll)
+00:03 +15: test/resume_full_chain_test.dart: (setUpAll)
+00:03 +16: test/resume_full_chain_test.dart: (setUpAll)
+00:03 +17: test/resume_full_chain_test.dart: (setUpAll)
+00:03 +18: test/resume_full_chain_test.dart: (setUpAll)
+00:03 +19: test/resume_full_chain_test.dart: (setUpAll)
+00:03 +20: test/resume_full_chain_test.dart: (setUpAll)
+00:03 +21: test/resume_full_chain_test.dart: (setUpAll)
+00:03 +22: test/resume_full_chain_test.dart: (setUpAll)
+00:03 +23: test/resume_full_chain_test.dart: (setUpAll)
+00:03 +24: test/resume_full_chain_test.dart: (setUpAll)
+00:03 +25: test/resume_full_chain_test.dart: (setUpAll)
+00:03 +26: test/resume_full_chain_test.dart: (setUpAll)
+00:03 +27: test/resume_full_chain_test.dart: (setUpAll)
+00:03 +28: test/resume_full_chain_test.dart: (setUpAll)
+00:03 +29: test/resume_full_chain_test.dart: (setUpAll)
+00:03 +30: test/resume_full_chain_test.dart: (setUpAll)
+00:04 +31: test/resume_full_chain_test.dart: (setUpAll)
+00:04 +32: test/resume_full_chain_test.dart: (setUpAll)
+00:04 +33: test/resume_full_chain_test.dart: (setUpAll)
+00:04 +34: test/resume_full_chain_test.dart: (setUpAll)
+00:04 +35: test/resume_full_chain_test.dart: (setUpAll)
+00:04 +36: test/resume_full_chain_test.dart: (setUpAll)
+00:04 +37: test/resume_full_chain_test.dart: (setUpAll)
+00:04 +38: test/resume_full_chain_test.dart: (setUpAll)
+00:04 +39: test/resume_full_chain_test.dart: (setUpAll)
+00:04 +40: test/resume_full_chain_test.dart: (setUpAll)
+00:04 +41: test/resume_full_chain_test.dart: (setUpAll)
+phase=reopen_digest
+00:04 +42: test/resume_full_chain_test.dart: (setUpAll)
+00:04 +43: test/resume_full_chain_test.dart: (setUpAll)
+00:04 +43: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +44: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +45: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +46: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +47: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +48: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +49: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +50: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +51: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +52: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +53: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +54: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +55: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:04 +56: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+phase=source_digest
+phase=verify_backup
+phase=restore_candidate
+phase=restored_digest
+phase=bundle_export_and_self_verify
+00:05 +57: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:05 +58: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:05 +59: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:05 +60: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:05 +61: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:05 +62: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:05 +63: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:05 +64: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:05 +65: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:05 +66: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:05 +67: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:05 +68: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:05 +69: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:05 +70: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:05 +71: test/business_workflow_test.dart: real workbook modify preserves blank, commits receipts and recognizes reimport after local edit
+00:05 +72: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +73: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +74: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +75: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +76: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +77: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +78: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +79: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +80: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +81: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +82: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +83: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +84: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +85: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +86: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +87: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +88: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +89: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +90: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +91: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +92: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +93: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +94: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +95: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +96: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +97: test/bundle_exchange_service_test.dart: (setUpAll)
+00:05 +98: test/bundle_exchange_service_test.dart: (setUpAll)
+phase=reopen_digest
+00:05 +98: test/resume_full_chain_test.dart: resumes from immutable checkpoint and reports separate measurements
+00:05 +99: test/resume_full_chain_test.dart: resumes from immutable checkpoint and reports separate measurements
+00:05 +100: test/bundle_export_cleanup_test.dart: encoding and validation close failures survive: Bad state: encoding-primary
+00:05 +101: test/bundle_export_cleanup_test.dart: encoding and validation close failures survive: Bad state: encoding-primary
+00:05 +102: test/bundle_export_cleanup_test.dart: encoding and validation close failures survive: Bad state: encoding-primary
+phase=source_digest
+00:06 +103: test/bundle_export_cleanup_test.dart: encoding and validation close failures survive: Bad state: encoding-primary
+00:06 +104: test/bundle_export_cleanup_test.dart: encoding and validation close failures survive: Bad state: encoding-primary
+00:06 +105: test/bundle_export_cleanup_test.dart: encoding and validation close failures survive: Bad state: encoding-primary
+00:06 +106: test/bundle_export_cleanup_test.dart: encoding and validation close failures survive: Bad state: encoding-primary
+00:06 +107: test/bundle_export_cleanup_test.dart: encoding and validation close failures survive: Bad state: encoding-primary
+00:06 +108: test/bundle_export_cleanup_test.dart: encoding and validation close failures survive: Bad state: encoding-primary
+00:06 +109: test/bundle_export_cleanup_test.dart: encoding and validation close failures survive: Bad state: encoding-primary
+00:06 +110: test/business_workflow_test.dart: low-level receipt contract rejects historical intent with standard source or an original target
+00:06 +111: test/business_workflow_test.dart: low-level receipt contract rejects historical intent with standard source or an original target
+00:06 +112: test/business_workflow_test.dart: low-level receipt contract rejects historical intent with standard source or an original target
+00:06 +113: test/resume_full_chain_test.dart: a sidecar created during the run invalidates the final report
+00:06 +114: test/resume_full_chain_test.dart: a sidecar created during the run invalidates the final report
+phase=source_digest
+phase=verify_backup
+00:06 +115: test/resume_full_chain_test.dart: a sidecar created during the run invalidates the final report
+phase=restore_candidate
+00:06 +116: test/resume_full_chain_test.dart: a sidecar created during the run invalidates the final report
+00:06 +117: test/resume_full_chain_test.dart: a sidecar created during the run invalidates the final report
+phase=restored_digest
+phase=bundle_export_and_self_verify
+00:06 +118: test/resume_full_chain_test.dart: a sidecar created during the run invalidates the final report
+00:06 +119: test/resume_full_chain_test.dart: a sidecar created during the run invalidates the final report
+00:06 +120: test/resume_full_chain_test.dart: a sidecar created during the run invalidates the final report
+00:06 +121: test/resume_full_chain_test.dart: a sidecar created during the run invalidates the final report
+00:06 +122: test/resume_full_chain_test.dart: a sidecar created during the run invalidates the final report
+00:06 +123: test/resume_full_chain_test.dart: a sidecar created during the run invalidates the final report
+phase=reopen_digest
+00:07 +124: test/authority_batch_test.dart: authority page size 1 install 1 parent edges across pages and duplicate import remain exact
+00:07 +125: test/authority_batch_test.dart: authority page size 1 install 1 parent edges across pages and duplicate import remain exact
+00:07 +126: test/authority_batch_test.dart: authority page size 1 install 1 parent edges across pages and duplicate import remain exact
+00:07 +127: test/backup_service_test.dart: same snapshot includes all authority settings and successful receipts
+00:07 +128: test/authority_batch_test.dart: authority page size 1 install 1 empty stage retains page zero fault and zero receipt count
+00:07 +129: test/backup_service_test.dart: unfinished jobs and their confirmations stay outside logical backup
+00:07 +130: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +131: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +132: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +133: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +134: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +135: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +136: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +137: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +138: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +139: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +140: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +141: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +142: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +143: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +144: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +145: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +146: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +147: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +148: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +149: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +150: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +151: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +152: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:07 +153: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:08 +154: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:08 +155: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:08 +156: test/query_test.dart: latest supplier comparison and name filters retain ties and cursor fencing
+00:08 +157: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:08 +158: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:08 +159: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:08 +160: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:08 +161: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:08 +162: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:08 +163: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:08 +164: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:08 +165: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:08 +166: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:08 +167: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:08 +168: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:08 +169: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:08 +170: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:08 +171: test/import_receipts_test.dart: more than one SQL page of main results keeps exact quantity and pages success
+00:08 +172: test/query_test.dart: workspace entity lists use version-bound keyset pages and detail
+00:08 +173: test/query_test.dart: workspace entity lists use version-bound keyset pages and detail
+00:08 +174: test/import_receipts_test.dart: decision digest spans pages and includes exclusions acknowledgements and allocations
+00:08 +175: test/import_receipts_test.dart: decision digest spans pages and includes exclusions acknowledgements and allocations
+00:08 +176: test/query_test.dart: history materializes page keys before display joins
+00:08 +177: test/query_test.dart: history materializes page keys before display joins
+00:08 +178: test/import_receipts_test.dart: source-first operations page without selecting a winner and cursor binds version
+00:08 +179: test/import_receipts_test.dart: source-first operations page without selecting a winner and cursor binds version
+00:08 +180: test/import_receipts_test.dart: source-first operations page without selecting a winner and cursor binds version
+00:08 +181: test/import_receipts_test.dart: source-first operations page without selecting a winner and cursor binds version
+00:08 +182: test/import_receipts_test.dart: source-first operations page without selecting a winner and cursor binds version
+00:08 +183: test/import_receipts_test.dart: source-first operations page without selecting a winner and cursor binds version
+00:08 +184: test/import_receipts_test.dart: source-first operations page without selecting a winner and cursor binds version
+00:08 +185: test/import_receipts_test.dart: source-first operations page without selecting a winner and cursor binds version
+00:08 +186: test/import_receipts_test.dart: source-first operations page without selecting a winner and cursor binds version
+00:08 +187: test/import_receipts_test.dart: source-first operations page without selecting a winner and cursor binds version
+00:08 +188: test/import_receipts_test.dart: source-first operations page without selecting a winner and cursor binds version
+00:08 +189: test/import_receipts_test.dart: source-first operations page without selecting a winner and cursor binds version
+00:08 +190: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +191: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +192: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +193: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +194: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +195: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +196: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +197: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +198: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +199: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +200: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +201: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +202: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +203: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +204: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +205: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +206: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +207: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:08 +208: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +209: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +210: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +211: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +212: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +213: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +214: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +215: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +216: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +217: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +218: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +219: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +220: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +221: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +222: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +223: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +224: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +225: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +226: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +227: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +228: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +229: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +230: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +231: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +232: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:09 +233: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:10 +234: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:10 +235: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:10 +236: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:10 +237: test/query_test.dart: stable paged ordering equals independent date/price oracle for limits1/50/200
+00:10 +238: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +239: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +240: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +241: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +242: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +243: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +244: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +245: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +246: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +247: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +248: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +249: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +250: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +251: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +252: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +253: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +254: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +255: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +256: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +257: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +258: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +259: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +260: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +261: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +262: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +263: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +264: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +265: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:10 +266: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:11 +267: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:11 +268: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:11 +269: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:11 +270: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:11 +271: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:11 +272: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:11 +273: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:11 +274: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:11 +275: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:11 +276: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:11 +277: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:11 +278: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:11 +279: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +280: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +281: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +282: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +283: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +284: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +285: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +286: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +287: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +288: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +289: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +290: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +291: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +292: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +293: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +294: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +295: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +296: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +297: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +298: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +299: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +300: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +301: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +302: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +303: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +304: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +305: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +306: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +307: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +308: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +309: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +310: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +311: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +312: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +313: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +314: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +315: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +316: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +317: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:12 +318: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +319: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +320: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +321: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +322: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +323: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +324: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +325: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +326: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +327: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +328: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +329: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +330: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +331: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +332: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +333: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +334: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +335: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +336: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +337: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +338: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +339: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +340: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +341: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +342: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +343: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +344: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +345: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +346: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +347: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +348: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +349: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:13 +350: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:14 +351: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:14 +352: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:14 +353: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:14 +354: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:14 +355: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:14 +356: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:14 +357: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:14 +358: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:14 +359: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:14 +360: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:14 +361: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:14 +362: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:14 +363: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:14 +364: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:15 +365: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:15 +366: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:15 +367: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:15 +368: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:15 +369: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:15 +370: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:15 +371: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:15 +372: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:15 +373: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:15 +374: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:15 +375: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:15 +376: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:15 +377: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:15 +378: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:15 +379: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:15 +380: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:16 +381: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:16 +382: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+phase=formal_fixture_commit
+fixture_phase=job_create elapsed_ms=83
+fixture_phase=staging_generate_and_append elapsed_ms=15
+fixture_phase=staging_append_transactions elapsed_ms=2
+fixture_phase=seal_preview elapsed_ms=22
+fixture_phase=confirmation elapsed_ms=4
+graph_phase=local_revisions_copied elapsed_ms=10 rss_bytes=410927104
+graph_phase=staged_revisions_copied elapsed_ms=13 rss_bytes=410320896
+graph_phase=entities_copied elapsed_ms=13 rss_bytes=410763264
+graph_phase=edges_copied elapsed_ms=13 rss_bytes=410861568
+graph_phase=reset_complete elapsed_ms=13 rss_bytes=410910720
+graph_phase=initialization_complete elapsed_ms=38 rss_bytes=313868288
+graph_phase=topology_complete elapsed_ms=48 rss_bytes=316948480
+graph_phase=relations_complete elapsed_ms=57 rss_bytes=314802176
+graph_phase=anomalies_complete elapsed_ms=58 rss_bytes=314441728
+graph_phase=summary_complete elapsed_ms=60 rss_bytes=314490880
+graph_phase=projection_install_start elapsed_ms=68 rss_bytes=319488000
+graph_phase=projection_install_complete elapsed_ms=100 rss_bytes=323436544
+graph_phase=foreign_key_check_complete elapsed_ms=101 rss_bytes=321421312
+commit_point=before_commit elapsed_ms=102 rss_bytes=321421312
+commit_point=after_commit elapsed_ms=104 rss_bytes=321421312
+fixture_phase=commit_total elapsed_ms=106
+fixture_phase=commit_through_after_commit elapsed_ms=104
+fixture_phase=post_commit_cleanup elapsed_ms=2
+phase=source_digest
+00:16 +383: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:16 +384: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:17 +385: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:17 +386: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:17 +387: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:17 +388: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:17 +389: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:17 +390: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:17 +391: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:17 +392: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:17 +393: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:17 +394: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+phase=formal_fixture_commit
+fixture_phase=job_create elapsed_ms=12
+fixture_phase=staging_generate_and_append elapsed_ms=19
+fixture_phase=staging_append_transactions elapsed_ms=1
+fixture_phase=seal_preview elapsed_ms=14
+fixture_phase=confirmation elapsed_ms=2
+graph_phase=local_revisions_copied elapsed_ms=4 rss_bytes=290914304
+graph_phase=staged_revisions_copied elapsed_ms=4 rss_bytes=290914304
+graph_phase=entities_copied elapsed_ms=5 rss_bytes=290914304
+graph_phase=edges_copied elapsed_ms=5 rss_bytes=290914304
+graph_phase=reset_complete elapsed_ms=5 rss_bytes=290914304
+graph_phase=initialization_complete elapsed_ms=28 rss_bytes=295059456
+graph_phase=topology_complete elapsed_ms=39 rss_bytes=301629440
+graph_phase=relations_complete elapsed_ms=47 rss_bytes=307740672
+graph_phase=anomalies_complete elapsed_ms=47 rss_bytes=307789824
+graph_phase=summary_complete elapsed_ms=48 rss_bytes=307871744
+graph_phase=projection_install_start elapsed_ms=74 rss_bytes=283590656
+graph_phase=projection_install_complete elapsed_ms=113 rss_bytes=286195712
+graph_phase=foreign_key_check_complete elapsed_ms=113 rss_bytes=286195712
+commit_point=before_commit elapsed_ms=113 rss_bytes=286228480
+commit_point=after_commit elapsed_ms=117 rss_bytes=286654464
+fixture_phase=commit_total elapsed_ms=122
+fixture_phase=commit_through_after_commit elapsed_ms=117
+fixture_phase=post_commit_cleanup elapsed_ms=5
+phase=source_digest
+phase=backup
+phase=restore_candidate
+phase=restored_digest
+phase=bundle_export_and_self_verify
+00:17 +395: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:17 +396: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:17 +397: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:17 +398: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:19 +399: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:19 +400: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+phase=reopen_digest
+00:19 +401: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:19 +402: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:19 +403: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:19 +404: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:19 +405: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:20 +406: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:20 +407: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:20 +408: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:20 +409: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:20 +410: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:20 +411: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:20 +412: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:21 +413: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:21 +414: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:21 +415: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:21 +416: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:21 +417: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:21 +418: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:21 +419: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:21 +420: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:21 +421: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:21 +422: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:21 +423: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:21 +424: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:21 +425: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:21 +426: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:21 +427: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:21 +428: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:21 +429: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:21 +430: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:21 +431: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:21 +432: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +433: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +434: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +435: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +436: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +437: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +438: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +439: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +440: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +441: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +442: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +443: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +444: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +445: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +446: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +447: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +448: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +449: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +450: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +451: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +452: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +453: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +454: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:22 +455: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:23 +456: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:23 +457: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:23 +458: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:23 +459: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:23 +460: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:23 +461: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:24 +462: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:24 +463: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:24 +464: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:24 +465: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:25 +466: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:25 +467: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:25 +468: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:25 +469: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:25 +470: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:25 +471: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:26 +472: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:26 +473: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:26 +474: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:26 +475: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:26 +476: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:26 +477: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:26 +478: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:26 +479: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:26 +480: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:26 +481: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:26 +482: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:26 +483: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:26 +484: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:26 +485: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:26 +486: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:27 +487: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:27 +488: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:27 +489: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:27 +490: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:28 +491: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:28 +492: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:28 +493: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:28 +494: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:28 +495: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:28 +495: test/business_import_service_test.dart: applied subset is source-first on the next attempt
+WARNING (drift): It looks like you've created the database class XlsxStaging multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new XlsxStaging (package:supplier_core/src/exchange/xlsx_staging.dart)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/packages/supplier_core/test/business_import_service_test.dart:257:25)
+<asynchronous suspension>
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:28 +496: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:28 +497: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:28 +498: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:28 +498: test/business_import_service_test.dart: bounded business export pages fixed columns and roundtrips exact text
+WARNING (drift): It looks like you've created the database class XlsxStaging multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new XlsxStaging (package:supplier_core/src/exchange/xlsx_staging.dart)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/packages/supplier_core/test/business_import_service_test.dart:312:26)
+<asynchronous suspension>
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class XlsxStaging multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new XlsxStaging (package:supplier_core/src/exchange/xlsx_staging.dart)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/packages/supplier_core/test/business_import_service_test.dart:313:24)
+<asynchronous suspension>
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:28 +499: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:28 +499: test/business_import_service_test.dart: export detects version drift after writing and aborts before publication
+WARNING (drift): It looks like you've created the database class XlsxStaging multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new XlsxStaging (package:supplier_core/src/exchange/xlsx_staging.dart)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/packages/supplier_core/test/business_import_service_test.dart:361:26)
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:25)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:28 +500: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:29 +500: test/business_import_service_test.dart: export output failure aborts without changing business data
+WARNING (drift): It looks like you've created the database class XlsxStaging multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new XlsxStaging (package:supplier_core/src/exchange/xlsx_staging.dart)
+#4      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/packages/supplier_core/test/business_import_service_test.dart:389:24)
+<asynchronous suspension>
+#5      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#6      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#7      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:29 +501: test/graph_batch_test.dart: page initialization bounds high fan-in across parent batch boundaries
+00:30 +502: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:30 +503: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:30 +504: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:30 +505: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:30 +506: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:30 +507: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:30 +508: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:30 +509: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:30 +510: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:30 +511: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:30 +512: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:30 +513: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:30 +514: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:30 +515: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:30 +516: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:30 +517: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:30 +518: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:30 +519: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:31 +520: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:31 +521: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:31 +522: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:31 +523: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:31 +524: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:31 +525: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:31 +526: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:32 +527: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:33 +528: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:34 +529: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:34 +530: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:34 +531: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+00:34 +532: test/a17_concurrency_test.dart: A17 first/middle/last volume edits with completion, cancel and SIGKILL
+01:00 +533: test/a17_concurrency_test.dart: A17 cancellation assertion fails if exporter checkpoint is omitted
+READY
+01:01 +534: test/a17_concurrency_test.dart: (tearDownAll)
+01:01 +534: All tests passed!

@@ -1,0 +1,137 @@
+00:00 +0: loading /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/integration_test/android_mobile_workflows_test.dart
+Running Gradle task 'assembleDebug'...                          
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by net.rubygrapefruit.platform.internal.NativeLibraryLoader in an unnamed module (file:/Users/muyi/.gradle/wrapper/dists/gradle-9.3.1-all/9ot9r568e8zfvvd4mn8rbu1j0/gradle-9.3.1/lib/native-platform-0.22-milestone-29.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+Running Gradle task 'assembleDebug'...                             25.4s
+✓ Built build/app/outputs/flutter-apk/app-debug.apk
+Installing build/app/outputs/flutter-apk/app-debug.apk...        2,556ms
+00:00 +0: Android resolves its real persistent application directory
+00:05 +1: native workspace UI survives reopen and publishes readable Excel and backup
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore.prepareRestore (package:supplier_app/platform/native_restore.dart:62:19)
+<asynchronous suspension>
+#5      nativeRestoreWorkflow.<anonymous closure> (package:supplier_app/platform/native_restore_workflow.dart:21:25)
+<asynchronous suspension>
+#6      RestoreWorkflow.prepare (package:supplier_app/platform/restore_workflow.dart:71:22)
+<asynchronous suspension>
+#7      _ExchangePageState._restore (package:supplier_app/features/exchange/exchange_page.dart:112:23)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._finishActivation (package:supplier_app/platform/native_restore.dart:289:18)
+<asynchronous suspension>
+#5      NativeRestore.activateRestore.<anonymous closure> (package:supplier_app/platform/native_restore.dart:174:5)
+<asynchronous suspension>
+#6      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#7      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#8      RestoreWorkflow.confirmAndActivate (package:supplier_app/platform/restore_workflow.dart:97:7)
+<asynchronous suspension>
+#9      _ExchangePageState._restore (package:supplier_app/features/exchange/exchange_page.dart:147:27)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._finishActivation (package:supplier_app/platform/native_restore.dart:338:16)
+<asynchronous suspension>
+#5      NativeRestore.activateRestore.<anonymous closure> (package:supplier_app/platform/native_restore.dart:174:5)
+<asynchronous suspension>
+#6      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#7      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#8      RestoreWorkflow.confirmAndActivate (package:supplier_app/platform/restore_workflow.dart:97:7)
+<asynchronous suspension>
+#9      _ExchangePageState._restore (package:supplier_app/features/exchange/exchange_page.dart:147:27)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      _NativeResources.database (package:supplier_app/platform/native_bundle_workflow.dart:73:20)
+#5      BundleWorkflow.export (package:supplier_app/platform/bundle_workflow.dart:169:40)
+<asynchronous suspension>
+#6      NativeBundleWorkflow.exportTo (package:supplier_app/platform/native_bundle_workflow.dart:40:24)
+<asynchronous suspension>
+#7      NativeWorkspaceBundleActions.exportBundle (package:supplier_app/platform/native_workspace_bundle_actions.dart:48:20)
+<asynchronous suspension>
+#8      _BundleSyncPageState._export (package:supplier_app/features/exchange/bundle_sync_page.dart:179:22)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      _NativeResources.database (package:supplier_app/platform/native_bundle_workflow.dart:73:20)
+#5      BundleWorkflow.export.<anonymous closure> (package:supplier_app/platform/bundle_workflow.dart:194:38)
+#6      exportBundle (package:supplier_core/src/exchange/bundle_export.dart:201:47)
+<asynchronous suspension>
+#7      BundleWorkflow.export (package:supplier_app/platform/bundle_workflow.dart:177:24)
+<asynchronous suspension>
+#8      NativeBundleWorkflow.exportTo (package:supplier_app/platform/native_bundle_workflow.dart:40:24)
+<asynchronous suspension>
+#9      NativeWorkspaceBundleActions.exportBundle (package:supplier_app/platform/native_workspace_bundle_actions.dart:48:20)
+<asynchronous suspension>
+#10     _BundleSyncPageState._export (package:supplier_app/features/exchange/bundle_sync_page.dart:179:22)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      _NativeResources.database (package:supplier_app/platform/native_bundle_workflow.dart:73:20)
+#5      BundleWorkflow.prepare (package:supplier_app/platform/bundle_workflow.dart:77:37)
+<asynchronous suspension>
+#6      NativeWorkspaceBundleActions.prepareImport (package:supplier_app/platform/native_workspace_bundle_actions.dart:25:21)
+<asynchronous suspension>
+#7      _BundleSyncPageState._import (package:supplier_app/features/exchange/bundle_sync_page.dart:71:17)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      _NativeResources.database (package:supplier_app/platform/native_bundle_workflow.dart:73:20)
+#5      BundleWorkflow.prepare (package:supplier_app/platform/bundle_workflow.dart:77:37)
+<asynchronous suspension>
+#6      NativeWorkspaceBundleActions.prepareImport (package:supplier_app/platform/native_workspace_bundle_actions.dart:25:21)
+<asynchronous suspension>
+#7      _BundleSyncPageState._import (package:supplier_app/features/exchange/bundle_sync_page.dart:71:17)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+01:32 +2: (tearDownAll)
+01:35 +2: All tests passed!

@@ -1,17 +1,18 @@
 {
   "status": "PASS",
+  "run_id": "1d69312d003142d1ad0d6962c5332850",
   "scope": "Current Flutter release UI, isolated Chrome; no Android/Windows; no business fixture imported",
   "hashes": {
     "index.html": "8c9823fa0de19c7005be4093cf52ba47a2be36d03a29cc13eeca3e7885b82cbb",
     "main.dart.js": "ded9cdcc4e722e96d0888a027f5d9e71a195daaec97ceef769d44e1fd967eaf5",
-    "flutter_bootstrap.js": "d6b3958a3985c927c20cf640dc990bc129c9dfaf306a07f4a3cd0e1493ff4ffd",
+    "flutter_bootstrap.js": "09e73ea3fc8fbd3709a3451bcc190c78b9d7c34e3dc34a4faba8196b95dfa73e",
     "flutter_service_worker.js": "a131df5ca46154cc4eb79044f7f5a14029c2f8bfccf8cef34e3ec3b5a9f5a88c",
     "drift_worker.js": "731d41b1f788963cd7cc7fce8f752f2e405adfbba22384da834830bd3460fb57",
     "sqlite3.wasm": "13d3f11d05b39ba0618a7115fb41640a5d48b6300f5d3f325f554b42bd6688a4"
   },
   "cases": {
     "offline-restart": {
-      "pid": 13559,
+      "pid": 57570,
       "browser": {
         "protocolVersion": "1.3",
         "product": "Chrome/153.0.8010.53",
@@ -20,397 +21,265 @@
         "jsVersion": "15.3.76.13"
       },
       "online": {
-        "url": "http://127.0.0.1:50227/",
+        "url": "http://127.0.0.1:59917/",
         "text": "供应商与询价\n新增报价\n查询与比价\n搜索",
-        "controller": "http://127.0.0.1:50227/supplier_offline_sw.js",
+        "controller": "http://127.0.0.1:59917/supplier_offline_sw.js",
         "registrations": [
           {
-            "scope": "http://127.0.0.1:50227/",
-            "active": "http://127.0.0.1:50227/supplier_offline_sw.js"
+            "scope": "http://127.0.0.1:59917/",
+            "active": "http://127.0.0.1:59917/supplier_offline_sw.js"
           }
         ],
         "caches": [
-          "supplier-offline-http%3A%2F%2F127.0.0.1%3A50227%2F-0d3cf656dc9f064abeec2dc49512528267374820c3d96b111e287dd16ffb6f39"
+          "supplier-offline-http%3A%2F%2F127.0.0.1%3A59917%2F-9fab67dd2d189a797bdc52c5c13f7f114937cf388a876fdeb0fc5b4806de0902"
         ],
         "resources": [
           {
-            "name": "http://127.0.0.1:50227/flutter_bootstrap.js",
+            "name": "http://127.0.0.1:59917/flutter_bootstrap.js",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/manifest.json",
+            "name": "http://127.0.0.1:59917/manifest.json",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/favicon.png",
+            "name": "http://127.0.0.1:59917/favicon.png",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/supplier_platform.js",
+            "name": "http://127.0.0.1:59917/icons/Icon-192.png",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/canvaskit/chromium/canvaskit.wasm",
+            "name": "http://127.0.0.1:59917/supplier_platform.js",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/canvaskit/chromium/canvaskit.js",
+            "name": "http://127.0.0.1:59917/canvaskit/chromium/canvaskit.wasm",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/main.dart.js",
+            "name": "http://127.0.0.1:59917/canvaskit/chromium/canvaskit.js",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/icons/Icon-192.png",
+            "name": "http://127.0.0.1:59917/main.dart.js",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/assets/FontManifest.json",
+            "name": "http://127.0.0.1:59917/assets/FontManifest.json",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/assets/fonts/MaterialIcons-Regular.otf",
+            "name": "http://127.0.0.1:59917/assets/fonts/MaterialIcons-Regular.otf",
             "transferSize": 0
           },
           {
-            "name": "https://fonts.gstatic.com/s/roboto/v32/KFOmCnqEu92Fr1Me4GZLCzYlKw.woff2",
-            "transferSize": 63764
+            "name": "http://127.0.0.1:59917/fonts/NotoSansSC.ttf",
+            "transferSize": 0
           },
           {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.118.woff2",
-            "transferSize": 25080
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.117.woff2",
-            "transferSize": 28252
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.116.woff2",
-            "transferSize": 28516
-          },
-          {
-            "name": "http://127.0.0.1:50227/drift_worker.js",
+            "name": "http://127.0.0.1:59917/drift_worker.js",
             "transferSize": 0
           }
         ]
       },
       "settled": {
-        "url": "http://127.0.0.1:50227/",
+        "url": "http://127.0.0.1:59917/",
         "text": "供应商与询价\n新增报价\n查询与比价\n搜索\n没有符合条件的记录\n新建记录或导入业务 Excel 后即可查询。\n清除筛选",
-        "controller": "http://127.0.0.1:50227/supplier_offline_sw.js",
+        "controller": "http://127.0.0.1:59917/supplier_offline_sw.js",
         "registrations": [
           {
-            "scope": "http://127.0.0.1:50227/",
-            "active": "http://127.0.0.1:50227/supplier_offline_sw.js"
+            "scope": "http://127.0.0.1:59917/",
+            "active": "http://127.0.0.1:59917/supplier_offline_sw.js"
           }
         ],
         "caches": [
-          "supplier-offline-http%3A%2F%2F127.0.0.1%3A50227%2F-0d3cf656dc9f064abeec2dc49512528267374820c3d96b111e287dd16ffb6f39"
+          "supplier-offline-http%3A%2F%2F127.0.0.1%3A59917%2F-9fab67dd2d189a797bdc52c5c13f7f114937cf388a876fdeb0fc5b4806de0902"
         ],
         "resources": [
           {
-            "name": "http://127.0.0.1:50227/flutter_bootstrap.js",
+            "name": "http://127.0.0.1:59917/flutter_bootstrap.js",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/manifest.json",
+            "name": "http://127.0.0.1:59917/manifest.json",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/favicon.png",
+            "name": "http://127.0.0.1:59917/favicon.png",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/supplier_platform.js",
+            "name": "http://127.0.0.1:59917/icons/Icon-192.png",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/canvaskit/chromium/canvaskit.wasm",
+            "name": "http://127.0.0.1:59917/supplier_platform.js",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/canvaskit/chromium/canvaskit.js",
+            "name": "http://127.0.0.1:59917/canvaskit/chromium/canvaskit.wasm",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/main.dart.js",
+            "name": "http://127.0.0.1:59917/canvaskit/chromium/canvaskit.js",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/icons/Icon-192.png",
+            "name": "http://127.0.0.1:59917/main.dart.js",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/assets/FontManifest.json",
+            "name": "http://127.0.0.1:59917/assets/FontManifest.json",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/assets/fonts/MaterialIcons-Regular.otf",
+            "name": "http://127.0.0.1:59917/assets/fonts/MaterialIcons-Regular.otf",
             "transferSize": 0
           },
           {
-            "name": "https://fonts.gstatic.com/s/roboto/v32/KFOmCnqEu92Fr1Me4GZLCzYlKw.woff2",
-            "transferSize": 63764
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.118.woff2",
-            "transferSize": 25080
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.117.woff2",
-            "transferSize": 28252
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.116.woff2",
-            "transferSize": 28516
-          },
-          {
-            "name": "http://127.0.0.1:50227/drift_worker.js",
+            "name": "http://127.0.0.1:59917/fonts/NotoSansSC.ttf",
             "transferSize": 0
           },
           {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.119.woff2",
-            "transferSize": 41688
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.115.woff2",
-            "transferSize": 30356
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.113.woff2",
-            "transferSize": 31344
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.107.woff2",
-            "transferSize": 32764
+            "name": "http://127.0.0.1:59917/drift_worker.js",
+            "transferSize": 0
           }
         ]
       },
       "close": {
-        "pid": 13559,
+        "pid": 57570,
         "exitCode": 0,
         "method": "CDP Browser.close"
       },
-      "restart_pid": 13784,
+      "restart_pid": 57856,
       "navigation": {
-        "frameId": "4D0D051DFA67BD6E2D1B8D2DD57B75D6",
-        "loaderId": "13DDD4280EF9B18EDEF82C232D294E9A",
+        "frameId": "BFE5885C1AE69D9FE27FDE7D3D07B7FE",
+        "loaderId": "D012E3F31BD8713FC7AB3C92B4224964",
         "isDownload": false
       },
       "offline": {
-        "url": "http://127.0.0.1:50227/",
+        "url": "http://127.0.0.1:59917/",
         "text": "供应商与询价\n新增报价\n查询与比价\n搜索\n没有符合条件的记录\n新建记录或导入业务 Excel 后即可查询。\n清除筛选",
-        "controller": "http://127.0.0.1:50227/supplier_offline_sw.js",
+        "controller": "http://127.0.0.1:59917/supplier_offline_sw.js",
         "registrations": [
           {
-            "scope": "http://127.0.0.1:50227/",
-            "active": "http://127.0.0.1:50227/supplier_offline_sw.js"
+            "scope": "http://127.0.0.1:59917/",
+            "active": "http://127.0.0.1:59917/supplier_offline_sw.js"
           }
         ],
         "caches": [
-          "supplier-offline-http%3A%2F%2F127.0.0.1%3A50227%2F-0d3cf656dc9f064abeec2dc49512528267374820c3d96b111e287dd16ffb6f39"
+          "supplier-offline-http%3A%2F%2F127.0.0.1%3A59917%2F-9fab67dd2d189a797bdc52c5c13f7f114937cf388a876fdeb0fc5b4806de0902"
         ],
         "resources": [
           {
-            "name": "http://127.0.0.1:50227/flutter_bootstrap.js",
+            "name": "http://127.0.0.1:59917/flutter_bootstrap.js",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/manifest.json",
+            "name": "http://127.0.0.1:59917/manifest.json",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/supplier_platform.js",
+            "name": "http://127.0.0.1:59917/supplier_platform.js",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/icons/Icon-192.png",
+            "name": "http://127.0.0.1:59917/icons/Icon-192.png",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/canvaskit/chromium/canvaskit.wasm",
+            "name": "http://127.0.0.1:59917/canvaskit/chromium/canvaskit.wasm",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/canvaskit/chromium/canvaskit.js",
+            "name": "http://127.0.0.1:59917/canvaskit/chromium/canvaskit.js",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/main.dart.js",
+            "name": "http://127.0.0.1:59917/main.dart.js",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/assets/FontManifest.json",
+            "name": "http://127.0.0.1:59917/assets/FontManifest.json",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/assets/fonts/MaterialIcons-Regular.otf",
+            "name": "http://127.0.0.1:59917/assets/fonts/MaterialIcons-Regular.otf",
             "transferSize": 0
           },
           {
-            "name": "https://fonts.gstatic.com/s/roboto/v32/KFOmCnqEu92Fr1Me4GZLCzYlKw.woff2",
+            "name": "http://127.0.0.1:59917/fonts/NotoSansSC.ttf",
             "transferSize": 0
           },
           {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.118.woff2",
-            "transferSize": 0
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.117.woff2",
-            "transferSize": 0
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.116.woff2",
-            "transferSize": 0
-          },
-          {
-            "name": "http://127.0.0.1:50227/drift_worker.js",
-            "transferSize": 0
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.119.woff2",
-            "transferSize": 0
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.115.woff2",
-            "transferSize": 0
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.113.woff2",
-            "transferSize": 0
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.107.woff2",
+            "name": "http://127.0.0.1:59917/drift_worker.js",
             "transferSize": 0
           }
         ]
       },
       "status": "PASS",
       "offline_without_http_cache": {
-        "url": "http://127.0.0.1:50227/",
+        "url": "http://127.0.0.1:59917/",
         "text": "供应商与询价\n新增报价\n查询与比价\n搜索\n没有符合条件的记录\n新建记录或导入业务 Excel 后即可查询。\n清除筛选",
-        "controller": "http://127.0.0.1:50227/supplier_offline_sw.js",
+        "controller": "http://127.0.0.1:59917/supplier_offline_sw.js",
         "registrations": [
           {
-            "scope": "http://127.0.0.1:50227/",
-            "active": "http://127.0.0.1:50227/supplier_offline_sw.js"
+            "scope": "http://127.0.0.1:59917/",
+            "active": "http://127.0.0.1:59917/supplier_offline_sw.js"
           }
         ],
         "caches": [
-          "supplier-offline-http%3A%2F%2F127.0.0.1%3A50227%2F-0d3cf656dc9f064abeec2dc49512528267374820c3d96b111e287dd16ffb6f39"
+          "supplier-offline-http%3A%2F%2F127.0.0.1%3A59917%2F-9fab67dd2d189a797bdc52c5c13f7f114937cf388a876fdeb0fc5b4806de0902"
         ],
         "resources": [
           {
-            "name": "http://127.0.0.1:50227/flutter_bootstrap.js",
+            "name": "http://127.0.0.1:59917/flutter_bootstrap.js",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/manifest.json",
+            "name": "http://127.0.0.1:59917/manifest.json",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/favicon.png",
+            "name": "http://127.0.0.1:59917/favicon.png",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/supplier_platform.js",
+            "name": "http://127.0.0.1:59917/supplier_platform.js",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/icons/Icon-192.png",
+            "name": "http://127.0.0.1:59917/canvaskit/chromium/canvaskit.wasm",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/canvaskit/chromium/canvaskit.wasm",
+            "name": "http://127.0.0.1:59917/canvaskit/chromium/canvaskit.js",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/canvaskit/chromium/canvaskit.js",
+            "name": "http://127.0.0.1:59917/main.dart.js",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/main.dart.js",
+            "name": "http://127.0.0.1:59917/icons/Icon-192.png",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/assets/FontManifest.json",
+            "name": "http://127.0.0.1:59917/assets/FontManifest.json",
             "transferSize": 0
           },
           {
-            "name": "http://127.0.0.1:50227/assets/fonts/MaterialIcons-Regular.otf",
+            "name": "http://127.0.0.1:59917/assets/fonts/MaterialIcons-Regular.otf",
             "transferSize": 0
           },
           {
-            "name": "https://fonts.gstatic.com/s/roboto/v32/KFOmCnqEu92Fr1Me4GZLCzYlKw.woff2",
+            "name": "http://127.0.0.1:59917/fonts/NotoSansSC.ttf",
             "transferSize": 0
           },
           {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.118.woff2",
-            "transferSize": 0
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.114.woff2",
-            "transferSize": 0
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.117.woff2",
-            "transferSize": 0
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.116.woff2",
-            "transferSize": 0
-          },
-          {
-            "name": "http://127.0.0.1:50227/drift_worker.js",
-            "transferSize": 0
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.119.woff2",
-            "transferSize": 0
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.115.woff2",
-            "transferSize": 0
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.113.woff2",
-            "transferSize": 0
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.107.woff2",
-            "transferSize": 0
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.118.woff2",
-            "transferSize": 0
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.114.woff2",
-            "transferSize": 0
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.117.woff2",
-            "transferSize": 0
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.116.woff2",
-            "transferSize": 0
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.119.woff2",
-            "transferSize": 0
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.115.woff2",
-            "transferSize": 0
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.113.woff2",
-            "transferSize": 0
-          },
-          {
-            "name": "https://fonts.gstatic.com/s/notosanssc/v37/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FnYkldv7JjxkkgFsFSSOPMOkySAZ73y9ViAt3acb8NexQ2w.107.woff2",
+            "name": "http://127.0.0.1:59917/drift_worker.js",
             "transferSize": 0
           }
         ]
@@ -453,6 +322,9 @@
         "favicon.png",
         "flutter.js",
         "flutter_bootstrap.js",
+        "fonts/NotoSansSC.ttf",
+        "fonts/OFL.txt",
+        "fonts/README.md",
         "icons/Icon-192.png",
         "icons/Icon-512.png",
         "icons/Icon-maskable-192.png",
@@ -467,11 +339,12 @@
         "supplier_offline_sw.js",
         "supplier_offline_sw.js",
         "supplier_offline_sw.js",
+        "supplier_offline_sw.js",
         "supplier_offline_sw.js"
       ]
     },
     "worker-bytes": {
-      "pid": 13970,
+      "pid": 57981,
       "browser": {
         "protocolVersion": "1.3",
         "product": "Chrome/153.0.8010.53",
@@ -480,51 +353,51 @@
         "jsVersion": "15.3.76.13"
       },
       "online": {
-        "url": "http://127.0.0.1:50227/",
+        "url": "http://127.0.0.1:59917/",
         "text": "应用资源未准备完成，请联网后重新打开。现有本地数据未被修改。",
         "controller": null,
         "registrations": [],
         "caches": [],
         "resources": [
           {
-            "name": "http://127.0.0.1:50227/flutter_bootstrap.js",
-            "transferSize": 15930
+            "name": "http://127.0.0.1:59917/flutter_bootstrap.js",
+            "transferSize": 15961
           },
           {
-            "name": "http://127.0.0.1:50227/manifest.json",
+            "name": "http://127.0.0.1:59917/manifest.json",
             "transferSize": 1220
           },
           {
-            "name": "http://127.0.0.1:50227/favicon.png",
+            "name": "http://127.0.0.1:59917/favicon.png",
             "transferSize": 1217
           },
           {
-            "name": "http://127.0.0.1:50227/icons/Icon-192.png",
+            "name": "http://127.0.0.1:59917/icons/Icon-192.png",
             "transferSize": 5592
           }
         ]
       },
       "settled": {
-        "url": "http://127.0.0.1:50227/",
+        "url": "http://127.0.0.1:59917/",
         "text": "应用资源未准备完成，请联网后重新打开。现有本地数据未被修改。",
         "controller": null,
         "registrations": [],
         "caches": [],
         "resources": [
           {
-            "name": "http://127.0.0.1:50227/flutter_bootstrap.js",
-            "transferSize": 15930
+            "name": "http://127.0.0.1:59917/flutter_bootstrap.js",
+            "transferSize": 15961
           },
           {
-            "name": "http://127.0.0.1:50227/manifest.json",
+            "name": "http://127.0.0.1:59917/manifest.json",
             "transferSize": 1220
           },
           {
-            "name": "http://127.0.0.1:50227/favicon.png",
+            "name": "http://127.0.0.1:59917/favicon.png",
             "transferSize": 1217
           },
           {
-            "name": "http://127.0.0.1:50227/icons/Icon-192.png",
+            "name": "http://127.0.0.1:59917/icons/Icon-192.png",
             "transferSize": 5592
           }
         ]
@@ -570,7 +443,7 @@
       ]
     },
     "invalid-wasm": {
-      "pid": 14062,
+      "pid": 58075,
       "browser": {
         "protocolVersion": "1.3",
         "product": "Chrome/153.0.8010.53",
@@ -579,51 +452,51 @@
         "jsVersion": "15.3.76.13"
       },
       "online": {
-        "url": "http://127.0.0.1:50227/",
+        "url": "http://127.0.0.1:59917/",
         "text": "应用资源未准备完成，请联网后重新打开。现有本地数据未被修改。",
         "controller": null,
         "registrations": [],
         "caches": [],
         "resources": [
           {
-            "name": "http://127.0.0.1:50227/flutter_bootstrap.js",
-            "transferSize": 15930
+            "name": "http://127.0.0.1:59917/flutter_bootstrap.js",
+            "transferSize": 15961
           },
           {
-            "name": "http://127.0.0.1:50227/manifest.json",
+            "name": "http://127.0.0.1:59917/manifest.json",
             "transferSize": 1220
           },
           {
-            "name": "http://127.0.0.1:50227/favicon.png",
+            "name": "http://127.0.0.1:59917/favicon.png",
             "transferSize": 1217
           },
           {
-            "name": "http://127.0.0.1:50227/icons/Icon-192.png",
+            "name": "http://127.0.0.1:59917/icons/Icon-192.png",
             "transferSize": 5592
           }
         ]
       },
       "settled": {
-        "url": "http://127.0.0.1:50227/",
+        "url": "http://127.0.0.1:59917/",
         "text": "应用资源未准备完成，请联网后重新打开。现有本地数据未被修改。",
         "controller": null,
         "registrations": [],
         "caches": [],
         "resources": [
           {
-            "name": "http://127.0.0.1:50227/flutter_bootstrap.js",
-            "transferSize": 15930
+            "name": "http://127.0.0.1:59917/flutter_bootstrap.js",
+            "transferSize": 15961
           },
           {
-            "name": "http://127.0.0.1:50227/manifest.json",
+            "name": "http://127.0.0.1:59917/manifest.json",
             "transferSize": 1220
           },
           {
-            "name": "http://127.0.0.1:50227/favicon.png",
+            "name": "http://127.0.0.1:59917/favicon.png",
             "transferSize": 1217
           },
           {
-            "name": "http://127.0.0.1:50227/icons/Icon-192.png",
+            "name": "http://127.0.0.1:59917/icons/Icon-192.png",
             "transferSize": 5592
           }
         ]
@@ -667,6 +540,9 @@
         "favicon.png",
         "flutter.js",
         "flutter_bootstrap.js",
+        "fonts/NotoSansSC.ttf",
+        "fonts/OFL.txt",
+        "fonts/README.md",
         "icons/Icon-192.png",
         "icons/Icon-512.png",
         "icons/Icon-maskable-192.png",

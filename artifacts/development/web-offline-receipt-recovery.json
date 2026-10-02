@@ -1,82 +1,84 @@
 {
   "status": "PASS",
-  "run_id": "e080a6c0d2c7401cba156d9ba440b650",
+  "run_id": "7dd90af7222f4d18b4a6e718bf9dc80e",
   "scope": "same-origin old/new tabs and rejected then valid update; compatible worker change",
   "old_release": "9fab67dd2d189a797bdc52c5c13f7f114937cf388a876fdeb0fc5b4806de0902",
   "new_release": "3a153fb780dc2950284e0bc8b023e757afc165298a4f1018c30cacb13719d70f",
   "initial_ui": {
-    "url": "http://127.0.0.1:60666/",
+    "url": "http://127.0.0.1:60351/",
     "text": "供应商与询价\n新增报价\n查询与比价 Tab 1 of 4\n供应商 Tab 2 of 4\n产品 Tab 3 of 4\n导入导出/备份 Tab 4 of 4\n查询与比价\n搜索",
-    "controller": "http://127.0.0.1:60666/supplier_offline_sw.js",
+    "controller": "http://127.0.0.1:60351/supplier_offline_sw.js",
     "registrations": [
       {
-        "scope": "http://127.0.0.1:60666/",
-        "active": "http://127.0.0.1:60666/supplier_offline_sw.js"
+        "scope": "http://127.0.0.1:60351/",
+        "active": "http://127.0.0.1:60351/supplier_offline_sw.js"
       }
     ],
     "caches": [
-      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60666%2F-9fab67dd2d189a797bdc52c5c13f7f114937cf388a876fdeb0fc5b4806de0902"
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60351%2F-9fab67dd2d189a797bdc52c5c13f7f114937cf388a876fdeb0fc5b4806de0902"
     ],
     "resources": [
       {
-        "name": "http://127.0.0.1:60666/flutter_bootstrap.js",
+        "name": "http://127.0.0.1:60351/flutter_bootstrap.js",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/manifest.json",
+        "name": "http://127.0.0.1:60351/manifest.json",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/favicon.png",
+        "name": "http://127.0.0.1:60351/favicon.png",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/icons/Icon-192.png",
+        "name": "http://127.0.0.1:60351/icons/Icon-192.png",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/supplier_platform.js",
+        "name": "http://127.0.0.1:60351/supplier_platform.js",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/canvaskit/chromium/canvaskit.wasm",
+        "name": "http://127.0.0.1:60351/canvaskit/chromium/canvaskit.wasm",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/canvaskit/chromium/canvaskit.js",
+        "name": "http://127.0.0.1:60351/canvaskit/chromium/canvaskit.js",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/main.dart.js",
+        "name": "http://127.0.0.1:60351/main.dart.js",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/assets/FontManifest.json",
+        "name": "http://127.0.0.1:60351/assets/FontManifest.json",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/assets/fonts/MaterialIcons-Regular.otf",
+        "name": "http://127.0.0.1:60351/assets/fonts/MaterialIcons-Regular.otf",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/fonts/NotoSansSC.ttf",
+        "name": "http://127.0.0.1:60351/fonts/NotoSansSC.ttf",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/drift_worker.js",
+        "name": "http://127.0.0.1:60351/drift_worker.js",
         "transferSize": 0
       }
     ]
   },
   "business_import": {
-    "receipt": "fcd967652256a3f3447cde108bfe270c032f72d7ab51c489",
-    "text": "导入已提交。成功回执：fcd967652256a3f3447cde108bfe270c032f72d7ab51c489\nBack\n导入业务 Excel\n导入结果\n所有行均需明确决定。确认汇总后才写入；导入前会创建并校验完整备份。\n导入已提交。成功回执：fcd967652256a3f3447cde108bfe270c032f72d7ab51c489\n分页查看提交结果（3 个修订）",
+    "receipt": "9090acbe29897419ed5d95ce2232e703b8c1fb6332472ce6",
+    "text": "导入已提交。成功回执：9090acbe29897419ed5d95ce2232e703b8c1fb6332472ce6\nBack\n导入业务 Excel\n导入结果\n所有行均需明确决定。确认汇总后才写入；导入前会创建并校验完整备份。\n导入已提交。成功回执：9090acbe29897419ed5d95ce2232e703b8c1fb6332472ce6\n分页查看提交结果（3 个修订）",
     "backups": {
-      "supplier-inquiry-v2-backups/ee110c27-3166-4926-899f-a9980f044183.logical": {
+      "supplier-inquiry-v2-backups/ed359c6b-8bab-438a-b245-3babdf310764.logical": {
         "bytes": 444,
-        "sha256": "42e88185044dce895d77fb4d677fcf0433fd4e7f2fc8bcab54e2728a4020b7ce"
+        "sha256": "8981652db60eeb48c005813a559de94f7cedaf42cd27eea027807f6b8607f812"
       }
-    }
+    },
+    "job_id": "eb09ba45d95c80e939f274f7a26aaafcc7ba8ed6e3ee9f1b",
+    "history": "1594 字节 · 基线 generation 0\n任务 eb09ba45d95c80e939f274f7a26aaafcc7ba8ed6e3ee9f1b\n源摘要 9f03ab2e4e4ed10b55fc81916170041b5d2645df129195f70ca6d054f87ac104"
   },
   "business_before_upgrade": "供应商与询价\n新增报价\n查询与比价 Tab 1 of 4\n供应商 Tab 2 of 4\n产品 Tab 3 of 4\n导入导出/备份 Tab 4 of 4\n查询与比价\n界面验收产品\n界面验收供应商\nCNY 32.123456\n正常\n上一页\n第 1 页 · 本页 1 条\n搜索\n下一页",
   "initial": {
@@ -93,7 +95,7 @@
     },
     "waiting": null,
     "caches": [
-      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60666%2F-9fab67dd2d189a797bdc52c5c13f7f114937cf388a876fdeb0fc5b4806de0902"
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60351%2F-9fab67dd2d189a797bdc52c5c13f7f114937cf388a876fdeb0fc5b4806de0902"
     ]
   },
   "evicted_offline_status": 503,
@@ -112,7 +114,7 @@
     },
     "waiting": null,
     "caches": [
-      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60666%2F-9fab67dd2d189a797bdc52c5c13f7f114937cf388a876fdeb0fc5b4806de0902"
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60351%2F-9fab67dd2d189a797bdc52c5c13f7f114937cf388a876fdeb0fc5b4806de0902"
     ]
   },
   "rejected_update": {
@@ -133,7 +135,7 @@
     },
     "waiting": null,
     "caches": [
-      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60666%2F-9fab67dd2d189a797bdc52c5c13f7f114937cf388a876fdeb0fc5b4806de0902",
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60351%2F-9fab67dd2d189a797bdc52c5c13f7f114937cf388a876fdeb0fc5b4806de0902",
       "supplier-offline-other-deployment-sentinel"
     ]
   },
@@ -151,69 +153,69 @@
     },
     "waiting": "installed",
     "caches": [
-      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60666%2F-9fab67dd2d189a797bdc52c5c13f7f114937cf388a876fdeb0fc5b4806de0902",
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60351%2F-9fab67dd2d189a797bdc52c5c13f7f114937cf388a876fdeb0fc5b4806de0902",
       "supplier-offline-other-deployment-sentinel",
-      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60666%2F-3a153fb780dc2950284e0bc8b023e757afc165298a4f1018c30cacb13719d70f"
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60351%2F-3a153fb780dc2950284e0bc8b023e757afc165298a4f1018c30cacb13719d70f"
     ]
   },
   "second_tab_ui": {
-    "url": "http://127.0.0.1:60666/",
+    "url": "http://127.0.0.1:60351/",
     "text": "供应商与询价\n新增报价\n查询与比价\n搜索\n界面验收产品 界面验收供应商 CNY 32.123456 正常\n上一页\n第 1 页 · 本页 1 条\n下一页",
-    "controller": "http://127.0.0.1:60666/supplier_offline_sw.js",
+    "controller": "http://127.0.0.1:60351/supplier_offline_sw.js",
     "registrations": [
       {
-        "scope": "http://127.0.0.1:60666/",
-        "active": "http://127.0.0.1:60666/supplier_offline_sw.js"
+        "scope": "http://127.0.0.1:60351/",
+        "active": "http://127.0.0.1:60351/supplier_offline_sw.js"
       }
     ],
     "caches": [
-      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60666%2F-9fab67dd2d189a797bdc52c5c13f7f114937cf388a876fdeb0fc5b4806de0902",
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60351%2F-9fab67dd2d189a797bdc52c5c13f7f114937cf388a876fdeb0fc5b4806de0902",
       "supplier-offline-other-deployment-sentinel",
-      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60666%2F-3a153fb780dc2950284e0bc8b023e757afc165298a4f1018c30cacb13719d70f"
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60351%2F-3a153fb780dc2950284e0bc8b023e757afc165298a4f1018c30cacb13719d70f"
     ],
     "resources": [
       {
-        "name": "http://127.0.0.1:60666/flutter_bootstrap.js",
+        "name": "http://127.0.0.1:60351/flutter_bootstrap.js",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/manifest.json",
+        "name": "http://127.0.0.1:60351/manifest.json",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/supplier_platform.js",
+        "name": "http://127.0.0.1:60351/supplier_platform.js",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/icons/Icon-192.png",
+        "name": "http://127.0.0.1:60351/canvaskit/chromium/canvaskit.wasm",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/canvaskit/chromium/canvaskit.wasm",
+        "name": "http://127.0.0.1:60351/canvaskit/chromium/canvaskit.js",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/canvaskit/chromium/canvaskit.js",
+        "name": "http://127.0.0.1:60351/main.dart.js",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/main.dart.js",
+        "name": "http://127.0.0.1:60351/icons/Icon-192.png",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/assets/FontManifest.json",
+        "name": "http://127.0.0.1:60351/assets/FontManifest.json",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/assets/fonts/MaterialIcons-Regular.otf",
+        "name": "http://127.0.0.1:60351/assets/fonts/MaterialIcons-Regular.otf",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/fonts/NotoSansSC.ttf",
+        "name": "http://127.0.0.1:60351/fonts/NotoSansSC.ttf",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/drift_worker.js",
+        "name": "http://127.0.0.1:60351/drift_worker.js",
         "transferSize": 0
       }
     ]
@@ -233,73 +235,73 @@
     },
     "waiting": "installed",
     "caches": [
-      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60666%2F-9fab67dd2d189a797bdc52c5c13f7f114937cf388a876fdeb0fc5b4806de0902",
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60351%2F-9fab67dd2d189a797bdc52c5c13f7f114937cf388a876fdeb0fc5b4806de0902",
       "supplier-offline-other-deployment-sentinel",
-      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60666%2F-3a153fb780dc2950284e0bc8b023e757afc165298a4f1018c30cacb13719d70f"
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60351%2F-3a153fb780dc2950284e0bc8b023e757afc165298a4f1018c30cacb13719d70f"
     ]
   },
   "close": {
-    "pid": 59583,
+    "pid": 58305,
     "exitCode": 0,
     "method": "CDP Browser.close"
   },
   "after_all_clients_closed_ui": {
-    "url": "http://127.0.0.1:60666/",
+    "url": "http://127.0.0.1:60351/",
     "text": "供应商与询价\n新增报价\n查询与比价\n搜索\n界面验收产品 界面验收供应商 CNY 32.123456 正常\n上一页\n第 1 页 · 本页 1 条\n下一页",
-    "controller": "http://127.0.0.1:60666/supplier_offline_sw.js",
+    "controller": "http://127.0.0.1:60351/supplier_offline_sw.js",
     "registrations": [
       {
-        "scope": "http://127.0.0.1:60666/",
-        "active": "http://127.0.0.1:60666/supplier_offline_sw.js"
+        "scope": "http://127.0.0.1:60351/",
+        "active": "http://127.0.0.1:60351/supplier_offline_sw.js"
       }
     ],
     "caches": [
       "supplier-offline-other-deployment-sentinel",
-      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60666%2F-3a153fb780dc2950284e0bc8b023e757afc165298a4f1018c30cacb13719d70f"
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60351%2F-3a153fb780dc2950284e0bc8b023e757afc165298a4f1018c30cacb13719d70f"
     ],
     "resources": [
       {
-        "name": "http://127.0.0.1:60666/flutter_bootstrap.js",
+        "name": "http://127.0.0.1:60351/flutter_bootstrap.js",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/manifest.json",
+        "name": "http://127.0.0.1:60351/manifest.json",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/supplier_platform.js",
+        "name": "http://127.0.0.1:60351/icons/Icon-192.png",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/canvaskit/chromium/canvaskit.wasm",
+        "name": "http://127.0.0.1:60351/supplier_platform.js",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/canvaskit/chromium/canvaskit.js",
+        "name": "http://127.0.0.1:60351/canvaskit/chromium/canvaskit.wasm",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/main.dart.js",
+        "name": "http://127.0.0.1:60351/canvaskit/chromium/canvaskit.js",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/icons/Icon-192.png",
+        "name": "http://127.0.0.1:60351/main.dart.js",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/assets/FontManifest.json",
+        "name": "http://127.0.0.1:60351/assets/FontManifest.json",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/assets/fonts/MaterialIcons-Regular.otf",
+        "name": "http://127.0.0.1:60351/assets/fonts/MaterialIcons-Regular.otf",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/fonts/NotoSansSC.ttf",
+        "name": "http://127.0.0.1:60351/fonts/NotoSansSC.ttf",
         "transferSize": 0
       },
       {
-        "name": "http://127.0.0.1:60666/drift_worker.js",
+        "name": "http://127.0.0.1:60351/drift_worker.js",
         "transferSize": 0
       }
     ]
@@ -320,22 +322,23 @@
     "waiting": null,
     "caches": [
       "supplier-offline-other-deployment-sentinel",
-      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60666%2F-3a153fb780dc2950284e0bc8b023e757afc165298a4f1018c30cacb13719d70f"
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A60351%2F-3a153fb780dc2950284e0bc8b023e757afc165298a4f1018c30cacb13719d70f"
     ]
   },
   "preserved_opfs_marker": "A14 persistent marker",
   "backups_after_upgrade": {
-    "supplier-inquiry-v2-backups/ee110c27-3166-4926-899f-a9980f044183.logical": {
+    "supplier-inquiry-v2-backups/ed359c6b-8bab-438a-b245-3babdf310764.logical": {
       "bytes": 444,
-      "sha256": "42e88185044dce895d77fb4d677fcf0433fd4e7f2fc8bcab54e2728a4020b7ce"
+      "sha256": "8981652db60eeb48c005813a559de94f7cedaf42cd27eea027807f6b8607f812"
     }
   },
+  "receipt_after_upgrade": "任务已提交，恢复原回执：9090acbe29897419ed5d95ce2232e703b8c1fb6332472ce6\nBack\n导入业务 Excel\n导入结果\n所有行均需明确决定。确认汇总后才写入；导入前会创建并校验完整备份。\n任务已提交，恢复原回执：9090acbe29897419ed5d95ce2232e703b8c1fb6332472ce6\n分页查看提交结果（3 个修订）",
   "business_offline": "供应商与询价\n新增报价\n查询与比价\n搜索\n界面验收产品 界面验收供应商 CNY 32.123456 正常\n上一页\n第 1 页 · 本页 1 条\n下一页",
   "backups_offline": {
-    "supplier-inquiry-v2-backups/ee110c27-3166-4926-899f-a9980f044183.logical": {
+    "supplier-inquiry-v2-backups/ed359c6b-8bab-438a-b245-3babdf310764.logical": {
       "bytes": 444,
-      "sha256": "42e88185044dce895d77fb4d677fcf0433fd4e7f2fc8bcab54e2728a4020b7ce"
+      "sha256": "8981652db60eeb48c005813a559de94f7cedaf42cd27eea027807f6b8607f812"
     }
   },
-  "receipt_recovery": "NOT_VERIFIED: see web-offline-receipt-gap.json; record and backup persistence are asserted separately"
+  "receipt_offline": "任务已提交，恢复原回执：9090acbe29897419ed5d95ce2232e703b8c1fb6332472ce6\nBack\n导入业务 Excel\n导入结果\n所有行均需明确决定。确认汇总后才写入；导入前会创建并校验完整备份。\n任务已提交，恢复原回执：9090acbe29897419ed5d95ce2232e703b8c1fb6332472ce6\n分页查看提交结果（3 个修订）"
 }

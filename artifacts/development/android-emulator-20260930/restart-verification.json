@@ -1,0 +1,18 @@
+{
+  "date": "2026-09-30",
+  "device": "emulator-5554",
+  "android_api": 36,
+  "normal_apk_installed": true,
+  "force_stop_and_relaunch": true,
+  "application_directory": "/data/user/0/com.supplierinquiry.supplier_app/files",
+  "sqlite_quick_check": "ok",
+  "price": "12.340001",
+  "project_number": "000123-ANDROID-E2E",
+  "supplier_id": "13f6f199-13fb-491b-8425-9eadef8f1f8b",
+  "product_id": "849cd7ab-d007-4308-8290-db6b2c57d7c7",
+  "quotation_id": "51d30f85-d511-47b8-8777-13a7539fb179",
+  "revision_counts": {"supplier": 1, "product": 1, "quotation": 1},
+  "quotation_visible_after_restart": true,
+  "emulator_system_anr_observed": true,
+  "real_device_verified": false
+}

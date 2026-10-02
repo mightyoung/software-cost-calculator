@@ -1,0 +1,71 @@
+{
+  "status": "FAIL",
+  "scope": "same-origin old/new tabs and rejected then valid update; compatible worker change",
+  "old_release": "0b30e879f99a738efe81b56eac9857ef644d81d8ae005ab067c376fbafb15cbb",
+  "new_release": "7a1c130a5dd340a355eeb24099c743d70b544dff2056f9a7b611e069492af50f",
+  "initial_ui": {
+    "url": "http://127.0.0.1:52838/",
+    "text": "供应商与询价\n新增报价\n查询与比价 Tab 1 of 4\n供应商 Tab 2 of 4\n产品 Tab 3 of 4\n导入导出/备份 Tab 4 of 4\n查询与比价\n没有符合条件的记录\n新建记录或导入业务 Excel 后即可查询。\n清除筛选\n搜索",
+    "controller": "http://127.0.0.1:52838/supplier_offline_sw.js",
+    "registrations": [
+      {
+        "scope": "http://127.0.0.1:52838/",
+        "active": "http://127.0.0.1:52838/supplier_offline_sw.js"
+      }
+    ],
+    "caches": [
+      "supplier-offline-http%3A%2F%2F127.0.0.1%3A52838%2F-0b30e879f99a738efe81b56eac9857ef644d81d8ae005ab067c376fbafb15cbb"
+    ],
+    "resources": [
+      {
+        "name": "http://127.0.0.1:52838/flutter_bootstrap.js",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:52838/manifest.json",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:52838/favicon.png",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:52838/icons/Icon-192.png",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:52838/supplier_platform.js",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:52838/canvaskit/chromium/canvaskit.wasm",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:52838/canvaskit/chromium/canvaskit.js",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:52838/main.dart.js",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:52838/assets/FontManifest.json",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:52838/assets/fonts/MaterialIcons-Regular.otf",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:52838/fonts/NotoSansSC.ttf",
+        "transferSize": 0
+      },
+      {
+        "name": "http://127.0.0.1:52838/drift_worker.js",
+        "transferSize": 0
+      }
+    ]
+  },
+  "error": "UI timeout: 已完成; Back\n文件任务记录\n刷新"
+}

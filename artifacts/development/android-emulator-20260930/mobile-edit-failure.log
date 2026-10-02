@@ -1,0 +1,45 @@
+00:00 +0: loading /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/integration_test/android_mobile_workflows_test.dart
+Running Gradle task 'assembleDebug'...                          
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by net.rubygrapefruit.platform.internal.NativeLibraryLoader in an unnamed module (file:/Users/muyi/.gradle/wrapper/dists/gradle-9.3.1-all/9ot9r568e8zfvvd4mn8rbu1j0/gradle-9.3.1/lib/native-platform-0.22-milestone-29.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+Running Gradle task 'assembleDebug'...                             17.6s
+✓ Built build/app/outputs/flutter-apk/app-debug.apk
+Installing build/app/outputs/flutter-apk/app-debug.apk...           6.9s
+00:00 +0: Android resolves its real persistent application directory
+00:00 +1: native workspace UI survives reopen and publishes readable Excel and backup
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+setState() callback argument returned a Future.
+The setState() method on _RecordDetailPageState#e6d6e was called with a closure or method that
+returned a Future. Maybe it is marked as "async".
+Instead of performing asynchronous work inside a call to setState(), first execute the work (without
+updating the widget state), and then synchronously update the state inside a call to setState().
+
+When the exception was thrown, this was the stack:
+#0      State.setState.<anonymous closure> (package:flutter/src/widgets/framework.dart:1204:9)
+#1      State.setState (package:flutter/src/widgets/framework.dart:1220:6)
+#2      _RecordDetailPageState._edit (package:supplier_app/features/query/records_page.dart:491:7)
+<asynchronous suspension>
+
+The test description was:
+  native workspace UI survives reopen and publishes readable Excel and backup
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:27 +1 -1: native workspace UI survives reopen and publishes readable Excel and backup [E]
+  Test failed. See exception logs above.
+  The test description was: native workspace UI survives reopen and publishes readable Excel and backup
+  
+  'package:flutter_test/src/binding.dart': Failed assertion: line 3081 pos 12: '!_expectingFrame': is not true.
+  dart:core                                                                                                              _AssertionError._throwNew
+  package:flutter_test/src/binding.dart 3081:12                                                                          LiveTestWidgetsFlutterBinding.postTest
+  ===== asynchronous gap ===========================
+  package:stream_channel                                                                                                 _GuaranteeSink.add
+  var/folders/q0/177qc3b540l1_dg0ng0r3xn40000gn/T/flutter_tools.li95Y3/flutter_test_listener.pS6YM9/listener.dart 56:22  main.<fn>
+  
+00:27 +1 -1: (tearDownAll)
+00:30 +1 -1: Some tests failed.
+
+Failing tests:
+  /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/integration_test/android_mobile_workflows_test.dart: native workspace UI survives reopen and publishes readable Excel and backup

@@ -1,0 +1,183 @@
+00:00 +0: loading /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/local_workflows_test.dart
+00:00 +0: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/restore_workflow_test.dart: preview and explicit confirmation precede activation, close and reopen
+00:00 +1: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/restore_workflow_test.dart: cancel does not activate or close existing workspace
+00:00 +2: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/restore_workflow_test.dart: failed activation reports failure and returns recovered host for replacement
+00:00 +3: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/restore_workflow_test.dart: reopen failure after activation is never successful completion
+00:00 +4: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/restore_workflow_test.dart: native adapter restores real backup only after confirmation and keeps safety backup
+00:00 +5: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/restore_workflow_test.dart: native adapter restores real backup only after confirmation and keeps safety backup
+00:00 +6: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/restore_workflow_test.dart: native adapter restores real backup only after confirmation and keeps safety backup
+00:01 +7: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/restore_workflow_test.dart: native adapter restores real backup only after confirmation and keeps safety backup
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/restore_workflow_test.dart:132:18)
+<asynchronous suspension>
+#7      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#8      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#9      Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:83:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/restore_workflow_test.dart:132:18)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#11     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:01 +8: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/restore_workflow_test.dart: native adapter restores real backup only after confirmation and keeps safety backup
+00:01 +9: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/restore_workflow_test.dart: native adapter restores real backup only after confirmation and keeps safety backup
+00:01 +10: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/restore_workflow_test.dart: native adapter restores real backup only after confirmation and keeps safety backup
+00:01 +11: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/restore_workflow_test.dart: native adapter restores real backup only after confirmation and keeps safety backup
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore.prepareRestore (package:supplier_app/platform/native_restore.dart:62:19)
+<asynchronous suspension>
+#5      nativeRestoreWorkflow.<anonymous closure> (package:supplier_app/platform/native_restore_workflow.dart:21:25)
+<asynchronous suspension>
+#6      RestoreWorkflow.prepare (package:supplier_app/platform/restore_workflow.dart:71:22)
+<asynchronous suspension>
+#7      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/restore_workflow_test.dart:163:24)
+<asynchronous suspension>
+#8      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#10     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:02 +12: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/restore_workflow_test.dart: native adapter restores real backup only after confirmation and keeps safety backup
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._finishActivation (package:supplier_app/platform/native_restore.dart:289:18)
+<asynchronous suspension>
+#5      NativeRestore.activateRestore.<anonymous closure> (package:supplier_app/platform/native_restore.dart:174:5)
+<asynchronous suspension>
+#6      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#7      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#8      RestoreWorkflow.confirmAndActivate (package:supplier_app/platform/restore_workflow.dart:97:7)
+<asynchronous suspension>
+#9      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/restore_workflow_test.dart:170:16)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#11     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#12     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeRestore._finishActivation (package:supplier_app/platform/native_restore.dart:338:16)
+<asynchronous suspension>
+#5      NativeRestore.activateRestore.<anonymous closure> (package:supplier_app/platform/native_restore.dart:174:5)
+<asynchronous suspension>
+#6      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#7      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#8      RestoreWorkflow.confirmAndActivate (package:supplier_app/platform/restore_workflow.dart:97:7)
+<asynchronous suspension>
+#9      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/restore_workflow_test.dart:170:16)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#11     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#12     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class _InstallationDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _InstallationDatabase (package:supplier_app/platform/native_database_host.dart:387:38)
+#4      new NativeDatabaseHost._ (package:supplier_app/platform/native_database_host.dart:22:19)
+#5      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:41:37)
+<asynchronous suspension>
+#6      RestoreWorkflow.confirmAndActivate (package:supplier_app/platform/restore_workflow.dart:118:25)
+<asynchronous suspension>
+#7      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/restore_workflow_test.dart:170:16)
+<asynchronous suspension>
+#8      Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#9      Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#10     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+WARNING (drift): It looks like you've created the database class SupplierDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new SupplierDatabase (package:supplier_core/src/data/database.dart)
+#4      NativeDatabaseHost.open.<anonymous closure> (package:supplier_app/platform/native_database_host.dart:112:23)
+<asynchronous suspension>
+#5      withApplicationWriteContext.<anonymous closure> (package:supplier_core/src/contracts.dart:74:12)
+<asynchronous suspension>
+#6      NativeApplicationWriteLock.run (package:supplier_app/platform/native_file_ports.dart:193:14)
+<asynchronous suspension>
+#7      NativeDatabaseHost.open (package:supplier_app/platform/native_database_host.dart:44:7)
+<asynchronous suspension>
+#8      RestoreWorkflow.confirmAndActivate (package:supplier_app/platform/restore_workflow.dart:118:25)
+<asynchronous suspension>
+#9      main.<anonymous closure> (file:///Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/restore_workflow_test.dart:170:16)
+<asynchronous suspension>
+#10     Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:15)
+<asynchronous suspension>
+#11     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:11)
+<asynchronous suspension>
+#12     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:9)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+00:02 +13: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/local_workflows_test.dart: full quote form preserves decimal and identifiers and saves through workspace
+00:02 +14: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/local_workflows_test.dart: narrow viewport steps and controls stay reachable with scaled text
+00:03 +15: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/local_workflows_test.dart: failed reads are errors and retry preserves query and pagination
+00:03 +16: /Users/muyi/Downloads/dev/software-cost-calculator/apps/supplier_app/test/local_workflows_test.dart: file actions distinguish cancellation and failure from success
+00:03 +17: All tests passed!

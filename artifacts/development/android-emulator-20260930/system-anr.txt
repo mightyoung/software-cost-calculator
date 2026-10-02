@@ -1,0 +1,20 @@
+ACTIVITY MANAGER LAST ANR (dumpsys activity lastanr)
+  ANR time: Sep 30, 2026 7:21:49 PM
+  Reason: Input dispatching timed out ([Gesture Monitor] edge-swipe is not responding. Waited 8790ms for MotionEvent).
+
+
+  ResumedActivity: ActivityRecord{6630811 u0 com.google.android.apps.nexuslauncher/.NexusLauncherActivity t6}
+  LockTaskController:
+    mLockTaskModeState=NONE
+    mLockTaskModeTasks=
+    mLockTaskPackages (userId:packages)=
+
+  KeyguardController:
+    mKeyguardShowing=false
+    mAodShowing=false
+    mKeyguardGoingAway=false
+   KeyguardShowing=false AodShowing=false KeyguardGoingAway=false DismissalRequested=false  Occluded=false DismissingKeyguardActivity=null TurnScreenOnActivity=null at display=0
+    mDismissalRequested=false
+
+-------------------------------------------------------------------------------
+
