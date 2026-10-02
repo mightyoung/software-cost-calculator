@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:drift/drift.dart' show driftRuntimeOptions;
@@ -139,6 +140,41 @@ class CleanupOutput implements OutputTarget {
   Future<void> abort() async {
     aborts++;
     throw StateError('target-abort');
+  }
+}
+
+/// Pauses after the frozen backup exists, before the real candidate is built.
+class SnapshotBarrierResources implements BundleWorkResources {
+  SnapshotBarrierResources(this.inner);
+  final BundleWorkResources inner;
+  final frozen = Completer<void>();
+  final resume = Completer<void>();
+  SupplierDatabase? snapshot;
+  int? snapshotGeneration;
+
+  @override
+  ApplicationWriteLock get lock => inner.lock;
+  @override
+  Future<SupplierDatabase> database() async {
+    if (snapshot == null) {
+      frozen.complete();
+      await resume.future;
+      return snapshot = await inner.database();
+    }
+    return inner.database();
+  }
+
+  @override
+  Future<XlsxStaging> xlsx() => inner.xlsx();
+  @override
+  Future<BackupArtifact> artifact() => inner.artifact();
+  @override
+  Future<void> dispose() async {
+    try {
+      snapshotGeneration = (await snapshot?.currentVersion())?.generation;
+    } finally {
+      await inner.dispose();
+    }
   }
 }
 
@@ -323,6 +359,78 @@ void main() {
           .where((file) => file.path.endsWith('.backup'))
           .toList();
       expect(backups, hasLength(1));
+    },
+  );
+
+  test(
+    'host export keeps frozen snapshot while source commits a write',
+    () async {
+      await source.records.createEntity('supplier', supplier('冻结供应商一'));
+      await source.records.createEntity('supplier', supplier('冻结供应商二'));
+      final frozenVersion = await source.readActiveVersion();
+      final frozenRows = (await source.database.rows(
+        'SELECT revision_id,canonical FROM revision ORDER BY revision_id',
+      )).map((row) => row.data).toList();
+      final native = workflow(source);
+      final baseline = await native.exportTo(
+        Directory('${directory.path}/baseline'),
+      );
+      final resources = SnapshotBarrierResources(
+        await native.createResources(),
+      );
+      final flow = BundleWorkflow(
+        exchange: native.exchange,
+        backups: native.backups,
+        budget: budget,
+        createResources: () async => resources,
+      );
+      final file = File('${directory.path}/concurrent.bundle.zip');
+      final exporting = flow.export(
+        PrivateFileOutput(
+          temporary: File('${file.path}.pending'),
+          destination: file,
+        ),
+      );
+      late BundleManifest manifest;
+      try {
+        await resources.frozen.future.timeout(const Duration(seconds: 10));
+        // Export is still pending, but its backup must have released the source
+        // lock. This write must finish before candidate reconstruction resumes.
+        await source.records
+            .createEntity('supplier', supplier('冻结后新增'))
+            .timeout(const Duration(seconds: 10));
+        expect(
+          (await source.readActiveVersion()).generation,
+          frozenVersion.generation + 1,
+        );
+        expect(
+          await source.database.rows('SELECT * FROM revision'),
+          hasLength(3),
+        );
+      } finally {
+        resources.resume.complete();
+        manifest = await exporting;
+      }
+      expect(resources.snapshotGeneration, frozenVersion.generation);
+      expect(manifest.revisionCount, 2);
+      expect(manifest.entityCounts, baseline.manifest.entityCounts);
+      expect(manifest.revisionsDigest, baseline.manifest.revisionsDigest);
+      expect(manifest.businessDigest, baseline.manifest.businessDigest);
+      final importing = workflow(target);
+      final preview = await importing.preparePath(file.path);
+      expect(preview.revisionCount, 2);
+      await importing.commit(preview);
+      expect(
+        (await target.database.rows(
+          'SELECT revision_id,canonical FROM revision ORDER BY revision_id',
+        )).map((row) => row.data).toList(),
+        frozenRows,
+      );
+      expect(await File('${file.path}.pending').exists(), isFalse);
+      expect(
+        await Directory('${source.directory.path}/bundle-work').list().toList(),
+        isEmpty,
+      );
     },
   );
 

@@ -77,6 +77,7 @@ class _BusinessImportPageState extends State<BusinessImportPage> {
   List<BusinessRowPreview> _rows = [];
   final _decisions = <int, Map<String, Object?>?>{},
       _raw = <int, List<StagedXlsxCell>>{};
+  final _previous = <int, ImportReceiptPage>{};
   final _cursors = <int>[];
   int _after = 1;
   BusinessImportSummary? _summary;
@@ -193,13 +194,34 @@ class _BusinessImportPageState extends State<BusinessImportPage> {
     _rows = await _session!.workflow.previewPage(afterRow: _after, limit: 10);
     _decisions.clear();
     _raw.clear();
+    _previous.clear();
     for (final row in _rows) {
       _decisions[row.mapped.row] = await _session!.workflow.decisionForRow(
         row.mapped.row,
       );
       _raw[row.mapped.row] = await _session!.cells(row.mapped.row);
+      if (row.previous != null) _previous[row.mapped.row] = row.previous!;
     }
   }
+
+  Future<void> _morePrevious(BusinessRowPreview row) => _run(() async {
+    final current = _previous[row.mapped.row] ?? row.previous;
+    final cursor = current?.nextCursor;
+    if (cursor == null || row.mapped.source == null) return;
+    final next = await widget.adapter.exchange.lookupSource(
+      _session!.jobId,
+      row.mapped.source!,
+      after: cursor,
+      limit: 50,
+    );
+    if (!mounted) return;
+    setState(() {
+      _previous[row.mapped.row] = ImportReceiptPage([
+        ...current!.items,
+        ...next.items,
+      ], next.nextCursor);
+    });
+  });
 
   Future<void> _resumeTask() => _run(() async {
     _session = await widget.adapter.resume(_resume.text.trim());
@@ -667,7 +689,7 @@ class _BusinessImportPageState extends State<BusinessImportPage> {
                       '导出基线：${_value(row.exportBaseline!.payload)}',
                     ),
                   for (final previous
-                      in row.previous?.items ??
+                      in (_previous[row.mapped.row] ?? row.previous)?.items ??
                           <SuccessfulImportOperation>[]) ...[
                     SelectableText(
                       '原成功选择：${previous.legacyDetailsUnknown ? '旧回执未记录操作详情' : previous.operationCanonical}\n原目标：${previous.originalTargetId} · 事件：${previous.eventId}',
@@ -679,6 +701,12 @@ class _BusinessImportPageState extends State<BusinessImportPage> {
                       child: const Text('分页查看原结果'),
                     ),
                   ],
+                  if ((_previous[row.mapped.row] ?? row.previous)?.nextCursor !=
+                      null)
+                    TextButton(
+                      onPressed: _busy ? null : () => _morePrevious(row),
+                      child: const Text('加载更多原成功选择'),
+                    ),
                   for (final group in row.candidates.entries)
                     Text(
                       '${businessFieldLabels['${group.key}_name']}候选：${group.value.map((c) => '${c.displayName}（${c.state}，${c.reasons.join('、')}）').join('；')}',

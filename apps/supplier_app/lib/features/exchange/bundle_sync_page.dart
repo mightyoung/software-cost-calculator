@@ -27,13 +27,13 @@ class _BundleSyncPageState extends State<BundleSyncPage> {
 
   Future<String?> _path() async {
     if (!widget.actions.importNeedsPath) return null;
-    final controller = TextEditingController();
+    var enteredPath = '';
     final result = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('选择完整同步包'),
         content: TextField(
-          controller: controller,
+          onChanged: (value) => enteredPath = value,
           autofocus: true,
           decoration: const InputDecoration(
             labelText: '同步包完整路径',
@@ -46,13 +46,12 @@ class _BundleSyncPageState extends State<BundleSyncPage> {
             child: const Text('取消'),
           ),
           FilledButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            onPressed: () => Navigator.pop(context, enteredPath.trim()),
             child: const Text('读取并验证'),
           ),
         ],
       ),
     );
-    controller.dispose();
     return result;
   }
 

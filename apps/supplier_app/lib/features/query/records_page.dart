@@ -488,7 +488,10 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
       ),
     );
     if (saved == true && mounted) {
-      setState(() => _record = widget.workspace.read(record.type, record.id));
+      final refreshed = widget.workspace.read(record.type, record.id);
+      setState(() {
+        _record = refreshed;
+      });
     }
   }
 

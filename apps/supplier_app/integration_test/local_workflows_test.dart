@@ -16,7 +16,21 @@ import 'package:supplier_core/supplier_core.dart';
 /// UI and native adapters; it does not verify a packaged desktop application.
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  registerLocalWorkflow();
+}
 
+/// Shares the real persistence/export checks with the Android mobile runner.
+/// The original desktop viewport and workflow remain the default.
+void registerLocalWorkflow({
+  bool mobile = false,
+  Future<CoreSupplierWorkspace> Function(
+    WidgetTester tester,
+    CoreSupplierWorkspace workspace,
+    Directory directory,
+    File backup,
+  )?
+  afterBackup,
+}) {
   testWidgets(
     'native workspace UI survives reopen and publishes readable Excel and backup',
     (tester) async {
@@ -24,7 +38,9 @@ void main() {
         'supplier-local-workflow-',
       );
       CoreSupplierWorkspace? workspace;
-      tester.view.physicalSize = const Size(1280, 1000);
+      tester.view.physicalSize = mobile
+          ? const Size(390, 844)
+          : const Size(1280, 1000);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
@@ -33,6 +49,7 @@ void main() {
         workspace = await openNativeSupplierWorkspace(directory);
         await tester.pumpWidget(SupplierApp(workspace: workspace));
         await _waitFor(tester, find.text('没有符合条件的记录'));
+        if (mobile) expect(find.byType(NavigationBar), findsOneWidget);
 
         // Create both related entities through their real production forms.
         await tester.tap(find.byIcon(Icons.store_outlined));
@@ -67,9 +84,21 @@ void main() {
         await tester.pumpAndSettle();
         await _fill(tester, 'price', '12.340001');
         await _fill(tester, 'quoted_on', '2026-09-21');
+        if (mobile) {
+          expect(find.text('第 1 步，共 3 步'), findsOneWidget);
+          await tester.tap(find.text('下一步'));
+          await tester.pumpAndSettle();
+          expect(find.text('第 2 步，共 3 步'), findsOneWidget);
+        }
         await _fill(tester, 'project_number', '000123-A');
         await _fill(tester, 'inquirer_name', '周工');
         await _fill(tester, 'inquiry_date', '2026-09-20');
+        if (mobile) {
+          await tester.tap(find.text('下一步'));
+          await tester.pumpAndSettle();
+          expect(find.text('第 3 步，共 3 步'), findsOneWidget);
+          await _fill(tester, 'notes', 'Android 手机端完整流程');
+        }
         await tester.tap(find.text('保存'));
         await _waitFor(tester, find.byIcon(Icons.manage_search));
 
@@ -125,6 +154,10 @@ void main() {
 
         await tester.tap(find.byIcon(Icons.import_export));
         await tester.pumpAndSettle();
+        await tester.scrollUntilVisible(
+          find.widgetWithText(OutlinedButton, '导出业务 Excel'),
+          180,
+        );
         await tester.tap(find.widgetWithText(OutlinedButton, '导出业务 Excel'));
         await _waitFor(tester, find.textContaining('业务表已生成并回读校验'));
         final exported = await _singleFile(directory, 'exports', '.xlsx');
@@ -190,6 +223,9 @@ void main() {
           _version(after),
           reason: 'Export and backup must not modify the business generation.',
         );
+        if (afterBackup != null) {
+          workspace = await afterBackup(tester, workspace, directory, backup);
+        }
         expect(tester.takeException(), isNull);
       } finally {
         await tester.pumpWidget(const SizedBox.shrink());
@@ -198,7 +234,7 @@ void main() {
         await directory.delete(recursive: true);
       }
     },
-    timeout: const Timeout(Duration(minutes: 2)),
+    timeout: const Timeout(Duration(minutes: 5)),
   );
 }
 

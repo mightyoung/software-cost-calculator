@@ -75,13 +75,13 @@ class _ExchangePageState extends State<ExchangePage> {
   Future<void> _restore() async {
     String? sourcePath;
     if (widget.workspace.restoreNeedsPath) {
-      final controller = TextEditingController();
+      var enteredPath = '';
       sourcePath = await showDialog<String>(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('选择完整备份'),
           content: TextField(
-            controller: controller,
+            onChanged: (value) => enteredPath = value,
             autofocus: true,
             decoration: const InputDecoration(
               labelText: '备份文件路径',
@@ -94,13 +94,12 @@ class _ExchangePageState extends State<ExchangePage> {
               child: const Text('取消'),
             ),
             FilledButton(
-              onPressed: () => Navigator.pop(context, controller.text.trim()),
+              onPressed: () => Navigator.pop(context, enteredPath.trim()),
               child: const Text('读取并验证'),
             ),
           ],
         ),
       );
-      controller.dispose();
       if (sourcePath == null || sourcePath.isEmpty) return;
     }
     setState(() {
