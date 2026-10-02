@@ -36,6 +36,23 @@ final class GraphRevision {
   final String id;
   final RevisionEnvelope envelope;
   GraphEntity get entity => GraphEntity(envelope.entityType, envelope.entityId);
+  Iterable<GraphEntity> get references sync* {
+    final payload = envelope.payload;
+    if (envelope.kind == 'redirect') {
+      yield GraphEntity(envelope.entityType, payload['target_id']! as String);
+    } else if (envelope.kind == 'put') {
+      if (envelope.entityType == 'contact' ||
+          envelope.entityType == 'quotation') {
+        yield GraphEntity('supplier', payload['supplier_id']! as String);
+      }
+      if (envelope.entityType == 'quotation') {
+        yield GraphEntity('product', payload['product_id']! as String);
+        if (payload['contact_id'] != null) {
+          yield GraphEntity('contact', payload['contact_id']! as String);
+        }
+      }
+    }
+  }
 }
 
 final class GraphHeadSummary {
@@ -149,6 +166,31 @@ abstract interface class GraphWorkspace {
   Future<(GraphEntity, GraphRelationStatus)?> takeAnomaly();
 }
 
+/// Optional storage-side frontier optimization with the same graph semantics.
+abstract interface class BatchedGraphWorkspace {
+  /// Atomically process a bounded ready frontier, propagate standard ancestry,
+  /// release every outgoing edge exactly once and record terminal heads.
+  Future<({int processed, int heads})> processReadyBatch(int limit);
+}
+
+/// Optional bounded initialization of already canonical-verified source rows.
+abstract interface class PagedGraphWorkspace {
+  Future<void> initializePage(List<GraphRevision> rows);
+}
+
+/// Optional terminal-only path. Enable only when no current redirect edge
+/// exists anywhere in the run; historical redirects do not prevent its use.
+abstract interface class TerminalGraphWorkspace {
+  Future<bool> supportsTerminalPages();
+  Future<void> resolveTerminalPage(List<GraphEntity> entities);
+}
+
+/// Optional bounded relation lookup for the final validator sweep.
+abstract interface class PagedRelationGraphWorkspace {
+  /// Results correspond to [entities] in order; null denotes a missing result.
+  Future<List<GraphRelation?>> relationsPage(List<GraphEntity> entities);
+}
+
 /// Diagnostic output only: does not extend ValidatedChangeSet, authorize writes,
 /// select conflict winners, or install a production RecordService.
 final class GraphValidationReport {
@@ -164,23 +206,31 @@ final class GraphValidationReport {
 }
 
 final class RevisionGraphValidator {
-  RevisionGraphValidator({this.pageSize = 500}) {
+  RevisionGraphValidator({this.pageSize = 500, this.onPhase}) {
     if (pageSize < 1 || pageSize > 5000) {
       throw ArgumentError.value(pageSize, 'pageSize');
     }
   }
   final int pageSize;
+  final void Function(String phase)? onPhase;
 
   Future<GraphValidationReport> validate(GraphWorkspace work) async {
     // Binding precedes reset and every source read; never replace it at end.
     try {
       final binding = await work.currentBinding();
       await work.resetWork(binding);
+      onPhase?.call('reset_complete');
       var revisions = 0, entities = 0, heads = 0, anomalous = 0;
       String? cursor;
       do {
         final page = await work.readRevisions(after: cursor, limit: pageSize);
         _checkPage(page, cursor);
+        if (work is PagedGraphWorkspace) {
+          await (work as PagedGraphWorkspace).initializePage(page.items);
+          revisions += page.items.length;
+          cursor = page.nextCursor;
+          continue;
+        }
         for (final row in page.items) {
           revisions++;
           final envelope = row.envelope;
@@ -197,7 +247,7 @@ final class RevisionGraphValidator {
               _fail('graph_parent_entity', parentId);
             }
           }
-          for (final reference in _references(row)) {
+          for (final reference in row.references) {
             if (!await work.hasEntity(reference)) {
               _fail(
                 'graph_missing_reference',
@@ -209,9 +259,19 @@ final class RevisionGraphValidator {
         }
         cursor = page.nextCursor;
       } while (cursor != null);
+      onPhase?.call('initialization_complete');
 
       var processed = 0;
       while (true) {
+        if (work is BatchedGraphWorkspace) {
+          final batch = await (work as BatchedGraphWorkspace).processReadyBatch(
+            pageSize,
+          );
+          if (batch.processed == 0) break;
+          processed += batch.processed;
+          heads += batch.heads;
+          continue;
+        }
         final id = await work.takeReady();
         if (id == null) break;
         processed++;
@@ -238,11 +298,23 @@ final class RevisionGraphValidator {
       if (processed != revisions) {
         _fail('graph_cycle', 'Unprocessed revisions: ${revisions - processed}');
       }
+      onPhase?.call('topology_complete');
 
+      final terminal =
+          work is TerminalGraphWorkspace &&
+          await (work as TerminalGraphWorkspace).supportsTerminalPages();
       cursor = null;
       do {
         final page = await work.readEntities(after: cursor, limit: pageSize);
         _checkPage(page, cursor);
+        if (terminal) {
+          await (work as TerminalGraphWorkspace).resolveTerminalPage(
+            page.items,
+          );
+          entities += page.items.length;
+          cursor = page.nextCursor;
+          continue;
+        }
         for (final entity in page.items) {
           entities++;
           final result = await _resolve(work, entity, 'walk-$entities');
@@ -252,6 +324,7 @@ final class RevisionGraphValidator {
         }
         cursor = page.nextCursor;
       } while (cursor != null);
+      onPhase?.call('relations_complete');
       while (true) {
         final pending = await work.takeAnomaly();
         if (pending == null) break;
@@ -269,12 +342,23 @@ final class RevisionGraphValidator {
           cursor = page.nextCursor;
         } while (cursor != null);
       }
+      onPhase?.call('anomalies_complete');
       cursor = null;
       do {
         final page = await work.readEntities(after: cursor, limit: pageSize);
         _checkPage(page, cursor);
-        for (final entity in page.items) {
-          final relation = await work.relation(entity);
+        final relations = work is PagedRelationGraphWorkspace
+            ? await (work as PagedRelationGraphWorkspace).relationsPage(
+                page.items,
+              )
+            : null;
+        if (relations != null && relations.length != page.items.length) {
+          _fail('graph_workspace_contract', 'Relation page size differs');
+        }
+        for (var i = 0; i < page.items.length; i++) {
+          final relation = relations == null
+              ? await work.relation(page.items[i])
+              : relations[i];
           if (relation == null) {
             _fail('graph_workspace_contract', 'Missing relation result');
           }
@@ -282,6 +366,7 @@ final class RevisionGraphValidator {
         }
         cursor = page.nextCursor;
       } while (cursor != null);
+      onPhase?.call('summary_complete');
       if (!binding.sameAs(await work.currentBinding())) {
         _fail(
           'graph_stale_binding',
@@ -368,25 +453,6 @@ final class RevisionGraphValidator {
     }
     await work.finishWalk(marker, result);
     return result;
-  }
-
-  Iterable<GraphEntity> _references(GraphRevision row) sync* {
-    final envelope = row.envelope;
-    final payload = envelope.payload;
-    if (envelope.kind == 'redirect') {
-      yield GraphEntity(envelope.entityType, payload['target_id']! as String);
-    } else if (envelope.kind == 'put') {
-      if (envelope.entityType == 'contact' ||
-          envelope.entityType == 'quotation') {
-        yield GraphEntity('supplier', payload['supplier_id']! as String);
-      }
-      if (envelope.entityType == 'quotation') {
-        yield GraphEntity('product', payload['product_id']! as String);
-        if (payload['contact_id'] != null) {
-          yield GraphEntity('contact', payload['contact_id']! as String);
-        }
-      }
-    }
   }
 
   bool _isAnomalous(GraphRelationStatus status) =>

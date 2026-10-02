@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart';
+
 import 'canonical.dart';
 import 'quotation.dart';
 import 'values.dart';
@@ -139,9 +141,15 @@ final class RevisionEnvelope {
   final String authoredAt;
   final String originDeviceId;
   int get protocol => 2;
-  String get canonical => canonicalJson(toJson());
-  Uint8List get canonicalBytes => canonicalUtf8(toJson());
-  String get revisionId => canonicalSha256(toJson());
+  // All envelope data is frozen before either cache is evaluated. Retain only
+  // the string and digest; callers receive their own mutable UTF-8 buffer.
+  late final String _canonical = canonicalJson(toJson());
+  late final String _revisionId = sha256
+      .convert(utf8.encode(_canonical))
+      .toString();
+  String get canonical => _canonical;
+  Uint8List get canonicalBytes => Uint8List.fromList(utf8.encode(_canonical));
+  String get revisionId => _revisionId;
 
   Map<String, Object?> toJson() => {
     'protocol': protocol,

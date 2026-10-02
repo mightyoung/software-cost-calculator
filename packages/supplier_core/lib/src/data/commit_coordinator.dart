@@ -31,7 +31,9 @@ class CommitCoordinator implements TransactionPort {
     required this.writeLock,
     required this.readActiveVersion,
     this.pageSize = 500,
+    this.installPageSize,
     this.fault,
+    this.graphPhaseObserver,
   });
   final SupplierDatabase database;
   final ApplicationWriteLock writeLock;
@@ -40,7 +42,14 @@ class CommitCoordinator implements TransactionPort {
   /// transaction. The lock prevents pointer activation for this entire operation.
   final Future<DatabaseVersion> Function() readActiveVersion;
   final int pageSize;
+
+  /// Optional independent bound for installing validated staged revisions.
+  /// Keeping this separate lets large imports reduce install round trips
+  /// without changing graph-validation or projection page sizes.
+  final int? installPageSize;
+
   final CommitFault? fault;
+  final void Function(String phase)? graphPhaseObserver;
 
   @override
   Future<CommitReceipt> commitStaged({
@@ -51,6 +60,7 @@ class CommitCoordinator implements TransactionPort {
   }) async {
     context?.requireHeld(writeLock);
     checkLimit(pageSize);
+    if (installPageSize != null) checkLimit(installPageSize!);
     Future<CommitReceipt> commit() async {
       final active = await readActiveVersion();
       final expected = expectedPreviewToken;
@@ -80,11 +90,15 @@ class CommitCoordinator implements TransactionPort {
         database,
         jobId: jobId,
         runId: newStorageId(),
+        phaseObserver: graphPhaseObserver,
       );
       late final _ValidatedStage proof;
       try {
         final report = await database.transaction(
-          () => RevisionGraphValidator(pageSize: pageSize).validate(work),
+          () => RevisionGraphValidator(
+            pageSize: pageSize,
+            onPhase: graphPhaseObserver,
+          ).validate(work),
         );
         proof = _ValidatedStage(expected, report, 1);
       } catch (primary, primaryStack) {
@@ -172,46 +186,65 @@ class CommitCoordinator implements TransactionPort {
           );
           var count = 0;
           String? cursor;
+          Future<void> installEdgesAndResults(List<String> args) async {
+            const range = 's.job_id=? AND s.revision_id>? AND s.revision_id<=?';
+            await database.customStatement(
+              'INSERT INTO revision_parent SELECT s.revision_id,p.value '
+              "FROM staging_revision s,json_each(s.canonical,'\$.parents') p "
+              'WHERE $range ORDER BY s.revision_id,p.key '
+              'ON CONFLICT(child_id,parent_id) DO NOTHING',
+              args,
+            );
+            await database.customStatement(
+              'INSERT INTO receipt_result SELECT ?,s.revision_id '
+              'FROM staging_revision s WHERE $range ORDER BY s.revision_id',
+              [confirmationEventId, ...args],
+            );
+          }
+
           do {
             final page = await database.stagingPage(
               jobId,
               after: cursor,
-              limit: pageSize,
+              limit: installPageSize ?? pageSize,
             );
-            for (final envelope in page.items) {
-              final existing = await database.findRevision(envelope.revisionId);
-              if (existing != null &&
-                  existing.canonical != envelope.canonical) {
+            if (page.items.isNotEmpty) {
+              // stagingPage above parses every canonical envelope. Use the same
+              // sealed, bounded range for all writes inside this transaction.
+              const range =
+                  's.job_id=? AND s.revision_id>? AND s.revision_id<=?';
+              final args = [jobId, cursor ?? '', page.items.last.revisionId];
+              final collision = await database.rows(
+                'SELECT 1 FROM staging_revision s JOIN revision r '
+                'ON r.revision_id=s.revision_id WHERE $range '
+                'AND r.canonical<>s.canonical LIMIT 1',
+                args.map(Variable.new).toList(),
+              );
+              if (collision.isNotEmpty) {
                 throw const DomainFailure(
                   'revision_collision',
                   'Revision ID collision',
                 );
               }
               await database.customStatement(
-                'INSERT INTO entity_identity VALUES(?,?) ON CONFLICT(entity_type,entity_id) DO NOTHING',
-                [envelope.entityType, envelope.entityId],
+                'INSERT INTO entity_identity SELECT '
+                "json_extract(s.canonical,'\$.entity_type'),"
+                "json_extract(s.canonical,'\$.entity_id') "
+                'FROM staging_revision s WHERE $range ORDER BY s.revision_id '
+                'ON CONFLICT(entity_type,entity_id) DO NOTHING',
+                args,
               );
               await database.customStatement(
-                'INSERT INTO revision VALUES(?,?,?,?) ON CONFLICT(revision_id) DO NOTHING',
-                [
-                  envelope.revisionId,
-                  envelope.entityType,
-                  envelope.entityId,
-                  envelope.canonical,
-                ],
+                'INSERT INTO revision SELECT s.revision_id,'
+                "json_extract(s.canonical,'\$.entity_type'),"
+                "json_extract(s.canonical,'\$.entity_id'),s.canonical "
+                'FROM staging_revision s WHERE $range ORDER BY s.revision_id '
+                'ON CONFLICT(revision_id) DO NOTHING',
+                args,
               );
-              for (final parent in envelope.parents) {
-                await database.customStatement(
-                  'INSERT INTO revision_parent VALUES(?,?) ON CONFLICT(child_id,parent_id) DO NOTHING',
-                  [envelope.revisionId, parent],
-                );
-              }
-              await database.customStatement(
-                'INSERT INTO receipt_result VALUES(?,?)',
-                [confirmationEventId, envelope.revisionId],
-              );
-              count++;
+              await installEdgesAndResults(args);
             }
+            count += page.items.length;
             cursor = page.nextCursor;
             await fault?.call('page:$count');
           } while (cursor != null);
@@ -221,7 +254,9 @@ class CommitCoordinator implements TransactionPort {
               confirmationEventId,
             );
           }
+          graphPhaseObserver?.call('projection_install_start');
           await _installGraphProjections(database, work, pageSize: pageSize);
+          graphPhaseObserver?.call('projection_install_complete');
           // Explicit check handles deferred edges before metadata/receipt changes;
           // SQLite also rechecks deferred FKs at COMMIT.
           if ((await database.rows('PRAGMA foreign_key_check')).isNotEmpty) {
@@ -230,6 +265,7 @@ class CommitCoordinator implements TransactionPort {
               'Revision closure is structurally incomplete',
             );
           }
+          graphPhaseObserver?.call('foreign_key_check_complete');
           await database.customStatement(
             'UPDATE database_meta SET generation=generation+1 WHERE singleton=1',
           );

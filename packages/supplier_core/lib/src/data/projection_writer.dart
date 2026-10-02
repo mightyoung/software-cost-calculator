@@ -82,16 +82,15 @@ Future<void> _installGraphProjections(
           ],
         );
         for (final row in rows) {
-          final current = (await work.findRevision(
-            row.read<String>('revision_id'),
-          ))!;
+          final revisionId = row.read<String>('revision_id');
+          final reuseHead = head != null && head.id == revisionId;
+          final current = reuseHead
+              ? head
+              : (await work.findRevision(revisionId))!;
           if (entity.type == 'quotation') {
-            final values = await _projectionFields(
-              work,
-              entity,
-              relation,
-              current,
-            );
+            final values = reuseHead
+                ? fields
+                : await _projectionFields(work, entity, relation, current);
             await db.customStatement(
               'INSERT INTO quotation_head_projection(${values.keys.join(',')}) VALUES(${List.filled(values.length, '?').join(',')})',
               values.values.toList(),
@@ -193,6 +192,9 @@ Future<Map<String, Object?>> _projectionFields(
       GraphEntity('contact', payload!['contact_id']! as String),
     ))?.canonical?.id;
   }
+  final quotation = entity.type == 'quotation' && payload != null
+      ? Quotation.fromJson(payload)
+      : null;
   final fields = <String, Object?>{
     'entity_id': entity.id,
     'entity_type': entity.type,
@@ -207,12 +209,8 @@ Future<Map<String, Object?>> _projectionFields(
     'canonical_contact_id': canonicalContact,
     'search_text': payload == null ? null : searchKey(jsonEncode(payload)),
     ...projectionSearchKeys(payload),
-    'missing_context_count': entity.type == 'quotation' && payload != null
-        ? Quotation.fromJson(payload).missingContext.length
-        : null,
-    'price_key': entity.type == 'quotation' && payload != null
-        ? Quotation.fromJson(payload).priceKey
-        : null,
+    'missing_context_count': quotation?.missingContext.length,
+    'price_key': quotation?.priceKey,
     for (final name in [
       'currency',
       'unit_snapshot',
@@ -234,8 +232,8 @@ Future<Map<String, Object?>> _projectionFields(
       'capture_mode',
     ])
       name: payload?[name],
-    'missing_context': entity.type == 'quotation' && payload != null
-        ? jsonEncode(Quotation.fromJson(payload).missingContext)
+    'missing_context': quotation != null
+        ? jsonEncode(quotation.missingContext)
         : null,
   };
   return fields;

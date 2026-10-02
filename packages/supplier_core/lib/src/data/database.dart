@@ -247,6 +247,7 @@ class SupplierDatabase extends GeneratedDatabase
         envelope.revisionId,
         envelope.canonical,
       ]);
+
   Future<ScanPage<RevisionEnvelope>> stagingPage(
     String jobId, {
     String? after,
