@@ -1,2 +1,7 @@
 .dart_tool/
 build/
+
+# Local secrets
+.env
+.env.*
+!.env.example
