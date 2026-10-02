@@ -182,6 +182,18 @@ extension MaterialImport on Store {
     return same.length == 1 ? same.single.id : null;
   }
 
+  /// The stored supplier equal to [name], if exactly one.
+  String? sameSupplierId(String name) => _sameOne(similarSuppliers(name));
+
+  /// The stored material equal to [p] (same specification too), if one.
+  String? sameProductId(Map<String, Object?> p) => _sameOne([
+    // A different specification is a different material.
+    for (final d in similarProducts(p))
+      if (normalizeKey(d.hit.data['specification'] as String?) ==
+          normalizeKey(p['specification'] as String?))
+        d,
+  ]);
+
   /// Creates suppliers, contacts, products and standard quotations for every
   /// choice in one transaction; optionally adds each material to the
   /// project's budget. Offers without a price or supplier create no
@@ -215,7 +227,7 @@ extension MaterialImport on Store {
           c.supplierId ??
           (o['supplier'] == null
               ? null
-              : _sameOne(similarSuppliers(o['supplier']!)) ??
+              : sameSupplierId(o['supplier']!) ??
                     newSuppliers.putIfAbsent(
                       companyKey(o['supplier']!),
                       () => save('supplier', {
@@ -227,13 +239,7 @@ extension MaterialImport on Store {
                     ));
       final productId =
           c.productId ??
-          _sameOne([
-            // A different specification is a different material.
-            for (final d in similarProducts(o))
-              if (normalizeKey(d.hit.data['specification'] as String?) ==
-                  normalizeKey(o['specification']))
-                d,
-          ]) ??
+          sameProductId(o) ??
           newProducts.putIfAbsent(
             [
               for (final k in ['name', 'brand', 'model', 'specification'])

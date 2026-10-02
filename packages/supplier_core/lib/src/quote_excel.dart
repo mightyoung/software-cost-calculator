@@ -190,24 +190,28 @@ extension QuoteExcel on Store {
       }
       final data = Map<String, Object?>.of(p.payload!);
       if (p.newSupplier case final name?) {
-        data['supplier_id'] = suppliers.putIfAbsent(
-          companyKey(name),
-          () => save('supplier', {
-            for (final f in Supplier.fields) f: null,
-            'name': name,
-            'aliases': <String>[],
-            'categories': <String>[],
-          }),
-        );
+        data['supplier_id'] =
+            sameSupplierId(name) ??
+            suppliers.putIfAbsent(
+              companyKey(name),
+              () => save('supplier', {
+                for (final f in Supplier.fields) f: null,
+                'name': name,
+                'aliases': <String>[],
+                'categories': <String>[],
+              }),
+            );
       }
       if (p.newProduct case final product?) {
-        data['product_id'] = products.putIfAbsent(
-          [
-            for (final k in ['name', 'brand', 'model', 'specification'])
-              normalizeKey(product[k] as String?),
-          ].join('|'),
-          () => save('product', product),
-        );
+        data['product_id'] =
+            sameProductId(product) ??
+            products.putIfAbsent(
+              [
+                for (final k in ['name', 'brand', 'model', 'specification'])
+                  normalizeKey(product[k] as String?),
+              ].join('|'),
+              () => save('product', product),
+            );
       }
       if (p.contact case final c?) {
         final id = matchOrCreateContact(
