@@ -83,7 +83,10 @@ void main() {
       includeContacts: true,
     );
     expect(
-      [for (final r in withContacts['records'] as List) (r as Map)['entity_type']],
+      [
+        for (final r in withContacts['records'] as List)
+          (r as Map)['entity_type'],
+      ],
       unorderedEquals(['supplier', 'contact']),
       reason: 'contacts only when asked for',
     );
@@ -109,6 +112,30 @@ void main() {
         revision: 0,
       ),
       throwsArgumentError,
+    );
+  });
+
+  test('product with source attachments is refused, not silently stripped', () {
+    final supplier = store.save('supplier', fixture.supplier('供应商'));
+    final attachment = store.addAttachment('来源.txt', [1]);
+    final product = store.save('product', {
+      ...fixture.product('设备'),
+      'source_attachment_ids': [attachment],
+    });
+    final project = store.save('project', fixture.project('P-1'));
+    final quote = store.save(
+      'quotation',
+      fixture.quotation(supplier, product, project, '1'),
+    );
+    expect(
+      () => buildHubPublication(
+        store,
+        type: 'quotation',
+        id: quote,
+        publicationId: '99999999-9999-4999-8999-999999999999',
+        revision: 1,
+      ),
+      throwsStateError,
     );
   });
 }

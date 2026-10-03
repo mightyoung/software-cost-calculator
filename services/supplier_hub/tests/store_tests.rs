@@ -283,6 +283,17 @@ fn closure_decimals_unknown_fields_and_roundtrip() {
         .insert("attachment_ids".into(), json!([Uuid::new_v4()]));
     assert!(draft.validate().is_err());
     draft.records[2].data.remove("attachment_ids");
+    // Product source attachments follow the same v1 rule: null is accepted,
+    // real attachments are rejected rather than silently dropped.
+    draft.records[1]
+        .data
+        .insert("source_attachment_ids".into(), json!(null));
+    draft.validate().unwrap();
+    draft.records[1]
+        .data
+        .insert("source_attachment_ids".into(), json!([Uuid::new_v4()]));
+    assert!(draft.validate().is_err());
+    draft.records[1].data.remove("source_attachment_ids");
     draft.records.remove(1);
     assert!(draft.validate().is_err());
 }
