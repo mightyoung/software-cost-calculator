@@ -418,6 +418,16 @@ impl RecordSnapshot {
                 }
             }
         }
+        if let Some(v) = self
+            .data
+            .get("source_attachment_ids")
+            .filter(|v| !v.is_null())
+            && v.as_array().is_none_or(|a| !a.is_empty())
+        {
+            return Err(invalid(
+                "v1 attachment transfer is unsupported; do not omit existing attachments",
+            ));
+        }
         for field in ["attributes", "unit_conversions"] {
             if let Some(v) = self.data.get(field).filter(|v| !v.is_null()) {
                 let m = v.as_object().ok_or_else(|| invalid("object required"))?;
